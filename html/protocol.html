@@ -1,388 +1,147 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<html><head><title>BitTorrent Community Forum - Protocol</title>
-
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"> 
-
-<link href="community.css" rel="stylesheet" type="text/css"></head>
-
-<body>
-<!-- LEFT STARTS -->
-<div align="left">
-  <div style="margin-left: 20px;">
-    <a href="http://www.bittorrent.org/index.html">
-      <span class="org"> bittorrent.org </span>
-      <!--<img src="images/bittorrent_lg.gif" alt="BitTorrent" border="0" height="54" width="153">-->
-    </a>
-    <!--<span class="title"> Community Forum </span>-->
-  </div>
-
-
-<!-- DOWNLINK STARTS -->
-<div style="margin-left:12px;">
-  <div id="downlinks"><a href="index.html">Home</a></div>
-  <div id="downlinks"><a href="introduction.html">For Users</a></div>
-  <div id="downunlink"><a href="developer.html">For Developers</a></div>
-  <div id="downlinks"><a href="donate.html">Donate!</a></div>
-  <div style="clear:left; background-color:#f0f0f0;height:5px;"><PRE></PRE>
-  </div>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+<title>BitTorrent.org » For Developers » Protocol Specification</title>
+<link rel="stylesheet" type="text/css" href="./css/screen.css" media="screen" />
+</head>
+<body id="www-bittorrent-org">
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="./index.html">BitTorrent<span>.org</span></a></h1>
 </div>
-
-<!-- DOWNLINK ENDS -->
-
-<!-- CONTENT STARTS -->
-	<div id="content" align="justify">
-<!--			<span class="welcome">Documentation: Protocol</span><br>
-                    <a href="http://www.bittorrent.com/guide.html">Guide</a> | <a href="http://www.bittorrent.com/protocol.html">Protocol</a> | <a href="http://www.bittorrent.com/bittorrentecon.pdf">Paper</a> <br>
--->
-                    <p>BitTorrent
-is a protocol for distributing files. It identifies content by URL and
-is designed to integrate seamlessly with the web. Its advantage over
-plain HTTP is that when multiple downloads of the same file happen
-concurrently, the downloaders upload to each other, making it possible
-for the file source to support very large numbers of downloaders with
-only a modest increase in its load. </p>
-                    <p class="header">A BitTorrent file distribution consists of these entities: </p>
-                    <ul>
-                      <li>An ordinary web server
-                      </li><li>A static 'metainfo' file
-                      </li><li>A BitTorrent tracker
-                      </li><li>An 'original' downloader
-                      </li><li>The end user web browsers
-                      </li><li>The end user downloaders </li>
-                    </ul>
-
-                    <p>There are ideally many end users for a single file. </p>
-                    <p class="header">To start serving, a host goes through the following steps: </p>
-                    <ol>
-                      <li>Start running a tracker (or, more likely, have one running already).
-                      </li><li>Start running an ordinary web server, such as apache, or have one already.
-                      </li><li>Associate the extension .torrent with mimetype application/x-bittorrent on their web server (or have done so already).
-                      </li><li>Generate a metainfo (.torrent) file using the complete file to be served and the URL of the tracker.
-                      </li><li>Put the metainfo file on the web server.
-                      </li><li>Link to the metainfo (.torrent) file from some other web page.
-                      </li><li>Start a downloader which already has the complete file (the 'origin'). </li>
-
-                    </ol>
-                    <p class="header">To start downloading, a user does the following: </p>
-                    <ol>
-                      <li>Install BitTorrent (or have done so already).
-                      </li><li>Surf the web.
-                      </li><li>Click on a link to a .torrent file.
-                      </li><li>Select where to save the file locally, or select a partial download to resume.
-                      </li><li>Wait for download to complete.
-                      </li><li>Tell downloader to exit (it keeps uploading until this happens). </li>
-                    </ol>
-
-                    <p class="header">The connectivity is as follows: </p>
-                    <ul>
-                      <li>The web site is serving up static files as normal, but kicking off the BitTorrent helper app on the clients.
-                      </li><li>The
-tracker is receiving information from all downloaders and giving them
-random lists of peers. This is done over HTTP or HTTPS. </li><li>Downloaders are periodically checking
-in with the tracker to keep it informed of their progress, and are
-uploading to and downloading from each other via direct connections.
-These connections use the BitTorrent peer protocol, which operates over
-TCP. </li><li>The origin is uploading but not
-downloading at all, since it has the entire file. The origin is
-necessary to get the entire file into the network. Often for popular
-downloads the origin can be taken down after a while since several
-downloads may have completed and been left running indefinitely. </li>
-                    </ul>
-                    <p>Metainfo
-file and tracker responses are both sent in a simple, efficient, and
-extensible format called bencoding (pronounced 'bee encoding').
-Bencoded messages are nested dictionaries and lists (as in Python),
-which can contain strings and integers. Extensibility is supported by
-ignoring unexpected dictionary keys, so additional optional ones can be
-added later. </p>
-                    <p class="header">Bencoding is done as follows: </p>
-
-                    <ul>
-                      <li>Strings are length-prefixed base ten followed by a colon and the string. For example 4:spam corresponds to 'spam'.
-                      </li><li>Integers
-are represented by an 'i' followed by the number in base 10 followed by
-an 'e'. For example i3e corresponds to 3 and i-3e corresponds to -3.
-Integers have no size limitation. i-0e is invalid. All encodings with a
-leading zero, such as i03e , are invalid, other than i0e , which of
-course corresponds to 0. </li><li>Lists are encoded as an 'l' followed
-by their elements (also bencoded) followed by an 'e'. For example
-l4:spam4:eggse corresponds to ['spam', 'eggs']. </li><li>Dictionaries are encoded as a 'd'
-followed by a list of alternating keys and their corresponding values
-followed by an 'e'. For example, d3:cow3:moo4:spam4:eggse corresponds
-to {'cow': 'moo', 'spam': 'eggs'} and d4:spaml1:a1:bee corresponds to
-{'spam': ['a', 'b']} . Keys must be strings and appear in sorted order
-(sorted as raw strings, not alphanumerics). </li>
-                    </ul>
-                    <p class="header">Metainfo files are bencoded dictionaries with the following keys: </p>
-                    announce
-                    <blockquote>
-                      <p>The URL of the tracker. </p>
-
-                    </blockquote>
-                    info
-                    <blockquote>
-                      <p>This maps to a dictionary, with keys described below. </p>
-                      <p>The name key maps to a string which is the suggested name to save the file (or directory) as. It is purely advisory. </p>
-                      <p>piece
-length maps to the number of bytes in each piece the file is split
-into. For the purposes of transfer, files are split into fixed-size
-pieces which are all the same length except for possibly the last one
-which may be truncated. Piece length is almost always a power of two,
-most commonly 2 18 = 256 K (BitTorrent prior to version 3.2 uses 2 20 =
-1 M as default). </p>
-                      <p>pieces maps to a string
-whose length is a multiple of 20. It is to be subdivided into strings
-of length 20, each of which is the SHA1 hash of the piece at the
-corresponding index. </p>
-
-                      <p>There is also a
-key length or a key files , but not both or neither. If length is
-present then the download represents a single file, otherwise it
-represents a set of files which go in a directory structure. </p>
-                      <p>In the single file case, length maps to the length of the file in bytes. </p>
-                      <p>For
-the purposes of the other keys, the multi-file case is treated as only
-having a single file by concatenating the files in the order they
-appear in the files list. The files list is the value files maps to,
-and is a list of dictionaries containing the following keys: </p>
-                      <p>length
-The length of the file, in bytes. path A list of strings corresponding
-to subdirectory names, the last of which is the actual file name (a
-zero length list is an error case). </p>
-                      <p>In the single file case, the name key is the name of a file, in the muliple file case, it's the name of a directory. </p>
-                    </blockquote>
-
-                    <p>Tracker
-queries are two way. The tracker receives information via HTTP GET
-parameters and returns a bencoded message. Note that although the
-current tracker implementation has its own web server, the tracker
-could run very nicely as, for example, an apache module. </p>
-                    <p class="header">Tracker GET requests have the following keys:</p>
-                    info_hash
-                    <blockquote>
-                      <p>The
-20 byte sha1 hash of the bencoded form of the info value from the
-metainfo file. Note that this is a substring of the metainfo file. This
-value will almost certainly have to be escaped. </p>
-                    </blockquote>
-                    peer_id
-                    <blockquote>
-
-                      <p>A
-string of length 20 which this downloader uses as its id. Each
-downloader generates its own id at random at the start of a new
-download. This value will also almost certainly have to be escaped. </p>
-                    </blockquote>
-                    ip
-                    <blockquote>
-                      <p>An
-optional parameter giving the IP (or dns name) which this peer is at.
-Generally used for the origin if it's on the same machine as the
-tracker. </p>
-                    </blockquote>
-                    port
-                    <blockquote>
-                      <p>The
-port number this peer is listening on. Common behavior is for a
-downloader to try to listen on port 6881 and if that port is taken try
-6882, then 6883, etc. and give up after 6889. </p>
-
-                    </blockquote>
-                    uploaded
-                    <p>The total amount uploaded so far, encoded in base ten ascii. </p>
-                    downloaded
-                    <blockquote>
-                      <p>The total amount downloaded so far, encoded in base ten ascii. </p>
-                    </blockquote>
-                    left
-                    <blockquote>
-
-                      <p>The
-number of bytes this peer still has to download, encoded in base ten
-ascii. Note that this can't be computed from downloaded and the file
-length since it might be a resume, and there's a chance that some of
-the downloaded data failed an integrity check and had to be
-re-downloaded. </p>
-                    </blockquote>
-                    event
-                    <blockquote>
-                      <p>This
-is an optional key which maps to started , completed , or stopped (or
-empty, which is the same as not being present). If not present, this is
-one of the announcements done at regular intervals. An announcement
-using started is sent when a download first begins, and one using
-completed is sent when the download is complete. No completed is sent
-if the file was complete when started. Downloaders send an announcement
-using 'stopped' when they cease downloading. </p>
-                    </blockquote>
-                    <p>Tracker
-responses are bencoded dictionaries. If a tracker response has a key
-failure reason , then that maps to a human readable string which
-explains why the query failed, and no other keys are required.
-Otherwise, it must have two keys: interval , which maps to the number
-of seconds the downloader should wait between regular rerequests, and
-peers . peers maps to a list of dictionaries corresponding to peers,
-each of which contains the keys peer id , ip , and port , which map to
-the peer's self-selected ID, IP address or dns name as a string, and
-port number, respectively. Note that downloaders may rerequest on
-nonscheduled times if an event happens or they need more peers. </p>
-                    <p>If
-you want to make any extensions to metainfo files or tracker queries,
-please coordinate with Bram Cohen to make sure that all extensions are
-done compatibly. </p>
-
-                    <p>BitTorrent's peer protocol operates over TCP. It performs efficiently without setting any socket options. </p>
-                    <p>Peer connections are symmetrical. Messages sent in both directions look the same, and data can flow in either direction. </p>
-                    <p>The
-peer protocol refers to pieces of the file by index as described in the
-metainfo file, starting at zero. When a peer finishes downloading a
-piece and checks that the hash matches, it announces that it has that
-piece to all of its peers. </p>
-                    <p>Connections
-contain two bits of state on either end: choked or not, and interested
-or not. Choking is a notification that no data will be sent until
-unchoking happens. The reasoning and common techniques behind choking
-are explained later in this document. </p>
-                    <p>Data
-transfer takes place whenever one side is interested and the other side
-is not choking. Interest state must be kept up to date at all times -
-whenever a downloader doesn't have something they currently would ask a
-peer for in unchoked, they must express lack of interest, despite being
-choked. Implementing this properly is tricky, but makes it possible for
-downloaders to know which peers will start downloading immediately if
-unchoked. </p>
-                    <p>Connections start out choked and not interested. </p>
-
-                    <p>When
-data is being transferred, downloaders should keep several piece
-requests queued up at once in order to get good TCP performance (this
-is called 'pipelining'.) On the other side, requests which can't be
-written out to the TCP buffer immediately should be queued up in memory
-rather than kept in an application-level network buffer, so they can
-all be thrown out when a choke happens. </p>
-                    <p>The
-peer wire protocol consists of a handshake followed by a never-ending
-stream of length-prefixed messages. The handshake starts with character
-ninteen (decimal) followed by the string 'BitTorrent protocol'. The
-leading character is a length prefix, put there in the hope that other
-new protocols may do the same and thus be trivially distinguishable
-from each other. </p>
-                    <p>All later integers sent in the protocol are encoded as four bytes big-endian. </p>
-                    <p>After
-the fixed headers come eight reserved bytes, which are all zero in all
-current implementations. If you wish to extend the protocol using these
-bytes, please coordinate with Bram Cohen to make sure all extensions
-are done compatibly. </p>
-                    <p>Next comes the 20
-byte sha1 hash of the bencoded form of the info value from the metainfo
-file. (This is the same value which is announced as info_hash to the
-tracker, only here it's raw instead of quoted here). If both sides
-don't send the same value, they sever the connection. The one possible
-exception is if a downloader wants to do multiple downloads over a
-single port, they may wait for incoming connections to give a download
-hash first, and respond with the same one if it's in their list. </p>
-                    <p>After
-the download hash comes the 20-byte peer id which is reported in
-tracker requests and contained in peer lists in tracker responses. If
-the receiving side's peer id doesn't match the one the initiating side
-expects, it severs the connection. </p>
-
-                    <p>That's
-it for handshaking, next comes an alternating stream of length prefixes
-and messages. Messages of length zero are keepalives, and ignored.
-Keepalives are generally sent once every two minutes, but note that
-timeouts can be done much more quickly when data is expected. </p>
-                    <p class="header">All non-keepalive messages start with a single byte which gives their type. The possible values are: </p>
-                    <ul>
-                      <li>0 - choke
-                      </li><li>1 - unchoke
-                      </li><li>2 - interested
-                      </li><li>3 - not interested
-                      </li><li>4 - have
-                      </li><li>5 - bitfield
-                      </li><li>6 - request
-                      </li><li>7 - piece
-                      </li><li>8 - cancel </li>
-
-                    </ul>
-                    <p>'choke', 'unchoke', 'interested', and 'not interested' have no payload. </p>
-                    <p>'bitfield'
-is only ever sent as the first message. Its payload is a bitfield with
-each index that downloader has sent set to one and the rest set to
-zero. Downloaders which don't have anything yet may skip the 'bitfield'
-message. The first byte of the bitfield corresponds to indices 0 - 7
-from high bit to low bit, respectively. The next one 8-15, etc. Spare
-bits at the end are set to zero. </p>
-                    <p>The 'have' message's payload is a single number, the index which that downloader just completed and checked the hash of. </p>
-                    <p>'request'
-messages contain an index, begin, and length. The last two are byte
-offsets. Length is generally a power of two unless it gets truncated by
-the end of the file. All current implementations use 2 15 , and close
-connections which request an amount greater than 2 17 . </p>
-                    <p>'cancel'
-messages have the same payload as request messages. They are generally
-only sent towards the end of a download, during what's called 'endgame
-mode'. When a download is almost complete, there's a tendency for the
-last few pieces to all be downloaded off a single hosed modem line,
-taking a very long time. To make sure the last few pieces come in
-quickly, once requests for all pieces a given downloader doesn't have
-yet are currently pending, it sends requests for everything to everyone
-it's downloading from. To keep this from becoming horribly inefficient,
-it sends cancels to everyone else every time a piece arrives. </p>
-
-                    <p>'piece'
-messages contain an index, begin, and piece. Note that they are
-correlated with request messages implicitly. It's possible for an
-unexpected piece to arrive if choke and unchoke messages are sent in
-quick succession and/or transfer is going very slowly. </p>
-                    <p>Downloaders
-generally download pieces in random order, which does a reasonably good
-job of keeping them from having a strict subset or superset of the
-pieces of any of their peers. </p>
-                    <p>Choking is
-done for several reasons. TCP congestion control behaves very poorly
-when sending over many connections at once. Also, choking lets each
-peer use a tit-for-tat-ish algorithm to ensure that they get a
-consistent download rate. </p>
-                    <p>The choking
-algorithm described below is the currently deployed one. It is very
-important that all new algorithms work well both in a network
-consisting entirely of themselves and in a network consisting mostly of
-this one. </p>
-                    <p>There are several criteria a
-good choking algorithm should meet. It should cap the number of
-simultaneous uploads for good TCP performance. It should avoid choking
-and unchoking quickly, known as 'fibrillation'. It should reciprocate
-to peers who let it download. Finally, it should try out unused
-connections once in a while to find out if they might be better than
-the currently used ones, known as optimistic unchoking. </p>
-                    <p>The
-currently deployed choking algorithm avoids fibrillation by only
-changing who's choked once every ten seconds. It does reciprocation and
-number of uploads capping by unchoking the four peers which it has the
-best download rates from and are interested. Peers which have a better
-upload rate but aren't interested get unchoked and if they become
-interested the worst uploader gets choked. If a downloader has a
-complete file, it uses its upload rate rather than its download rate to
-decide who to unchoke. </p>
-
-                    <p>For optimistic
-unchoking, at any one time there is a single peer which is unchoked
-regardless of it's upload rate (if interested, it counts as one of the
-four allowed downloaders.) Which peer is optimistically unchoked
-rotates every 30 seconds. To give them a decent chance of getting a
-complete piece to upload, new connections are three times as likely to
-start as the current optimistic unchoke as anywhere else in the
-rotation. </p>
+<div id="nav">
+<ul>
+<li><a href="./index.html">Home</a></li>
+<li><a href="./introduction.html">For Users</a></li>
+<li><span>For Developers</span></li>
+<!-- <li><a href="./blog.html">Blog</a></li> -->
+<!-- <li><a href="./donate.html">Donate!</a></li> -->
+</ul>
 </div>
-<!-- CONTENT ENDS -->
-
+<!-- ### Begin Content ### -->
+<div id="second">
+<p>BitTorrent is a protocol for distributing files. It identifies content by URL and is designed to integrate seamlessly with the web. Its advantage over plain HTTP is that when multiple downloads of the same file happen concurrently, the downloaders upload to each other, making it possible for the file source to support very large numbers of downloaders with only a modest increase in its load.</p>
+<h3>A BitTorrent file distribution consists of these entities:</h3>
+<ul>
+<li>An ordinary web server</li>
+<li>A static 'metainfo' file</li>
+<li>A BitTorrent tracker</li>
+<li>An 'original' downloader</li>
+<li>The end user web browsers</li>
+<li>The end user downloaders</li>
+</ul>
+<p>There are ideally many end users for a single file.</p>
+<h3>To start serving, a host goes through the following steps:</h3>
+<ol>
+<li>Start running a tracker (or, more likely, have one running already).</li>
+<li>Start running an ordinary web server, such as apache, or have one already.</li>
+<li>Associate the extension .torrent with mimetype <code>application/x-bittorrent</code> on their web server (or have done so already).</li>
+<li>Generate a metainfo (.torrent) file using the complete file to be served and the URL of the tracker.</li>
+<li>Put the metainfo file on the web server.</li>
+<li>Link to the metainfo (.torrent) file from some other web page.</li>
+<li>Start a downloader which already has the complete file (the 'origin').</li>
+</ol>
+<h3>To start downloading, a user does the following:</h3>
+<ol>
+<li>Install BitTorrent (or have done so already).</li>
+<li>Surf the web.</li>
+<li>Click on a link to a .torrent file.</li>
+<li>Select where to save the file locally, or select a partial download to resume.</li>
+<li>Wait for download to complete.</li>
+<li>Tell downloader to exit (it keeps uploading until this happens).</li>
+</ol>
+<h3>The connectivity is as follows:</h3>
+<ul>
+<li>Strings are length-prefixed base ten followed by a colon and the string. For example <code>4:spam</code> corresponds to 'spam'.</li>
+<li>Integers are represented by an 'i' followed by the number in base 10 followed by an 'e'. For example <code>i3e</code> corresponds to 3 and <code>i-3e </code>corresponds to -3. Integers have no size limitation. <code>i-0e</code> is invalid. All encodings with a leading zero, such as <code>i03e</code>, are invalid, other than <code>i0e</code>, which of course corresponds to 0.</li>
+<li>Lists are encoded as an 'l' followed by their elements (also bencoded) followed by an 'e'. For example <code>l4:spam4:eggse</code> corresponds to ['spam', 'eggs'].</li>
+<li>Dictionaries are encoded as a 'd' followed by a list of alternating keys and their corresponding values followed by an 'e'. For example, <code>d3:cow3:moo4:spam4:eggse</code> corresponds to {'cow': 'moo', 'spam': 'eggs'} and <code>d4:spaml1:a1:bee</code> corresponds to {'spam': ['a', 'b']}. Keys must be strings and appear in sorted order (sorted as raw strings, not alphanumerics).</li>
+</ul>
+<h3>Metainfo files are bencoded dictionaries with the following keys:</h3>
+<dl>
+<dt><code>announce</code></dt>
+<dd>The URL of the tracker.</dd>
+<dt><code>info</code></dt>
+<dd>This maps to a dictionary, with keys described below.</dd>
+<dd>The <code>name</code> key maps to a string which is the suggested name to save the file (or directory) as. It is purely advisory.</dd>
+<dd><code>piece length</code> maps to the number of bytes in each piece the file is split into. For the purposes of transfer, files are split into fixed-size pieces which are all the same length except for possibly the last one which may be truncated. <code>piece length</code> is almost always a power of two, most commonly 2 18 = 256 K (BitTorrent prior to version 3.2 uses 2 20 = 1 M as default).</dd>
+<dd><code>pieces</code> maps to a string whose length is a multiple of 20. It is to be subdivided into strings of length 20, each of which is the SHA1 hash of the piece at the corresponding index.</dd>
+<dd>There is also a key <code>length</code> or a key <code>files</code>, but not both or neither. If <code>length</code> is present then the download represents a single file, otherwise it represents a set of files which go in a directory structure.</dd>
+<dd>In the single file case, <code>length</code> maps to the length of the file in bytes.</dd>
+<dd>For the purposes of the other keys, the multi-file case is treated as only having a single file by concatenating the files in the order they appear in the files list. The files list is the value <code>files</code> maps to, and is a list of dictionaries containing the following keys:</dd>
+<dd><code>length</code> - The length of the file, in bytes.</dd>
+<dd><code>path</code> - A list of strings corresponding to subdirectory names, the last of which is the actual file name (a zero length list is an error case).</dd>
+<dd>In the single file case, the name key is the name of a file, in the muliple file case, it's the name of a directory.</dd>
+</dl>
+<h3>Tracker GET requests have the following keys:</h3>
+<dl>
+<dt><code>info_hash</code></dt>
+<dd>The 20 byte sha1 hash of the bencoded form of the info value from the metainfo file. Note that this is a substring of the metainfo file. This value will almost certainly have to be escaped.</dd>
+<dt><code>peer_id</code></dt>
+<dd>A string of length 20 which this downloader uses as its id. Each downloader generates its own id at random at the start of a new download. This value will also almost certainly have to be escaped.</dd>
+<dt><code>ip</code></dt>
+<dd>An optional parameter giving the IP (or dns name) which this peer is at. Generally used for the origin if it's on the same machine as the tracker.</dd>
+<dt><code>port</code></dt>
+<dd>The port number this peer is listening on. Common behavior is for a downloader to try to listen on port 6881 and if that port is taken try 6882, then 6883, etc. and give up after 6889.</dd>
+<dt><code>uploaded</code></dt>
+<dd>The total amount uploaded so far, encoded in base ten ascii.</dd>
+<dt><code>downloaded</code></dt>
+<dd>The total amount downloaded so far, encoded in base ten ascii.</dd>
+<dt><code>left</code></dt>
+<dd>The number of bytes this peer still has to download, encoded in base ten ascii. Note that this can't be computed from downloaded and the file length since it might be a resume, and there's a chance that some of the downloaded data failed an integrity check and had to be re-downloaded.</dd>
+<dt><code>event</code></dt>
+<dd>This is an optional key which maps to <code>started</code>, <code>completed</code>, or <code>stopped</code> (or <code>empty</code>, which is the same as not being present). If not present, this is one of the announcements done at regular intervals. An announcement using <code>started</code> is sent when a download first begins, and one using <code>completed</code> is sent when the download is complete. No <code>completed</code> is sent if the file was complete when started. Downloaders send an announcement using <code>stopped</code> when they cease downloading.</dd>
+</dl>
+<p>Tracker responses are bencoded dictionaries. If a tracker response has a key <code>failure reason</code>, then that maps to a human readable string which explains why the query failed, and no other keys are required. Otherwise, it must have two keys: <code>interval</code>, which maps to the number of seconds the downloader should wait between regular rerequests, and <code>peers</code>. <code>peers</code> maps to a list of dictionaries corresponding to <code>peers</code>, each of which contains the keys <code>peer id</code>, <code>ip</code>, and <code>port</code>, which map to the peer's self-selected ID, IP address or dns name as a string, and port number, respectively. Note that downloaders may rerequest on nonscheduled times if an event happens or they need more peers.</p>
+<p>If you want to make any extensions to metainfo files or tracker queries, please coordinate with Bram Cohen to make sure that all extensions are done compatibly.</p>
+<p>BitTorrent's peer protocol operates over TCP. It performs efficiently without setting any socket options.</p>
+<p>Peer connections are symmetrical. Messages sent in both directions look the same, and data can flow in either direction.</p>
+<p>The peer protocol refers to pieces of the file by index as described in the metainfo file, starting at zero. When a peer finishes downloading a piece and checks that the hash matches, it announces that it has that piece to all of its peers.</p>
+<p>Connections contain two bits of state on either end: choked or not, and interested or not. Choking is a notification that no data will be sent until unchoking happens. The reasoning and common techniques behind choking are explained later in this document.</p>
+<p>Data transfer takes place whenever one side is interested and the other side is not choking. Interest state must be kept up to date at all times - whenever a downloader doesn't have something they currently would ask a peer for in unchoked, they must express lack of interest, despite being choked. Implementing this properly is tricky, but makes it possible for downloaders to know which peers will start downloading immediately if unchoked.</p>
+<p>Connections start out choked and not interested.</p>
+<p>When data is being transferred, downloaders should keep several piece requests queued up at once in order to get good TCP performance (this is called 'pipelining'.) On the other side, requests which can't be written out to the TCP buffer immediately should be queued up in memory rather than kept in an application-level network buffer, so they can all be thrown out when a choke happens.</p>
+<p>The peer wire protocol consists of a handshake followed by a never-ending stream of length-prefixed messages. The handshake starts with character ninteen (decimal) followed by the string 'BitTorrent protocol'. The leading character is a length prefix, put there in the hope that other new protocols may do the same and thus be trivially distinguishable from each other.</p>
+<p>All later integers sent in the protocol are encoded as four bytes big-endian.</p>
+<p>After the fixed headers come eight reserved bytes, which are all zero in all current implementations. If you wish to extend the protocol using these bytes, please coordinate with Bram Cohen to make sure all extensions are done compatibly.</p>
+<p>Next comes the 20 byte sha1 hash of the bencoded form of the info value from the metainfo file. (This is the same value which is announced as <code>info_hash</code> to the tracker, only here it's raw instead of quoted here). If both sides don't send the same value, they sever the connection. The one possible exception is if a downloader wants to do multiple downloads over a single port, they may wait for incoming connections to give a download hash first, and respond with the same one if it's in their list.</p>
+<p>After the download hash comes the 20-byte peer id which is reported in tracker requests and contained in peer lists in tracker responses. If the receiving side's peer id doesn't match the one the initiating side expects, it severs the connection.</p>
+<p>That's it for handshaking, next comes an alternating stream of length prefixes and messages. Messages of length zero are keepalives, and ignored. Keepalives are generally sent once every two minutes, but note that timeouts can be done much more quickly when data is expected.</p>
+<h3>All non-keepalive messages start with a single byte which gives their type.<br />
+The possible values are:</h3>
+<ul>
+<li>0 - choke</li>
+<li>1 - unchoke</li>
+<li>2 - interested</li>
+<li>3 - not interested</li>
+<li>4 - have</li>
+<li>5 - bitfield</li>
+<li>6 - request</li>
+<li>7 - piece</li>
+<li>8 - cancel</li>
+</ul>
+<p>'choke', 'unchoke', 'interested', and 'not interested' have no payload.</p>
+<p>'bitfield' is only ever sent as the first message. Its payload is a bitfield with each index that downloader has sent set to one and the rest set to zero. Downloaders which don't have anything yet may skip the 'bitfield' message. The first byte of the bitfield corresponds to indices 0 - 7 from high bit to low bit, respectively. The next one 8-15, etc. Spare bits at the end are set to zero.</p>
+<p>The 'have' message's payload is a single number, the index which that downloader just completed and checked the hash of.</p>
+<p>'request' messages contain an index, begin, and length. The last two are byte offsets. Length is generally a power of two unless it gets truncated by the end of the file. All current implementations use 2 15 , and close connections which request an amount greater than 2 17.</p>
+<p>'cancel' messages have the same payload as request messages. They are generally only sent towards the end of a download, during what's called 'endgame mode'. When a download is almost complete, there's a tendency for the last few pieces to all be downloaded off a single hosed modem line, taking a very long time. To make sure the last few pieces come in quickly, once requests for all pieces a given downloader doesn't have yet are currently pending, it sends requests for everything to everyone it's downloading from. To keep this from becoming horribly inefficient, it sends cancels to everyone else every time a piece arrives.</p>
+<p>'piece' messages contain an index, begin, and piece. Note that they are correlated with request messages implicitly. It's possible for an unexpected piece to arrive if choke and unchoke messages are sent in quick succession and/or transfer is going very slowly.</p>
+<p>Downloaders generally download pieces in random order, which does a reasonably good job of keeping them from having a strict subset or superset of the pieces of any of their peers.</p>
+<p>Choking is done for several reasons. TCP congestion control behaves very poorly when sending over many connections at once. Also, choking lets each peer use a tit-for-tat-ish algorithm to ensure that they get a consistent download rate.</p>
+<p>The choking algorithm described below is the currently deployed one. It is very important that all new algorithms work well both in a network consisting entirely of themselves and in a network consisting mostly of this one.</p>
+<p>There are several criteria a good choking algorithm should meet. It should cap the number of simultaneous uploads for good TCP performance. It should avoid choking and unchoking quickly, known as 'fibrillation'. It should reciprocate to peers who let it download. Finally, it should try out unused connections once in a while to find out if they might be better than the currently used ones, known as optimistic unchoking.</p>
+<p>The currently deployed choking algorithm avoids fibrillation by only changing who's choked once every ten seconds. It does reciprocation and number of uploads capping by unchoking the four peers which it has the best download rates from and are interested. Peers which have a better upload rate but aren't interested get unchoked and if they become interested the worst uploader gets choked. If a downloader has a complete file, it uses its upload rate rather than its download rate to decide who to unchoke.</p>
+<p>For optimistic unchoking, at any one time there is a single peer which is unchoked regardless of it's upload rate (if interested, it counts as one of the four allowed downloaders.) Which peer is optimistically unchoked rotates every 30 seconds. To give them a decent chance of getting a complete piece to upload, new connections are three times as likely to start as the current optimistic unchoke as anywhere else in the rotation.</p>
 </div>
-<!-- LEFT ENDS -->
-
-<!-- FOOTER STARTS -->
-		<div class="dashlines">
-<br>Copyright &copy 2006 bittorrent.org </A>
-		</div>
-<!-- FOOTER ENDS -->
-</body></html>
+<!-- ### End Content ### -->
+</div>
+</div>
+<div id="footer">
+<hr />
+<p>Copyright © 2006 BitTorrent.org</p>
+</div>
+</body>
+</html>

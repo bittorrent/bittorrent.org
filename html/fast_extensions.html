@@ -1,5 +1,5 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
@@ -18,13 +18,13 @@
 <li><a href="./introduction.html">For Users</a></li>
 <li><span>For Developers</span></li>
 <!-- <li><a href="./blog">Blog</a></li> -->
-<!-- <li><a href="./donate.html">Donate!</a></li> -->
+<li><a href="./donate.html">Donate!</a></li>
 </ul>
 </div>
 <!-- ### Begin Content ### -->
 <div id="second">
 <h1>Fast Extension</h1>
-<p>The Fast Extension packages several extensions: <i>Have None/Have All</i>, 
+<p>The Fast Extension packages several extensions: <i>Have None/Have All</i>,
 <i>Reject Requests</i>, <i>Suggestions</i> and <i>Allowed Fast.</i>
 These are enabled by setting the third least significant bit of the
 last reserved byte in the BitTorrent handshake:
@@ -54,22 +54,22 @@ IETF <a href='http://www.ietf.org/rfc/rfc2119.txt' class='external' title="http:
 <p><script type="text/javascript"> if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } </script>
 </p>
 <h2 id="Modifications_to_Semantics_of_Existing_Messages"> Modifications to Semantics of Existing Messages </h2>
-<p>The Fast Extension modifies the semantics of the 
+<p>The Fast Extension modifies the semantics of the
 <i>Request</i>, <i>Choke</i>, <i>Unchoke</i>, and <i>Cancel</i>
-messages, and adds a <i>Reject Request.</i>  Now, every request 
+messages, and adds a <i>Reject Request.</i>  Now, every request
 is guaranteed to result in EXACTLY ONE response
-which is either the corresponding reject or corresponding piece 
+which is either the corresponding reject or corresponding piece
 message.  Even when a request is cancelled, the peer receiving
 the cancel should respond with either the corresponding reject or
 the corresponding piece: requests that are being processed are
 allowed to complete.
-</p><p>Choke no longer implicitly rejects all pending requests, 
-thus eliminating some race conditions which could cause pieces 
+</p><p>Choke no longer implicitly rejects all pending requests,
+thus eliminating some race conditions which could cause pieces
 to be needlessly requested multiple times.
-</p><p>Additionally, if a peer receives a piece that was never requested, 
+</p><p>Additionally, if a peer receives a piece that was never requested,
 the peer MUST close the connection.
 </p>
-<h2 id="Have_All.2FHave_None"> Have All/Have None </h2> 
+<h2 id="Have_All.2FHave_None"> Have All/Have None </h2>
 <pre> <i>Have All</i>: &lt;len=0x0001&gt;&lt;op=0x0E&gt;
 </pre>
 <pre> <i>Have None</i>: &lt;len=0x0001&gt;&lt;op=0x0F&gt;
@@ -77,14 +77,14 @@ the peer MUST close the connection.
 <p><i>Have All</i> and <i>Have None</i> specify that the message sender
 has all or none of the pieces respectively.  When present, <i>Have All</i>
 or <i>Have None</i> replace the <i>Have Bitfield.</i>  Exactly one of <i>Have All</i>,
-<i>Have None</i>, or <i>Have Bitfield</i> MUST appear and only immediately after 
+<i>Have None</i>, or <i>Have Bitfield</i> MUST appear and only immediately after
 the handshake.  The reason for these messages is to save bandwidth.  Also
 slightly to remove the idiosyncrasy of sending no message when a peer
 has no pieces.
-</p><p>When the fast extension is disabled, if a peer receives <i>Have All</i> or 
+</p><p>When the fast extension is disabled, if a peer receives <i>Have All</i> or
 <i>Have None</i> then the peer MUST close the connection.
 </p>
-<h2 id="Suggest_Piece"> Suggest Piece </h2>  
+<h2 id="Suggest_Piece"> Suggest Piece </h2>
 <pre> <i>Suggest Piece</i>: &lt;len=0x0005&gt;&lt;op=0x0D&gt;&lt;index&gt;
 </pre>
 <p><i>Suggest Piece</i> is an advisory message meaning "you might like to
@@ -96,8 +96,8 @@ operate to maintain a roughly equal number of copies of each piece in
 the network.  A peer MAY send more than one <i>suggest piece</i> message at
 any given time.  A peer receiving multiple <i>suggest piece</i> messages
 MAY interpret this as meaning that all of the suggested pieces
-are equally appropriate.   
-</p><p>When the fast extension is disabled, if a peer receives a 
+are equally appropriate.
+</p><p>When the fast extension is disabled, if a peer receives a
 <i>Suggest Piece</i> message, the peer MUST close the connection.
 </p>
 
@@ -105,7 +105,7 @@ are equally appropriate.
 <pre> <i>Reject Request</i>: &lt;len=0x000D&gt;&lt;op=0x10&gt;&lt;index&gt;&lt;begin&gt;&lt;offset&gt;
 </pre>
 <p><i>Reject Request</i> notifies a requesting peer that its request will not be satisfied.
-</p><p>If the fast extension is disabled and a peer receives a reject 
+</p><p>If the fast extension is disabled and a peer receives a reject
 request then the peer MUST close the connection.
 </p><p>When the fast extension is enabled:
 </p>
@@ -125,14 +125,14 @@ request then the peer MUST close the connection.
 <p> When the fast extension is disabled, if a peer recieves an Allowed Fast message then the peer MUST close the connection.</p>
 
 <h2 id="Allowed_Fast_Set_Generation"> Allowed Fast Set Generation </h2>
-<p>The canonical algorithm for computing a peer <i>P'</i>s <i>allowed fast set</i> 
+<p>The canonical algorithm for computing a peer <i>P'</i>s <i>allowed fast set</i>
 follows.  All integers in this pseudocode are four bytes represented in network (big-endian) byte order.  <i>[a:b]</i> denotes the sequence of consecutive integers from <i>a</i> to <i>b</i> excluding <i>b</i>, i.e., <i>(a, a+1, a+2,..., b-1)</i>. <i>x[a:b]</i> denotes a subsequence of elements in an array <i>x</i> starting from index <i>a</i> to but not including index <i>b</i>.
 </p><p>Let <i>ip</i> denote <i>P'</i>s IPv4 address.  We currently have no
 provisions for IPv6. If a peer is behind a Network Address Translator
 (NAT) then <i>ip</i> should be the externally facing IP address of the
 NAT.  Since the node sending the <i>Allowed Fast</i> messages computes
-the set, the correct <i>ip</i> is usually the <i>ip</i> address on the other 
-end of the connection.  The host computing the set MAY use the <i>ip</i> 
+the set, the correct <i>ip</i> is usually the <i>ip</i> address on the other
+end of the connection.  The host computing the set MAY use the <i>ip</i>
 address on the other end of the connection regardless
 </p><p>Let <i>sz</i> denote the number of pieces in the torrent.
 </p><p>Let <i>a</i> denote the allowed fast set.
@@ -140,7 +140,7 @@ address on the other end of the connection regardless
 </p>
 <pre> x = 0xFFFFFF00 &amp; ip                           (1)
  x.append(infohash)                            (2)
- while |a| &lt; k: 
+ while |a| &lt; k:
    x = SHA1(x)                                 (3)
    for i in [0:5] and |a| &lt; k:                 (4)
      j = i*4                                   (5)
@@ -151,9 +151,9 @@ address on the other end of the connection regardless
 </pre>
 <p>Step (1) selects the most significant octets in peer <i>P'</i>s
 ip address.  We do this to prevent a user that obtains more than one
-IP address on the same network from obtaining more than one 
+IP address on the same network from obtaining more than one
 <i>allowed fast set.</i>  Use of three bytes is heuristic and
-historical. 
+historical.
 </p><p>Step (3) generates a 20-byte random number on each call.  By
 performing a SHA-1 hash on the previous iteration's hash, we can
 generate an arbitrarily long pseudorandom sequence.
@@ -191,10 +191,10 @@ and add them to the allowed fast set.
 </pre>
 <p>Example results generated by this function:
 </p>
-<pre>7 piece allowed fast set for torrent with 1313 pieces and hex infohash   
+<pre>7 piece allowed fast set for torrent with 1313 pieces and hex infohash
 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa for node with IP 80.4.4.200:
   1059,431,808,1217,287,376,1188
-9 piece allowed fast set for torrent with 1313 pieces and hex infohash     
+9 piece allowed fast set for torrent with 1313 pieces and hex infohash
 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa for node with IP 80.4.4.200:
   1059,431,808,1217,287,376,1188,353,508
 </pre>

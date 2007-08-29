@@ -304,22 +304,22 @@ bencoded = d1:rd2:id20:0123456789abcdefghij5:nodes9:def456...e1:ti0e1:y1:re</cod
 get_peers query has two arguments, "id" containing the node ID of the
 querying node, and "info_hash" containing the infohash of the torrent.
 If the queried node has peers for the infohash, they are returned in a
-key "values" as a list with a single string containing "compact" format
-peer information concatenated together. If the queried node has no
+key "values" as a list of strings. Each string containing "compact" format
+peer information for a single peer. If the queried node has no
 peers for the infohash, a key "nodes" is returned containing the K
 nodes in the queried nodes routing table closest to the infohash
 supplied in the query. In either case a "token" key is also included in
 the return value. The token value is a required argument for a future
 announce_peer query.</p>
 <p><code>arguments:  {"id"&nbsp;: "&lt;querying nodes id&gt;", "info_hash"&nbsp;: "&lt;20-byte infohash of target torrent&gt;"}
- response: {"id"&nbsp;: "&lt;queried nodes id&gt;", "values"&nbsp;: ["&lt;compact peer info string&gt;"]}
+ response: {"id"&nbsp;: "&lt;queried nodes id&gt;", "values"&nbsp;: ["&lt;peer 1 info string&gt;", "&lt;peer 2 info string&gt;"]}
      or: {"id"&nbsp;: "&lt;queried nodes id&gt;", "nodes"&nbsp;: "&lt;compact node info&gt;"}</code></p>
 <a name="example_packets_3"></a>
 <h5>Example Packets</h5>
 <p><code>get_peers Query = {'t':0, 'y':'q', 'q':'get_peers', 'a': {'id':'abcdefghij0123456789', 'info_hash':'mnopqrstuvwxyz123456'}}
 bencoded = d1:ad2:id20:abcdefghij01234567899:info_hash20:mnopqrstuvwxyz123456e1:q9:get_peers1:ti0e1:y1:qe</code></p>
-<p><code>Response with peers = {'t':0, 'y':'r', 'r': {'id':'abcdefghij0123456789', 'token':'aoeusnth', 'values': ['axje.uidhtnmbrl']}}
-bencoded = d1:rd2:id20:abcdefghij01234567895:token8:aoeusnth6:valuesl15:axje.uidhtnmbrlee1:ti0e1:y1:re</code></p>
+<p><code>Response with peers = {'t':0, 'y':'r', 'r': {'id':'abcdefghij0123456789', 'token':'aoeusnth', 'values': ['axje.u', 'idhtnm']}}
+bencoded = d1:rd2:id20:abcdefghij01234567895:token8:aoeusnth6:valuesl6:axje.u6:idhtnmee1:ti0e1:y1:re</code></p>
 <p><code>Response with closest nodes = {'t':0, 'y':'r', 'r': {'id':'abcdefghij0123456789', 'token':'aoeusnth', 'nodes': 'def456...'}}
 bencoded = d1:rd2:id20:abcdefghij01234567895:nodes9:def456...5:token8:aoeusnthe1:ti0e1:y1:re</code></p>
 <a name="announce_peer"></a>
@@ -337,11 +337,12 @@ store of peer contact information.</p>
 response: {"id"&nbsp;: "&lt;queried nodes id&gt;"}</code></p>
 <a name="example_packets_4"></a>
 <h5>Example Packets</h5>
-<p><code>announce_peers Query = {'t':0, 'y':'q', 'q':'announce_peers', 'a': {'id':'abcdefghij0123456789', 'info_hash':'mnopqrstuvwxyz123456', 'port'&nbsp;: 6881, 'token'&nbsp;: 'aoeusnth'}}
+<p><code>announce_peers Query = {'t':0, 'y':'q', 'q':'announce_peer', 'a': {'id':'abcdefghij0123456789', 'info_hash':'mnopqrstuvwxyz123456', 'port'&nbsp;: 6881, 'token'&nbsp;: 'aoeusnth'}}
 bencoded = d1:ad2:id20:abcdefghij01234567899:info_hash20:<br />
-mnopqrstuvwxyz1234564:porti6881e5:token8:aoeusnthe1:q14:announce_peers1:ti0e1:y1:qe</code></p>
+mnopqrstuvwxyz1234564:porti6881e5:token8:aoeusnthe1:q13:announce_peer1:ti0e1:y1:qe</code></p>
 <p><code>Response = {"t":"0", "y":"r", "r": {"id":"mnopqrstuvwxyz123456"}}
 bencoded = d1:rd2:id20:mnopqrstuvwxyz123456e1:t1:01:y1:re</code></p>
+<p>Send questions, comments and corrections to editor@bittorrent.org</p>
 <a name="Footnotes"></a>
 <h3>Footnotes</h3>
 <ol>

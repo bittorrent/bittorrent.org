@@ -275,8 +275,8 @@ single argument, "id" the value is a 20-byte string containing the
 senders node ID in network byte order. The appropriate response to a
 ping has a single key "id" containing the node ID of the responding
 node.</p>
-<p><code> arguments:  {"id"&nbsp;: "<i>&lt;querying nodes id&gt;</i>"}
- response: {"id"&nbsp;: "<i>&lt;queried nodes id&gt;</i>"}</code></p>
+<code><p>arguments:  {"id"&nbsp;: "<i>&lt;querying nodes id&gt;</i>"}</p>
+<p>response: {"id"&nbsp;: "<i>&lt;queried nodes id&gt;</i>"}</p></code>
 <a name="example_packets"></a>
 <h5>Example Packets</h5>
 <p><code>ping Query = {"t":"aa", "y":"q", "q":"ping", "a":{"id":"abcdefghij0123456789"}}
@@ -292,8 +292,8 @@ the ID of the node sought by the queryer. When a node receives a
 find_node query, it should respond with a key "nodes" and value of a
 string containing the compact node info for the target node or the K
 (8) closest good nodes in its own routing table.</p>
-<p><code>arguments:  {"id"&nbsp;: "<i>&lt;querying nodes id&gt;</i>", "target"&nbsp;: "<i>&lt;id of target node&gt;</i>"}
-response: {"id"&nbsp;: "<i>&lt;queried nodes id&gt;</i>", "nodes"&nbsp;: "<i>&lt;compact node info&gt;</i>"}</code></p>
+<code><p>arguments:  {"id"&nbsp;: "<i>&lt;querying nodes id&gt;</i>", "target"&nbsp;: "<i>&lt;id of target node&gt;</i>"}</p>
+<p>response: {"id"&nbsp;: "<i>&lt;queried nodes id&gt;</i>", "nodes"&nbsp;: "<i>&lt;compact node info&gt;</i>"}</p></code>
 <a name="example_packets_2"></a>
 <h5>Example Packets</h5>
 <p><code>find_node Query = {"t":"aa", "y":"q", "q":"find_node", "a": {"id":"abcdefghij0123456789", "target":"mnopqrstuvwxyz123456"}}
@@ -312,10 +312,10 @@ peers for the infohash, a key "nodes" is returned containing the K
 nodes in the queried nodes routing table closest to the infohash
 supplied in the query. In either case a "token" key is also included in
 the return value. The token value is a required argument for a future
-announce_peer query.</p>
-<p><code>arguments:  {"id"&nbsp;: "<i>&lt;querying nodes id&gt;</i>", "info_hash"&nbsp;: "<i>&lt;20-byte infohash of target torrent&gt;</i>"}
- response: {"id"&nbsp;: "<i>&lt;queried nodes id&gt;</i>", "values"&nbsp;: ["<i>&lt;peer 1 info string&gt;</i>", "<i>&lt;peer 2 info string&gt;</i>"]}
-     or: {"id"&nbsp;: "<i>&lt;queried nodes id&gt;</i>", "nodes"&nbsp;: "<i>&lt;compact node info&gt;</i>"}</code></p>
+announce_peer query. The token value should be a short binary string.</p>
+<code><p>arguments:  {"id"&nbsp;: "<i>&lt;querying nodes id&gt;</i>", "info_hash"&nbsp;: "<i>&lt;20-byte infohash of target torrent&gt;</i>"}</p>
+<p>response: {"id"&nbsp;: "<i>&lt;queried nodes id&gt;</i>", "token"&nbsp;:"<i>&lt;opaque write token&gt;</i>", "values"&nbsp;: ["<i>&lt;peer 1 info string&gt;</i>", "<i>&lt;peer 2 info string&gt;</i>"]}</p>
+<p>or: {"id"&nbsp;: "<i>&lt;queried nodes id&gt;</i>", "token"&nbsp;:"<i>&lt;opaque write token&gt;</i>", "nodes"&nbsp;: "<i>&lt;compact node info&gt;</i>"}</p></code>
 <a name="example_packets_3"></a>
 <h5>Example Packets</h5>
 <p><code>get_peers Query = {"t":"aa", "y":"q", "q":"get_peers", "a": {"id":"abcdefghij0123456789", "info_hash":"mnopqrstuvwxyz123456"}}
@@ -326,8 +326,8 @@ bencoded = d1:rd2:id20:abcdefghij01234567895:token8:aoeusnth6:valuesl6:axje.u6:i
 bencoded = d1:rd2:id20:abcdefghij01234567895:nodes9:def456...5:token8:aoeusnthe1:t2:aa1:y1:re</code></p>
 <a name="announce_peer"></a>
 <h4>announce_peer</h4> 
-<p>Announce that the peer controlling the querying node is downloading
-the a torrent on a port. announce_peer has four arguments: "id" containing the node ID of the
+<p>Announce that the peer, controlling the querying node, is downloading
+a torrent on a port. announce_peer has four arguments: "id" containing the node ID of the
 querying node, "info_hash" containing the infohash of the torrent,
 "port" containing the port as an integer, and the "token" received in
 response to a previous get_peers query. The queried node must verify
@@ -335,8 +335,8 @@ that the token was previously sent to the same IP address as the
 querying node. Then the queried node should store the IP address of the
 querying node and the supplied port number under the infohash in its
 store of peer contact information.</p>
-<p><code>arguments:  {"id"&nbsp;: "<i>&lt;querying nodes id&gt;</i>", "info_hash"&nbsp;: "<i>&lt;20-byte infohash of target torrent&gt;</i>", "port"&nbsp;: <i>&lt;port number&gt;</i>, "token"&nbsp;: "<i>&lt;opaque token&gt;</i>"}
-response: {"id"&nbsp;: "<i>&lt;queried nodes id&gt;</i>"}</code></p>
+<code><p>arguments:  {"id"&nbsp;: "<i>&lt;querying nodes id&gt;</i>", "info_hash"&nbsp;: "<i>&lt;20-byte infohash of target torrent&gt;</i>", "port"&nbsp;: <i>&lt;port number&gt;</i>, "token"&nbsp;: "<i>&lt;opaque token&gt;</i>"}</p>
+<p>response: {"id"&nbsp;: "<i>&lt;queried nodes id&gt;</i>"}</p></code>
 <a name="example_packets_4"></a>
 <h5>Example Packets</h5>
 <p><code>announce_peers Query = {"t":"aa", "y":"q", "q":"announce_peer", "a": {"id":"abcdefghij0123456789", "info_hash":"mnopqrstuvwxyz123456", "port": 6881, "token": "aoeusnth"}}

@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+<title>BitTorrent.org » For Developers » Assigned Numbers</title>
+<link rel="stylesheet" type="text/css" href="./css/screen.css" media="screen" />
+</head>
+<body id="www-bittorrent-org">
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="./index.html">BitTorrent<span>.org</span></a></h1>
+</div>
+<div id="nav">
+<ul>
+<li><a href="./index.html">Home</a></li>
+<li><a href="./introduction.html">For Users</a></li>
+<li><span>For Developers</span></li>
+<!-- <li><a href="./blog">Blog</a></li> -->
+<li><a href="./donate.html">Donate!</a></li>
+</ul>
+</div> <!-- nav -->
+<!-- ### Begin Content ### -->
+<div id="second">
+
+<P>
+This document describes the known bit allocations and message IDs for
+the BitTorrent protocol.  To request a bit allocation contact
+editor@bittorrent.org.  Contact the same address if you are aware of
+any omissions.
+</P>
+
+<H2> 1. Reserved Bit Allocations </H2>
+
+<pre>
+ reserved[0]
+ 0x80  Azureus Messaging Protocol
+
+ reserved[5]
+ 0x10  uTorrent extensions: peer exchange, advertise support for
+       encrypted connections, broadcast listen port.
+
+ reserved[7]
+ 0x01  BitTorrent DHT
+ 0x04  suggest, haveall, havenone, reject request, and allow fast extensions
+</pre>
+
+<H2> 2. Reserved Message IDs </H2>
+
+<pre>
+Core Protocol:
+ 0x00   choke
+ 0x01   unchoke
+ 0x02   interested
+ 0x03   not interested
+ 0x04   have
+ 0x05   bitfield
+ 0x06   request
+ 0x07   piece
+ 0x08   cancel
+ 0x09   port
+
+</pre>
+
+<H3> 2.1 Fast Extensions </H3>
+
+<pre>
+ 0x0D   suggest
+ 0x0E   have all
+ 0x0F   have none
+ 0x10   reject request
+ 0x11   allowed fast
+</pre>
+
+<H3> Additional IDs used in deployed clients </H3>
+<pre>
+ 0x14   uTorrent (PEX, support for encrypted connections,
+        broadcast listen port)
+</pre>
+
+</div>
+<div id="footer">
+<hr />
+<p>Copyright 2006 BitTorrent.org</p>
+</div>
+</body>
+</html>

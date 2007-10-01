@@ -1,24 +1,5 @@
-.. raw:: html
-
-	<div id="upper" class="clear">
-	<div id="wrap">
-	<div id="header">
-	<h1><a href="./index.html">BitTorrent<span>.org</span></a></h1>
-	</div>
-	<div id="nav">
-	<ul>
-	<li><a href="./index.html">Home</a></li>
-	<li><a href="./introduction.html">For Users</a></li>
-	<li><span>For Developers</span></li>
-	<!-- <li><a href="./blog">Blog</a></li> -->
-	<li><a href="./donate.html">Donate!</a></li>
-	</ul>
-	</div> <!-- nav -->
-	<!-- ### Begin Content ### -->
-	<div id="second">
-
-IPv6 tracker extensions
-=======================
+IPv6 tracker extension
+======================
 
 This extension extends the tracker response to better support IPv6 peers as
 well as defines a way for multi homed machines to announce multiple addresses
@@ -96,13 +77,4 @@ authors
 
 .. __: mailto:greg@bittorrent.com
 .. __: mailto:arvid@bittorrent.com
-
-
-.. raw:: html
-
-	</div>
-		<div id="footer">
-	<hr/>
-	<p>Copyright 2006 BitTorrent.org</p>
-	</div>
 

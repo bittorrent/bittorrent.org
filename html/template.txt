@@ -1,0 +1,33 @@
+%(head_prefix)s
+%(head)s
+%(stylesheet)s
+%(body_prefix)s
+
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="./index.html">BitTorrent<span>.org</span></a></h1>
+</div>
+<div id="nav">
+<ul>
+<li><a href="./index.html">Home</a></li>
+<li><a href="./introduction.html">For Users</a></li>
+<li><span>For Developers</span></li>
+<!-- <li><a href="./blog">Blog</a></li> -->
+<li><a href="./donate.html">Donate!</a></li>
+</ul>
+</div> <!-- nav -->
+<!-- ### Begin Content ### -->
+<div id="second">
+
+%(body_pre_docinfo)s
+%(docinfo)s
+%(body)s
+
+</div>
+	<div id="footer">
+<hr/>
+<p>Copyright 2006 BitTorrent.org</p>
+</div>
+
+%(body_suffix)s

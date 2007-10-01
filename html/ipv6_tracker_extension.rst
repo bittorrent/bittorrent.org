@@ -58,7 +58,7 @@ their expanded string form, IPv6 addresses can be passed back this way.
 
 In case a compact response is requested, the tracker may add another key
 to the response; ``peers6``. This key has the same layout as ``peers`` in
-compact mode, but instead of using 4 bytes per address, 16 bytes are used.
+compact mode, but instead of using 6 bytes per endpoint, 18 bytes are used.
 It only contains IPv6 addresses.
 
 examples
@@ -86,7 +86,7 @@ address and ``261.52.89.12`` as IPv4 address::
 
 Example response::
 
-	d8:intervali1800e5:peers6:iiiipp6:peers18:iiiiiiiiiiiiiiiippe
+	d8:intervali1800e5:peers6:iiiipp6:peers618:iiiiiiiiiiiiiiiippe
 
 authors
 -------

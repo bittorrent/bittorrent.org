@@ -55,7 +55,7 @@ necessary. Since the original <tt class="docutils literal"><span class="pre">pee
 their expanded string form, IPv6 addresses can be passed back this way.</p>
 <p>In case a compact response is requested, the tracker may add another key
 to the response; <tt class="docutils literal"><span class="pre">peers6</span></tt>. This key has the same layout as <tt class="docutils literal"><span class="pre">peers</span></tt> in
-compact mode, but instead of using 4 bytes per address, 16 bytes are used.
+compact mode, but instead of using 6 bytes per endpoint, 18 bytes are used.
 It only contains IPv6 addresses.</p>
 </div>
 <div class="section">
@@ -82,7 +82,7 @@ GET /announce?peer_id=aaaaaaaaaaaaaaaaaaaa&amp;info_hash=aaaaaaaaaaaaaaaaaaaa
 </pre>
 <p>Example response:</p>
 <pre class="literal-block">
-d8:intervali1800e5:peers6:iiiipp6:peers18:iiiiiiiiiiiiiiiippe
+d8:intervali1800e5:peers6:iiiipp6:peers618:iiiiiiiiiiiiiiiippe
 </pre>
 </div>
 <div class="section">

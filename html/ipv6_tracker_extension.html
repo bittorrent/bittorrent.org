@@ -42,14 +42,19 @@ an IPv6 network having an IPv4 tunnel interface.</p>
 to the tracker. The value is either an IPv6 endpoint (address and port) or
 just an IPv6 address. In the case where only an address is supplied, the IPv6
 port is assumed to be the same as specified by the <tt class="docutils literal"><span class="pre">&amp;port=</span></tt> parameter.</p>
-<p>The tracker may perform a NAT check on the IPv6 endpoint or it may assume that
-IPv6 addresses are not behind NATs.</p>
+<p>The tracker should perform a NAT check on the IPv6 endpoint.</p>
 <p>In case the client contacts the tracker on an IPv6 interface, the it may add
 an <tt class="docutils literal"><span class="pre">&amp;ipv4=</span></tt> parameter with its IPv4 address or endpoint. The value should
 be either an IPv4 endpoint (address and port) or just an IPv4 address. If only
 an address is supplied, the port is assumed to be the same as the <tt class="docutils literal"><span class="pre">&amp;port=</span></tt>
 parameter.</p>
 <p>The endpoints are encoded as strings as defined by <a class="reference" href="http://tools.ietf.org/html/rfc2732">RFC 2732</a>.</p>
+<p>If both an <tt class="docutils literal"><span class="pre">&amp;ipv4=</span></tt> and an <tt class="docutils literal"><span class="pre">&amp;ipv6=</span></tt> parameter are specified, the tracker
+may ignore the address family that is the same as the source address of the
+request. i.e. If the client connects to the tracker with an IPv4 source
+address, the tracker may ignore any <tt class="docutils literal"><span class="pre">&amp;ipv4=</span></tt> address and if the client
+connects to the tracker with an IPv6 source address, the tracker may ignore
+any <tt class="docutils literal"><span class="pre">&amp;ipv6=</span></tt> parameter.</p>
 </div>
 <div class="section">
 <h2><a id="announce-response" name="announce-response">announce response</a></h2>
@@ -89,9 +94,17 @@ d8:intervali1800e5:peers6:iiiipp6:peers618:iiiiiiiiiiiiiiiippe
 </pre>
 </div>
 <div class="section">
+<h2><a id="rationale" name="rationale">rationale</a></h2>
+<p>The naming of <tt class="docutils literal"><span class="pre">peers6</span></tt> is chosen not to collide with the current <tt class="docutils literal"><span class="pre">peers</span></tt>
+response and to be backwards compatible. It is also a simple addition to the
+current response, using the same encoding.</p>
+</div>
+<div class="section">
 <h2><a id="authors" name="authors">authors</a></h2>
-<p><a class="reference" href="mailto:greg&#37;&#52;&#48;bittorrent&#46;com">Greg hazel</a>
-<a class="reference" href="mailto:arvid&#37;&#52;&#48;bittorrent&#46;com">Arvid Norberg</a></p>
+<div class="line-block">
+<div class="line"><a class="reference" href="mailto:greg&#37;&#52;&#48;bittorrent&#46;com">Greg hazel</a></div>
+<div class="line"><a class="reference" href="mailto:arvid&#37;&#52;&#48;bittorrent&#46;com">Arvid Norberg</a></div>
+</div>
 </div>
 </div>
 

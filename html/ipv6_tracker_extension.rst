@@ -17,8 +17,7 @@ to the tracker. The value is either an IPv6 endpoint (address and port) or
 just an IPv6 address. In the case where only an address is supplied, the IPv6
 port is assumed to be the same as specified by the ``&port=`` parameter.
 
-The tracker may perform a NAT check on the IPv6 endpoint or it may assume that
-IPv6 addresses are not behind NATs.
+The tracker should perform a NAT check on the IPv6 endpoint.
 
 In case the client contacts the tracker on an IPv6 interface, the it may add
 an ``&ipv4=`` parameter with its IPv4 address or endpoint. The value should
@@ -29,6 +28,13 @@ parameter.
 The endpoints are encoded as strings as defined by `RFC 2732`_.
 
 .. _`RFC 2732`: http://tools.ietf.org/html/rfc2732
+
+If both an ``&ipv4=`` and an ``&ipv6=`` parameter are specified, the tracker
+may ignore the address family that is the same as the source address of the
+request. i.e. If the client connects to the tracker with an IPv4 source
+address, the tracker may ignore any ``&ipv4=`` address and if the client
+connects to the tracker with an IPv6 source address, the tracker may ignore
+any ``&ipv6=`` parameter.
 
 announce response
 -----------------
@@ -69,11 +75,18 @@ Example response::
 
 	d8:intervali1800e5:peers6:iiiipp6:peers618:iiiiiiiiiiiiiiiippe
 
+rationale
+---------
+
+The naming of ``peers6`` is chosen not to collide with the current ``peers``
+response and to be backwards compatible. It is also a simple addition to the
+current response, using the same encoding.
+
 authors
 -------
 
-`Greg hazel`__
-`Arvid Norberg`__
+| `Greg hazel`__
+| `Arvid Norberg`__
 
 .. __: mailto:greg@bittorrent.com
 .. __: mailto:arvid@bittorrent.com

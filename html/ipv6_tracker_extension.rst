@@ -3,24 +3,24 @@ IPv6 tracker extension
 
 This extension extends the tracker response to better support IPv6 peers as
 well as defines a way for multi homed machines to announce multiple addresses
-at the same time. The main use case that this proposal is optimized for is
-peers that are either on an IPv4 network running Teredo_ or peers that are on
-an IPv6 network having an IPv4 tunnel interface.
+at the same time.  This proposal addresses the use case where peers
+are either on an IPv4 network running Teredo_ or peers are on
+an IPv6 network with an IPv4 tunnel interface.
 
 .. _Teredo: https://www.microsoft.com/technet/network/ipv6/teredo.mspx
 
 announce parameter
 ------------------
 
-The client may add an ``&ipv6=`` parameter to the HTTP GET request it sends
+The client MAY add an ``&ipv6=`` parameter to the HTTP GET request it sends
 to the tracker. The value is either an IPv6 endpoint (address and port) or
 just an IPv6 address. In the case where only an address is supplied, the IPv6
 port is assumed to be the same as specified by the ``&port=`` parameter.
 
-The tracker should perform a NAT check on the IPv6 endpoint.
+The tracker SHOULD perform a NAT check on the IPv6 endpoint.
 
-In case the client contacts the tracker on an IPv6 interface, the it may add
-an ``&ipv4=`` parameter with its IPv4 address or endpoint. The value should
+In case the client contacts the tracker on an IPv6 interface, it may add
+an ``&ipv4=`` parameter with its IPv4 address or endpoint. The value MUST
 be either an IPv4 endpoint (address and port) or just an IPv4 address. If only
 an address is supplied, the port is assumed to be the same as the ``&port=``
 parameter.
@@ -30,10 +30,10 @@ The endpoints are encoded as strings as defined by `RFC 2732`_.
 .. _`RFC 2732`: http://tools.ietf.org/html/rfc2732
 
 If both an ``&ipv4=`` and an ``&ipv6=`` parameter are specified, the tracker
-may ignore the address family that is the same as the source address of the
+MAY ignore the address family that is the same as the source address of the
 request. i.e. If the client connects to the tracker with an IPv4 source
-address, the tracker may ignore any ``&ipv4=`` address and if the client
-connects to the tracker with an IPv6 source address, the tracker may ignore
+address, the tracker MAY ignore any ``&ipv4=`` address and if the client
+connects to the tracker with an IPv6 source address, the tracker MAY ignore
 any ``&ipv6=`` parameter.
 
 announce response
@@ -43,10 +43,10 @@ In case the tracker does not support the ``compact`` response, no change is
 necessary. Since the original ``peers`` response returns peer endpoints in
 their expanded string form, IPv6 addresses can be passed back this way.
 
-In case a compact response is requested, the tracker may add another key
+In case a compact response is requested, the tracker MAY add another key
 to the response; ``peers6``. This key has the same layout as ``peers`` in
 compact mode, but instead of using 6 bytes per endpoint, 18 bytes are used.
-It only contains IPv6 addresses.
+peers6 contains address-port pairs where the addresses are all IPv6.
 
 examples
 --------

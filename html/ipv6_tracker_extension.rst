@@ -9,6 +9,8 @@ an IPv6 network with an IPv4 tunnel interface.
 
 .. _Teredo: https://www.microsoft.com/technet/network/ipv6/teredo.mspx
 
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in IETF RFC 2119. 
+
 announce parameter
 ------------------
 

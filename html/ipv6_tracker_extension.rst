@@ -87,7 +87,7 @@ current response, using the same encoding.
 authors
 -------
 
-| `Greg hazel`__
+| `Greg Hazel`__
 | `Arvid Norberg`__
 
 .. __: mailto:greg@bittorrent.com

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.5: http://docutils.sourceforge.net/" />
+<title></title>
+<link rel="stylesheet" href="css/screen.css" type="text/css" />
+</head>
+<body>
+<div class="document">
+
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="./index.html">BitTorrent<span>.org</span></a></h1>
+</div>
+<div id="nav">
+<ul>
+<li><a href="./index.html">Home</a></li>
+<li><a href="./introduction.html">For Users</a></li>
+<li><span>For Developers</span></li>
+<!-- <li><a href="./blog">Blog</a></li> -->
+<li><a href="./donate.html">Donate!</a></li>
+</ul>
+</div> <!-- nav -->
+<!-- ### Begin Content ### -->
+<div id="second">
+
+
+
+<div class="section">
+<h1><a id="tracker-peer-obfuscation-extension" name="tracker-peer-obfuscation-extension">tracker peer obfuscation extension</a></h1>
+<p>This extension extends the tracker protocol to support simple obfuscation
+of the peers it returns, using the info hash as a shared secret between
+the peer and the tracker. The obfuscation does not provide any security
+against eavesdroppers that know the info-hash of the torrent, it does
+however make it a lot harder for an eavesdropper to listen on tracker
+traffic in general to pick up the responses.</p>
+<p>The goal is to prevent internet service providers and other network
+administrators to block or disrupt bittorrent traffic in general. It
+will leave the possibility to block or disrupt bittorrent traffic for
+a certain torrent (given the attacker knows the info-hash).</p>
+<p>The key words &quot;MUST&quot;, &quot;MUST NOT&quot;, &quot;REQUIRED&quot;, &quot;SHALL&quot;, &quot;SHALL NOT&quot;, &quot;SHOULD&quot;,
+&quot;SHOULD NOT&quot;, &quot;RECOMMENDED&quot;, &quot;MAY&quot;, and &quot;OPTIONAL&quot; in this document are
+to be interpreted as described in IETF <a class="reference" href="http://tools.ietf.org/html/rfc2119">RFC 2119</a>.</p>
+<div class="section">
+<h2><a id="announce-parameter" name="announce-parameter">announce parameter</a></h2>
+<p>When using this extension, instead of passing the <tt class="docutils literal"><span class="pre">info_hash</span></tt> parameter
+to the tracker, an <tt class="docutils literal"><span class="pre">xor_ih</span></tt> is passed.</p>
+<p>The value of <tt class="docutils literal"><span class="pre">xor_ih</span></tt> MUST be the info-hash of the torrent, bit-wise XORed
+with the byte-wise reverse of itself.</p>
+<p>For example. If the info-hash is <tt class="docutils literal"><span class="pre">0102030405060708090a0b0c0d0e0f1011121314</span></tt>
+(hex encoded), the value passed as the <tt class="docutils literal"><span class="pre">xor_ih</span></tt> should be:
+<tt class="docutils literal"><span class="pre">0102030405060708091011121314</span></tt> XOR <tt class="docutils literal"><span class="pre">1413121110090807060504030201</span></tt>. The
+value MUST be url encoded, just like the <tt class="docutils literal"><span class="pre">info_hash</span></tt>.</p>
+<p>This extension does not change the semantics of any parameter.</p>
+</div>
+<div class="section">
+<h2><a id="announce-response" name="announce-response">announce response</a></h2>
+<p>If the tracker supports this extension, the response should be exactly the
+same as if the <tt class="docutils literal"><span class="pre">info_hash</span></tt> was passed, except that any field that contains
+peer information (such as <tt class="docutils literal"><span class="pre">peers</span></tt>, <tt class="docutils literal"><span class="pre">peers6</span></tt> or any other field defined
+by another extension) MUST be bit-wise XORed by the info-hash.</p>
+<p>In the case <tt class="docutils literal"><span class="pre">peers</span></tt> (or another filed containing peer info) is not a single
+string, only the strings which contain the addresses and ports MUST be XORed.</p>
+<p>The tracker response MUST remain a valid bencoded message.</p>
+</div>
+<div class="section">
+<h2><a id="backwards-compatibility" name="backwards-compatibility">backwards compatibility</a></h2>
+<p>A client that is configured to use this extension should always send the
+<tt class="docutils literal"><span class="pre">xor_ih</span></tt> to any new tracker first. If it fails, the standard <tt class="docutils literal"><span class="pre">info_hash</span></tt>
+parameter should be used instead. It is important to never send both
+parameters in the same request, since that would defeat the purpose with
+the shared secret (since the secret would be sent in plain text in the announce).</p>
+</div>
+<div class="section">
+<h2><a id="rationale" name="rationale">rationale</a></h2>
+<p>The reason to XOR the info-hash with itself is because the tracker then
+only need one extra lookup table for XORed hashes. Instead of applying
+a scheme where a shared secret is exchanged. This will add no computational
+overhead on the tracker for the torrent lookup.</p>
+</div>
+<div class="section">
+<h2><a id="authors" name="authors">authors</a></h2>
+<div class="line-block">
+<div class="line"><a class="reference" href="mailto:greg&#37;&#52;&#48;bittorrent&#46;com">Greg Hazel</a></div>
+<div class="line"><a class="reference" href="mailto:dave&#37;&#52;&#48;bittorrent&#46;com">David Harrison</a></div>
+<div class="line"><a class="reference" href="mailto:arvid&#37;&#52;&#48;bittorrent&#46;com">Arvid Norberg</a></div>
+</div>
+</div>
+</div>
+
+</div>
+	<div id="footer">
+<hr/>
+<p>Copyright 2006 BitTorrent.org</p>
+</div>
+
+</div>
+</body>
+</html>

@@ -62,7 +62,7 @@ rationale
 ---------
 
 The reason to XOR the info-hash with itself is because the tracker then
-only need one extra lookup table for XORed hashes. Instead of applying
+only needs one extra lookup table for XORed hashes. Instead of applying
 a scheme where a shared secret is exchanged. This will add no computational
 overhead on the tracker for the torrent lookup.
 

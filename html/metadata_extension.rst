@@ -1,0 +1,134 @@
+metadata extension
+==================
+
+The purpose of this extension is to allow clients to join a swarm and
+complete a download without the need of downloading a .torrent file
+first. This extension instead allows clients to download the metadata
+from peers. It makes it possible to support *magnet links*, a link
+on a web page only containing enough information to join the swarm
+(the info hash).
+
+metadata
+--------
+
+This extension only transfers the info-dictionary part of the .torrent
+file. This part can be validated by the info-hash. In this document, that
+part of the .torrent file is referred to as *the metadata*.
+
+The metadata is plit up in 16kiB pieces. The pieces are indexed starting
+from 0 for the first 16kiB of metadata.
+
+extension header
+----------------
+
+The metadata extension uses the `extension protocol`_ to advertize its
+existence. It adds the "ut_metadata" entry to the "m" dictionary in the
+extension header hand-shake message. This identifies the message code
+used for this message. It also adds "metadata_size" to the handshake
+message (not the "m" dictionary) specifying an integer value of the
+number of bytes of the metadata.
+
+.. _`extension protocol`: extension_protocol.html
+
+Example extension handshake message::
+
+{'m': {'ut_metadata', 3}, 'metadata_size': 31235}
+
+
+extension message
+-----------------
+
+The extension messages are bencoded. There are 3 different kinds of messages:
+
+0. request
+1. data
+2. reject
+
+The bencoded messages have a key "msg_type" which value is an integer
+corresponding to the type of message. They also have a key "piece", which
+indicates which part of the metadata this message refers to.
+
+request
+~~~~~~~
+
+The ``request`` message does not have any additional keys in the dictionary.
+The response to this message, from a peer supporting the extension, is either
+a ``reject`` or a ``data`` message. The response MUST have the same ``piece``
+as the request did.
+
+A peer MUST verify that any piece it sends passes the info-hash verification.
+i.e. until the peer has the entire metadata, it cannot run SHA-1 to verify that
+it yields the same hash as the info-hash. Peers that do not have the entire
+metadata MUST respond with a ``reject`` message to any metadata request.
+
+Example::
+
+	{'msg_type': 0, 'piece': 0}
+	d8:msg_typei0e5:piecei0ee
+
+That request message requests the first metadata piece.
+
+data
+~~~~
+
+The ``data`` message adds another entry to the dictionary, "total_size". This
+key has the same semantics as the "metadata_size" in the extension header. This
+is an integer.
+
+The metadata piece is appended to the bencoded dictionary, it is not a part of
+the dictionary, but it is a part of the message (the length prefix MUST include it).
+
+If the piece is the last piece of the metadata, it may be less than 16kiB. If it
+is not the last piece of the metadata, it MUST be 16kiB.
+
+Example::
+
+	{'msg_type': 1, 'piece': 0, 'total_size': 3425}
+	d8:msg_typei1e5:piecei0e10:total_sizei34256eexxxxxxxx...
+
+The ``x`` represents binary data (the metadata).
+
+reject
+~~~~~~
+
+The ``reject`` message does not have any additional keys in its message.
+It SHOULD be interpreted as the peer does not have the piece of metadata
+that was requested.
+
+Clients MAY implement flood protection by rejecting ``request`` messages
+after a certain number of them have been served. Typically the number of
+pieces of metadata times a factor.
+
+Example::
+
+	{'msg_type': 2, 'piece': 0}
+	d8:msg_typei1e5:piecei0ee
+
+magnet URI format
+-----------------
+
+The magnet URI format is::
+
+	magnet:?xt=urn:btih:<info-hash>&dn=<name>&tr=<tracker-url>
+
+<info-hash>
+	Is the info-hash encoded as base32.
+
+``xt`` is the only mandatory parameter. ``dn`` is the display name that may be
+used by the client to display while waiting for metadata. ``tr`` is a tracker
+url, if there is one. If there are multiple trackers, multiple ``tr`` entries
+may be included.
+
+Both ``dn`` and ``tr`` are optional.
+
+If no tracker is specified, the client SHOULD use the DHT to acquire peers.
+
+authors
+-------
+
+| `Greg Hazel`__
+| `Arvid Norberg`__
+
+.. __: mailto:greg@bittorrent.com
+.. __: mailto:arvid@bittorrent.com
+

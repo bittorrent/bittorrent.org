@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.5: http://docutils.sourceforge.net/" />
+<title></title>
+<link rel="stylesheet" href="css/screen.css" type="text/css" />
+</head>
+<body>
+<div class="document">
+
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="./index.html">BitTorrent<span>.org</span></a></h1>
+</div>
+<div id="nav">
+<ul>
+<li><a href="./index.html">Home</a></li>
+<li><a href="./introduction.html">For Users</a></li>
+<li><span>For Developers</span></li>
+<!-- <li><a href="./blog">Blog</a></li> -->
+<li><a href="./donate.html">Donate!</a></li>
+</ul>
+</div> <!-- nav -->
+<!-- ### Begin Content ### -->
+<div id="second">
+
+
+
+<div class="section" id="metadata-extension">
+<h1>metadata extension</h1>
+<p>The purpose of this extension is to allow clients to join a swarm and
+complete a download without the need of downloading a .torrent file
+first. This extension instead allows clients to download the metadata
+from peers. It makes it possible to support <em>magnet links</em>, a link
+on a web page only containing enough information to join the swarm
+(the info hash).</p>
+<div class="section" id="metadata">
+<h2>metadata</h2>
+<p>This extension only transfers the info-dictionary part of the .torrent
+file. This part can be validated by the info-hash. In this document, that
+part of the .torrent file is referred to as <em>the metadata</em>.</p>
+<p>The metadata is plit up in 16kiB pieces. The pieces are indexed starting
+from 0 for the first 16kiB of metadata.</p>
+</div>
+<div class="section" id="extension-header">
+<h2>extension header</h2>
+<p>The metadata extension uses the <a class="reference" href="extension_protocol.html">extension protocol</a> to advertize its
+existence. It adds the &quot;ut_metadata&quot; entry to the &quot;m&quot; dictionary in the
+extension header hand-shake message. This identifies the message code
+used for this message. It also adds &quot;metadata_size&quot; to the handshake
+message (not the &quot;m&quot; dictionary) specifying an integer value of the
+number of bytes of the metadata.</p>
+<p>Example extension handshake message:</p>
+<pre class="literal-block">
+{'m': {'ut_metadata', 3}, 'metadata_size': 31235}
+</pre>
+</div>
+<div class="section" id="extension-message">
+<h2>extension message</h2>
+<p>The extension messages are bencoded. There are 3 different kinds of messages:</p>
+<ol class="arabic simple" start="0">
+<li>request</li>
+<li>data</li>
+<li>reject</li>
+</ol>
+<p>The bencoded messages have a key &quot;msg_type&quot; which value is an integer
+corresponding to the type of message. They also have a key &quot;piece&quot;, which
+indicates which part of the metadata this message refers to.</p>
+<div class="section" id="request">
+<h3>request</h3>
+<p>The <tt class="docutils literal"><span class="pre">request</span></tt> message does not have any additional keys in the dictionary.
+The response to this message, from a peer supporting the extension, is either
+a <tt class="docutils literal"><span class="pre">reject</span></tt> or a <tt class="docutils literal"><span class="pre">data</span></tt> message. The response MUST have the same <tt class="docutils literal"><span class="pre">piece</span></tt>
+as the request did.</p>
+<p>A peer MUST verify that any piece it sends passes the info-hash verification.
+i.e. until the peer has the entire metadata, it cannot run SHA-1 to verify that
+it yields the same hash as the info-hash. Peers that do not have the entire
+metadata MUST respond with a <tt class="docutils literal"><span class="pre">reject</span></tt> message to any metadata request.</p>
+<p>Example:</p>
+<pre class="literal-block">
+{'msg_type': 0, 'piece': 0}
+d8:msg_typei0e5:piecei0ee
+</pre>
+<p>That request message requests the first metadata piece.</p>
+</div>
+<div class="section" id="data">
+<h3>data</h3>
+<p>The <tt class="docutils literal"><span class="pre">data</span></tt> message adds another entry to the dictionary, &quot;total_size&quot;. This
+key has the same semantics as the &quot;metadata_size&quot; in the extension header. This
+is an integer.</p>
+<p>The metadata piece is appended to the bencoded dictionary, it is not a part of
+the dictionary, but it is a part of the message (the length prefix MUST include it).</p>
+<p>If the piece is the last piece of the metadata, it may be less than 16kiB. If it
+is not the last piece of the metadata, it MUST be 16kiB.</p>
+<p>Example:</p>
+<pre class="literal-block">
+{'msg_type': 1, 'piece': 0, 'total_size': 3425}
+d8:msg_typei1e5:piecei0e10:total_sizei34256eexxxxxxxx...
+</pre>
+<p>The <tt class="docutils literal"><span class="pre">x</span></tt> represents binary data (the metadata).</p>
+</div>
+<div class="section" id="reject">
+<h3>reject</h3>
+<p>The <tt class="docutils literal"><span class="pre">reject</span></tt> message does not have any additional keys in its message.
+It SHOULD be interpreted as the peer does not have the piece of metadata
+that was requested.</p>
+<p>Clients MAY implement flood protection by rejecting <tt class="docutils literal"><span class="pre">request</span></tt> messages
+after a certain number of them have been served. Typically the number of
+pieces of metadata times a factor.</p>
+<p>Example:</p>
+<pre class="literal-block">
+{'msg_type': 2, 'piece': 0}
+d8:msg_typei1e5:piecei0ee
+</pre>
+</div>
+</div>
+<div class="section" id="magnet-uri-format">
+<h2>magnet URI format</h2>
+<p>The magnet URI format is:</p>
+<pre class="literal-block">
+magnet:?xt=urn:btih:&lt;info-hash&gt;&amp;dn=&lt;name&gt;&amp;tr=&lt;tracker-url&gt;
+</pre>
+<dl class="docutils">
+<dt>&lt;info-hash&gt;</dt>
+<dd>Is the info-hash encoded as base32.</dd>
+</dl>
+<p><tt class="docutils literal"><span class="pre">xt</span></tt> is the only mandatory parameter. <tt class="docutils literal"><span class="pre">dn</span></tt> is the display name that may be
+used by the client to display while waiting for metadata. <tt class="docutils literal"><span class="pre">tr</span></tt> is a tracker
+url, if there is one. If there are multiple trackers, multiple <tt class="docutils literal"><span class="pre">tr</span></tt> entries
+may be included.</p>
+<p>Both <tt class="docutils literal"><span class="pre">dn</span></tt> and <tt class="docutils literal"><span class="pre">tr</span></tt> are optional.</p>
+<p>If no tracker is specified, the client SHOULD use the DHT to acquire peers.</p>
+</div>
+<div class="section" id="authors">
+<h2>authors</h2>
+<div class="line-block">
+<div class="line"><a class="reference" href="mailto:greg&#37;&#52;&#48;bittorrent&#46;com">Greg Hazel</a></div>
+<div class="line"><a class="reference" href="mailto:arvid&#37;&#52;&#48;bittorrent&#46;com">Arvid Norberg</a></div>
+</div>
+</div>
+</div>
+
+</div>
+	<div id="footer">
+<hr/>
+<p>Copyright 2006 BitTorrent.org</p>
+</div>
+
+</div>
+</body>
+</html>

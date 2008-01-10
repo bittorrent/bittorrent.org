@@ -126,7 +126,7 @@ request then the peer MUST close the connection.
 
 <h2 id="Allowed_Fast_Set_Generation"> Allowed Fast Set Generation </h2>
 <p>The canonical algorithm for computing a peer <i>P'</i>s <i>allowed fast set</i>
-follows.  All integers in this pseudocode are four bytes represented in network (big-endian) byte order.  <i>[a:b]</i> denotes the sequence of consecutive integers from <i>a</i> to <i>b</i> excluding <i>b</i>, i.e., <i>(a, a+1, a+2,..., b-1)</i>. <i>x[a:b]</i> denotes a subsequence of elements in an array <i>x</i> starting from index <i>a</i> to but not including index <i>b</i>.
+follows.  All integers in this pseudocode are four bytes represented in network (big-endian) byte order.  <i>[a:b]</i> denotes the sequence of consecutive bytes from <i>a</i> to <i>b</i> excluding <i>b</i>, i.e., <i>(a, a+1, a+2,..., b-1)</i>. <i>x[a:b]</i> denotes a subsequence of elements in an array <i>x</i> starting from index <i>a</i> to but not including index <i>b</i>.
 </p><p>Let <i>ip</i> denote <i>P'</i>s IPv4 address.  We currently have no
 provisions for IPv6. If a peer is behind a Network Address Translator
 (NAT) then <i>ip</i> should be the externally facing IP address of the

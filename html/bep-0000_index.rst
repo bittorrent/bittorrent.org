@@ -7,12 +7,12 @@
 :Type:    Process
 :Created: 10-Jan-2008
 
-This document is an index of all BitTorrent Enhancement Proposals (BEPs).
-One of the BitTorrent.org editors assigns a BEP number and updates
-this index appropriately.  The processed is modelled after 
-the PEP process used in the python community.  Each document has a
-number that never changes and the history of document is maintained
-in subversion [#svn].  
+This document indexes all BitTorrent Enhancement Proposals (BEPs).
+When a new proposal is submitted, one of the BitTorrent.org editors 
+assigns a BEP number and updates this index appropriately.  The process 
+is modelled after the PEP process used in the python community.  Each 
+document has a number that never changes and the history of document is 
+maintained in subversion [#svn].  
 
 
 =====  =========================================  

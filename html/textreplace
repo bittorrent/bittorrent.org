@@ -1,0 +1,93 @@
+#!/usr/bin/perl
+
+###
+# textreplace
+#
+# This accepts a list of files and performs in-place text replacement.
+# In otherwords, BACKUP YOUR FILES BEFORE YOU USE TEXTREPLACE.
+#
+# Usage:
+#   textreplace [[[file1] [file2] ... ]
+# 
+# If no files are specified on the command line then this accepts a 
+# whitespace delimited list of files from stdin.
+#
+# The type of text replacement is hard-coded, but I can easily change it
+# as needed... (So it's not perfect. Who cares?)
+#
+# by David Harrison   9/23/96
+###
+
+MAIN:
+{
+  print "textreplace begin...\n";
+  if (!@ARGV) {
+    @ARGV = <STDIN>;
+    #chop(@ARGV)   <--- What does this do?
+  }
+  foreach $file ( @ARGV ) {
+    print $file . "\n";
+
+    # move the file to a temporary file.
+    $file =~ s/\n//g;  # eliminate trailing newline from filename.
+    $infile = "harrisod_textreplace";
+    rename $file, $infile;
+
+    # use the temporary file as input to our text replacement operators.
+    open(INFILE, $infile) || die "can't read $file";
+
+    # output back to the original file.
+    open(OUTFILE, ">" . $file) || die "can't modify $file";
+
+    # process the file.  <file> reads a line into $_
+    while ( <INFILE> ) {
+      # perform substitution on $_
+      #s/BOOL/bool/g;
+      #s/TRUE/true/g;
+      #s/FALSE/false/g;
+      #s/seeder01.bittorrent.com/seeder-01.griffith.bit/g;
+      #s/seeder-03.griffith/seeder-03.griffith.bit/g;
+      #s/seeder1.bittorrent.com/38.99.5.17/g;
+      #s/seeder2.bittorrent.com/38.99.5.16/g;
+      #s/seeder3.bittorrent.com/38.99.5.15/g;
+      #s/GNU Public License/MIT License/g;
+      #s/sleep/wait/g;
+      #s/utorrent/BitTorrent/g;
+      #s/vp03-23.swf/player.swf/g;
+      #s/scripts\//\.\.\/scripts\//g;
+      #s/\.\.\/\.\.\/scripts/..\/scripts/g;
+      #s/things\/cache/things\/dna_streaming_mockup\/cache/g;
+      #s/video_player_06_20_07.swf/video_player_06_22_07.swf/g;
+      #s/brightcove/demo/g;
+      #s/download.bittorrent.com\/public\/things/demo.bittorrent.com/g;
+      #s/player_06_22_07/player_080207/g;
+      #s/swfobject.js/swfobject_1-5.js/g;
+      #s/dna_streaming_mockup/dna_plugin/g;
+      #s/video_player_080207/player_080207/g;
+      #s/demo.bittorrent.com\/dna_plugin/demo.bittorrent.com\/dx14fv/g;
+      #s/demo.bittorrent.com/download.bittorrent.com\/public\/dx14fv/g;
+      #s/public\/things\/dx14fv/public\/dx14fv/g;
+      #s/dx14fv\/dx14fv/dx14fv/g;
+      #s/download.bittorrent.com\/public\/dx13fv\/cache_/demo.bittorrent.com\/dna_streaming_mockup\/cache_/g;
+      #s/player_080207.swf/player.swf/g;
+      #s/demo.bittorrent.com/download.bittorrent.com\/public\/things/g;
+      #s/btdna\(/encodeURIComponent\(btdna\(/g;
+      #s/}\)\);/}\)\)\);/g;
+      #s/\r/\n/g;
+      s/2006 BitTorrent.org/2008 BitTorrent.org/g;
+      
+      # output $_ to $file
+      print OUTFILE;
+    }
+
+    # close the input and output files.
+    close INFILE;
+    close OUTFILE;
+
+    # remove the temporary file.
+    unlink $infile
+  }
+
+}
+
+

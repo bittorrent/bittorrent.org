@@ -10,7 +10,7 @@
 This document indexes all BitTorrent Enhancement Proposals (BEPs).
 When a new proposal is submitted, one of the BitTorrent.org editors 
 assigns a BEP number and updates this index appropriately.  The process 
-is modelled after the PEP process used in the python community.  Each 
+is modelled after the PEP process used in the python community [#python].  Each 
 document has a number that never changes and the history of document is 
 maintained in subversion [#svn].  
 
@@ -31,6 +31,7 @@ Num    Title
 
 
 
+.. [#python] http://www.python.org/dev/peps/
 .. [#svn] http://svn.bittorrent.org
 .. _0: bep_0000_index.html
 .. _1: bep_0001_the_bep_process.html

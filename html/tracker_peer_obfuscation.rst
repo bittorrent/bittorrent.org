@@ -98,8 +98,10 @@ authors
 | `Greg Hazel`__
 | `David Harrison`__
 | `Arvid Norberg`__
+| `Anthony Ciani`__
 
 .. __: mailto:greg@bittorrent.com
 .. __: mailto:dave@bittorrent.com
 .. __: mailto:arvid@bittorrent.com
+.. __: mailto:tony@ciani.phy.uic.edu 
 

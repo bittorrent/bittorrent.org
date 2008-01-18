@@ -1,11 +1,12 @@
 :BEP: 0
 :Title: Index of BitTorrent Enhancement Proposals 
-:Version: 1.0
+:Version: 1
 :Last-Modified: 11-Jan-2008
 :Author:  David Harrison
 :Status:  Active
 :Type:    Process
 :Created: 10-Jan-2008
+:Post-History:
 
 This document indexes all BitTorrent Enhancement Proposals (BEPs).
 When a new proposal is submitted, one of the BitTorrent.org editors 

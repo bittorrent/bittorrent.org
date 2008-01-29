@@ -8,6 +8,12 @@
 :Created: 10-Jan-2008
 :Post-History:
 
+The BitTorrent Community Forum coordinates the development of the
+BitTorrent protocol suite and its reference implementation. It is the
+wish of Bram Cohen that the BitTorrent mainline python implementation
+remain open source and that the protocol development process be
+modelled after the Python Enhancement Proposal~(PEP) process.
+
 This document indexes all BitTorrent Enhancement Proposals (BEPs).
 When a new proposal is submitted, one of the BitTorrent.org editors 
 assigns a BEP number and updates this index appropriately.  The process 
@@ -35,14 +41,14 @@ Num    Title
 
 .. [#python] http://www.python.org/dev/peps/
 .. [#svn] http://svn.bittorrent.org
-.. _0: bep_0000_index.html
-.. _1: bep_0001_the_bep_process.html
-.. _2: bep_0002_protocol.html
-.. _3: bep_0003_assigned_numbers.html
-.. _4: bep_0004_DHT_protocol.html
-.. _5: bep_0005_fast_extensions.html
-.. _6: bep_0006_ipv6_tracker_extension.html
-.. _7: bep_0007_tracker_peer_obfuscation.html
-.. _8: bep_0008_metadata_extension.html
-.. _9: bep_0009_extension_protocol.html
+.. _0: bep_0000.html
+.. _1: bep_0001.html
+.. _2: bep_0002.html
+.. _3: bep_0003.html
+.. _4: bep_0004.html
+.. _5: bep_0005.html
+.. _6: bep_0006.html
+.. _7: bep_0007.html
+.. _8: bep_0008.html
+.. _9: bep_0009.html
 

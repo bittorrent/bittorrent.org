@@ -1,11 +1,11 @@
 
 BEPS= \
-	bep_0000_index.html \
-	bep_0002_protocol.html \
-	bep_0006_ipv6_tracker_extension.html \
-	bep_0007_tracker_peer_obfuscation.html \
-	bep_0008_metadata_extension.html \
-	bep_0009_extension_protocol.html
+	bep_0000.html \
+	bep_0002.html \
+	bep_0006.html \
+	bep_0007.html \
+	bep_0008.html \
+	bep_0009.html \
 
 all:	$(BEPS) 
 

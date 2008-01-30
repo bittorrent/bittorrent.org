@@ -304,11 +304,12 @@ We know from experience that periodically reshuffling peer lists on
 the order of the rerequest interval negligibly impacts tracker
 performance even with swarms containing millions of peers.  Generating
 a new pseudorandom string using RC4 on this same time interval is
-likely to incur negligible performance penalty because 1) it is a
+likely to incur negligible performance penalty because 1) RC4 is a
 small constant factor more expensive than a shuffle on an input string
-of equal length, 2) the generated pseudorandom string is only *n* bytes
-long where *n* is larger than the largest response size and thus much
-smaller than the tracker peer list, and 3) the cost of the XOR
+of equal length, 2) the generated pseudorandom string is only *n*
+bytes long where recommended *n* is within a small constant factor
+larger than the largest response size and thus much smaller than the
+tracker peer list for large swarms, and 3) the cost of the XOR
 operation is lighter weight than performing a random shuffle.
 
 

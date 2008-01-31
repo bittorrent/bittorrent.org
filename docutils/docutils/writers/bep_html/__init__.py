@@ -8,6 +8,7 @@ BEP HTML Writer.
 
 __docformat__ = 'reStructuredText'
 
+bthome = "http://www.bittorrent.org"
 
 import sys
 import os
@@ -66,7 +67,7 @@ class Writer(html4css1.Writer):
         subs = html4css1.Writer.interpolation_dict(self)
         settings = self.document.settings
         pyhome = settings.python_home
-        #subs['pyhome'] = pyhome
+        subs['pyhome'] = pyhome
 	subs['bthome'] = bthome
         subs['bephome'] = settings.bep_home
         if pyhome == '..':
@@ -75,8 +76,8 @@ class Writer(html4css1.Writer):
             subs['bepindex'] = bthome + '/beps'
         index = self.document.first_child_matching_class(nodes.field_list)
         header = self.document[index]
-        self.pepnum = header[0][1].astext()
-        subs['pep'] = self.pepnum
+        self.bepnum = header[0][1].astext()
+        subs['bep'] = self.bepnum
         if settings.no_random:
             subs['banner'] = 0
         else:

@@ -1,12 +1,12 @@
-:BEP: 0
-:Title: Index of BitTorrent Enhancement Proposals 
-:Version: 1
-:Last-Modified: 11-Jan-2008
-:Author:  David Harrison
-:Status:  Active
-:Type:    Process
-:Created: 10-Jan-2008
-:Post-History:
+BEP: 0
+Title: Index of BitTorrent Enhancement Proposals 
+Version: 1
+Last-Modified: 11-Jan-2008
+Author:  David Harrison
+Status:  Active
+Type:    Process
+Created: 10-Jan-2008
+Post-History:
 
 The BitTorrent Community Forum coordinates the development of the
 BitTorrent protocol suite and its reference implementation. It is the
@@ -51,4 +51,5 @@ Num    Title
 .. _7: bep_0007.html
 .. _8: bep_0008.html
 .. _9: bep_0009.html
-
+.. _10: bep_0010.html
+.. _11: bep_0011.html

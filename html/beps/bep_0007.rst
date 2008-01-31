@@ -218,6 +218,15 @@ Peers MUST never send both the ``info_hash`` and ``sha_ih`` parameters
 in the same request, since that would defeat the purpose of the shared
 secret.
 
+- any peer that reports a sha_ih is assumed to implement protocol encryption.
+- tracker OPTIONALLY includes a ``flags`` key that contains one byte per
+  peer in the reported peer list.  The first bit of each byte specifies
+  whether the peer support protocol encryption. (How do we protect
+  the flags field from modification?)
+- if no flags field is present then all peers should be assumed to support protocol encryption
+- if a flags field is present then those peers that support protocol
+  a 
+
 rationale
 ---------
 
@@ -231,10 +240,13 @@ BitTorrent connection has been identified, other attacks could be
 performed such as severely rate limiting or blocking these
 connections.
 
-This hardware was presumably deployed to get around BitTorrent
-protocol encryption, because BitTorrent protocol encryption increases
-the difficulty of identifying BitTorrent traffic based on the bytes
-transferred in a peer-to-peer connection.
+This hardware was presumably deployed to get around `BitTorrent
+Protocol Encryption`_.  Peers implementing BitTorrent Protocol
+Encryption obfuscate peer-to-peer connections by employing RC4
+encryption on every byte from the first byte transferred. BitTorrent
+Protocol Encryption thus increases the difficulty for a device
+observing passing packets to identify BitTorrent peer-to-peer
+connections.
 
 By using the SHA-1 of the infohash, the tracker is able to identify
 torrents without sending the plaintext infohash and without requiring
@@ -326,4 +338,6 @@ authors
 .. __: mailto:arvid@bittorrent.com
 .. __: mailto:greg@bittorrent.com
 .. __: mailto:tony@ciani.phy.uic.edu 
+.. _`RFC 2119`: http://tools.ietf.org/html/rfc2119
+.. _`BitTorrent Protocol Encryption`: http://www.bittorrent.org/beps/bep_0013.html
 

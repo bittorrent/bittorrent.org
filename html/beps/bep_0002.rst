@@ -2,7 +2,7 @@ BEP: 2
 Title: The BitTorrent Protocol Specification
 Version: 2
 Last-Modified: 11-Jan-2008
-Author:  Bram Cohen
+Author:  Bram Cohen <bram@bittorrent.com>
 Status:  Final
 Type:    Standard
 Created: 10-Jan-2008

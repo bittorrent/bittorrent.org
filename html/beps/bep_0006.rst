@@ -1,3 +1,13 @@
+BEP: 4
+Title: IPv6 Tracker Extension
+Version: 2
+Last-Modified: 11-Jan-2008
+Author:  Greg Hazel <greg@bittorrent.com>, Arvid Norberg <arvid@bittorrent.com>
+Status:  Draft
+Type:    Standards Track
+Created: 31-Jan-2008
+Post-History:
+
 IPv6 tracker extension
 ======================
 
@@ -88,12 +98,5 @@ The naming of ``peers6`` is chosen not to collide with the current ``peers``
 response and to be backwards compatible. It is also a simple addition to the
 current response, using the same encoding.
 
-authors
--------
 
-| `Greg Hazel`__
-| `Arvid Norberg`__
-
-.. __: mailto:greg@bittorrent.com
-.. __: mailto:arvid@bittorrent.com
 

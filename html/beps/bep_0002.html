@@ -114,8 +114,8 @@ downloaders with only a modest increase in its load.</p>
 <li>Strings are length-prefixed base ten followed by a colon and the string. For example <tt class="docutils literal"><span class="pre">4:spam</span></tt> corresponds to 'spam'.</li>
 <li>Integers are represented by an 'i' followed by the number in base 10
 followed by an 'e'. For example <tt class="docutils literal"><span class="pre">i3e</span></tt> corresponds to 3 and
-<tt class="docutils literal"><span class="pre">i-3e</span> <span class="pre">``corresponds</span> <span class="pre">to</span> <span class="pre">-3.</span> <span class="pre">Integers</span> <span class="pre">have</span> <span class="pre">no</span> <span class="pre">size</span>
-<span class="pre">limitation.</span> <span class="pre">``i-0e</span></tt> is invalid. All encodings with a leading
+<tt class="docutils literal"><span class="pre">i-3e</span></tt> corresponds to -3. Integers have no size
+limitation. <tt class="docutils literal"><span class="pre">i-0e</span></tt> is invalid. All encodings with a leading
 zero, such as <tt class="docutils literal"><span class="pre">i03e</span></tt>, are invalid, other than
 <tt class="docutils literal"><span class="pre">i0e</span></tt>, which of course corresponds to 0.</li>
 <li>Lists are encoded as an 'l' followed by their elements (also
@@ -363,7 +363,6 @@ as anywhere else in the rotation.</p>
 </div>
 	<div id="footer">
 <hr/>
-<p>Copyright 2006 BitTorrent.org</p>
 </div>
 
 </div>

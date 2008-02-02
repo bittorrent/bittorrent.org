@@ -27,7 +27,6 @@
 </div>
 	<div id="footer">
 <hr/>
-<p>Copyright 2006 BitTorrent.org</p>
 </div>
 
 %(body_suffix)s

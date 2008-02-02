@@ -1,208 +1,133 @@
-BEP: 9
-Title: Extension Protocol
+BEP: 8
+Title: Metadata Extension
 Version: 3
 Last-Modified: 02-Feb-2008
-Author:  Arvid Norberg <arvid@bittorrent.com>, Ludvig Strigeus <ludde@utorrent.com>
+Author:  Greg Hazel <greg@bittorrent.com>, Arvid Norberg <arvid@bittorrent.com>
 Status:  Draft
 Type:    Standards Track
 Created: 31-Jan-2008
 Post-History:
 
+The purpose of this extension is to allow clients to join a swarm and
+complete a download without the need of downloading a .torrent file
+first. This extension instead allows clients to download the metadata
+from peers. It makes it possible to support *magnet links*, a link
+on a web page only containing enough information to join the swarm
+(the info hash).
 
-The intention of this protocol is to provide a simple and thin transport
-for extensions to the bittorrent protocol. Supporting this protocol makes
-it easy to add new extensions without interfering with the standard
-bittorrent protocol or clients that don't support this extension or the
-one you want to add.
+metadata
+--------
 
-To advertise to other clients that you support, one bit from the reserved
-bytes is used.
+This extension only transfers the info-dictionary part of the .torrent
+file. This part can be validated by the info-hash. In this document, that
+part of the .torrent file is referred to as *the metadata*.
 
-The bit selected for the extension protocol is bit 20 from the right (counting
-starts at 0). So (reserved_byte[5] & 0x10) is the expression to use for checking
-if the client supports extended messaging.
+The metadata is plit up in 16kiB pieces. The pieces are indexed starting
+from 0 for the first 16kiB of metadata.
 
-Once support for the protocol is established, the client is supposed to
-support 1 new message:
+extension header
+----------------
 
-+------------------------+----+
-|name                    | id |
-+========================+====+
-|``extended``            | 20 |
-+------------------------+----+
+The metadata extension uses the `extension protocol`_ to advertize its
+existence. It adds the "ut_metadata" entry to the "m" dictionary in the
+extension header hand-shake message. This identifies the message code
+used for this message. It also adds "metadata_size" to the handshake
+message (not the "m" dictionary) specifying an integer value of the
+number of bytes of the metadata.
 
-This message is sent as any other bittorrent message, with a 4 byte length
-prefix and a single byte identifying the message (the single byte being 20
-in this case). At the start of the payload of the message, is a single byte
-message identifier. This identifier can refer to different extension messages
-and only one ID is specified, 0. If the ID is 0, the message is a handshake
-message which is described below. The layout of a general ``extended`` message
-follows (including the message headers used by the bittorrent protocol):
+.. _`extension protocol`: extension_protocol.html
 
-+----------+---------------------------------------------------------+
-| size     | description                                             |
-+==========+=========================================================+
-| uint32_t | length prefix. Specifies the number of bytes for the    |
-|          | entire message. (Big endian)                            |
-+----------+---------------------------------------------------------+
-| uint8_t  | bittorrent message ID, = 20                             |
-+----------+---------------------------------------------------------+
-| uint8_t  | extended message ID. 0 = handshake, >0 = extended       |
-|          | message as specified by the handshake.                  |
-+----------+---------------------------------------------------------+
+Example extension handshake message::
+
+{'m': {'ut_metadata', 3}, 'metadata_size': 31235}
 
 
-handshake message
+extension message
 -----------------
 
-The payload of the handshake message is a bencoded dictionary. All items
-in the dictionary are optional. Any unknown names should be ignored
-by the client. All parts of the dictionary are case sensitive.
-This is the defined item in the dictionary:
+The extension messages are bencoded. There are 3 different kinds of messages:
 
-+-------+-----------------------------------------------------------+
-| name  | description                                               |
-+=======+===========================================================+
-| m     | Dictionary of supported extension messages which maps     |
-|       | names of extensions to an extended message ID for each    |
-|       | extension message. The only requirement on these IDs      |
-|       | is that no extension message share the same one. Setting  |
-|       | an extension number to zero means that the extension is   |
-|       | not supported/disabled. The client should ignore any      |
-|       | extension names it doesn't recognize.                     |
-|       |                                                           |
-|       | The extension message IDs are the IDs used to send the    |
-|       | extension messages to the peer sending this handshake.    |
-|       | i.e. The IDs are local to this particular peer.           |
-+-------+-----------------------------------------------------------+
+0. request
+1. data
+2. reject
 
+The bencoded messages have a key "msg_type" which value is an integer
+corresponding to the type of message. They also have a key "piece", which
+indicates which part of the metadata this message refers to.
 
-Here are some other items that an implementation may choose to support:
+request
+~~~~~~~
 
-+--------+-----------------------------------------------------------+
-| name   | description                                               |
-+========+===========================================================+
-| p      | Local TCP listen port. Allows each side to learn about    |
-|        | the TCP port number of the other side. Note that there is |
-|        | no need for the receiving side of the connection to send  |
-|        | this extension message, since its port number is already  |
-|        | known.                                                    |
-+--------+-----------------------------------------------------------+
-| v      | Client name and version (as a utf-8 string).              |
-|        | This is a much more reliable way of identifying the       |
-|        | client than relying on the peer id encoding.              |
-+--------+-----------------------------------------------------------+
-| yourip | A string containing the compact representation of the ip  |
-|        | address this peer sees you as. i.e. this is the           |
-|        | receiver's external ip address (no port is included).     |
-|        | This may be either an IPv4 (4 bytes) or an IPv6           |
-|        | (16 bytes) address.                                       |
-+--------+-----------------------------------------------------------+
-| ipv6   | If this peer has an IPv6 interface, this is the compact   |
-|        | representation of that address (16 bytes). The client may |
-|        | prefer to connect back via the IPv6 address.              |
-+--------+-----------------------------------------------------------+
-| ipv4   | If this peer has an IPv4 interface, this is the compact   |
-|        | representation of that address (4 bytes). The client may  |
-|        | prefer to connect back via this interface.                |
-+--------+-----------------------------------------------------------+
-| reqq   | An integer, the number of outstanding request messages    |
-|        | this client supports without dropping any. The default in |
-|        | in libtorrent is 250.                                     |
-+--------+-----------------------------------------------------------+
+The ``request`` message does not have any additional keys in the dictionary.
+The response to this message, from a peer supporting the extension, is either
+a ``reject`` or a ``data`` message. The response MUST have the same ``piece``
+as the request did.
 
-The handshake dictionary could also include extended handshake
-information, such as support for encrypted headers or anything
-imaginable.
+A peer MUST verify that any piece it sends passes the info-hash verification.
+i.e. until the peer has the entire metadata, it cannot run SHA-1 to verify that
+it yields the same hash as the info-hash. Peers that do not have the entire
+metadata MUST respond with a ``reject`` message to any metadata request.
 
-An example of what the payload of a handshake message could look like:
+Example::
 
-+------------------------------------------------------+
-| Dictionary                                           |
-+===================+==================================+
-| ``m``             |  +--------------------------+    |
-|                   |  | Dictionary               |    |
-|                   |  +======================+===+    |
-|                   |  | ``LT_metadata``      | 1 |    |
-|                   |  +----------------------+---+    |
-|                   |  | ``ut_pex``           | 2 |    |
-|                   |  +----------------------+---+    |
-|                   |                                  |
-+-------------------+----------------------------------+
-| ``p``             | 6881                             |
-+-------------------+----------------------------------+
-| ``v``             | "µTorrent 1.2"                   |
-+-------------------+----------------------------------+
+	{'msg_type': 0, 'piece': 0}
+	d8:msg_typei0e5:piecei0ee
 
-and in the encoded form:
+That request message requests the first metadata piece.
 
-``d1:md11:LT_metadatai1e6:µT_PEXi2ee1:pi6881e1:v13:\xc2\xb5Torrent 1.2e``
+data
+~~~~
 
-To make sure the extension names do not collide by mistake, they should be
-prefixed with the two (or one) character code that is used to identify the
-client that introduced the extension. This applies for both the names of
-extension messages, and for any additional information put inside the
-top-level dictionary. All one and two byte identifiers are invalid to use
-unless defined by this specification.
+The ``data`` message adds another entry to the dictionary, "total_size". This
+key has the same semantics as the "metadata_size" in the extension header. This
+is an integer.
 
-This message should be sent immediately after the standard bittorrent handshake
-to any peer that supports this extension protocol. It is valid to send the
-handshake message more than once during the lifetime of a connection,
-the sending client should not be disconnected. An implementation may choose
-to ignore the subsequent handshake messages (or parts of them).
+The metadata piece is appended to the bencoded dictionary, it is not a part of
+the dictionary, but it is a part of the message (the length prefix MUST include it).
 
-Subsequent handshake messages can be used to enable/disable extensions
-without restarting the connection. If a peer supports changing extensions
-at run time, it should note that the ``m`` dictionary is additive.
-It's enough that it contains the actual *CHANGES* to the extension list.
-To disable the support for ``LT_metadata`` at run-time, without affecting
-any other extensions, this message should be sent:
-``d11:LT_metadatai0ee``.
-As specified above, the value 0 is used to turn off an extension.
+If the piece is the last piece of the metadata, it may be less than 16kiB. If it
+is not the last piece of the metadata, it MUST be 16kiB.
 
-The extension IDs must be stored for every peer, becuase every peer may have
-different IDs for the same extension.
+Example::
 
-This specification, deliberately, does not specify any extensions such as
-peer-exchange or metadata exchange. This protocol is merely a transport
-for the actual extensions to the bittorrent protocol and the extensions
-named in the example above (such as ``p``) are just examples of possible
-extensions.
+	{'msg_type': 1, 'piece': 0, 'total_size': 3425}
+	d8:msg_typei1e5:piecei0e10:total_sizei34256eexxxxxxxx...
 
-rationale
----------
+The ``x`` represents binary data (the metadata).
 
-The reason why the extension messages' IDs would be defined in the handshake
-is to avoid having a global registry of message IDs. Instead the names of the
-extension messages requires unique names, which is much easier to do without
-a global registry. The convention is to use a two letter prefix on the
-extension message names, the prefix would identify the client first
-implementing the extension message. e.g. ``LT_metadata`` is implemented by
-libtorrent, and hence it has the ``LT`` prefix.
+reject
+~~~~~~
 
-If the client supporting the extensions can decide which numbers the messages
-it receives will have, it means they are constants within that client. i.e.
-they can be used in ``switch`` statements. It's easy for the other end to
-store an array with the ID's we expect for each message and use that for
-lookups each time it sends an extension message.
+The ``reject`` message does not have any additional keys in its message.
+It SHOULD be interpreted as the peer does not have the piece of metadata
+that was requested.
 
-The reason for having a dictionary instead of having an array (using
-implicitly assigned index numbers to the extensions) is that if a client
-want to disable some extensions, the ID numbers would change, and it wouldn't
-be able to use constants (and hence, not use them in a ``switch``). If the
-messages IDs would map directly to bittorrent message IDs, It would also make
-it possible to map extensions in the handshake to existing extensions with
-fixed message IDs.
+Clients MAY implement flood protection by rejecting ``request`` messages
+after a certain number of them have been served. Typically the number of
+pieces of metadata times a factor.
 
-The reasoning behind having a single byte as extended message identifier is
-to follow the the bittorrent spec. with its single byte message identifiers.
-It is also considered to be enough. It won't limit the total number of
-extensions, only the number of extensions used simultaneously.
+Example::
 
-The reason for using single byte identifiers for the standardized handshake
-identifiers is 1) The mainline DHT uses single byte identifiers. 2) Saves
-bandwidth. The only advantage of longer messages is that it makes the
-protocol more readable for a human, but the BT protocol wasn't designed to
-be a human readable protocol, so why bother.
+	{'msg_type': 2, 'piece': 0}
+	d8:msg_typei1e5:piecei0ee
+
+magnet URI format
+-----------------
+
+The magnet URI format is::
+
+	magnet:?xt=urn:btih:<info-hash>&dn=<name>&tr=<tracker-url>
+
+<info-hash>
+	Is the info-hash encoded as base32.
+
+``xt`` is the only mandatory parameter. ``dn`` is the display name that may be
+used by the client to display while waiting for metadata. ``tr`` is a tracker
+url, if there is one. If there are multiple trackers, multiple ``tr`` entries
+may be included.
+
+Both ``dn`` and ``tr`` are optional.
+
+If no tracker is specified, the client SHOULD use the DHT to acquire peers.
 
 

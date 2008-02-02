@@ -27,14 +27,15 @@ Num        Title
 ======     ==========================================
 |0|        Index of BitTorrent Enhancement Proporsals
 |1|        The BEP Process                           
-|2|        The BitTorrent Protocol Specification     
-|3|        Known Number Allocations                  
-|4|        DHT Protocol                              
-|5|        Fast Extension                            
-|6|        IPv6 Tracker Extension                    
-|7|        Tracker Peer Obfuscation                  
-|8|        Metadata Extension                        
-|9|        Extension Protocol
+|2|        Sample reStructured Text BEP Template
+|3|        The BitTorrent Protocol Specification     
+|4|        Known Number Allocations                  
+|5|        DHT Protocol                              
+|6|        Fast Extension                            
+|7|        IPv6 Tracker Extension                    
+|8|        Tracker Peer Obfuscation                  
+|9|        Metadata Extension                        
+|10|       Extension Protocol
 |1000|     Pending Standards Track Documents
 ======     ==========================================
 

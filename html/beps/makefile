@@ -1,6 +1,7 @@
 
 BEPS= \
 	bep_0000.html \
+	bep_0001.html \
 	bep_0002.html \
 	bep_0003.html \
 	bep_0004.html \

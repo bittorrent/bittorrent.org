@@ -1,276 +1,414 @@
-BEP: 5
-Title: Fast Extension
-Version: 3
-Last-Modified: 02-Feb-2008
-Author:  David Harrison <dave@bittorrent.com>, Bram Cohen <bram@bittorrent.com>
+BEP: 4
+Title: DHT Protocol
+Version: 2
+Last-Modified: 11-Jan-2008
+Author:  Andrew Loewenstern <drue@bittorrent.com>
 Status:  Draft
 Type:    Standards Track
-Created: 01-Feb-2008
+Created: 31-Jan-2008
 Post-History:
 
-The Fast Extension packages several extensions: *Have None/Have All*,
-*Reject Requests*, *Suggestions* and *Allowed Fast.*
-These are enabled by setting the third least significant bit of the
-last reserved byte in the BitTorrent handshake:
+BitTorrent uses a "distributed sloppy hash table" (DHT) for storing
+peer contact information for "trackerless" torrents. In effect, each
+peer becomes a tracker. The protocol is based on Kademila [#Kademlia]_ and is
+implemented over UDP.
 
-::
-
-  reserved[7] |= 0x04
-
-The extension is enabled only if both ends of the connection set this bit.
-
-The following proposed messages adhere to the syntax of messages found
-in v1.0 of the BitTorrent protocol.  All integers are four bytes
-big-endian.  All messages start with an integer message length.  All
-messages but the Keep-Alive follow the message length with a single
-byte opcode and zero or more opcode-dependant arguments.
-
-The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
-NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and
-"OPTIONAL" in this document are to be interpreted as described in
-IETF `RFC 2119`_.
-
-Modifications to Semantics of Existing Messages
------------------------------------------------
-
-The Fast Extension modifies the semantics of the
-*Request*, *Choke*, *Unchoke*, and *Cancel*
-messages, and adds a *Reject Request.*  Now, every request
-is guaranteed to result in EXACTLY ONE response
-which is either the corresponding reject or corresponding piece
-message.  Even when a request is cancelled, the peer receiving
-the cancel should respond with either the corresponding reject or
-the corresponding piece: requests that are being processed are
-allowed to complete.
-
-Choke no longer implicitly rejects all pending requests,
-thus eliminating some race conditions which could cause pieces
-to be needlessly requested multiple times.
-
-Additionally, if a peer receives a piece that was never requested,
-the peer MUST close the connection.
+Please note the terminology used in this document to avoid
+confusion. A "peer" is a client/server listening on a TCP port that
+implements the BitTorrent protocol. A "node" is a client/server
+listening on a UDP port implementing the distributed hash table
+protocol. The DHT is composed of nodes and stores the location of
+peers. BitTorrent clients include a DHT node, which is used to contact
+other nodes in the DHT to get the location of peers to download from
+using the BitTorrent protocol.
 
 
-Have All/Have None
-------------------
+--------
+Overview
+--------
 
-::
+Each node has a globally unique identifier known as the "node ID."
+Node IDs are chosen at random from the same 160-bit space as BitTorrent
+infohashes [#entropy]_.  A "distance metric" is used to compare two node IDs or a node 
+ID and an infohash for "closeness." Nodes must maintain a routing table
+containing the contact information for a small number of other nodes.
+The routing table becomes more detailed as IDs get closer to the node's
+own ID. Nodes know about many other nodes in the DHT that have IDs that
+are "close" to their own but have only a handful of contacts with IDs
+that are very far away from their own.
 
-  *Have All*: <len=0x0001> <op=0x0E>
+In Kademlia, the distance metric is XOR and the result is interpreted
+as an unsigned integer. ``distance(A,B) = |A xor B|`` Smaller values
+are closer.
 
-::
+When a node wants to find peers for a torrent, it uses the distance
+metric to compare the infohash of the torrent with the IDs of the
+nodes in its own routing table. It then contacts the nodes it knows
+about with IDs closest to the infohash and asks them for the contact
+information of peers currently downloading the torrent. If a contacted
+node knows about peers for the torrent, the peer contact information
+is returned with the response. Otherwise, the contacted node must
+respond with the contact information of the nodes in its routing table
+that are closest to the infohash of the torrent. The original node
+iteratively queries nodes that are closer to the target infohash until
+it cannot find any closer nodes. After the search is exhausted, the
+client then inserts the peer contact information for itself onto the
+responding nodes with IDs closest to the infohash of the torrent.
 
-  *Have None*: <len=0x0001><op=0x0F>
+The return value for a query for peers includes an opaque value known
+as the "token." For a node to announce that its controlling peer is
+downloading a torrent, it must present the token received from the
+same queried node in a recent query for peers. When a node attempts to
+"announce" a torrent, the queried node checks the token against the
+querying node's IP address. This is to prevent malicious hosts from
+signing up other hosts for torrents. Since the token is merely
+returned by the querying node to the same node it received the token
+from, the implementation is not defined. Tokens must be accepted for a
+reasonable amount of time after they have been distributed. The
+BitTorrent implementation uses the SHA1 hash of the IP address
+concatenated onto a secret that changes every five minutes and tokens
+up to ten minutes old are accepted.
 
-*Have All* and *Have None* specify that the message sender
-has all or none of the pieces respectively.  When present, *Have All*
-or *Have None* replace the *Have Bitfield.*  Exactly one of *Have All*,
-*Have None*, or *Have Bitfield* MUST appear and only immediately after
-the handshake.  The reason for these messages is to save bandwidth.  Also
-slightly to remove the idiosyncrasy of sending no message when a peer
-has no pieces.
 
-When the fast extension is disabled, if a peer receives *Have All* or
-*Have None* then the peer MUST close the connection.
-
-
-Suggest Piece
+-------------
+Routing Table
 -------------
 
-::
+Every node maintains a routing table of known good nodes. The nodes in
+the routing table are used as starting points for queries in the
+DHT. Nodes from the routing table are returned in response to queries
+from other nodes.
 
-  *Suggest Piece*: <len=0x0005><op=0x0D><index>
+Not all nodes that we learn about are equal. Some are "good" and some
+are not. Many nodes using the DHT are able to send queries and receive
+responses, but are not able to respond to queries from other nodes. It
+is important that each node's routing table must contain only known
+good nodes. A good node is a node has responded to one of our queries
+within the last 15 minutes. A node is also good if it has ever
+responded to one of our queries and has sent us a query within the
+last 15 minutes. After 15 minutes of inactivity, a node becomes
+questionable. Nodes become bad when they fail to respond to multiple
+queries in a row. Nodes that we know are good are given priority over
+nodes with unknown status.
 
-*Suggest Piece* is an advisory message meaning "you might like to
-download this piece."  The intended usage is for 'super-seeding'
-without throughput reduction, to avoid redundant downloads, and so that
-a seed which is disk I/O bound can upload continguous or identical
-pieces to avoid excessive disk seeks.  In all cases, the seed SHOULD
-operate to maintain a roughly equal number of copies of each piece in
-the network.  A peer MAY send more than one *suggest piece* message at
-any given time.  A peer receiving multiple *suggest piece* messages
-MAY interpret this as meaning that all of the suggested pieces
-are equally appropriate.
+The routing table covers the entire node ID space from 0 to
+2\ :sup:`160`\ .  The routing table is subdivided into "buckets" that
+each cover a portion of the space. An empty table has one bucket with
+an ID space range of min=0, max=2\ :sup:`160`\ . When a node with ID
+"N" is inserted into the table, it is placed within the bucket that
+has min &lt;= N &lt; max. An empty table has only one bucket so any
+node must fit within it. Each bucket can only hold K nodes, currently
+eight, before becoming "full." When a bucket is full of known good
+nodes, no more nodes may be added unless our own node ID falls within
+the range of the bucket. In that case, the bucket is replaced by two
+new buckets each with half the range of the old bucket and the nodes
+from the old bucket are distributed among the two new ones. For a new
+table with only one bucket, the full bucket is always split into two
+new buckets covering the ranges 0..2\ :sup:`159`\  and
+2\ :sup:`159`\ ..2\ :sup:`160`\ .
 
-When the fast extension is disabled, if a peer receives a
-*Suggest Piece* message, the peer MUST close the connection.
+When the bucket is full of good nodes, the new node is simply
+discarded. If any nodes in the bucket are known to have become bad,
+then one is replaced by the new node. If there are any questionable
+nodes in the bucket have not been seen in the last 15 minutes, the
+least recently seen node is pinged. If the pinged node responds then
+the next least recently seen questionable node is pinged until one
+fails to respond or all of the nodes in the bucket are known to be
+good. If a node in the bucket fails to respond to a ping, it is
+suggested to try once more before discarding the node and replacing it
+with a new good node. In this way, the table fills with stable long
+running nodes.
+
+Each bucket should maintain a "last changed" property to
+indicate how "fresh" the contents are. When a node in a bucket is
+pinged and it responds, or a node is added to a bucket, or a node in a
+bucket is replaced with another node, the bucket's last changed
+property should be updated. Buckets that have not been changed in 15
+minutes should be "refreshed." This is done by picking a random ID in
+the range of the bucket and performing a find_nodes search on it. Nodes
+that are able to receive queries from other nodes usually do not need
+to refresh buckets often. Nodes that are not able to receive queries
+from other nodes usually will need to refresh all buckets periodically
+to ensure there are good nodes in their table when the DHT is needed.
+
+Upon inserting the first node into its routing table and when starting
+up thereafter, the node should attempt to find the closest nodes in
+the DHT to itself. It does this by issuing find_node messages to
+closer and closer nodes until it cannot find any closer. The routing
+table should be saved between invocations of the client software.
 
 
-Reject Request
---------------
+-----------------------------
+BitTorrent Protocol Extension
+-----------------------------
 
-::
+The BitTorrent protocol has been extended to exchange node UDP port
+numbers between peers that are introduced by a tracker. In this way,
+clients can get their routing tables seeded automatically through the
+download of regular torrents. Newly installed clients who attempt to
+download a trackerless torrent on the first try will not have any
+nodes in their routing table and will need the contacts included in
+the torrent file.
 
-  *Reject Request*: <len=0x000D><op=0x10><index><begin><offset>
+Peers supporting the DHT set the last bit of the 8-byte reserved flags
+exchanged in the BitTorrent protocol handshake. Peer receiving a
+handshake indicating the remote peer supports the DHT should send a
+PORT message. It begins with byte 0x09 and has a two byte payload
+containing the UDP port of the DHT node in network byte order.  Peers
+that receive this message should attempt to ping the node on the
+received port and IP address of the remote peer. If a response to the
+ping is recieved, the node should attempt to insert the new contact
+information into their routing table according to the usual rules.
 
-*Reject Request* notifies a requesting peer that its request will not be satisfied.
 
-If the fast extension is disabled and a peer receives a reject
-request then the peer MUST close the connection.
+-----------------------
+Torrent File Extensions
+-----------------------
 
-When the fast extension is enabled:
-
-- If a peer receives a reject for a request that was never sent then
-  the peer SHOULD close the connection.
-
-- If a peer sends a choke, it MUST reject all requests from the peer
-  to whom the choke was sent except it SHOULD NOT reject requests for
-  pieces that are in the *allowed fast set.* A peer SHOULD choke first
-  and then reject requests so that the peer receiving the choke does not
-  re-request the pieces.
-
-- If a peer receives a request from a peer its choking, the peer
-  receiving the request SHOULD send a reject unless the piece is in the
-  *allowed fast set.*
-
-- If a peer receives an excessive number of requests from a peer it is
-  choking, the peer receiving the requests MAY close the connection
-  rather than reject the request.  However, consider that it can take
-  several seconds for buffers to drain and messages to propagate once a
-  peer is choked.
-
-Allowed Fast
-------------
-
-::
-
-* Allowed Fast: <len=0x0005><op=0x11><index>*
-
-With the BitTorrent protocol specified in `BEP 0002`_, new peers take
-several minutes to ramp up before they can effectively engage in
-BitTorrent's tit-for-tat. The reason is simple: starting peers have
-few pieces to trade.
-
-*Allowed Fast* is an advisory message which means "if you ask for this
-piece, I'll give it to you even if you're choked." *Allowed Fast* thus
-shortens the awkward stage during which the peer obtains occasional
-optimistic unchokes but cannot sufficiently reciprocate to remain
-unchoked.
-
-The pieces that can be downloaded when choked constitute a peer's
-*allowed fast set.* The set is generated using a canonical algorithm
-that produces piece indices unique to the message receiver so that if
-two peers offer *k* pieces fast it will be the same *k*, and if one
-offers *k+1* it will be the same *k* plus one more. *k* should be
-small enough to avoid abuse, but large enough to ramp up
-tit-for-tat. We currently set *k* to 10, but peers are free to change
-this number, e.g., to suit load.
-
-The message sender MAY list pieces that the message sender does not
-have. The receiver MUST NOT interpret an Allowed Fast message as
-meaning that the message sender has the piece. This allows peers to
-generate and communicate allowed fast sets at the beginning of a
-connection. However, a peer MAY send Allowed Fast messages at any
-time.
-
-A peer SHOULD send Allowed Fast messages to any starting peer unless
-the local peer lacks sufficient resources. A peer MAY reject requests
-for already Allowed Fast pieces if the local peer lacks sufficient
-resources, if the requested piece has already been sent to the
-requesting peer, or if the requesting peer is not a starting peer. Our
-current implementation rejects requests for Allowed Fast messages
-whenever the requesting peer has more than * k * pieces.
-
- When the fast extension is disabled, if a peer recieves an Allowed
- Fast message then the peer MUST close the connection.
-
-Allowed Fast Set Generation
----------------------------
-
-The canonical algorithm for computing a peer *P'*s *allowed fast set*
-follows.  All integers in this pseudocode are four bytes represented
-in network (big-endian) byte order.  *[a:b]* denotes the sequence of
-consecutive bytes from *a* to *b* excluding *b*, i.e., *(a, a+1,
-a+2,..., b-1)*. *x[a:b]* denotes a subsequence of elements in an array
-*x* starting from index *a* to but not including index *b*.
-
-Let *ip* denote *P'*s IPv4 address.  We currently have no
-provisions for IPv6. If a peer is behind a Network Address Translator
-(NAT) then *ip* should be the externally facing IP address of the
-NAT.  Since the node sending the *Allowed Fast* messages computes
-the set, the correct *ip* is usually the *ip* address on the other
-end of the connection.  The host computing the set MAY use the *ip*
-address on the other end of the connection regardless
-
-Let *sz* denote the number of pieces in the torrent.
-
-Let *a* denote the allowed fast set.
-
-Let *k* denote the final number of pieces in the allowed fast set.
-
+A trackerless torrent dictionary does not have an "announce" key.
+Instead, a trackerless torrent has a "nodes" key. This key should be
+set to the K closest nodes in the torrent generating client's routing
+table. Alternatively, the key could be set to a known good node such
+as one operated by the person generating the torrent. Please do not
+automatically add "router.bittorrent.com" to torrent files or
+automatically add this node to clients routing tables.
 
 ::
 
- x = 0xFFFFFF00 & ip                           (1)
- x.append(infohash)                            (2)
- while |a| < k:
-   x = SHA1(x)                                 (3)
-   for i in [0:5] and |a| < k:                 (4)
-     j = i*4                                   (5)
-     y = x[j:j+4]                              (6)
-     index = y % sz                            (7)
-     if index not in a:                        (8)
-       add index to a                          (9)
+  nodes = [["<host>", <port>], ["<host>", <port>], ...]
+  nodes = [["127.0.0.1", 6881], ["your.router.node", 4804]]
 
-Step (1) selects the most significant octets in peer *P'*s
-ip address.  We do this to prevent a user that obtains more than one
-IP address on the same network from obtaining more than one
-*allowed fast set.*  Use of three bytes is heuristic and
-historical.
+  
 
-Step (3) generates a 20-byte random number on each call.  By
-performing a SHA-1 hash on the previous iteration's hash, we can
-generate an arbitrarily long pseudorandom sequence.
+-------------
+KRPC Protocol
+-------------
 
-Steps (4) through (9) partition the 20-byte hash into piece indices
-and add them to the allowed fast set.
+The KRPC protocol is a simple RPC mechanism consisting of bencoded
+dictionaries sent over UDP. A single query packet is sent out and a
+single packet is sent in response. There is no retry. There are three
+message types: query, response, and error. For the DHT protocol, there
+are four queries: ping, find_node, get_peers, and announce_peer.
 
-Example Implementation
-----------------------
+A KRPC message is a single dictionary with two keys common to
+every message and additional keys depending on the type of message.
+Every message has a key "t" with a string value representing a transaction
+ID. This transaction ID is generated by the querying node and is echoed
+in the response, so responses may be correlated with multiple queries
+to the same node. The transaction ID should be encoded as a short string
+of binary numbers, typically 2 characters are enough as they cover 2^16
+outstanding queries. The other key contained in every KRPC message is "y"
+with a single character value describing the type of message. The value
+of the "y" key is one of "q" for query, "r" for response, or "e" for
+error.
 
-The following C++ implementation was provided by CacheLogic:
+Contact Encoding
+----------------
+
+Contact information for peers is encoded as a 6-byte string. Also
+known as "Compact IP-address/port info" the 4-byte IP address is in
+network byte order with the 2 byte port in network byte order
+concatenated onto the end.
+  
+Contact information for nodes is encoded as a 26-byte string.
+Also known as "Compact node info" the 20-byte Node ID in network byte
+order has the compact IP-address/port info concatenated to the end.
+
+Queries
+-------
+
+Queries, or KRPC message dictionaries with a "y" value of "q",
+contain two additional keys; "q" and "a". Key "q" has a string value
+containing the method name of the query. Key "a" has a dictionary value
+containing named arguments to the query.
+
+Responses
+---------
+
+Responses, or KRPC message dictionaries with a "y" value of "r",
+contain one additional key "r". The value of "r" is a dictionary
+containing named return values. Response messages are sent upon
+successful completion of a query.
+
+Errors
+------
+
+Errors, or KRPC message dictionaries with a "y" value of "e",
+contain one additional key "e". The value of "e" is a list. The first
+element is an integer representing the error code. The second element
+is a string containing the error message. Errors are sent when a query
+cannot be fulfilled. The following table describes the possible error
+codes:
+
++----------+------------------------------------------+
+|  Code    | Description                              |
++----------+------------------------------------------+
+|  201     |   Generic Error                          |
++----------+------------------------------------------+
+|  202     |   Server Error                           |
++----------+------------------------------------------+
+|  203     | Protocol Error, such as a malformed      |
+|          | packet, invalid arguments, or bad token  |
++----------+------------------------------------------+
+|  204     |   Method Unknown                         |
++----------+------------------------------------------+
+
+Example Error Packets:
+
+::
+
+  generic error = {"t":"aa", "y":"e", "e":[201, "A Generic Error Ocurred"]}
+  bencoded = d1:eli201e23:A Generic Error Ocurrede1:t2:aa1:y1:ee
+
+  
+-----------
+DHT Queries
+-----------
+
+All queries have an "id" key and value containing the node ID of the
+querying node. All responses have an "id" key and value containing the
+node ID of the responding node.
+
+ping
+----
+
+The most basic query is a ping. "q" = "ping" A ping query has a
+single argument, "id" the value is a 20-byte string containing the
+senders node ID in network byte order. The appropriate response to a
+ping has a single key "id" containing the node ID of the responding
+node.
+
+::
+
+  arguments:  {"id"&nbsp;: "<querying nodes id>"}
+  
+  response: {"id"&nbsp;: "<queried nodes id>"}
+
+
+Example Packets
+::
+
+  ping Query = {"t":"aa", "y":"q", "q":"ping", "a":{"id":"abcdefghij0123456789"}}
+  bencoded = d1:ad2:id20:abcdefghij0123456789e1:q4:ping1:t2:aa1:y1:qe
 
 
 ::
 
-  void generate_fast_set(
-    uint32 k,     // number of pieces in set
-    uint32 sz,    // number of pieces in torrent
-    const char infohash[20], // infohash of torrent
-    uint32 ip, // in host byte order, ie localhost is 0x7f000001
-    std::
-  vector<uint32> &a) // generated set of piece indices
-  {
-     a.clear();
-     std::string x;
-     char buf[4];
-     *(uint32*)buf = htonl(ip & 0xffffff00);
-     x.assign(buf, 4);
-     x.append(infohash, 20); // (3)
-     while (a.size()<k) {
-       x = SHA1(x); // (4)
-       for ( int i=0&nbsp;; i<5 && a.size()<k; i++ ) { // (5)
-         int j = i*4; // (6)
-         uint32 y = ntohl(*(uint32*)(x.data()+j)); // (7)
-         uint32 index = y % sz; // (8)
-         if (std::find(a.begin(), a.end(), index)==a.end()) { // (9)
-           a.push_back(index); // (10)
-         }
-       }
-     }
-  }
+  Response = {"t":"aa", "y":"r", "r": {"id":"mnopqrstuvwxyz123456"}}
+  bencoded = d1:rd2:id20:mnopqrstuvwxyz123456e1:t2:aa1:y1:re
 
-Example results generated by this function:
+
+find_node
+---------
+
+Find node is used to find the contact information for a node given
+its ID. "q" == "find_node" A find_node query has two arguments, "id"
+containing the node ID of the querying node, and "target" containing
+the ID of the node sought by the queryer. When a node receives a
+find_node query, it should respond with a key "nodes" and value of a
+string containing the compact node info for the target node or the K
+(8) closest good nodes in its own routing table.
+
+::
+
+  arguments:  {"id"&nbsp;: "<querying nodes id>", "target"&nbsp;: "<id of target node>"}
+
+  response: {"id"&nbsp;: "<queried nodes id>", "nodes"&nbsp;: "<compact node info>"}
+
+
+Example Packets
+::
+
+  find_node Query = {"t":"aa", "y":"q", "q":"find_node", "a": {"id":"abcdefghij0123456789", "target":"mnopqrstuvwxyz123456"}}
+  bencoded = d1:ad2:id20:abcdefghij01234567896:target20:mnopqrstuvwxyz123456e1:q9:find_node1:t2:aa1:y1:qe
 
 
 ::
 
- 7 piece allowed fast set for torrent with 1313 pieces and hex infohash
- aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa for node with IP 80.4.4.200:
-   1059,431,808,1217,287,376,1188
- 9 piece allowed fast set for torrent with 1313 pieces and hex infohash
- aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa for node with IP 80.4.4.200:
-   1059,431,808,1217,287,376,1188,353,508
+  Response = {"t":"aa", "y":"r", "r": {"id":"0123456789abcdefghij", "nodes": "def456..."}}
+  bencoded = d1:rd2:id20:0123456789abcdefghij5:nodes9:def456...e1:t2:aa1:y1:re
 
-.. _`RFC 2119`: http://www.ietf.org/rfc/rfc2119.txt
-.. _`BEP 0002`: http://www.bittorrent.org/beps/bep_0002.html
+
+get_peers
+---------
+
+Get peers associated with a torrent infohash. "q" = "get_peers" A
+get_peers query has two arguments, "id" containing the node ID of the
+querying node, and "info_hash" containing the infohash of the torrent.
+If the queried node has peers for the infohash, they are returned in a
+key "values" as a list of strings. Each string containing "compact" format
+peer information for a single peer. If the queried node has no
+peers for the infohash, a key "nodes" is returned containing the K
+nodes in the queried nodes routing table closest to the infohash
+supplied in the query. In either case a "token" key is also included in
+the return value. The token value is a required argument for a future
+announce_peer query. The token value should be a short binary string.
+
+::
+
+  arguments:  {"id"&nbsp;: "<querying nodes id>", "info_hash"&nbsp;: "<20-byte infohash of target torrent>"}
+
+  response: {"id"&nbsp;: "<queried nodes id>", "token"&nbsp;:"<opaque write token>", "values"&nbsp;: ["<peer 1 info string>", "<peer 2 info string>"]}
+
+  or: {"id"&nbsp;: "<queried nodes id>", "token"&nbsp;:"<opaque write token>", "nodes"&nbsp;: "<compact node info>"}
+
+
+Example Packets:
+::
+
+  get_peers Query = {"t":"aa", "y":"q", "q":"get_peers", "a": {"id":"abcdefghij0123456789", "info_hash":"mnopqrstuvwxyz123456"}}
+  bencoded = d1:ad2:id20:abcdefghij01234567899:info_hash20:mnopqrstuvwxyz123456e1:q9:get_peers1:t2:aa1:y1:qe
+  
+
+::
+
+  Response with peers = {"t":"aa", "y":"r", "r": {"id":"abcdefghij0123456789", "token":"aoeusnth", "values": ["axje.u", "idhtnm"]}}
+  bencoded = d1:rd2:id20:abcdefghij01234567895:token8:aoeusnth6:valuesl6:axje.u6:idhtnmee1:t2:aa1:y1:re
+
+
+::
+
+  Response with closest nodes = {"t":"aa", "y":"r", "r": {"id":"abcdefghij0123456789", "token":"aoeusnth", "nodes": "def456..."}}
+  bencoded = d1:rd2:id20:abcdefghij01234567895:nodes9:def456...5:token8:aoeusnthe1:t2:aa1:y1:re
+
+
+announce_peer
+-------------
+
+Announce that the peer, controlling the querying node, is downloading
+a torrent on a port. announce_peer has four arguments: "id" containing the node ID of the
+querying node, "info_hash" containing the infohash of the torrent,
+"port" containing the port as an integer, and the "token" received in
+response to a previous get_peers query. The queried node must verify
+that the token was previously sent to the same IP address as the
+querying node. Then the queried node should store the IP address of the
+querying node and the supplied port number under the infohash in its
+store of peer contact information.
+
+::
+
+  arguments:  {"id" : "<querying nodes id>", "info_hash" : "<20-byte infohash of target torrent>", "port" : <port number>, "token" : "<opaque token>"}
+  
+  response: {"id" : "<queried nodes id>"}
+  
+
+Example Packets:
+::
+
+  announce_peers Query = {"t":"aa", "y":"q", "q":"announce_peer", "a": {"id":"abcdefghij0123456789", "info_hash":"mnopqrstuvwxyz123456", "port": 6881, "token": "aoeusnth"}}
+  bencoded = d1:ad2:id20:abcdefghij01234567899:info_hash20:<br />
+  mnopqrstuvwxyz1234564:porti6881e5:token8:aoeusnthe1:q13:announce_peer1:t2:aa1:y1:qe
+
+
+::
+
+  Response = {"t":"aa", "y":"r", "r": {"id":"mnopqrstuvwxyz123456"}}
+  bencoded = d1:rd2:id20:mnopqrstuvwxyz123456e1:t2:aa1:y1:re
+
+References
+----------
+
+.. [#Kademlia] Peter Maymounkov, David Mazieres, "Kademlia: A Peer-to-peer Information System Based on the XOR Metric", *IPTPS 2002*. http://www.cs.rice.edu/Conferences/IPTPS02/109.pdf
+
+.. [#entropy] Use SHA1 and plenty of entropy to ensure a unique ID.
+

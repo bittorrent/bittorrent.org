@@ -34,8 +34,8 @@ class Headers(Transform):
 
     bep_url = 'bep-%04d'
     bep_cvs_url = ('https://svn.bittorrent.com/trac.cgi/browser/dotorg/trunk/html/beps/bep_%04d.rst')
-    //bep_cvs_url = ('http://svn.bittorrent.com/view/*checkout*'
-    //               '/peps/trunk/bep-%04d.txt')
+    #bep_cvs_url = ('http://svn.bittorrent.com/view/*checkout*'
+    #               '/peps/trunk/bep-%04d.txt')
     rcs_keyword_substitutions = (
           (re.compile(r'\$' r'RCSfile: (.+),v \$$', re.IGNORECASE), r'\1'),
           (re.compile(r'\$[a-zA-Z]+: (.+) \$$'), r'\1'),)

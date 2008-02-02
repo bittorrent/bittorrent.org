@@ -1,5 +1,12 @@
-metadata extension
-==================
+BEP: 8
+Title: Metadata Extension
+Version: 3
+Last-Modified: 02-Feb-2008
+Author:  Greg Hazel <greg@bittorrent.com>, Arvid Norberg <arvid@bittorrent.com>
+Status:  Draft
+Type:    Standards Track
+Created: 31-Jan-2008
+Post-History:
 
 The purpose of this extension is to allow clients to join a swarm and
 complete a download without the need of downloading a .torrent file
@@ -123,12 +130,4 @@ Both ``dn`` and ``tr`` are optional.
 
 If no tracker is specified, the client SHOULD use the DHT to acquire peers.
 
-authors
--------
-
-| `Greg Hazel`__
-| `Arvid Norberg`__
-
-.. __: mailto:greg@bittorrent.com
-.. __: mailto:arvid@bittorrent.com
 

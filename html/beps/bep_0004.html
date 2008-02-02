@@ -1,0 +1,436 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.5: http://docutils.sourceforge.net/" />
+<title></title>
+<link rel="stylesheet" href="../css/screen.css" type="text/css" />
+</head>
+<body>
+<div class="document">
+
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="./index.html">BitTorrent<span>.org</span></a></h1>
+</div>
+<div id="nav">
+<ul>
+<li><a href="./index.html">Home</a></li>
+<li><a href="./introduction.html">For Users</a></li>
+<li><span>For Developers</span></li>
+<!-- <li><a href="./blog">Blog</a></li> -->
+<li><a href="./donate.html">Donate!</a></li>
+</ul>
+</div> <!-- nav -->
+<!-- ### Begin Content ### -->
+<div id="second">
+
+
+
+<table class="rfc2822 docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">BEP:</th><td class="field-body">4</td>
+</tr>
+<tr class="field"><th class="field-name">Title:</th><td class="field-body">DHT Protocol</td>
+</tr>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">2</td>
+</tr>
+<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="https://svn.bittorrent.com/trac.cgi/browser/dotorg/trunk/html/beps/bep_0004.rst">11-Jan-2008</a></td>
+</tr>
+<tr class="field"><th class="field-name">Author:</th><td class="field-body">Andrew Loewenstern &lt;drue&#32;&#97;t&#32;bittorrent.com&gt;</td>
+</tr>
+<tr class="field"><th class="field-name">Status:</th><td class="field-body">Accepted</td>
+</tr>
+<tr class="field"><th class="field-name">Type:</th><td class="field-body">Standards Track</td>
+</tr>
+<tr class="field"><th class="field-name">Created:</th><td class="field-body">31-Jan-2008</td>
+</tr>
+<tr class="field"><th class="field-name">Post-History:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#overview" id="id5">Overview</a></li>
+<li><a class="reference internal" href="#routing-table" id="id6">Routing Table</a></li>
+<li><a class="reference internal" href="#bittorrent-protocol-extension" id="id7">BitTorrent Protocol Extension</a></li>
+<li><a class="reference internal" href="#torrent-file-extensions" id="id8">Torrent File Extensions</a></li>
+<li><a class="reference internal" href="#krpc-protocol" id="id9">KRPC Protocol</a></li>
+<li><a class="reference internal" href="#dht-queries" id="id10">DHT Queries</a></li>
+<li><a class="reference internal" href="#id2" id="id11">References</a></li>
+</ul>
+</div>
+<p>BitTorrent uses a &quot;distributed sloppy hash table&quot; (DHT) for storing
+peer contact information for &quot;trackerless&quot; torrents. In effect, each
+peer becomes a tracker. The protocol is based on Kademila[Kademlia]_ and is
+implemented over UDP.</p>
+<p>Please note the terminology used in this document to avoid
+confusion. A &quot;peer&quot; is a client/server listening on a TCP port that
+implements the BitTorrent protocol. A &quot;node&quot; is a client/server
+listening on a UDP port implementing the distributed hash table
+protocol. The DHT is composed of nodes and stores the location of
+peers. BitTorrent clients include a DHT node, which is used to contact
+other nodes in the DHT to get the location of peers to download from
+using the BitTorrent protocol.</p>
+<div class="section" id="overview">
+<h1>Overview</h1>
+<p>Each node has a globally unique identifier known as the &quot;node ID.&quot;
+Node IDs are chosen at random from the same 160-bit space as BitTorrent
+infohashes <a class="footnote-reference" href="#entropy" id="id1">[1]</a>.  A &quot;distance metric&quot; is used to compare two node IDs or a node
+ID and an infohash for &quot;closeness.&quot; Nodes must maintain a routing table
+containing the contact information for a small number of other nodes.
+The routing table becomes more detailed as IDs get closer to the node's
+own ID. Nodes know about many other nodes in the DHT that have IDs that
+are &quot;close&quot; to their own but have only a handful of contacts with IDs
+that are very far away from their own.</p>
+<p>In Kademlia, the distance metric is XOR and the result is interpreted
+as an unsigned integer. <tt class="docutils literal"><span class="pre">distance(A,B)</span> <span class="pre">=</span> <span class="pre">|A</span> <span class="pre">xor</span> <span class="pre">B|</span></tt> Smaller values
+are closer.</p>
+<p>When a node wants to find peers for a torrent, it uses the distance
+metric to compare the infohash of the torrent with the IDs of the
+nodes in its own routing table. It then contacts the nodes it knows
+about with IDs closest to the infohash and asks them for the contact
+information of peers currently downloading the torrent. If a contacted
+node knows about peers for the torrent, the peer contact information
+is returned with the response. Otherwise, the contacted node must
+respond with the contact information of the nodes in its routing table
+that are closest to the infohash of the torrent. The original node
+iteratively queries nodes that are closer to the target infohash until
+it cannot find any closer nodes. After the search is exhausted, the
+client then inserts the peer contact information for itself onto the
+responding nodes with IDs closest to the infohash of the torrent.</p>
+<p>The return value for a query for peers includes an opaque value known
+as the &quot;token.&quot; For a node to announce that its controlling peer is
+downloading a torrent, it must present the token received from the
+same queried node in a recent query for peers. When a node attempts to
+&quot;announce&quot; a torrent, the queried node checks the token against the
+querying node's IP address. This is to prevent malicious hosts from
+signing up other hosts for torrents. Since the token is merely
+returned by the querying node to the same node it received the token
+from, the implementation is not defined. Tokens must be accepted for a
+reasonable amount of time after they have been distributed. The
+BitTorrent implementation uses the SHA1 hash of the IP address
+concatenated onto a secret that changes every five minutes and tokens
+up to ten minutes old are accepted.</p>
+</div>
+<div class="section" id="routing-table">
+<h1>Routing Table</h1>
+<p>Every node maintains a routing table of known good nodes. The nodes in
+the routing table are used as starting points for queries in the
+DHT. Nodes from the routing table are returned in response to queries
+from other nodes.</p>
+<p>Not all nodes that we learn about are equal. Some are &quot;good&quot; and some
+are not. Many nodes using the DHT are able to send queries and receive
+responses, but are not able to respond to queries from other nodes. It
+is important that each node's routing table must contain only known
+good nodes. A good node is a node has responded to one of our queries
+within the last 15 minutes. A node is also good if it has ever
+responded to one of our queries and has sent us a query within the
+last 15 minutes. After 15 minutes of inactivity, a node becomes
+questionable. Nodes become bad when they fail to respond to multiple
+queries in a row. Nodes that we know are good are given priority over
+nodes with unknown status.</p>
+<p>The routing table covers the entire node ID space from 0 to
+2<sup>160</sup>.  The routing table is subdivided into &quot;buckets&quot; that
+each cover a portion of the space. An empty table has one bucket with
+an ID space range of min=0, max=2<sup>160</sup>. When a node with ID
+&quot;N&quot; is inserted into the table, it is placed within the bucket that
+has min &amp;lt;= N &amp;lt; max. An empty table has only one bucket so any
+node must fit within it. Each bucket can only hold K nodes, currently
+eight, before becoming &quot;full.&quot; When a bucket is full of known good
+nodes, no more nodes may be added unless our own node ID falls within
+the range of the bucket. In that case, the bucket is replaced by two
+new buckets each with half the range of the old bucket and the nodes
+from the old bucket are distributed among the two new ones. For a new
+table with only one bucket, the full bucket is always split into two
+new buckets covering the ranges 0..2<sup>159</sup> and
+2<sup>159</sup>..2<sup>160</sup>.</p>
+<p>When the bucket is full of good nodes, the new node is simply
+discarded. If any nodes in the bucket are known to have become bad,
+then one is replaced by the new node. If there are any questionable
+nodes in the bucket have not been seen in the last 15 minutes, the
+least recently seen node is pinged. If the pinged node responds then
+the next least recently seen questionable node is pinged until one
+fails to respond or all of the nodes in the bucket are known to be
+good. If a node in the bucket fails to respond to a ping, it is
+suggested to try once more before discarding the node and replacing it
+with a new good node. In this way, the table fills with stable long
+running nodes.</p>
+<p>Each bucket should maintain a &quot;last changed&quot; property to
+indicate how &quot;fresh&quot; the contents are. When a node in a bucket is
+pinged and it responds, or a node is added to a bucket, or a node in a
+bucket is replaced with another node, the bucket's last changed
+property should be updated. Buckets that have not been changed in 15
+minutes should be &quot;refreshed.&quot; This is done by picking a random ID in
+the range of the bucket and performing a find_nodes search on it. Nodes
+that are able to receive queries from other nodes usually do not need
+to refresh buckets often. Nodes that are not able to receive queries
+from other nodes usually will need to refresh all buckets periodically
+to ensure there are good nodes in their table when the DHT is needed.</p>
+<p>Upon inserting the first node into its routing table and when starting
+up thereafter, the node should attempt to find the closest nodes in
+the DHT to itself. It does this by issuing find_node messages to
+closer and closer nodes until it cannot find any closer. The routing
+table should be saved between invocations of the client software.</p>
+</div>
+<div class="section" id="bittorrent-protocol-extension">
+<h1>BitTorrent Protocol Extension</h1>
+<p>The BitTorrent protocol has been extended to exchange node UDP port
+numbers between peers that are introduced by a tracker. In this way,
+clients can get their routing tables seeded automatically through the
+download of regular torrents. Newly installed clients who attempt to
+download a trackerless torrent on the first try will not have any
+nodes in their routing table and will need the contacts included in
+the torrent file.</p>
+<p>Peers supporting the DHT set the last bit of the 8-byte reserved flags
+exchanged in the BitTorrent protocol handshake. Peer receiving a
+handshake indicating the remote peer supports the DHT should send a
+PORT message. It begins with byte 0x09 and has a two byte payload
+containing the UDP port of the DHT node in network byte order.  Peers
+that receive this message should attempt to ping the node on the
+received port and IP address of the remote peer. If a response to the
+ping is recieved, the node should attempt to insert the new contact
+information into their routing table according to the usual rules.</p>
+</div>
+<div class="section" id="torrent-file-extensions">
+<h1>Torrent File Extensions</h1>
+<p>A trackerless torrent dictionary does not have an &quot;announce&quot; key.
+Instead, a trackerless torrent has a &quot;nodes&quot; key. This key should be
+set to the K closest nodes in the torrent generating client's routing
+table. Alternatively, the key could be set to a known good node such
+as one operated by the person generating the torrent. Please do not
+automatically add &quot;router.bittorrent.com&quot; to torrent files or
+automatically add this node to clients routing tables.</p>
+<pre class="literal-block">
+nodes = [[&quot;&lt;host&gt;&quot;, &lt;port&gt;], [&quot;&lt;host&gt;&quot;, &lt;port&gt;], ...]
+nodes = [[&quot;127.0.0.1&quot;, 6881], [&quot;your.router.node&quot;, 4804]]
+</pre>
+</div>
+<div class="section" id="krpc-protocol">
+<h1>KRPC Protocol</h1>
+<p>The KRPC protocol is a simple RPC mechanism consisting of bencoded
+dictionaries sent over UDP. A single query packet is sent out and a
+single packet is sent in response. There is no retry. There are three
+message types: query, response, and error. For the DHT protocol, there
+are four queries: ping, find_node, get_peers, and announce_peer.</p>
+<p>A KRPC message is a single dictionary with two keys common to
+every message and additional keys depending on the type of message.
+Every message has a key &quot;t&quot; with a string value representing a transaction
+ID. This transaction ID is generated by the querying node and is echoed
+in the response, so responses may be correlated with multiple queries
+to the same node. The transaction ID should be encoded as a short string
+of binary numbers, typically 2 characters are enough as they cover 2^16
+outstanding queries. The other key contained in every KRPC message is &quot;y&quot;
+with a single character value describing the type of message. The value
+of the &quot;y&quot; key is one of &quot;q&quot; for query, &quot;r&quot; for response, or &quot;e&quot; for
+error.</p>
+<dl class="docutils">
+<dt>Contact Encoding</dt>
+<dd><p class="first">Contact information for peers is encoded as a 6-byte string. Also
+known as &quot;Compact IP-address/port info&quot; the 4-byte IP address is in
+network byte order with the 2 byte port in network byte order
+concatenated onto the end.</p>
+<p class="last">Contact information for nodes is encoded as a 26-byte string.
+Also known as &quot;Compact node info&quot; the 20-byte Node ID in network byte
+order has the compact IP-address/port info concatenated to the end.</p>
+</dd>
+<dt>Queries</dt>
+<dd>Queries, or KRPC message dictionaries with a &quot;y&quot; value of &quot;q&quot;,
+contain two additional keys; &quot;q&quot; and &quot;a&quot;. Key &quot;q&quot; has a string value
+containing the method name of the query. Key &quot;a&quot; has a dictionary value
+containing named arguments to the query.</dd>
+<dt>Responses</dt>
+<dd>Responses, or KRPC message dictionaries with a &quot;y&quot; value of &quot;r&quot;,
+contain one additional key &quot;r&quot;. The value of &quot;r&quot; is a dictionary
+containing named return values. Response messages are sent upon
+successful completion of a query.</dd>
+<dt>Errors</dt>
+<dd>Errors, or KRPC message dictionaries with a &quot;y&quot; value of &quot;e&quot;,
+contain one additional key &quot;e&quot;. The value of &quot;e&quot; is a list. The first
+element is an integer representing the error code. The second element
+is a string containing the error message. Errors are sent when a query
+cannot be fulfilled. The following table describes the possible error
+codes:</dd>
+</dl>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="81%" />
+</colgroup>
+<tbody valign="top">
+<tr><td>Code</td>
+<td>Description</td>
+</tr>
+<tr><td>201</td>
+<td>Generic Error</td>
+</tr>
+<tr><td>202</td>
+<td>Server Error</td>
+</tr>
+<tr><td>203</td>
+<td>Protocol Error, such as a malformed
+packet, invalid arguments, or bad token</td>
+</tr>
+<tr><td>204</td>
+<td>Method Unknown</td>
+</tr>
+</tbody>
+</table>
+<p>Example Error Packets:</p>
+<pre class="literal-block">
+generic error = {&quot;t&quot;:&quot;aa&quot;, &quot;y&quot;:&quot;e&quot;, &quot;e&quot;:[201, &quot;A Generic Error Ocurred&quot;]}
+bencoded = d1:eli201e23:A Generic Error Ocurrede1:t2:aa1:y1:ee
+</pre>
+</div>
+<div class="section" id="dht-queries">
+<h1>DHT Queries</h1>
+<p>All queries have an &quot;id&quot; key and value containing the node ID of the
+querying node. All responses have an &quot;id&quot; key and value containing the
+node ID of the responding node.</p>
+<dl class="docutils">
+<dt>ping</dt>
+<dd>The most basic query is a ping. &quot;q&quot; = &quot;ping&quot; A ping query has a
+single argument, &quot;id&quot; the value is a 20-byte string containing the
+senders node ID in network byte order. The appropriate response to a
+ping has a single key &quot;id&quot; containing the node ID of the responding
+node.</dd>
+</dl>
+<pre class="literal-block">
+arguments:  {&quot;id&quot;&amp;nbsp;: &quot;&lt;querying nodes id&gt;&quot;}
+
+response: {&quot;id&quot;&amp;nbsp;: &quot;&lt;queried nodes id&gt;&quot;}
+</pre>
+<p>Example Packets</p>
+<pre class="literal-block">
+ping Query = {&quot;t&quot;:&quot;aa&quot;, &quot;y&quot;:&quot;q&quot;, &quot;q&quot;:&quot;ping&quot;, &quot;a&quot;:{&quot;id&quot;:&quot;abcdefghij0123456789&quot;}}
+bencoded = d1:ad2:id20:abcdefghij0123456789e1:q4:ping1:t2:aa1:y1:qe
+</pre>
+<pre class="literal-block">
+Response = {&quot;t&quot;:&quot;aa&quot;, &quot;y&quot;:&quot;r&quot;, &quot;r&quot;: {&quot;id&quot;:&quot;mnopqrstuvwxyz123456&quot;}}
+bencoded = d1:rd2:id20:mnopqrstuvwxyz123456e1:t2:aa1:y1:re
+</pre>
+<dl class="docutils">
+<dt>find_node</dt>
+<dd>Find node is used to find the contact information for a node given
+its ID. &quot;q&quot; == &quot;find_node&quot; A find_node query has two arguments, &quot;id&quot;
+containing the node ID of the querying node, and &quot;target&quot; containing
+the ID of the node sought by the queryer. When a node receives a
+find_node query, it should respond with a key &quot;nodes&quot; and value of a
+string containing the compact node info for the target node or the K
+(8) closest good nodes in its own routing table.</dd>
+</dl>
+<pre class="literal-block">
+arguments:  {&quot;id&quot;&amp;nbsp;: &quot;&lt;querying nodes id&gt;&quot;, &quot;target&quot;&amp;nbsp;: &quot;&lt;id of target node&gt;&quot;}
+
+response: {&quot;id&quot;&amp;nbsp;: &quot;&lt;queried nodes id&gt;&quot;, &quot;nodes&quot;&amp;nbsp;: &quot;&lt;compact node info&gt;&quot;}
+</pre>
+<p>Example Packets</p>
+<pre class="literal-block">
+find_node Query = {&quot;t&quot;:&quot;aa&quot;, &quot;y&quot;:&quot;q&quot;, &quot;q&quot;:&quot;find_node&quot;, &quot;a&quot;: {&quot;id&quot;:&quot;abcdefghij0123456789&quot;, &quot;target&quot;:&quot;mnopqrstuvwxyz123456&quot;}}
+bencoded = d1:ad2:id20:abcdefghij01234567896:target20:mnopqrstuvwxyz123456e1:q9:find_node1:t2:aa1:y1:qe
+</pre>
+<pre class="literal-block">
+Response = {&quot;t&quot;:&quot;aa&quot;, &quot;y&quot;:&quot;r&quot;, &quot;r&quot;: {&quot;id&quot;:&quot;0123456789abcdefghij&quot;, &quot;nodes&quot;: &quot;def456...&quot;}}
+bencoded = d1:rd2:id20:0123456789abcdefghij5:nodes9:def456...e1:t2:aa1:y1:re
+</pre>
+<dl class="docutils">
+<dt>get_peers</dt>
+<dd>Get peers associated with a torrent infohash. &quot;q&quot; = &quot;get_peers&quot; A
+get_peers query has two arguments, &quot;id&quot; containing the node ID of the
+querying node, and &quot;info_hash&quot; containing the infohash of the torrent.
+If the queried node has peers for the infohash, they are returned in a
+key &quot;values&quot; as a list of strings. Each string containing &quot;compact&quot; format
+peer information for a single peer. If the queried node has no
+peers for the infohash, a key &quot;nodes&quot; is returned containing the K
+nodes in the queried nodes routing table closest to the infohash
+supplied in the query. In either case a &quot;token&quot; key is also included in
+the return value. The token value is a required argument for a future
+announce_peer query. The token value should be a short binary string.</dd>
+</dl>
+<pre class="literal-block">
+arguments:  {&quot;id&quot;&amp;nbsp;: &quot;&lt;querying nodes id&gt;&quot;, &quot;info_hash&quot;&amp;nbsp;: &quot;&lt;20-byte infohash of target torrent&gt;&quot;}
+
+response: {&quot;id&quot;&amp;nbsp;: &quot;&lt;queried nodes id&gt;&quot;, &quot;token&quot;&amp;nbsp;:&quot;&lt;opaque write token&gt;&quot;, &quot;values&quot;&amp;nbsp;: [&quot;&lt;peer 1 info string&gt;&quot;, &quot;&lt;peer 2 info string&gt;&quot;]}
+
+or: {&quot;id&quot;&amp;nbsp;: &quot;&lt;queried nodes id&gt;&quot;, &quot;token&quot;&amp;nbsp;:&quot;&lt;opaque write token&gt;&quot;, &quot;nodes&quot;&amp;nbsp;: &quot;&lt;compact node info&gt;&quot;}
+</pre>
+<p>Example Packets:</p>
+<pre class="literal-block">
+get_peers Query = {&quot;t&quot;:&quot;aa&quot;, &quot;y&quot;:&quot;q&quot;, &quot;q&quot;:&quot;get_peers&quot;, &quot;a&quot;: {&quot;id&quot;:&quot;abcdefghij0123456789&quot;, &quot;info_hash&quot;:&quot;mnopqrstuvwxyz123456&quot;}}
+bencoded = d1:ad2:id20:abcdefghij01234567899:info_hash20:mnopqrstuvwxyz123456e1:q9:get_peers1:t2:aa1:y1:qe
+</pre>
+<pre class="literal-block">
+Response with peers = {&quot;t&quot;:&quot;aa&quot;, &quot;y&quot;:&quot;r&quot;, &quot;r&quot;: {&quot;id&quot;:&quot;abcdefghij0123456789&quot;, &quot;token&quot;:&quot;aoeusnth&quot;, &quot;values&quot;: [&quot;axje.u&quot;, &quot;idhtnm&quot;]}}
+bencoded = d1:rd2:id20:abcdefghij01234567895:token8:aoeusnth6:valuesl6:axje.u6:idhtnmee1:t2:aa1:y1:re
+</pre>
+<pre class="literal-block">
+Response with closest nodes = {&quot;t&quot;:&quot;aa&quot;, &quot;y&quot;:&quot;r&quot;, &quot;r&quot;: {&quot;id&quot;:&quot;abcdefghij0123456789&quot;, &quot;token&quot;:&quot;aoeusnth&quot;, &quot;nodes&quot;: &quot;def456...&quot;}}
+bencoded = d1:rd2:id20:abcdefghij01234567895:nodes9:def456...5:token8:aoeusnthe1:t2:aa1:y1:re
+</pre>
+<dl class="docutils">
+<dt>announce_peer</dt>
+<dd>Announce that the peer, controlling the querying node, is downloading
+a torrent on a port. announce_peer has four arguments: &quot;id&quot; containing the node ID of the
+querying node, &quot;info_hash&quot; containing the infohash of the torrent,
+&quot;port&quot; containing the port as an integer, and the &quot;token&quot; received in
+response to a previous get_peers query. The queried node must verify
+that the token was previously sent to the same IP address as the
+querying node. Then the queried node should store the IP address of the
+querying node and the supplied port number under the infohash in its
+store of peer contact information.</dd>
+</dl>
+<pre class="literal-block">
+arguments:  {&quot;id&quot; : &quot;&lt;querying nodes id&gt;&quot;, &quot;info_hash&quot; : &quot;&lt;20-byte infohash of target torrent&gt;&quot;, &quot;port&quot; : &lt;port number&gt;, &quot;token&quot; : &quot;&lt;opaque token&gt;&quot;}
+
+response: {&quot;id&quot; : &quot;&lt;queried nodes id&gt;&quot;}
+</pre>
+<p>Example Packets:</p>
+<pre class="literal-block">
+announce_peers Query = {&quot;t&quot;:&quot;aa&quot;, &quot;y&quot;:&quot;q&quot;, &quot;q&quot;:&quot;announce_peer&quot;, &quot;a&quot;: {&quot;id&quot;:&quot;abcdefghij0123456789&quot;, &quot;info_hash&quot;:&quot;mnopqrstuvwxyz123456&quot;, &quot;port&quot;: 6881, &quot;token&quot;: &quot;aoeusnth&quot;}}
+bencoded = d1:ad2:id20:abcdefghij01234567899:info_hash20:&lt;br /&gt;
+mnopqrstuvwxyz1234564:porti6881e5:token8:aoeusnthe1:q13:announce_peer1:t2:aa1:y1:qe
+</pre>
+<pre class="literal-block">
+Response = {&quot;t&quot;:&quot;aa&quot;, &quot;y&quot;:&quot;r&quot;, &quot;r&quot;: {&quot;id&quot;:&quot;mnopqrstuvwxyz123456&quot;}}
+bencoded = d1:rd2:id20:mnopqrstuvwxyz123456e1:t2:aa1:y1:re
+</pre>
+<p>Send questions, comments and corrections to <a class="reference external" href="mailto:editor&#37;&#52;&#48;bittorrent&#46;org">editor<span>&#64;</span>bittorrent<span>&#46;</span>org</a></p>
+<table class="docutils citation" frame="void" id="kademlia" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[Kademlia]</td><td>Peter Maymounkov, David Mazieres, &quot;<a class="reference external" href="http://www.cs.rice.edu/Conferences/IPTPS02/109.pdf">Kademlia: A Peer-to-peer Information System Based on the XOR Metric</a> <a class="footnote-reference" href="#id3" id="id4">[2]</a>&quot;, IPTPS 2002.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="entropy" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>Use SHA1 and plenty of entropy to ensure a unique ID.</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="id2">
+<h1>References</h1>
+<table class="docutils footnote" frame="void" id="id3" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id4">[2]</a></td><td><a class="reference external" href="http://www.cs.rice.edu/Conferences/IPTPS02/109.pdf">http://www.cs.rice.edu/Conferences/IPTPS02/109.pdf</a></td></tr>
+</tbody>
+</table>
+</div>
+
+
+</div>
+	<div id="footer">
+<hr/>
+<p>Copyright 2006 BitTorrent.org</p>
+</div>
+
+</div>
+</body>
+</html>

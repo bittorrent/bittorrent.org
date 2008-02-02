@@ -1,0 +1,368 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.5: http://docutils.sourceforge.net/" />
+<title></title>
+<link rel="stylesheet" href="../css/screen.css" type="text/css" />
+</head>
+<body>
+<div class="document">
+
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="./index.html">BitTorrent<span>.org</span></a></h1>
+</div>
+<div id="nav">
+<ul>
+<li><a href="./index.html">Home</a></li>
+<li><a href="./introduction.html">For Users</a></li>
+<li><span>For Developers</span></li>
+<!-- <li><a href="./blog">Blog</a></li> -->
+<li><a href="./donate.html">Donate!</a></li>
+</ul>
+</div> <!-- nav -->
+<!-- ### Begin Content ### -->
+<div id="second">
+
+
+
+<table class="rfc2822 docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">BEP:</th><td class="field-body">7</td>
+</tr>
+<tr class="field"><th class="field-name">Title:</th><td class="field-body">Tracker Peer Obfuscation</td>
+</tr>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">3</td>
+</tr>
+<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="https://svn.bittorrent.com/trac.cgi/browser/dotorg/trunk/html/beps/bep_0007.rst">02-Feb-2008</a></td>
+</tr>
+<tr class="field"><th class="field-name">Author:</th><td class="field-body">David Harrison &lt;dave&#32;&#97;t&#32;bittorrent.com&gt;, Anthony Ciani &lt;tony&#32;&#97;t&#32;ciani.phy.uic.edu&gt;, Arvid Norberg &lt;arvid&#32;&#97;t&#32;bittorrent.com&gt;, Greg Hazel &lt;greg&#32;&#97;t&#32;bittorrent.com&gt;</td>
+</tr>
+<tr class="field"><th class="field-name">Status:</th><td class="field-body">Draft</td>
+</tr>
+<tr class="field"><th class="field-name">Type:</th><td class="field-body">Standards Track</td>
+</tr>
+<tr class="field"><th class="field-name">Created:</th><td class="field-body">31-Jan-2008</td>
+</tr>
+<tr class="field"><th class="field-name">Post-History:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#announce-parameter" id="id9">announce parameter</a></li>
+<li><a class="reference internal" href="#announce-response" id="id10">announce response</a></li>
+<li><a class="reference internal" href="#peer-list-obfuscation" id="id11">peer list obfuscation</a></li>
+<li><a class="reference internal" href="#optimizations" id="id12">optimizations</a></li>
+<li><a class="reference internal" href="#backwards-compatibility" id="id13">backwards compatibility</a></li>
+<li><a class="reference internal" href="#rationale" id="id14">rationale</a></li>
+<li><a class="reference internal" href="#id4" id="id15">References</a></li>
+</ul>
+</div>
+<p>This extends the tracker protocol to support simple obfuscation of the
+peers it returns, using the info hash as a shared secret between the
+peer and the tracker. The obfuscation does not provide any security
+against eavesdroppers that know the infohash of the torrent.  The goal
+is to prevent internet service providers and other network
+administrators from blocking or disrupting bittorrent traffic
+connections that span between the receiver of a tracker response and
+any peer IP-port appearing in that tracker response.</p>
+<p>The key words &quot;MUST&quot;, &quot;MUST NOT&quot;, &quot;REQUIRED&quot;, &quot;SHALL&quot;, &quot;SHALL NOT&quot;, &quot;SHOULD&quot;,
+&quot;SHOULD NOT&quot;, &quot;RECOMMENDED&quot;, &quot;MAY&quot;, and &quot;OPTIONAL&quot; in this document are
+to be interpreted as described in IETF <a class="reference external" href="http://tools.ietf.org/html/rfc2119">RFC 2119</a> <a class="footnote-reference" href="#id5" id="id6">[1]</a>.</p>
+<div class="section" id="announce-parameter">
+<h1>announce parameter</h1>
+<p>When using this extension, instead of passing the <tt class="docutils literal"><span class="pre">info_hash</span></tt> parameter
+to the tracker, an <tt class="docutils literal"><span class="pre">sha_ih</span></tt> is passed.</p>
+<p>The value of <tt class="docutils literal"><span class="pre">sha_ih</span></tt> MUST be the info-hash of the torrent, with a second
+SHA-1 applied to it.</p>
+<p>For example if a torrent has infohash with hex representation
+<tt class="docutils literal"><span class="pre">aaf4c61ddcc5e8a2dabedef3b482cd9aea9434d</span></tt> then its <tt class="docutils literal"><span class="pre">sha_ih</span></tt> is
+<tt class="docutils literal"><span class="pre">sha1(infohash)='6b4f89a54e2d27ecd7e8da5b4ab8fd9d1d8b119'</span></tt>.</p>
+<p>The value MUST be url encoded, just like the <tt class="docutils literal"><span class="pre">info_hash</span></tt>.  Thus the
+<tt class="docutils literal"><span class="pre">sha_ih</span></tt> above when url encoded becomes
+<tt class="docutils literal"><span class="pre">kO%89%A5N-%27%EC%D7%E8%DA%05%B4%AB%8F%D9%D1%D8%B1%19</span></tt>.</p>
+<p>This extension does not change the semantics of any parameter passed
+in the peer's announce.</p>
+</div>
+<div class="section" id="announce-response">
+<h1>announce response</h1>
+<p>If the tracker supports this extension, the response should be exactly the
+same as if the <tt class="docutils literal"><span class="pre">info_hash</span></tt> was passed, except that any field that contains
+peer information (such as <tt class="docutils literal"><span class="pre">peers</span></tt>, <tt class="docutils literal"><span class="pre">peers6</span></tt> or any other field defined
+by another extension) MUST be obfuscated as described in the next section.</p>
+<p>There are additional parameters the tracker may OPTIONALLY return.
+These are discussed in the <a class="reference internal" href="#optimizations">optimizations</a> section.</p>
+</div>
+<div class="section" id="peer-list-obfuscation">
+<h1>peer list obfuscation</h1>
+<p>We distinguish between the <em>tracker peer list</em> and the <em>returned peer
+list</em>.  The <em>tracker peer list</em> contains the ip-port pairs of all
+peers that have reported to the tracker that they are downloading or
+seeding a given file with a given infohash.  The tracker may store
+this peer list however it wishes.  The <em>returned peer list</em> contains a
+packed array of ip-port pairs conforming to the BitTorrent protocol
+specification.  If the swarm is sufficiently large then the returned
+ip-port pairs constitute a subset of the ip-port pairs in the
+<em>tracker peer list</em>.</p>
+<p>The returned peer list is encrypted using RC4-drop768 encryption using
+the infohash as a shared secret and optionally an initialization
+vector.</p>
+<p>For the remainder of this document RC4 refers to RC4-drop768.  In the
+process of encryption, RC4 generates a pseudorandom string that is
+XOR'd with the plaintext to generate the ciphertext.  The receiver
+recovers the plaintext by generating the same pseudorandom string and
+XOR'ing it with the ciphertext.  In generating the pseudorandom
+string, the tracker and client MUST discard the first 768 bytes.  All
+indices into the pseudorandom string ignore the first 768 bytes, i.e.,
+index 0 refers to the first undiscarded byte.</p>
+<p>To communicate an initialization vector, the tracker includes in the
+bencoded response the key <tt class="docutils literal"><span class="pre">iv</span></tt> with value set to a byte string
+containing the initialization vector.  The initialization vector can
+be of arbitrary length and is sent in plaintext.</p>
+<p>If the tracker sends no initialization vector then the first 64-bits
+of the infohash are used as the RC4 key.  If the tracker provides an
+initialization vector then the RC4 key is generated by appending the
+vector to the infohash and then hashing with sha1.  The first 64 bits
+of the resulting hash are then used as the RC4 key.</p>
+<p>For example, given infohash <tt class="docutils literal"><span class="pre">aaf4c61ddcc5e8a2dabedef3b482cd9aea9434d</span></tt>
+and initialization vector <tt class="docutils literal"><span class="pre">abcd</span></tt> both represented in hex, the RC4 key
+is derived as follows:</p>
+<pre class="literal-block">
+hash = sha1( 'aaf4c61ddcc5e8a2dabedef3b482cd9aea9434dabcd' )
+key = hash[0:64]
+</pre>
+<p>where [i:j] denotes the ith through jth bit including the ith but
+excluding the jth.  The resulting key in hex is <tt class="docutils literal"><span class="pre">f36e9cae87cf33e0</span></tt>.</p>
+<p>A 64-bit key is used to avoid U.S. export restrictions.</p>
+<p>It is RECOMMENDED that the tracker use the initialization vector, and
+that it change the <tt class="docutils literal"><span class="pre">iv</span></tt> on roughly the same period as the rerequest
+interval.  The reasoning for this is contained in the rationale.</p>
+</div>
+<div class="section" id="optimizations">
+<h1>optimizations</h1>
+<p>The described optimizations are OPTIONAL for the tracker, but the
+corresponding client-side MUST be implemented by those that support
+this extension.  These extensions hobble the strength of the RC4
+encryption in order to improve tracker performance.  In the <a class="reference internal" href="#rationale">rationale</a>
+section we discuss why hobbling RC4 is reasonable and in many cases
+has negligible foreseen effect on security.</p>
+<p>For the purpose of these optimizations we assume that the tracker
+stores the tracker peer list for each infohash as a packed array that
+can be copied directly into the response.  We further assume that the
+packed array is reused many times and that with each request the
+tracker either returns the entire packed array or copies a single
+contiguous substring from the tracker peer list into the response.</p>
+<p>If the peerlist is represented and used as assumed then to improve
+randomness in the set of peers handed out by the tracker, it is
+RECOMMENDED that the tracker periodically reshuffle the peerlist with
+period similar to the rerequest interval.  After each reshuffle the
+tracker reperforms the operations described in this section.</p>
+<p>To reduce computation the tracker may cache the pseudorandom string
+generated by RC4 and reuse it as peers arrive and depart.</p>
+<p>The tracker MAY also cache the encrypted tracker peer list.  To
+support this the tracker must pass two additional keys <em>i</em> and <em>n</em>
+each with integer values.  Decryption starts by XORing from <em>6i</em> bytes
+for ipv4 (or <em>18i</em> for ipv6) into the pseudorandom string.  Assuming
+that the tracker encrypted the tracker peer list starting from the
+first byte in the pseudorandom string then <em>i</em> also corresponds to the
+<a href="#id1"><span class="problematic" id="id2">*</span></a>i*th ip-port pair in the tracker peer list and the starting point of
+the copy into the returned request.</p>
+<div class="system-message" id="id1">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">bep_0007.rst</tt>, line 139); <em><a href="#id2">backlink</a></em></p>
+Inline emphasis start-string without end-string.</div>
+<p>So that the client and the tracker do not have to generate an
+arbitrarily long pseudorandom string to support large swarms, we
+assume the tracker bounds the length of the pseudorandom string and
+reports the length in ip-port pairs as the value to key <em>n</em>.  We
+RECOMMEND that <em>n</em> be equal to the length of the tracker peer list or
+random but within constant factor of the longest peerlist returned by
+the tracker, whichever is smaller.  Thus the tracker encrypts the
+<em>jth</em> byte of the <em>ith</em> ip-port pair in an ipv4 tracker peer list by
+XORing with the byte <em>(6i+j)</em> <cite>mod</cite> <em>n</em> bytes into the pseudorandom
+string.</p>
+<p>Since providing <em>i</em> and <em>n</em> significantly reduces the cost for an
+attacker to recover the pseudorandom string, the tracker MUST XOR the
+value of <em>i</em> with the 32 bits beginning with the 8th least significant
+byte of the infohash and <em>n</em> with the least significant 32 bits of the
+infohash.  We do not use the first 64 bits of the infohash since the
+first 64 bits are used as the RC4 key when not specifying an
+initialization vector.</p>
+<p>We describe encryption in the following example for an ipv4 tracker peer
+list consisting of 3 ip-port pairs, and using an RC4 pseudorandom string
+of length <em>n=2</em>. <em>n</em> is small for purposes of illustration.  Also, for the
+purpose of illustration, the tracker returns only 3 peers at a time.</p>
+<dl class="docutils">
+<dt>::</dt>
+<dd><p class="first">Given the following peer list
+(208.72.193.86, 6881), (209.81.173.15,14321), (128.213.6.8, 6881)</p>
+<p>As a packed array represented in hex it becomes</p>
+<p>d048c1561ae1d151ad0f37f180d506081ae1</p>
+<p>which we XOR with an RC4 pseudorandom string, e.g.,</p>
+<p>a496e5f9b83e835013d42226</p>
+<p>to generate</p>
+<p class="last">74de24afa2df5201bedb15d72443e3f1a2df</p>
+</dd>
+</dl>
+<p>Because the RC4 pseudorandom string is shorter than the tracker
+peer list, we wrap to the beginning of the pseudorandom string.</p>
+<blockquote>
+<p>In the first response, the tracker would return</p>
+<p><em>peers=74de24afa2df5201bedb15d7</em>, <em>i=0</em>, <em>n=2</em></p>
+<p>In the second response, the tracker would return</p>
+<p><em>peers=5201bedb15d72443e3f1a2df</em>, <em>i=1</em>, <em>n=2</em></p>
+</blockquote>
+<p>The tracker response MUST remain a valid bencoded message.</p>
+</div>
+<div class="section" id="backwards-compatibility">
+<h1>backwards compatibility</h1>
+<p>Trackers that support obfuscation are identified in the .torrent file
+by the inclusion of an <tt class="docutils literal"><span class="pre">obfuscate-announce-list</span></tt> which otherwise has the
+same semantics as the <tt class="docutils literal"><span class="pre">announce-list</span></tt> key.  Peers that do not support
+obfuscation simply ignore the <tt class="docutils literal"><span class="pre">obfuscate-announce-list</span></tt>.</p>
+<p>A client that is configured to use this extension should always send
+the <tt class="docutils literal"><span class="pre">sha_ih</span></tt> to any tracker supporting obfuscation.  The client
+SHOULD only contact trackers in the <tt class="docutils literal"><span class="pre">announce-list</span></tt> once the client
+has attempted all trackers in the <tt class="docutils literal"><span class="pre">obfuscate-announce-list</span></tt> and all failed.</p>
+<p>If a tracker that supports obfuscation wishes to allow legacy peers to
+connect to the tracker then the announce URL should appear in both the
+<tt class="docutils literal"><span class="pre">obfuscate-announce-list</span></tt> and the <tt class="docutils literal"><span class="pre">announce-list</span></tt>.</p>
+<p>If a tracker URL appears in both lists running on the same port, and
+the tracker failed to respond when selected from the
+<tt class="docutils literal"><span class="pre">obfuscate-announce-list</span></tt> then the client MAY treat the tracker in
+the <tt class="docutils literal"><span class="pre">announce-list</span></tt> as if it were temporarily unreachable and defer
+trying it until it has tried other trackers in the <tt class="docutils literal"><span class="pre">announce-list</span></tt>.</p>
+<p>Peers MUST never send both the <tt class="docutils literal"><span class="pre">info_hash</span></tt> and <tt class="docutils literal"><span class="pre">sha_ih</span></tt> parameters
+in the same request, since that would defeat the purpose of the shared
+secret.</p>
+<ul class="simple">
+<li>any peer that reports a sha_ih is assumed to implement protocol encryption.</li>
+<li>tracker OPTIONALLY includes a <tt class="docutils literal"><span class="pre">flags</span></tt> key that contains one byte per
+peer in the reported peer list.  The first bit of each byte specifies
+whether the peer support protocol encryption. (How do we protect
+the flags field from modification?)</li>
+<li>if no flags field is present then all peers should be assumed to support protocol encryption</li>
+<li>if a flags field is present then those peers that support protocol
+a</li>
+</ul>
+</div>
+<div class="section" id="rationale">
+<h1>rationale</h1>
+<p>This extension directly addresses a known attack on the BitTorrent
+protocol performed by some deployed network hardware.  By obscuring
+the ip-port pairs network hardware can no longer easily identify
+ip-port pairs that are running BitTorrent by observing peer-to-tracker
+communications.  This deployed hardware under some conditions disrupts
+BitTorrent connections by injecting forged TCP reset packets.  Once a
+BitTorrent connection has been identified, other attacks could be
+performed such as severely rate limiting or blocking these
+connections.</p>
+<p>This hardware was presumably deployed to get around <a class="reference external" href="http://www.bittorrent.org/beps/bep_0013.html">BitTorrent
+Protocol Encryption</a> <a class="footnote-reference" href="#id7" id="id8">[2]</a>.  Peers implementing BitTorrent Protocol
+Encryption obfuscate peer-to-peer connections by employing RC4
+encryption on every byte from the first byte transferred. BitTorrent
+Protocol Encryption thus increases the difficulty for a device
+observing passing packets to identify BitTorrent peer-to-peer
+connections.</p>
+<p>By using the SHA-1 of the infohash, the tracker is able to identify
+torrents without sending the plaintext infohash and without requiring
+an additional prior exchange of a shared secret.  Where trackers now
+maintain mappings from infohash to the corresponding torrent's
+peerlist and other torrent-specific state, obfuscated trackers would need
+one additional mapping from <tt class="docutils literal"><span class="pre">sha_ih</span></tt> to the torrent's state.
+Tracker may also store encrypted versions of each torrent's peer list,
+to increase computation performance at the expense of increasing
+memory footprint by a constant factor.</p>
+<p>The obfuscation method meets the following criteria:</p>
+<ul class="simple">
+<li>The entire plaintext of the peer list is not easily obtained
+even if an eavesdropper identifies ip-port pairs from
+subsequent connections from a peer that has received a tracker response.</li>
+<li>Even when a subsequent connection from a peer that has received a
+tracker response is observed by an eavesdropper, it is difficult to
+map the ip-port pair to specific ciphertext to verify that the
+connection is using BitTorrent.</li>
+</ul>
+<p>When the <a class="reference internal" href="#optimizations">optimizations</a> are used,</p>
+<ul class="simple">
+<li>Few computations are performed at request time.</li>
+<li>Encryption may be performed at the time a peer is added.
+The encrypted peer ip and port may be handed out hundreds of times.</li>
+<li>Security is minimally impacted.</li>
+</ul>
+<p>The objective is NOT to create a cryptographically secure protocol
+that can survive unlimited observation of passing packets and
+substantial computational resources on network timescales.  The object
+is to raise the bar sufficiently to deter attacks based on observing
+ip-port numbers in peer-to-tracker communications.</p>
+<p>If a tracker observes a large number of tracker requests and responses
+and subsequent connections, it is possible to attack the encryption.
+RC4 is known to have a number of weaknesses especially in the way it
+was used with WEP [and HERE].  However, with tracker peer obfuscation, the
+number of bytes transferred between the tracker and a client is likely
+significantly smaller than transfer between a wireless computer and a
+basestation.  An attacker faces a much larger task in obtaining
+sufficient probable plaintext to directly break the encryption.</p>
+<p>Hobbling the RC4 encryption by using a bounded-length RC4 pseudorandom
+string for small swarms is likely to have negilgible impact on
+security over any other encyption method since the pseudorandom string
+is probably equal to or longer than the plaintext and thus no part of
+it is repeated in the XOR except as peers arrive or leave the swarm.
+Thus on the timescales of rerequest intervals, nearly the same
+ciphertext is handed to every peer requesting the same infohash.
+Intercepting the same ciphertext multiple times provides no additional
+information to the attacker.  The attacker could correlate ip-port
+pairs in connections following tracker responses, but an attacker
+could do this regardless of the encryption method employed.
+Furthermore more direct methods of traffic analysis applied to
+peer-to-peer communication is available to network operators.</p>
+<p>For larger swarms, hobbling RC4 may more significantly impact breaking
+the encryption since the same pseudorandom string is used repeatedly
+across the peer list.  Some study is in order on this point taking
+into account that the tracker can periodically change intiailization
+vectors.</p>
+<p>We know from experience that periodically reshuffling peer lists on
+the order of the rerequest interval negligibly impacts tracker
+performance even with swarms containing millions of peers.  Generating
+a new pseudorandom string using RC4 on this same time interval is
+likely to incur negligible performance penalty because 1) RC4 is a
+small constant factor more expensive than a shuffle on an input string
+of equal length, 2) the generated pseudorandom string is only <em>n</em>
+bytes long where recommended <em>n</em> is within a small constant factor
+larger than the largest response size and thus much smaller than the
+tracker peer list for large swarms, and 3) the cost of the XOR
+operation is lighter weight than performing a random shuffle.</p>
+</div>
+<div class="section" id="id4">
+<h1>References</h1>
+<table class="docutils footnote" frame="void" id="id5" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id6">[1]</a></td><td><a class="reference external" href="http://tools.ietf.org/html/rfc2119">http://tools.ietf.org/html/rfc2119</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id7" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id8">[2]</a></td><td><a class="reference external" href="http://www.bittorrent.org/beps/bep_0013.html">http://www.bittorrent.org/beps/bep_0013.html</a></td></tr>
+</tbody>
+</table>
+</div>
+
+
+</div>
+	<div id="footer">
+<hr/>
+<p>Copyright 2006 BitTorrent.org</p>
+</div>
+
+</div>
+</body>
+</html>

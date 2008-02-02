@@ -1,4 +1,4 @@
-BEP: 4
+BEP: 7
 Title: Tracker Peer Obfuscation
 Version: 3
 Last-Modified: 02-Feb-2008

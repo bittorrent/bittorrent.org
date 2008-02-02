@@ -142,7 +142,7 @@ each with integer values.  Decryption starts by XORing from *6i* bytes
 for ipv4 (or *18i* for ipv6) into the pseudorandom string.  Assuming
 that the tracker encrypted the tracker peer list starting from the
 first byte in the pseudorandom string then *i* also corresponds to the
-*i*th ip-port pair in the tracker peer list and the starting point of
+*ith* ip-port pair in the tracker peer list and the starting point of
 the copy into the returned request.  
 
 So that the client and the tracker do not have to generate an

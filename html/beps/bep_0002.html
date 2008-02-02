@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="Docutils 0.5: http://docutils.sourceforge.net/" />
 <title></title>
-<link rel="stylesheet" href="../css/screen.css" type="text/css" />
+<link rel="stylesheet" href="../css/bep.css" type="text/css" />
 </head>
 <body>
 <div class="document">
@@ -13,15 +13,15 @@
 <div id="upper" class="clear">
 <div id="wrap">
 <div id="header">
-<h1><a href="./index.html">BitTorrent<span>.org</span></a></h1>
+<h1><a href="../index.html">BitTorrent<span>.org</span></a></h1>
 </div>
 <div id="nav">
 <ul>
-<li><a href="./index.html">Home</a></li>
-<li><a href="./introduction.html">For Users</a></li>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../introduction.html">For Users</a></li>
 <li><span>For Developers</span></li>
 <!-- <li><a href="./blog">Blog</a></li> -->
-<li><a href="./donate.html">Donate!</a></li>
+<li><a href="../donate.html">Donate!</a></li>
 </ul>
 </div> <!-- nav -->
 <!-- ### Begin Content ### -->
@@ -111,20 +111,20 @@ downloaders with only a modest increase in its load.</p>
 <div class="section" id="the-connectivity-is-as-follows">
 <h1>The connectivity is as follows:</h1>
 <ul class="simple">
-<li>Strings are length-prefixed base ten followed by a colon and the string. For example &lt;code&gt;4:spam&lt;/code&gt; corresponds to 'spam'.</li>
+<li>Strings are length-prefixed base ten followed by a colon and the string. For example <tt class="docutils literal"><span class="pre">4:spam</span></tt> corresponds to 'spam'.</li>
 <li>Integers are represented by an 'i' followed by the number in base 10
-followed by an 'e'. For example &lt;code&gt;i3e&lt;/code&gt; corresponds to 3 and
-&lt;code&gt;i-3e &lt;/code&gt;corresponds to -3. Integers have no size
-limitation. &lt;code&gt;i-0e&lt;/code&gt; is invalid. All encodings with a leading
-zero, such as &lt;code&gt;i03e&lt;/code&gt;, are invalid, other than
-&lt;code&gt;i0e&lt;/code&gt;, which of course corresponds to 0.</li>
+followed by an 'e'. For example <tt class="docutils literal"><span class="pre">i3e</span></tt> corresponds to 3 and
+<tt class="docutils literal"><span class="pre">i-3e</span> <span class="pre">``corresponds</span> <span class="pre">to</span> <span class="pre">-3.</span> <span class="pre">Integers</span> <span class="pre">have</span> <span class="pre">no</span> <span class="pre">size</span>
+<span class="pre">limitation.</span> <span class="pre">``i-0e</span></tt> is invalid. All encodings with a leading
+zero, such as <tt class="docutils literal"><span class="pre">i03e</span></tt>, are invalid, other than
+<tt class="docutils literal"><span class="pre">i0e</span></tt>, which of course corresponds to 0.</li>
 <li>Lists are encoded as an 'l' followed by their elements (also
-bencoded) followed by an 'e'. For example &lt;code&gt;l4:spam4:eggse&lt;/code&gt;
+bencoded) followed by an 'e'. For example <tt class="docutils literal"><span class="pre">l4:spam4:eggse</span></tt>
 corresponds to ['spam', 'eggs'].</li>
 <li>Dictionaries are encoded as a 'd' followed by a list of alternating
 keys and their corresponding values followed by an 'e'. For example,
-&lt;code&gt;d3:cow3:moo4:spam4:eggse&lt;/code&gt; corresponds to {'cow': 'moo',
-'spam': 'eggs'} and &lt;code&gt;d4:spaml1:a1:bee&lt;/code&gt; corresponds to
+<tt class="docutils literal"><span class="pre">d3:cow3:moo4:spam4:eggse</span></tt> corresponds to {'cow': 'moo',
+'spam': 'eggs'} and <tt class="docutils literal"><span class="pre">d4:spaml1:a1:bee</span></tt> corresponds to
 {'spam': ['a', 'b']}. Keys must be strings and appear in sorted order
 (sorted as raw strings, not alphanumerics).</li>
 </ul>
@@ -136,31 +136,31 @@ keys and their corresponding values followed by an 'e'. For example,
 <dd>The URL of the tracker.</dd>
 <dt>info</dt>
 <dd><p class="first">This maps to a dictionary, with keys described below.</p>
-<p>The &lt;code&gt;name&lt;/code&gt; key maps to a string which is the suggested name
+<p>The <tt class="docutils literal"><span class="pre">name</span></tt> key maps to a string which is the suggested name
 to save the file (or directory) as. It is purely advisory.</p>
-<p>&lt;code&gt;piece length&lt;/code&gt; maps to the number of bytes in each piece
+<p><tt class="docutils literal"><span class="pre">piece</span> <span class="pre">length</span></tt> maps to the number of bytes in each piece
 the file is split into. For the purposes of transfer, files are
 split into fixed-size pieces which are all the same length except for
-possibly the last one which may be truncated. &lt;code&gt;piece
-length&lt;/code&gt; is almost always a power of two, most commonly 2 18 =
+possibly the last one which may be truncated. <tt class="docutils literal"><span class="pre">piece</span>
+<span class="pre">length</span></tt> is almost always a power of two, most commonly 2 18 =
 256 K (BitTorrent prior to version 3.2 uses 2 20 = 1 M as
 default).</p>
-<p>&lt;code&gt;pieces&lt;/code&gt; maps to a string whose length is a multiple of
+<p><tt class="docutils literal"><span class="pre">pieces</span></tt> maps to a string whose length is a multiple of
 20. It is to be subdivided into strings of length 20, each of which is
 the SHA1 hash of the piece at the corresponding index.</p>
-<p>There is also a key &lt;code&gt;length&lt;/code&gt; or a key &lt;code&gt;files&lt;/code&gt;,
-but not both or neither. If &lt;code&gt;length&lt;/code&gt; is present then the
+<p>There is also a key <tt class="docutils literal"><span class="pre">length</span></tt> or a key <tt class="docutils literal"><span class="pre">files</span></tt>,
+but not both or neither. If <tt class="docutils literal"><span class="pre">length</span></tt> is present then the
 download represents a single file, otherwise it represents a set of
 files which go in a directory structure.</p>
-<p>In the single file case, &lt;code&gt;length&lt;/code&gt; maps to the length of
+<p>In the single file case, <tt class="docutils literal"><span class="pre">length</span></tt> maps to the length of
 the file in bytes.</p>
 <p>For the purposes of the other keys, the multi-file case is treated as
 only having a single file by concatenating the files in the order they
 appear in the files list. The files list is the value
-&lt;code&gt;files&lt;/code&gt; maps to, and is a list of dictionaries containing
+<tt class="docutils literal"><span class="pre">files</span></tt> maps to, and is a list of dictionaries containing
 the following keys:</p>
-<p>&lt;code&gt;length&lt;/code&gt; - The length of the file, in bytes.</p>
-<p>&lt;code&gt;path&lt;/code&gt; - A list of strings corresponding to subdirectory
+<p><tt class="docutils literal"><span class="pre">length</span></tt> - The length of the file, in bytes.</p>
+<p><tt class="docutils literal"><span class="pre">path</span></tt> - A list of strings corresponding to subdirectory
 names, the last of which is the actual file name (a zero length list
 is an error case).</p>
 <p class="last">In the single file case, the name key is the name of a file, in the
@@ -198,25 +198,25 @@ the file length since it might be a resume, and there's a chance that
 some of the downloaded data failed an integrity check and had to be
 re-downloaded.</dd>
 <dt>event</dt>
-<dd>This is an optional key which maps to &lt;code&gt;started&lt;/code&gt;,
-&lt;code&gt;completed&lt;/code&gt;, or &lt;code&gt;stopped&lt;/code&gt; (or
-&lt;code&gt;empty&lt;/code&gt;, which is the same as not being present). If not
+<dd>This is an optional key which maps to <tt class="docutils literal"><span class="pre">started</span></tt>,
+<tt class="docutils literal"><span class="pre">completed</span></tt>, or <tt class="docutils literal"><span class="pre">stopped</span></tt> (or
+<tt class="docutils literal"><span class="pre">empty</span></tt>, which is the same as not being present). If not
 present, this is one of the announcements done at regular
-intervals. An announcement using &lt;code&gt;started&lt;/code&gt; is sent when a
-download first begins, and one using &lt;code&gt;completed&lt;/code&gt; is sent
-when the download is complete. No &lt;code&gt;completed&lt;/code&gt; is sent if
+intervals. An announcement using <tt class="docutils literal"><span class="pre">started</span></tt> is sent when a
+download first begins, and one using <tt class="docutils literal"><span class="pre">completed</span></tt> is sent
+when the download is complete. No <tt class="docutils literal"><span class="pre">completed</span></tt> is sent if
 the file was complete when started. Downloaders send an announcement
-using &lt;code&gt;stopped&lt;/code&gt; when they cease downloading.</dd>
+using <tt class="docutils literal"><span class="pre">stopped</span></tt> when they cease downloading.</dd>
 </dl>
 <p>Tracker responses are bencoded dictionaries. If a tracker response
-has a key &lt;code&gt;failure reason&lt;/code&gt;, then that maps to a human
+has a key <tt class="docutils literal"><span class="pre">failure</span> <span class="pre">reason</span></tt>, then that maps to a human
 readable string which explains why the query failed, and no other keys
-are required. Otherwise, it must have two keys: &lt;code&gt;interval&lt;/code&gt;,
+are required. Otherwise, it must have two keys: <tt class="docutils literal"><span class="pre">interval</span></tt>,
 which maps to the number of seconds the downloader should wait between
-regular rerequests, and &lt;code&gt;peers&lt;/code&gt;. &lt;code&gt;peers&lt;/code&gt; maps to
-a list of dictionaries corresponding to &lt;code&gt;peers&lt;/code&gt;, each of
-which contains the keys &lt;code&gt;peer id&lt;/code&gt;, &lt;code&gt;ip&lt;/code&gt;, and
-&lt;code&gt;port&lt;/code&gt;, which map to the peer's self-selected ID, IP
+regular rerequests, and <tt class="docutils literal"><span class="pre">peers</span></tt>. <tt class="docutils literal"><span class="pre">peers</span></tt> maps to
+a list of dictionaries corresponding to <tt class="docutils literal"><span class="pre">peers</span></tt>, each of
+which contains the keys <tt class="docutils literal"><span class="pre">peer</span> <span class="pre">id</span></tt>, <tt class="docutils literal"><span class="pre">ip</span></tt>, and
+<tt class="docutils literal"><span class="pre">port</span></tt>, which map to the peer's self-selected ID, IP
 address or dns name as a string, and port number, respectively. Note
 that downloaders may rerequest on nonscheduled times if an event
 happens or they need more peers.</p>
@@ -263,7 +263,7 @@ protocol using these bytes, please coordinate with Bram Cohen to make
 sure all extensions are done compatibly.</p>
 <p>Next comes the 20 byte sha1 hash of the bencoded form of the info
 value from the metainfo file. (This is the same value which is
-announced as &lt;code&gt;info_hash&lt;/code&gt; to the tracker, only here it's raw
+announced as <tt class="docutils literal"><span class="pre">info_hash</span></tt> to the tracker, only here it's raw
 instead of quoted here). If both sides don't send the same value, they
 sever the connection. The one possible exception is if a downloader
 wants to do multiple downloads over a single port, they may wait for

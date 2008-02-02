@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="Docutils 0.5: http://docutils.sourceforge.net/" />
 <title></title>
-<link rel="stylesheet" href="../css/screen.css" type="text/css" />
+<link rel="stylesheet" href="../css/bep.css" type="text/css" />
 </head>
 <body>
 <div class="document">
@@ -13,15 +13,15 @@
 <div id="upper" class="clear">
 <div id="wrap">
 <div id="header">
-<h1><a href="./index.html">BitTorrent<span>.org</span></a></h1>
+<h1><a href="../index.html">BitTorrent<span>.org</span></a></h1>
 </div>
 <div id="nav">
 <ul>
-<li><a href="./index.html">Home</a></li>
-<li><a href="./introduction.html">For Users</a></li>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../introduction.html">For Users</a></li>
 <li><span>For Developers</span></li>
 <!-- <li><a href="./blog">Blog</a></li> -->
-<li><a href="./donate.html">Donate!</a></li>
+<li><a href="../donate.html">Donate!</a></li>
 </ul>
 </div> <!-- nav -->
 <!-- ### Begin Content ### -->
@@ -57,13 +57,13 @@
 <div class="contents topic" id="contents">
 <p class="topic-title first">Contents</p>
 <ul class="simple">
-<li><a class="reference internal" href="#announce-parameter" id="id9">announce parameter</a></li>
-<li><a class="reference internal" href="#announce-response" id="id10">announce response</a></li>
-<li><a class="reference internal" href="#peer-list-obfuscation" id="id11">peer list obfuscation</a></li>
-<li><a class="reference internal" href="#optimizations" id="id12">optimizations</a></li>
-<li><a class="reference internal" href="#backwards-compatibility" id="id13">backwards compatibility</a></li>
-<li><a class="reference internal" href="#rationale" id="id14">rationale</a></li>
-<li><a class="reference internal" href="#id4" id="id15">References</a></li>
+<li><a class="reference internal" href="#announce-parameter" id="id7">announce parameter</a></li>
+<li><a class="reference internal" href="#announce-response" id="id8">announce response</a></li>
+<li><a class="reference internal" href="#peer-list-obfuscation" id="id9">peer list obfuscation</a></li>
+<li><a class="reference internal" href="#optimizations" id="id10">optimizations</a></li>
+<li><a class="reference internal" href="#backwards-compatibility" id="id11">backwards compatibility</a></li>
+<li><a class="reference internal" href="#rationale" id="id12">rationale</a></li>
+<li><a class="reference internal" href="#id2" id="id13">References</a></li>
 </ul>
 </div>
 <p>This extends the tracker protocol to support simple obfuscation of the
@@ -76,7 +76,7 @@ connections that span between the receiver of a tracker response and
 any peer IP-port appearing in that tracker response.</p>
 <p>The key words &quot;MUST&quot;, &quot;MUST NOT&quot;, &quot;REQUIRED&quot;, &quot;SHALL&quot;, &quot;SHALL NOT&quot;, &quot;SHOULD&quot;,
 &quot;SHOULD NOT&quot;, &quot;RECOMMENDED&quot;, &quot;MAY&quot;, and &quot;OPTIONAL&quot; in this document are
-to be interpreted as described in IETF <a class="reference external" href="http://tools.ietf.org/html/rfc2119">RFC 2119</a> <a class="footnote-reference" href="#id5" id="id6">[1]</a>.</p>
+to be interpreted as described in IETF <a class="reference external" href="http://tools.ietf.org/html/rfc2119">RFC 2119</a> <a class="footnote-reference" href="#id3" id="id4">[1]</a>.</p>
 <div class="section" id="announce-parameter">
 <h1>announce parameter</h1>
 <p>When using this extension, instead of passing the <tt class="docutils literal"><span class="pre">info_hash</span></tt> parameter
@@ -173,11 +173,8 @@ each with integer values.  Decryption starts by XORing from <em>6i</em> bytes
 for ipv4 (or <em>18i</em> for ipv6) into the pseudorandom string.  Assuming
 that the tracker encrypted the tracker peer list starting from the
 first byte in the pseudorandom string then <em>i</em> also corresponds to the
-<a href="#id1"><span class="problematic" id="id2">*</span></a>i*th ip-port pair in the tracker peer list and the starting point of
+<em>ith</em> ip-port pair in the tracker peer list and the starting point of
 the copy into the returned request.</p>
-<div class="system-message" id="id1">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">bep_0007.rst</tt>, line 139); <em><a href="#id2">backlink</a></em></p>
-Inline emphasis start-string without end-string.</div>
 <p>So that the client and the tracker do not have to generate an
 arbitrarily long pseudorandom string to support large swarms, we
 assume the tracker bounds the length of the pseudorandom string and
@@ -265,7 +262,7 @@ BitTorrent connection has been identified, other attacks could be
 performed such as severely rate limiting or blocking these
 connections.</p>
 <p>This hardware was presumably deployed to get around <a class="reference external" href="http://www.bittorrent.org/beps/bep_0013.html">BitTorrent
-Protocol Encryption</a> <a class="footnote-reference" href="#id7" id="id8">[2]</a>.  Peers implementing BitTorrent Protocol
+Protocol Encryption</a> <a class="footnote-reference" href="#id5" id="id6">[2]</a>.  Peers implementing BitTorrent Protocol
 Encryption obfuscate peer-to-peer connections by employing RC4
 encryption on every byte from the first byte transferred. BitTorrent
 Protocol Encryption thus increases the difficulty for a device
@@ -340,18 +337,18 @@ larger than the largest response size and thus much smaller than the
 tracker peer list for large swarms, and 3) the cost of the XOR
 operation is lighter weight than performing a random shuffle.</p>
 </div>
-<div class="section" id="id4">
+<div class="section" id="id2">
 <h1>References</h1>
+<table class="docutils footnote" frame="void" id="id3" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id4">[1]</a></td><td><a class="reference external" href="http://tools.ietf.org/html/rfc2119">http://tools.ietf.org/html/rfc2119</a></td></tr>
+</tbody>
+</table>
 <table class="docutils footnote" frame="void" id="id5" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id6">[1]</a></td><td><a class="reference external" href="http://tools.ietf.org/html/rfc2119">http://tools.ietf.org/html/rfc2119</a></td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="id7" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id8">[2]</a></td><td><a class="reference external" href="http://www.bittorrent.org/beps/bep_0013.html">http://www.bittorrent.org/beps/bep_0013.html</a></td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id6">[2]</a></td><td><a class="reference external" href="http://www.bittorrent.org/beps/bep_0013.html">http://www.bittorrent.org/beps/bep_0013.html</a></td></tr>
 </tbody>
 </table>
 </div>

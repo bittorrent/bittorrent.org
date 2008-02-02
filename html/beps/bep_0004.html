@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="Docutils 0.5: http://docutils.sourceforge.net/" />
 <title></title>
-<link rel="stylesheet" href="../css/screen.css" type="text/css" />
+<link rel="stylesheet" href="../css/bep.css" type="text/css" />
 </head>
 <body>
 <div class="document">
@@ -13,15 +13,15 @@
 <div id="upper" class="clear">
 <div id="wrap">
 <div id="header">
-<h1><a href="./index.html">BitTorrent<span>.org</span></a></h1>
+<h1><a href="../index.html">BitTorrent<span>.org</span></a></h1>
 </div>
 <div id="nav">
 <ul>
-<li><a href="./index.html">Home</a></li>
-<li><a href="./introduction.html">For Users</a></li>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../introduction.html">For Users</a></li>
 <li><span>For Developers</span></li>
 <!-- <li><a href="./blog">Blog</a></li> -->
-<li><a href="./donate.html">Donate!</a></li>
+<li><a href="../donate.html">Donate!</a></li>
 </ul>
 </div> <!-- nav -->
 <!-- ### Begin Content ### -->
@@ -43,7 +43,7 @@
 </tr>
 <tr class="field"><th class="field-name">Author:</th><td class="field-body">Andrew Loewenstern &lt;drue&#32;&#97;t&#32;bittorrent.com&gt;</td>
 </tr>
-<tr class="field"><th class="field-name">Status:</th><td class="field-body">Accepted</td>
+<tr class="field"><th class="field-name">Status:</th><td class="field-body">Draft</td>
 </tr>
 <tr class="field"><th class="field-name">Type:</th><td class="field-body">Standards Track</td>
 </tr>
@@ -57,18 +57,30 @@
 <div class="contents topic" id="contents">
 <p class="topic-title first">Contents</p>
 <ul class="simple">
-<li><a class="reference internal" href="#overview" id="id5">Overview</a></li>
-<li><a class="reference internal" href="#routing-table" id="id6">Routing Table</a></li>
-<li><a class="reference internal" href="#bittorrent-protocol-extension" id="id7">BitTorrent Protocol Extension</a></li>
-<li><a class="reference internal" href="#torrent-file-extensions" id="id8">Torrent File Extensions</a></li>
-<li><a class="reference internal" href="#krpc-protocol" id="id9">KRPC Protocol</a></li>
-<li><a class="reference internal" href="#dht-queries" id="id10">DHT Queries</a></li>
-<li><a class="reference internal" href="#id2" id="id11">References</a></li>
+<li><a class="reference internal" href="#overview" id="id4">Overview</a></li>
+<li><a class="reference internal" href="#routing-table" id="id5">Routing Table</a></li>
+<li><a class="reference internal" href="#bittorrent-protocol-extension" id="id6">BitTorrent Protocol Extension</a></li>
+<li><a class="reference internal" href="#torrent-file-extensions" id="id7">Torrent File Extensions</a></li>
+<li><a class="reference internal" href="#krpc-protocol" id="id8">KRPC Protocol</a><ul>
+<li><a class="reference internal" href="#contact-encoding" id="id9">Contact Encoding</a></li>
+<li><a class="reference internal" href="#queries" id="id10">Queries</a></li>
+<li><a class="reference internal" href="#responses" id="id11">Responses</a></li>
+<li><a class="reference internal" href="#errors" id="id12">Errors</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dht-queries" id="id13">DHT Queries</a><ul>
+<li><a class="reference internal" href="#ping" id="id14">ping</a></li>
+<li><a class="reference internal" href="#find-node" id="id15">find_node</a></li>
+<li><a class="reference internal" href="#get-peers" id="id16">get_peers</a></li>
+<li><a class="reference internal" href="#announce-peer" id="id17">announce_peer</a></li>
+<li><a class="reference internal" href="#references" id="id18">References</a></li>
+</ul>
+</li>
 </ul>
 </div>
 <p>BitTorrent uses a &quot;distributed sloppy hash table&quot; (DHT) for storing
 peer contact information for &quot;trackerless&quot; torrents. In effect, each
-peer becomes a tracker. The protocol is based on Kademila[Kademlia]_ and is
+peer becomes a tracker. The protocol is based on Kademila <a class="footnote-reference" href="#kademlia" id="id1">[1]</a> and is
 implemented over UDP.</p>
 <p>Please note the terminology used in this document to avoid
 confusion. A &quot;peer&quot; is a client/server listening on a TCP port that
@@ -82,7 +94,7 @@ using the BitTorrent protocol.</p>
 <h1>Overview</h1>
 <p>Each node has a globally unique identifier known as the &quot;node ID.&quot;
 Node IDs are chosen at random from the same 160-bit space as BitTorrent
-infohashes <a class="footnote-reference" href="#entropy" id="id1">[1]</a>.  A &quot;distance metric&quot; is used to compare two node IDs or a node
+infohashes <a class="footnote-reference" href="#entropy" id="id2">[2]</a>.  A &quot;distance metric&quot; is used to compare two node IDs or a node
 ID and an infohash for &quot;closeness.&quot; Nodes must maintain a routing table
 containing the contact information for a small number of other nodes.
 The routing table becomes more detailed as IDs get closer to the node's
@@ -230,34 +242,38 @@ outstanding queries. The other key contained in every KRPC message is &quot;y&qu
 with a single character value describing the type of message. The value
 of the &quot;y&quot; key is one of &quot;q&quot; for query, &quot;r&quot; for response, or &quot;e&quot; for
 error.</p>
-<dl class="docutils">
-<dt>Contact Encoding</dt>
-<dd><p class="first">Contact information for peers is encoded as a 6-byte string. Also
+<div class="section" id="contact-encoding">
+<h2>Contact Encoding</h2>
+<p>Contact information for peers is encoded as a 6-byte string. Also
 known as &quot;Compact IP-address/port info&quot; the 4-byte IP address is in
 network byte order with the 2 byte port in network byte order
 concatenated onto the end.</p>
-<p class="last">Contact information for nodes is encoded as a 26-byte string.
+<p>Contact information for nodes is encoded as a 26-byte string.
 Also known as &quot;Compact node info&quot; the 20-byte Node ID in network byte
 order has the compact IP-address/port info concatenated to the end.</p>
-</dd>
-<dt>Queries</dt>
-<dd>Queries, or KRPC message dictionaries with a &quot;y&quot; value of &quot;q&quot;,
+</div>
+<div class="section" id="queries">
+<h2>Queries</h2>
+<p>Queries, or KRPC message dictionaries with a &quot;y&quot; value of &quot;q&quot;,
 contain two additional keys; &quot;q&quot; and &quot;a&quot;. Key &quot;q&quot; has a string value
 containing the method name of the query. Key &quot;a&quot; has a dictionary value
-containing named arguments to the query.</dd>
-<dt>Responses</dt>
-<dd>Responses, or KRPC message dictionaries with a &quot;y&quot; value of &quot;r&quot;,
+containing named arguments to the query.</p>
+</div>
+<div class="section" id="responses">
+<h2>Responses</h2>
+<p>Responses, or KRPC message dictionaries with a &quot;y&quot; value of &quot;r&quot;,
 contain one additional key &quot;r&quot;. The value of &quot;r&quot; is a dictionary
 containing named return values. Response messages are sent upon
-successful completion of a query.</dd>
-<dt>Errors</dt>
-<dd>Errors, or KRPC message dictionaries with a &quot;y&quot; value of &quot;e&quot;,
+successful completion of a query.</p>
+</div>
+<div class="section" id="errors">
+<h2>Errors</h2>
+<p>Errors, or KRPC message dictionaries with a &quot;y&quot; value of &quot;e&quot;,
 contain one additional key &quot;e&quot;. The value of &quot;e&quot; is a list. The first
 element is an integer representing the error code. The second element
 is a string containing the error message. Errors are sent when a query
 cannot be fulfilled. The following table describes the possible error
-codes:</dd>
-</dl>
+codes:</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="19%" />
@@ -288,19 +304,19 @@ generic error = {&quot;t&quot;:&quot;aa&quot;, &quot;y&quot;:&quot;e&quot;, &quo
 bencoded = d1:eli201e23:A Generic Error Ocurrede1:t2:aa1:y1:ee
 </pre>
 </div>
+</div>
 <div class="section" id="dht-queries">
 <h1>DHT Queries</h1>
 <p>All queries have an &quot;id&quot; key and value containing the node ID of the
 querying node. All responses have an &quot;id&quot; key and value containing the
 node ID of the responding node.</p>
-<dl class="docutils">
-<dt>ping</dt>
-<dd>The most basic query is a ping. &quot;q&quot; = &quot;ping&quot; A ping query has a
+<div class="section" id="ping">
+<h2>ping</h2>
+<p>The most basic query is a ping. &quot;q&quot; = &quot;ping&quot; A ping query has a
 single argument, &quot;id&quot; the value is a 20-byte string containing the
 senders node ID in network byte order. The appropriate response to a
 ping has a single key &quot;id&quot; containing the node ID of the responding
-node.</dd>
-</dl>
+node.</p>
 <pre class="literal-block">
 arguments:  {&quot;id&quot;&amp;nbsp;: &quot;&lt;querying nodes id&gt;&quot;}
 
@@ -315,16 +331,16 @@ bencoded = d1:ad2:id20:abcdefghij0123456789e1:q4:ping1:t2:aa1:y1:qe
 Response = {&quot;t&quot;:&quot;aa&quot;, &quot;y&quot;:&quot;r&quot;, &quot;r&quot;: {&quot;id&quot;:&quot;mnopqrstuvwxyz123456&quot;}}
 bencoded = d1:rd2:id20:mnopqrstuvwxyz123456e1:t2:aa1:y1:re
 </pre>
-<dl class="docutils">
-<dt>find_node</dt>
-<dd>Find node is used to find the contact information for a node given
+</div>
+<div class="section" id="find-node">
+<h2>find_node</h2>
+<p>Find node is used to find the contact information for a node given
 its ID. &quot;q&quot; == &quot;find_node&quot; A find_node query has two arguments, &quot;id&quot;
 containing the node ID of the querying node, and &quot;target&quot; containing
 the ID of the node sought by the queryer. When a node receives a
 find_node query, it should respond with a key &quot;nodes&quot; and value of a
 string containing the compact node info for the target node or the K
-(8) closest good nodes in its own routing table.</dd>
-</dl>
+(8) closest good nodes in its own routing table.</p>
 <pre class="literal-block">
 arguments:  {&quot;id&quot;&amp;nbsp;: &quot;&lt;querying nodes id&gt;&quot;, &quot;target&quot;&amp;nbsp;: &quot;&lt;id of target node&gt;&quot;}
 
@@ -339,9 +355,10 @@ bencoded = d1:ad2:id20:abcdefghij01234567896:target20:mnopqrstuvwxyz123456e1:q9:
 Response = {&quot;t&quot;:&quot;aa&quot;, &quot;y&quot;:&quot;r&quot;, &quot;r&quot;: {&quot;id&quot;:&quot;0123456789abcdefghij&quot;, &quot;nodes&quot;: &quot;def456...&quot;}}
 bencoded = d1:rd2:id20:0123456789abcdefghij5:nodes9:def456...e1:t2:aa1:y1:re
 </pre>
-<dl class="docutils">
-<dt>get_peers</dt>
-<dd>Get peers associated with a torrent infohash. &quot;q&quot; = &quot;get_peers&quot; A
+</div>
+<div class="section" id="get-peers">
+<h2>get_peers</h2>
+<p>Get peers associated with a torrent infohash. &quot;q&quot; = &quot;get_peers&quot; A
 get_peers query has two arguments, &quot;id&quot; containing the node ID of the
 querying node, and &quot;info_hash&quot; containing the infohash of the torrent.
 If the queried node has peers for the infohash, they are returned in a
@@ -351,8 +368,7 @@ peers for the infohash, a key &quot;nodes&quot; is returned containing the K
 nodes in the queried nodes routing table closest to the infohash
 supplied in the query. In either case a &quot;token&quot; key is also included in
 the return value. The token value is a required argument for a future
-announce_peer query. The token value should be a short binary string.</dd>
-</dl>
+announce_peer query. The token value should be a short binary string.</p>
 <pre class="literal-block">
 arguments:  {&quot;id&quot;&amp;nbsp;: &quot;&lt;querying nodes id&gt;&quot;, &quot;info_hash&quot;&amp;nbsp;: &quot;&lt;20-byte infohash of target torrent&gt;&quot;}
 
@@ -373,9 +389,10 @@ bencoded = d1:rd2:id20:abcdefghij01234567895:token8:aoeusnth6:valuesl6:axje.u6:i
 Response with closest nodes = {&quot;t&quot;:&quot;aa&quot;, &quot;y&quot;:&quot;r&quot;, &quot;r&quot;: {&quot;id&quot;:&quot;abcdefghij0123456789&quot;, &quot;token&quot;:&quot;aoeusnth&quot;, &quot;nodes&quot;: &quot;def456...&quot;}}
 bencoded = d1:rd2:id20:abcdefghij01234567895:nodes9:def456...5:token8:aoeusnthe1:t2:aa1:y1:re
 </pre>
-<dl class="docutils">
-<dt>announce_peer</dt>
-<dd>Announce that the peer, controlling the querying node, is downloading
+</div>
+<div class="section" id="announce-peer">
+<h2>announce_peer</h2>
+<p>Announce that the peer, controlling the querying node, is downloading
 a torrent on a port. announce_peer has four arguments: &quot;id&quot; containing the node ID of the
 querying node, &quot;info_hash&quot; containing the infohash of the torrent,
 &quot;port&quot; containing the port as an integer, and the &quot;token&quot; received in
@@ -383,8 +400,7 @@ response to a previous get_peers query. The queried node must verify
 that the token was previously sent to the same IP address as the
 querying node. Then the queried node should store the IP address of the
 querying node and the supplied port number under the infohash in its
-store of peer contact information.</dd>
-</dl>
+store of peer contact information.</p>
 <pre class="literal-block">
 arguments:  {&quot;id&quot; : &quot;&lt;querying nodes id&gt;&quot;, &quot;info_hash&quot; : &quot;&lt;20-byte infohash of target torrent&gt;&quot;, &quot;port&quot; : &lt;port number&gt;, &quot;token&quot; : &quot;&lt;opaque token&gt;&quot;}
 
@@ -400,28 +416,22 @@ mnopqrstuvwxyz1234564:porti6881e5:token8:aoeusnthe1:q13:announce_peer1:t2:aa1:y1
 Response = {&quot;t&quot;:&quot;aa&quot;, &quot;y&quot;:&quot;r&quot;, &quot;r&quot;: {&quot;id&quot;:&quot;mnopqrstuvwxyz123456&quot;}}
 bencoded = d1:rd2:id20:mnopqrstuvwxyz123456e1:t2:aa1:y1:re
 </pre>
-<p>Send questions, comments and corrections to <a class="reference external" href="mailto:editor&#37;&#52;&#48;bittorrent&#46;org">editor<span>&#64;</span>bittorrent<span>&#46;</span>org</a></p>
-<table class="docutils citation" frame="void" id="kademlia" rules="none">
+</div>
+<div class="section" id="references">
+<h2>References</h2>
+<table class="docutils footnote" frame="void" id="kademlia" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label">[Kademlia]</td><td>Peter Maymounkov, David Mazieres, &quot;<a class="reference external" href="http://www.cs.rice.edu/Conferences/IPTPS02/109.pdf">Kademlia: A Peer-to-peer Information System Based on the XOR Metric</a> <a class="footnote-reference" href="#id3" id="id4">[2]</a>&quot;, IPTPS 2002.</td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>Peter Maymounkov, David Mazieres, &quot;Kademlia: A Peer-to-peer Information System Based on the XOR Metric&quot;, <em>IPTPS 2002</em>. <a class="reference external" href="http://www.cs.rice.edu/Conferences/IPTPS02/109.pdf">http://www.cs.rice.edu/Conferences/IPTPS02/109.pdf</a></td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="entropy" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>Use SHA1 and plenty of entropy to ensure a unique ID.</td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td>Use SHA1 and plenty of entropy to ensure a unique ID.</td></tr>
 </tbody>
 </table>
 </div>
-<div class="section" id="id2">
-<h1>References</h1>
-<table class="docutils footnote" frame="void" id="id3" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id4">[2]</a></td><td><a class="reference external" href="http://www.cs.rice.edu/Conferences/IPTPS02/109.pdf">http://www.cs.rice.edu/Conferences/IPTPS02/109.pdf</a></td></tr>
-</tbody>
-</table>
 </div>
 
 

@@ -1,7 +1,7 @@
-BEP: 2
+BEP: 3
 Title: The BitTorrent Protocol Specification
-Version: 2
-Last-Modified: 11-Jan-2008
+Version: $Revision$
+Last-Modified: $Date$
 Author:  Bram Cohen <bram@bittorrent.com>
 Status:  Final
 Type:    Standard
@@ -51,23 +51,23 @@ To start downloading, a user does the following:
 The connectivity is as follows:
 -------------------------------
 
-- Strings are length-prefixed base ten followed by a colon and the string. For example <code>4:spam</code> corresponds to 'spam'.
+- Strings are length-prefixed base ten followed by a colon and the string. For example ``4:spam`` corresponds to 'spam'.
 
 - Integers are represented by an 'i' followed by the number in base 10
-  followed by an 'e'. For example <code>i3e</code> corresponds to 3 and
-  <code>i-3e </code>corresponds to -3. Integers have no size
-  limitation. <code>i-0e</code> is invalid. All encodings with a leading
-  zero, such as <code>i03e</code>, are invalid, other than
-  <code>i0e</code>, which of course corresponds to 0.
+  followed by an 'e'. For example ``i3e`` corresponds to 3 and
+  ``i-3e`` corresponds to -3. Integers have no size
+  limitation. ``i-0e`` is invalid. All encodings with a leading
+  zero, such as ``i03e``, are invalid, other than
+  ``i0e``, which of course corresponds to 0.
 
 - Lists are encoded as an 'l' followed by their elements (also
-  bencoded) followed by an 'e'. For example <code>l4:spam4:eggse</code>
+  bencoded) followed by an 'e'. For example ``l4:spam4:eggse``
   corresponds to ['spam', 'eggs'].
 
 - Dictionaries are encoded as a 'd' followed by a list of alternating
   keys and their corresponding values followed by an 'e'. For example,
-  <code>d3:cow3:moo4:spam4:eggse</code> corresponds to {'cow': 'moo',
-  'spam': 'eggs'} and <code>d4:spaml1:a1:bee</code> corresponds to
+  ``d3:cow3:moo4:spam4:eggse`` corresponds to {'cow': 'moo',
+  'spam': 'eggs'} and ``d4:spaml1:a1:bee`` corresponds to
   {'spam': ['a', 'b']}. Keys must be strings and appear in sorted order
   (sorted as raw strings, not alphanumerics).
 
@@ -81,38 +81,38 @@ announce
 info
   This maps to a dictionary, with keys described below.
 
-  The <code>name</code> key maps to a string which is the suggested name 
+  The ``name`` key maps to a string which is the suggested name 
   to save the file (or directory) as. It is purely advisory.
 
-  <code>piece length</code> maps to the number of bytes in each piece
+  ``piece length`` maps to the number of bytes in each piece
   the file is split into. For the purposes of transfer, files are
   split into fixed-size pieces which are all the same length except for
-  possibly the last one which may be truncated. <code>piece
-  length</code> is almost always a power of two, most commonly 2 18 =
+  possibly the last one which may be truncated. ``piece
+  length`` is almost always a power of two, most commonly 2 18 =
   256 K (BitTorrent prior to version 3.2 uses 2 20 = 1 M as
   default).
 
-  <code>pieces</code> maps to a string whose length is a multiple of
+  ``pieces`` maps to a string whose length is a multiple of
   20. It is to be subdivided into strings of length 20, each of which is
   the SHA1 hash of the piece at the corresponding index.
 
-  There is also a key <code>length</code> or a key <code>files</code>,
-  but not both or neither. If <code>length</code> is present then the
+  There is also a key ``length`` or a key ``files``,
+  but not both or neither. If ``length`` is present then the
   download represents a single file, otherwise it represents a set of
   files which go in a directory structure.
 
-  In the single file case, <code>length</code> maps to the length of
+  In the single file case, ``length`` maps to the length of
   the file in bytes.
 
   For the purposes of the other keys, the multi-file case is treated as
   only having a single file by concatenating the files in the order they
   appear in the files list. The files list is the value
-  <code>files</code> maps to, and is a list of dictionaries containing
+  ``files`` maps to, and is a list of dictionaries containing
   the following keys:
   
-  <code>length</code> - The length of the file, in bytes.
+  ``length`` - The length of the file, in bytes.
 
-  <code>path</code> - A list of strings corresponding to subdirectory
+  ``path`` - A list of strings corresponding to subdirectory
   names, the last of which is the actual file name (a zero length list
   is an error case).
 
@@ -156,25 +156,25 @@ left
   re-downloaded.
 
 event
-  This is an optional key which maps to <code>started</code>,
-  <code>completed</code>, or <code>stopped</code> (or
-  <code>empty</code>, which is the same as not being present). If not
+  This is an optional key which maps to ``started``,
+  ``completed``, or ``stopped`` (or
+  ``empty``, which is the same as not being present). If not
   present, this is one of the announcements done at regular
-  intervals. An announcement using <code>started</code> is sent when a
-  download first begins, and one using <code>completed</code> is sent
-  when the download is complete. No <code>completed</code> is sent if
+  intervals. An announcement using ``started`` is sent when a
+  download first begins, and one using ``completed`` is sent
+  when the download is complete. No ``completed`` is sent if
   the file was complete when started. Downloaders send an announcement
-  using <code>stopped</code> when they cease downloading.
+  using ``stopped`` when they cease downloading.
 
 Tracker responses are bencoded dictionaries. If a tracker response
-has a key <code>failure reason</code>, then that maps to a human
+has a key ``failure reason``, then that maps to a human
 readable string which explains why the query failed, and no other keys
-are required. Otherwise, it must have two keys: <code>interval</code>,
+are required. Otherwise, it must have two keys: ``interval``,
 which maps to the number of seconds the downloader should wait between
-regular rerequests, and <code>peers</code>. <code>peers</code> maps to
-a list of dictionaries corresponding to <code>peers</code>, each of
-which contains the keys <code>peer id</code>, <code>ip</code>, and
-<code>port</code>, which map to the peer's self-selected ID, IP
+regular rerequests, and ``peers``. ``peers`` maps to
+a list of dictionaries corresponding to ``peers``, each of
+which contains the keys ``peer id``, ``ip``, and
+``port``, which map to the peer's self-selected ID, IP
 address or dns name as a string, and port number, respectively. Note
 that downloaders may rerequest on nonscheduled times if an event
 happens or they need more peers.
@@ -233,7 +233,7 @@ sure all extensions are done compatibly.
 
 Next comes the 20 byte sha1 hash of the bencoded form of the info
 value from the metainfo file. (This is the same value which is
-announced as <code>info_hash</code> to the tracker, only here it's raw
+announced as ``info_hash`` to the tracker, only here it's raw
 instead of quoted here). If both sides don't send the same value, they
 sever the connection. The one possible exception is if a downloader
 wants to do multiple downloads over a single port, they may wait for
@@ -340,4 +340,13 @@ optimistically unchoked rotates every 30 seconds. To give them a
 decent chance of getting a complete piece to upload, new connections
 are three times as likely to start as the current optimistic unchoke
 as anywhere else in the rotation.
+
+..
+   Local Variables:
+   mode: indented-text
+   indent-tabs-mode: nil
+   sentence-end-double-space: t
+   fill-column: 70
+   coding: utf-8
+   End:
 

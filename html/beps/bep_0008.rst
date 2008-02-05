@@ -1,7 +1,7 @@
-BEP: 4
+BEP: 8
 Title: Tracker Peer Obfuscation
-Version: 3
-Last-Modified: 02-Feb-2008
+Version: $Revision$
+Last-Modified: $Date$
 Author:  David Harrison <dave@bittorrent.com>, Anthony Ciani <tony@ciani.phy.uic.edu>, Arvid Norberg <arvid@bittorrent.com>, Greg Hazel <greg@bittorrent.com> 
 Status:  Draft
 Type:    Standards Track
@@ -25,7 +25,7 @@ to be interpreted as described in IETF `RFC 2119`_.
 
 
 announce parameter
-------------------
+==================
 
 When using this extension, instead of passing the ``info_hash`` parameter
 to the tracker, an ``sha_ih`` is passed.
@@ -45,7 +45,7 @@ This extension does not change the semantics of any parameter passed
 in the peer's announce.
 
 announce response
------------------
+=================
 
 If the tracker supports this extension, the response should be exactly the
 same as if the ``info_hash`` was passed, except that any field that contains
@@ -56,7 +56,7 @@ There are additional parameters the tracker may OPTIONALLY return.
 These are discussed in the optimizations_ section.
 
 peer list obfuscation
----------------------
+=====================
 
 We distinguish between the *tracker peer list* and the *returned peer
 list*.  The *tracker peer list* contains the ip-port pairs of all
@@ -111,7 +111,7 @@ that it change the ``iv`` on roughly the same period as the rerequest
 interval.  The reasoning for this is contained in the rationale.
 
 optimizations
--------------
+=============
 
 The described optimizations are OPTIONAL for the tracker, but the
 corresponding client-side MUST be implemented by those that support
@@ -142,7 +142,7 @@ each with integer values.  Decryption starts by XORing from *6i* bytes
 for ipv4 (or *18i* for ipv6) into the pseudorandom string.  Assuming
 that the tracker encrypted the tracker peer list starting from the
 first byte in the pseudorandom string then *i* also corresponds to the
-*i*th ip-port pair in the tracker peer list and the starting point of
+*ith* ip-port pair in the tracker peer list and the starting point of
 the copy into the returned request.  
 
 So that the client and the tracker do not have to generate an
@@ -199,7 +199,7 @@ peer list, we wrap to the beginning of the pseudorandom string.
 The tracker response MUST remain a valid bencoded message.
 
 backwards compatibility
------------------------
+=======================
 
 Trackers that support obfuscation are identified in the .torrent file
 by the inclusion of an ``obfuscate-announce-list`` which otherwise has the 
@@ -235,7 +235,7 @@ secret.
   a 
 
 rationale
----------
+=========
 
 This extension directly addresses a known attack on the BitTorrent
 protocol performed by some deployed network hardware.  By obscuring
@@ -336,3 +336,12 @@ operation is lighter weight than performing a random shuffle.
 .. _`RFC 2119`: http://tools.ietf.org/html/rfc2119
 .. _`BitTorrent Protocol Encryption`: http://www.bittorrent.org/beps/bep_0013.html
 
+
+..
+   Local Variables:
+   mode: indented-text
+   indent-tabs-mode: nil
+   sentence-end-double-space: t
+   fill-column: 70
+   coding: utf-8
+   End:

@@ -1,7 +1,7 @@
-BEP: 4
+BEP: 7
 Title: IPv6 Tracker Extension
-Version: 2
-Last-Modified: 11-Jan-2008
+Version: $Revision$
+Last-Modified: $Date$
 Author:  Greg Hazel <greg@bittorrent.com>, Arvid Norberg <arvid@bittorrent.com>
 Status:  Draft
 Type:    Standards Track
@@ -100,3 +100,12 @@ current response, using the same encoding.
 
 
 
+
+..
+   Local Variables:
+   mode: indented-text
+   indent-tabs-mode: nil
+   sentence-end-double-space: t
+   fill-column: 70
+   coding: utf-8
+   End:

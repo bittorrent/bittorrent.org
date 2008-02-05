@@ -1,5 +1,12 @@
-metadata extension
-==================
+BEP: 9
+Title: Metadata Extension
+Version: $Revision$
+Last-Modified: $Date$
+Author:  Greg Hazel <greg@bittorrent.com>, Arvid Norberg <arvid@bittorrent.com>
+Status:  Draft
+Type:    Standards Track
+Created: 31-Jan-2008
+Post-History:
 
 The purpose of this extension is to allow clients to join a swarm and
 complete a download without the need of downloading a .torrent file
@@ -9,7 +16,7 @@ on a web page only containing enough information to join the swarm
 (the info hash).
 
 metadata
---------
+========
 
 This extension only transfers the info-dictionary part of the .torrent
 file. This part can be validated by the info-hash. In this document, that
@@ -19,7 +26,7 @@ The metadata is plit up in 16kiB pieces. The pieces are indexed starting
 from 0 for the first 16kiB of metadata.
 
 extension header
-----------------
+================
 
 The metadata extension uses the `extension protocol`_ to advertize its
 existence. It adds the "ut_metadata" entry to the "m" dictionary in the
@@ -36,7 +43,7 @@ Example extension handshake message::
 
 
 extension message
------------------
+=================
 
 The extension messages are bencoded. There are 3 different kinds of messages:
 
@@ -49,7 +56,7 @@ corresponding to the type of message. They also have a key "piece", which
 indicates which part of the metadata this message refers to.
 
 request
-~~~~~~~
+-------
 
 The ``request`` message does not have any additional keys in the dictionary.
 The response to this message, from a peer supporting the extension, is either
@@ -69,7 +76,7 @@ Example::
 That request message requests the first metadata piece.
 
 data
-~~~~
+----
 
 The ``data`` message adds another entry to the dictionary, "total_size". This
 key has the same semantics as the "metadata_size" in the extension header. This
@@ -89,7 +96,7 @@ Example::
 The ``x`` represents binary data (the metadata).
 
 reject
-~~~~~~
+------
 
 The ``reject`` message does not have any additional keys in its message.
 It SHOULD be interpreted as the peer does not have the piece of metadata
@@ -105,7 +112,7 @@ Example::
 	d8:msg_typei1e5:piecei0ee
 
 magnet URI format
------------------
+=================
 
 The magnet URI format is::
 
@@ -123,12 +130,13 @@ Both ``dn`` and ``tr`` are optional.
 
 If no tracker is specified, the client SHOULD use the DHT to acquire peers.
 
-authors
--------
 
-| `Greg Hazel`__
-| `Arvid Norberg`__
-
-.. __: mailto:greg@bittorrent.com
-.. __: mailto:arvid@bittorrent.com
-
+
+..
+   Local Variables:
+   mode: indented-text
+   indent-tabs-mode: nil
+   sentence-end-double-space: t
+   fill-column: 70
+   coding: utf-8
+   End:

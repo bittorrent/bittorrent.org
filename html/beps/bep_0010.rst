@@ -1,5 +1,13 @@
-extension protocol for bittorrent
-=================================
+BEP: 10
+Title: Extension Protocol
+Version: $Revision$
+Last-Modified: $Date$
+Author:  Arvid Norberg <arvid@bittorrent.com>, Ludvig Strigeus <ludde@utorrent.com>
+Status:  Draft
+Type:    Standards Track
+Created: 31-Jan-2008
+Post-History:
+
 
 The intention of this protocol is to provide a simple and thin transport
 for extensions to the bittorrent protocol. Supporting this protocol makes
@@ -45,7 +53,7 @@ follows (including the message headers used by the bittorrent protocol):
 
 
 handshake message
------------------
+=================
 
 The payload of the handshake message is a bencoded dictionary. All items
 in the dictionary are optional. Any unknown names should be ignored
@@ -123,12 +131,12 @@ An example of what the payload of a handshake message could look like:
 +-------------------+----------------------------------+
 | ``p``             | 6881                             |
 +-------------------+----------------------------------+
-| ``v``             | "µTorrent 1.2"                   |
+| ``v``             | "ÂµTorrent 1.2"                   |
 +-------------------+----------------------------------+
 
 and in the encoded form:
 
-``d1:md11:LT_metadatai1e6:µT_PEXi2ee1:pi6881e1:v13:\xc2\xb5Torrent 1.2e``
+``d1:md11:LT_metadatai1e6:ÂµT_PEXi2ee1:pi6881e1:v13:\xc2\xb5Torrent 1.2e``
 
 To make sure the extension names do not collide by mistake, they should be
 prefixed with the two (or one) character code that is used to identify the
@@ -162,7 +170,7 @@ named in the example above (such as ``p``) are just examples of possible
 extensions.
 
 rationale
----------
+=========
 
 The reason why the extension messages' IDs would be defined in the handshake
 is to avoid having a global registry of message IDs. Instead the names of the
@@ -197,12 +205,13 @@ bandwidth. The only advantage of longer messages is that it makes the
 protocol more readable for a human, but the BT protocol wasn't designed to
 be a human readable protocol, so why bother.
 
-authors
--------
 
-| `Arvid Norberg`__
-| `Ludvig Strigeus`__
-
-.. __: mailto:arvid@bittorrent.com
-.. __: ludde@utorrent.com
-
+
+..
+   Local Variables:
+   mode: indented-text
+   indent-tabs-mode: nil
+   sentence-end-double-space: t
+   fill-column: 70
+   coding: utf-8
+   End:

@@ -1,7 +1,7 @@
-BEP: 3
+BEP: 4
 Title: Assigned Numbers
-Version: 1
-Last-Modified: 31-Jan-2008
+Version: $Revision$
+Last-Modified: $Date$
 Author:  David Harrison
 Status:  Active
 Type:    Process
@@ -9,17 +9,13 @@ Created: 10-Jan-2008
 Post-History:
 
 
---------------------------------------------------
-BitTorrent.org » For Developers » Assigned Numbers
---------------------------------------------------
-
 This document describes the known bit allocations and message IDs for
 the BitTorrent protocol.  To request a bit allocation contact
 editor@bittorrent.org.  Contact the same address if you are aware of
 any omissions.
 
 Reserved Bit Allocations
-------------------------
+========================
 
 ::
 
@@ -34,7 +30,7 @@ Reserved Bit Allocations
  0x04  suggest, haveall, havenone, reject request, and allow fast extensions
 
 Reserved Message IDs
---------------------
+====================
 
 ::
 
@@ -60,3 +56,13 @@ Reserved Message IDs
 
  Additional IDs used in deployed clients
  0x14   LTEP Handshake (implemented in libtorrent, uTorrent,...)
+
+
+..
+   Local Variables:
+   mode: indented-text
+   indent-tabs-mode: nil
+   sentence-end-double-space: t
+   fill-column: 70
+   coding: utf-8
+   End:

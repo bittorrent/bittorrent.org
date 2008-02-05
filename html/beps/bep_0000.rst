@@ -1,8 +1,8 @@
 BEP: 0
 Title: Index of BitTorrent Enhancement Proposals 
-Version: 1
-Last-Modified: 11-Jan-2008
-Author:  David Harrison
+Version: $Revision$
+Last-Modified: $Date$
+Author:  David Harrison <dave@bittorrent.com>
 Status:  Active
 Type:    Process
 Created: 10-Jan-2008
@@ -12,44 +12,48 @@ The BitTorrent Community Forum coordinates the development of the
 BitTorrent protocol suite and its reference implementation. It is the
 wish of Bram Cohen that the BitTorrent mainline python implementation
 remain open source and that the protocol development process be
-modelled after the Python Enhancement Proposal~(PEP) process.
+modelled after the Python Enhancement Proposal (PEP) process.
 
 This document indexes all BitTorrent Enhancement Proposals (BEPs).
 When a new proposal is submitted, one of the BitTorrent.org editors 
 assigns a BEP number and updates this index appropriately.  The process 
-is modelled after the PEP process used in the python community [#python].  Each 
+is modelled after the PEP process used in the python community [#python]_.  Each 
 document has a number that never changes and the history of document is 
-maintained in subversion [#svn].  
+maintained in subversion [#svn]_.  
 
 
-=====  =========================================  
-Num    Title                                     
-=====  =========================================
-0_     Index of BitTorrent Enhancement Proporsals
-1_     The BEP Process                           
-2_     The BitTorrent Protocol Specification     
-3_     Known Number Allocations                  
-4_     DHT Protocol                              
-5_     Fast Extension                            
-6_     IPv6 Tracker Extension                    
-7_     Tracker Peer Obfuscation                  
-8_     Metadata Extension                        
-9_     Extension Protocol
-=====  ========================================= 
+======     ==========================================  
+Num        Title                                     
+======     ==========================================
+|0|        Index of BitTorrent Enhancement Proporsals
+|1|        The BEP Process                           
+|2|        Sample reStructured Text BEP Template
+|3|        The BitTorrent Protocol Specification     
+|4|        Known Number Allocations                  
+|5|        DHT Protocol                              
+|6|        Fast Extension                            
+|7|        IPv6 Tracker Extension                    
+|8|        Tracker Peer Obfuscation                  
+|9|        Metadata Extension                        
+|10|       Extension Protocol
+|1000|     Pending Standards Track Documents
+======     ==========================================
 
 
+.. role:: raw-html(raw)
+   :format: html
 
 .. [#python] http://www.python.org/dev/peps/
 .. [#svn] http://svn.bittorrent.org
-.. _0: bep_0000.html
-.. _1: bep_0001.html
-.. _2: bep_0002.html
-.. _3: bep_0003.html
-.. _4: bep_0004.html
-.. _5: bep_0005.html
-.. _6: bep_0006.html
-.. _7: bep_0007.html
-.. _8: bep_0008.html
-.. _9: bep_0009.html
-.. _10: bep_0010.html
-.. _11: bep_0011.html
+.. |0| replace:: :raw-html:`<A HREF="bep_0000.html">0</A>`
+.. |1| replace:: :raw-html:`<A HREF="bep_0001.html">1</A>`
+.. |2| replace:: :raw-html:`<A HREF="bep_0002.html">2</A>`
+.. |3| replace:: :raw-html:`<A HREF="bep_0003.html">3</A>`
+.. |4| replace:: :raw-html:`<A HREF="bep_0004.html">4</A>`
+.. |5| replace:: :raw-html:`<A HREF="bep_0005.html">5</A>`
+.. |6| replace:: :raw-html:`<A HREF="bep_0006.html">6</A>`
+.. |7| replace:: :raw-html:`<A HREF="bep_0007.html">7</A>`
+.. |8| replace:: :raw-html:`<A HREF="bep_0008.html">8</A>`
+.. |9| replace:: :raw-html:`<A HREF="bep_0009.html">9</A>`
+.. |10| replace:: :raw-html:`<A HREF="bep_0009.html">10</A>`
+.. |1000| replace:: :raw-html:`<A HREF="bep_1000.html">1000</A>`

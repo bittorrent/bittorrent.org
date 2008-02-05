@@ -1,16 +1,16 @@
-BEP: 4
+BEP: 5
 Title: DHT Protocol
-Version: 2
-Last-Modified: 11-Jan-2008
+Version: $Revision$
+Last-Modified: $Date$
 Author:  Andrew Loewenstern <drue@bittorrent.com>
-Status:  Accepted
+Status:  Draft
 Type:    Standards Track
 Created: 31-Jan-2008
 Post-History:
 
 BitTorrent uses a "distributed sloppy hash table" (DHT) for storing
 peer contact information for "trackerless" torrents. In effect, each
-peer becomes a tracker. The protocol is based on Kademila[Kademlia]_ and is
+peer becomes a tracker. The protocol is based on Kademila [#Kademlia]_ and is
 implemented over UDP.
 
 Please note the terminology used in this document to avoid
@@ -22,18 +22,20 @@ peers. BitTorrent clients include a DHT node, which is used to contact
 other nodes in the DHT to get the location of peers to download from
 using the BitTorrent protocol.
 
+
 Overview
---------
+========
 
 Each node has a globally unique identifier known as the "node ID."
-Node IDs are chosen at random from the same 160-bit space as BitTorrent
-infohashes [#entropy]_.  A "distance metric" is used to compare two node IDs or a node 
-ID and an infohash for "closeness." Nodes must maintain a routing table
-containing the contact information for a small number of other nodes.
-The routing table becomes more detailed as IDs get closer to the node's
-own ID. Nodes know about many other nodes in the DHT that have IDs that
-are "close" to their own but have only a handful of contacts with IDs
-that are very far away from their own.
+Node IDs are chosen at random from the same 160-bit space as
+BitTorrent infohashes [#entropy]_.  A "distance metric" is used to
+compare two node IDs or a node ID and an infohash for "closeness."
+Nodes must maintain a routing table containing the contact information
+for a small number of other nodes.  The routing table becomes more
+detailed as IDs get closer to the node's own ID. Nodes know about many
+other nodes in the DHT that have IDs that are "close" to their own but
+have only a handful of contacts with IDs that are very far away from
+their own.
 
 In Kademlia, the distance metric is XOR and the result is interpreted
 as an unsigned integer. ``distance(A,B) = |A xor B|`` Smaller values
@@ -69,7 +71,7 @@ up to ten minutes old are accepted.
 
 
 Routing Table
--------------
+=============
 
 Every node maintains a routing table of known good nodes. The nodes in
 the routing table are used as starting points for queries in the
@@ -136,7 +138,7 @@ table should be saved between invocations of the client software.
 
 
 BitTorrent Protocol Extension
------------------------------
+=============================
 
 The BitTorrent protocol has been extended to exchange node UDP port
 numbers between peers that are introduced by a tracker. In this way,
@@ -158,7 +160,7 @@ information into their routing table according to the usual rules.
 
 
 Torrent File Extensions
------------------------
+=======================
 
 A trackerless torrent dictionary does not have an "announce" key.
 Instead, a trackerless torrent has a "nodes" key. This key should be
@@ -176,7 +178,7 @@ automatically add this node to clients routing tables.
   
 
 KRPC Protocol
--------------
+=============
 
 The KRPC protocol is a simple RPC mechanism consisting of bencoded
 dictionaries sent over UDP. A single query packet is sent out and a
@@ -197,34 +199,42 @@ of the "y" key is one of "q" for query, "r" for response, or "e" for
 error.
 
 Contact Encoding
-  Contact information for peers is encoded as a 6-byte string. Also
-  known as "Compact IP-address/port info" the 4-byte IP address is in
-  network byte order with the 2 byte port in network byte order
-  concatenated onto the end.
+----------------
 
-  Contact information for nodes is encoded as a 26-byte string.
-  Also known as "Compact node info" the 20-byte Node ID in network byte
-  order has the compact IP-address/port info concatenated to the end.
+Contact information for peers is encoded as a 6-byte string. Also
+known as "Compact IP-address/port info" the 4-byte IP address is in
+network byte order with the 2 byte port in network byte order
+concatenated onto the end.
+  
+Contact information for nodes is encoded as a 26-byte string.
+Also known as "Compact node info" the 20-byte Node ID in network byte
+order has the compact IP-address/port info concatenated to the end.
 
 Queries
-  Queries, or KRPC message dictionaries with a "y" value of "q",
-  contain two additional keys; "q" and "a". Key "q" has a string value
-  containing the method name of the query. Key "a" has a dictionary value
-  containing named arguments to the query.
+-------
+
+Queries, or KRPC message dictionaries with a "y" value of "q",
+contain two additional keys; "q" and "a". Key "q" has a string value
+containing the method name of the query. Key "a" has a dictionary value
+containing named arguments to the query.
 
 Responses
-  Responses, or KRPC message dictionaries with a "y" value of "r",
-  contain one additional key "r". The value of "r" is a dictionary
-  containing named return values. Response messages are sent upon
-  successful completion of a query.
+---------
+
+Responses, or KRPC message dictionaries with a "y" value of "r",
+contain one additional key "r". The value of "r" is a dictionary
+containing named return values. Response messages are sent upon
+successful completion of a query.
 
 Errors
-  Errors, or KRPC message dictionaries with a "y" value of "e",
-  contain one additional key "e". The value of "e" is a list. The first
-  element is an integer representing the error code. The second element
-  is a string containing the error message. Errors are sent when a query
-  cannot be fulfilled. The following table describes the possible error
-  codes:
+------
+
+Errors, or KRPC message dictionaries with a "y" value of "e",
+contain one additional key "e". The value of "e" is a list. The first
+element is an integer representing the error code. The second element
+is a string containing the error message. Errors are sent when a query
+cannot be fulfilled. The following table describes the possible error
+codes:
 
 +----------+------------------------------------------+
 |  Code    | Description                              |
@@ -248,18 +258,20 @@ Example Error Packets:
 
   
 DHT Queries
------------
+===========
 
 All queries have an "id" key and value containing the node ID of the
 querying node. All responses have an "id" key and value containing the
 node ID of the responding node.
 
 ping
-  The most basic query is a ping. "q" = "ping" A ping query has a
-  single argument, "id" the value is a 20-byte string containing the
-  senders node ID in network byte order. The appropriate response to a
-  ping has a single key "id" containing the node ID of the responding
-  node.
+----
+
+The most basic query is a ping. "q" = "ping" A ping query has a
+single argument, "id" the value is a 20-byte string containing the
+senders node ID in network byte order. The appropriate response to a
+ping has a single key "id" containing the node ID of the responding
+node.
 
 ::
 
@@ -282,13 +294,15 @@ Example Packets
 
 
 find_node
-  Find node is used to find the contact information for a node given
-  its ID. "q" == "find_node" A find_node query has two arguments, "id"
-  containing the node ID of the querying node, and "target" containing
-  the ID of the node sought by the queryer. When a node receives a
-  find_node query, it should respond with a key "nodes" and value of a
-  string containing the compact node info for the target node or the K
-  (8) closest good nodes in its own routing table.
+---------
+
+Find node is used to find the contact information for a node given
+its ID. "q" == "find_node" A find_node query has two arguments, "id"
+containing the node ID of the querying node, and "target" containing
+the ID of the node sought by the queryer. When a node receives a
+find_node query, it should respond with a key "nodes" and value of a
+string containing the compact node info for the target node or the K
+(8) closest good nodes in its own routing table.
 
 ::
 
@@ -311,17 +325,19 @@ Example Packets
 
 
 get_peers
-  Get peers associated with a torrent infohash. "q" = "get_peers" A
-  get_peers query has two arguments, "id" containing the node ID of the
-  querying node, and "info_hash" containing the infohash of the torrent.
-  If the queried node has peers for the infohash, they are returned in a
-  key "values" as a list of strings. Each string containing "compact" format
-  peer information for a single peer. If the queried node has no
-  peers for the infohash, a key "nodes" is returned containing the K
-  nodes in the queried nodes routing table closest to the infohash
-  supplied in the query. In either case a "token" key is also included in
-  the return value. The token value is a required argument for a future
-  announce_peer query. The token value should be a short binary string.
+---------
+
+Get peers associated with a torrent infohash. "q" = "get_peers" A
+get_peers query has two arguments, "id" containing the node ID of the
+querying node, and "info_hash" containing the infohash of the torrent.
+If the queried node has peers for the infohash, they are returned in a
+key "values" as a list of strings. Each string containing "compact" format
+peer information for a single peer. If the queried node has no
+peers for the infohash, a key "nodes" is returned containing the K
+nodes in the queried nodes routing table closest to the infohash
+supplied in the query. In either case a "token" key is also included in
+the return value. The token value is a required argument for a future
+announce_peer query. The token value should be a short binary string.
 
 ::
 
@@ -352,15 +368,17 @@ Example Packets:
 
 
 announce_peer
-  Announce that the peer, controlling the querying node, is downloading
-  a torrent on a port. announce_peer has four arguments: "id" containing the node ID of the
-  querying node, "info_hash" containing the infohash of the torrent,
-  "port" containing the port as an integer, and the "token" received in
-  response to a previous get_peers query. The queried node must verify
-  that the token was previously sent to the same IP address as the
-  querying node. Then the queried node should store the IP address of the
-  querying node and the supplied port number under the infohash in its
-  store of peer contact information.
+-------------
+
+Announce that the peer, controlling the querying node, is downloading
+a torrent on a port. announce_peer has four arguments: "id" containing the node ID of the
+querying node, "info_hash" containing the infohash of the torrent,
+"port" containing the port as an integer, and the "token" received in
+response to a previous get_peers query. The queried node must verify
+that the token was previously sent to the same IP address as the
+querying node. Then the queried node should store the IP address of the
+querying node and the supplied port number under the infohash in its
+store of peer contact information.
 
 ::
 
@@ -382,13 +400,20 @@ Example Packets:
   Response = {"t":"aa", "y":"r", "r": {"id":"mnopqrstuvwxyz123456"}}
   bencoded = d1:rd2:id20:mnopqrstuvwxyz123456e1:t2:aa1:y1:re
 
+References
+==========
 
-Send questions, comments and corrections to editor@bittorrent.org
-
-
-.. [Kademlia] Peter Maymounkov, David Mazieres, "`Kademlia: A Peer-to-peer Information System Based on the XOR Metric`_", IPTPS 2002.
-
-.. _`Kademlia: A Peer-to-peer Information System Based on the XOR Metric`: http://www.cs.rice.edu/Conferences/IPTPS02/109.pdf
+.. [#Kademlia] Peter Maymounkov, David Mazieres, "Kademlia: A Peer-to-peer Information System Based on the XOR Metric", *IPTPS 2002*. http://www.cs.rice.edu/Conferences/IPTPS02/109.pdf
 
 .. [#entropy] Use SHA1 and plenty of entropy to ensure a unique ID.
 
+
+
+..
+   Local Variables:
+   mode: indented-text
+   indent-tabs-mode: nil
+   sentence-end-double-space: t
+   fill-column: 70
+   coding: utf-8
+   End:

@@ -10,13 +10,16 @@ BEPS= \
 	bep_0007.html \
 	bep_0008.html \
 	bep_0009.html \
+	bep_0010.html \
 	bep_1000.html \
 
 all:	$(BEPS) 
 
 %.html:%.rst
-	rstbep2html.py --template=template.txt --cloak-email-addresses --link-stylesheet --stylesheet=../css/bep.css --no-toc-backlinks $? >$@ --traceback
+	rstbep2html.py --template=template.txt --pep-base-url=http://www.bittorrent.org/beps/ --cloak-email-addresses --link-stylesheet --stylesheet=../css/bep.css --no-toc-backlinks $? >$@ --traceback
 
-	#~/docutils/tools/rst2html.py --template=../template.txt --cloak-email-addresses --link-stylesheet --stylesheet=../css/screen.css --no-doc-title --no-toc-backlinks $? >$@
+#%.html:%.rst
+#	rstpep2html.py --template=template.txt --cloak-email-addresses --link-stylesheet --stylesheet=../css/bep.css --no-toc-backlinks $? >$@ --traceback
+
 
 

@@ -15,7 +15,7 @@ Abstract
 
 This BEP provides a boilerplate or sample template for creating your
 own reStructuredText BEPs.  In conjunction with the content guidelines
-in BEP 1 [1]_, this should make it easy for you to conform your own
+in BEP 1 [#BEP-1]_, this should make it easy for you to conform your own
 BEPs to the format outlined below.
 
 Note: if you are reading this BEP via the web, you should first grab
@@ -601,8 +601,8 @@ list`_.  The `Docutils project web site`_ has more information.
    http://docutils.sf.net/docs/user/mailing-lists.html#docutils-users
 
 
-This document was derived heavily from `PEP-0012`_.  In many places
-text was simply copied and modified.  Although the `PEP-0012`_ text
+This document was derived heavily from PEP-0012 [#PEP-12]_.  In many places
+text was simply copied and modified.  Although the PEP-0012 text
 was written by David Goodger and Barry Warsaw, they are not
 responsible for its use in the BitTorent Enhancement Process, and
 should not be bothered with technical questions specific to BitTorrent
@@ -619,8 +619,12 @@ guidance.
 References
 ==========
 
-.. [1] BEP 1, BEP Purpose and Guidelines, Harrison
+.. [#BEP-1] BEP_0001. BEP Purpose and Guidelines, Harrison
    (http://www.bittorrent.org/beps/bep_0001)
+
+.. [#PEP-12] PEP-0012. Sample reStructuredText PEP Template, Goodger, Warsaw
+   (http://www.python.org/peps/pep-0012)
+
 
 Copyright
 =========

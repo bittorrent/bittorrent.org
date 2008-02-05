@@ -177,6 +177,10 @@ Acknowledgements
 Thanks to Barry Warsaw, David Goodger, and Guido van Rossum for their
 guidance.
 
+
+References and Footnotes
+========================
+
 .. [#svn] This historical record is available by the normal SVN
           commands for retrieving older revisions. For those without direct
           access to the SVN tree, you can browse the current and past BEP

@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.5: http://docutils.sourceforge.net/" />
+<title></title>
+<link rel="stylesheet" href="../css/bep.css" type="text/css" />
+</head>
+<body>
+<div class="document">
+
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="../index.html">BitTorrent<span>.org</span></a></h1>
+</div>
+<div id="nav">
+<ul>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../introduction.html">For Users</a></li>
+<li><span>For Developers</span></li>
+<!-- <li><a href="./blog">Blog</a></li> -->
+<li><a href="../donate.html">Donate!</a></li>
+</ul>
+</div> <!-- nav -->
+<!-- ### Begin Content ### -->
+<div id="second">
+
+
+
+<table class="rfc2822 docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">BEP:</th><td class="field-body">6</td>
+</tr>
+<tr class="field"><th class="field-name">Title:</th><td class="field-body">Fast Extension</td>
+</tr>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">10528</td>
+</tr>
+<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="https://svn.bittorrent.com/trac.cgi/browser/dotorg/trunk/html/beps/bep_0006.rst">2008-02-04 16:10:30 -0800 (Mon, 04 Feb 2008)</a></td>
+</tr>
+<tr class="field"><th class="field-name">Author:</th><td class="field-body">David Harrison &lt;dave&#32;&#97;t&#32;bittorrent.com&gt;, Bram Cohen &lt;bram&#32;&#97;t&#32;bittorrent.com&gt;</td>
+</tr>
+<tr class="field"><th class="field-name">Status:</th><td class="field-body">Draft</td>
+</tr>
+<tr class="field"><th class="field-name">Type:</th><td class="field-body">Standards Track</td>
+</tr>
+<tr class="field"><th class="field-name">Created:</th><td class="field-body">01-Feb-2008</td>
+</tr>
+<tr class="field"><th class="field-name">Post-History:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#modifications-to-semantics-of-existing-messages" id="id6">Modifications to Semantics of Existing Messages</a></li>
+<li><a class="reference internal" href="#have-all-have-none" id="id7">Have All/Have None</a></li>
+<li><a class="reference internal" href="#suggest-piece" id="id8">Suggest Piece</a></li>
+<li><a class="reference internal" href="#reject-request" id="id9">Reject Request</a></li>
+<li><a class="reference internal" href="#allowed-fast" id="id10">Allowed Fast</a></li>
+<li><a class="reference internal" href="#allowed-fast-set-generation" id="id11">Allowed Fast Set Generation</a></li>
+<li><a class="reference internal" href="#example-implementation" id="id12">Example Implementation</a></li>
+<li><a class="reference internal" href="#id1" id="id13">References</a></li>
+</ul>
+</div>
+<p>The Fast Extension packages several extensions: <em>Have None/Have All</em>,
+<em>Reject Requests</em>, <em>Suggestions</em> and <em>Allowed Fast.</em>
+These are enabled by setting the third least significant bit of the
+last reserved byte in the BitTorrent handshake:</p>
+<pre class="literal-block">
+reserved[7] |= 0x04
+</pre>
+<p>The extension is enabled only if both ends of the connection set this bit.</p>
+<p>The following proposed messages adhere to the syntax of messages found
+in v1.0 of the BitTorrent protocol.  All integers are four bytes
+big-endian.  All messages start with an integer message length.  All
+messages but the Keep-Alive follow the message length with a single
+byte opcode and zero or more opcode-dependant arguments.</p>
+<p>The key words &quot;MUST&quot;, &quot;MUST NOT&quot;, &quot;REQUIRED&quot;, &quot;SHALL&quot;, &quot;SHALL
+NOT&quot;, &quot;SHOULD&quot;, &quot;SHOULD NOT&quot;, &quot;RECOMMENDED&quot;,  &quot;MAY&quot;, and
+&quot;OPTIONAL&quot; in this document are to be interpreted as described in
+IETF <a class="reference external" href="http://www.ietf.org/rfc/rfc2119.txt">RFC 2119</a> <a class="footnote-reference" href="#id2" id="id3">[1]</a>.</p>
+<div class="section" id="modifications-to-semantics-of-existing-messages">
+<h1>Modifications to Semantics of Existing Messages</h1>
+<p>The Fast Extension modifies the semantics of the
+<em>Request</em>, <em>Choke</em>, <em>Unchoke</em>, and <em>Cancel</em>
+messages, and adds a <em>Reject Request.</em>  Now, every request
+is guaranteed to result in EXACTLY ONE response
+which is either the corresponding reject or corresponding piece
+message.  Even when a request is cancelled, the peer receiving
+the cancel should respond with either the corresponding reject or
+the corresponding piece: requests that are being processed are
+allowed to complete.</p>
+<p>Choke no longer implicitly rejects all pending requests,
+thus eliminating some race conditions which could cause pieces
+to be needlessly requested multiple times.</p>
+<p>Additionally, if a peer receives a piece that was never requested,
+the peer MUST close the connection.</p>
+</div>
+<div class="section" id="have-all-have-none">
+<h1>Have All/Have None</h1>
+<pre class="literal-block">
+*Have All*: &lt;len=0x0001&gt; &lt;op=0x0E&gt;
+</pre>
+<pre class="literal-block">
+*Have None*: &lt;len=0x0001&gt;&lt;op=0x0F&gt;
+</pre>
+<p><em>Have All</em> and <em>Have None</em> specify that the message sender
+has all or none of the pieces respectively.  When present, <em>Have All</em>
+or <em>Have None</em> replace the <em>Have Bitfield.</em>  Exactly one of <em>Have All</em>,
+<em>Have None</em>, or <em>Have Bitfield</em> MUST appear and only immediately after
+the handshake.  The reason for these messages is to save bandwidth.  Also
+slightly to remove the idiosyncrasy of sending no message when a peer
+has no pieces.</p>
+<p>When the fast extension is disabled, if a peer receives <em>Have All</em> or
+<em>Have None</em> then the peer MUST close the connection.</p>
+</div>
+<div class="section" id="suggest-piece">
+<h1>Suggest Piece</h1>
+<pre class="literal-block">
+*Suggest Piece*: &lt;len=0x0005&gt;&lt;op=0x0D&gt;&lt;index&gt;
+</pre>
+<p><em>Suggest Piece</em> is an advisory message meaning &quot;you might like to
+download this piece.&quot;  The intended usage is for 'super-seeding'
+without throughput reduction, to avoid redundant downloads, and so that
+a seed which is disk I/O bound can upload continguous or identical
+pieces to avoid excessive disk seeks.  In all cases, the seed SHOULD
+operate to maintain a roughly equal number of copies of each piece in
+the network.  A peer MAY send more than one <em>suggest piece</em> message at
+any given time.  A peer receiving multiple <em>suggest piece</em> messages
+MAY interpret this as meaning that all of the suggested pieces
+are equally appropriate.</p>
+<p>When the fast extension is disabled, if a peer receives a
+<em>Suggest Piece</em> message, the peer MUST close the connection.</p>
+</div>
+<div class="section" id="reject-request">
+<h1>Reject Request</h1>
+<pre class="literal-block">
+*Reject Request*: &lt;len=0x000D&gt;&lt;op=0x10&gt;&lt;index&gt;&lt;begin&gt;&lt;offset&gt;
+</pre>
+<p><em>Reject Request</em> notifies a requesting peer that its request will not be satisfied.</p>
+<p>If the fast extension is disabled and a peer receives a reject
+request then the peer MUST close the connection.</p>
+<p>When the fast extension is enabled:</p>
+<ul class="simple">
+<li>If a peer receives a reject for a request that was never sent then
+the peer SHOULD close the connection.</li>
+<li>If a peer sends a choke, it MUST reject all requests from the peer
+to whom the choke was sent except it SHOULD NOT reject requests for
+pieces that are in the <em>allowed fast set.</em> A peer SHOULD choke first
+and then reject requests so that the peer receiving the choke does not
+re-request the pieces.</li>
+<li>If a peer receives a request from a peer its choking, the peer
+receiving the request SHOULD send a reject unless the piece is in the
+<em>allowed fast set.</em></li>
+<li>If a peer receives an excessive number of requests from a peer it is
+choking, the peer receiving the requests MAY close the connection
+rather than reject the request.  However, consider that it can take
+several seconds for buffers to drain and messages to propagate once a
+peer is choked.</li>
+</ul>
+</div>
+<div class="section" id="allowed-fast">
+<h1>Allowed Fast</h1>
+<pre class="literal-block">
+* Allowed Fast: &lt;len=0x0005&gt;&lt;op=0x11&gt;&lt;index&gt;*
+</pre>
+<p>With the BitTorrent protocol specified in <a class="reference external" href="http://www.bittorrent.org/beps/bep_0002.html">BEP 0002</a> <a class="footnote-reference" href="#id4" id="id5">[2]</a>, new peers take
+several minutes to ramp up before they can effectively engage in
+BitTorrent's tit-for-tat. The reason is simple: starting peers have
+few pieces to trade.</p>
+<p><em>Allowed Fast</em> is an advisory message which means &quot;if you ask for this
+piece, I'll give it to you even if you're choked.&quot; <em>Allowed Fast</em> thus
+shortens the awkward stage during which the peer obtains occasional
+optimistic unchokes but cannot sufficiently reciprocate to remain
+unchoked.</p>
+<p>The pieces that can be downloaded when choked constitute a peer's
+<em>allowed fast set.</em> The set is generated using a canonical algorithm
+that produces piece indices unique to the message receiver so that if
+two peers offer <em>k</em> pieces fast it will be the same <em>k</em>, and if one
+offers <em>k+1</em> it will be the same <em>k</em> plus one more. <em>k</em> should be
+small enough to avoid abuse, but large enough to ramp up
+tit-for-tat. We currently set <em>k</em> to 10, but peers are free to change
+this number, e.g., to suit load.</p>
+<p>The message sender MAY list pieces that the message sender does not
+have. The receiver MUST NOT interpret an Allowed Fast message as
+meaning that the message sender has the piece. This allows peers to
+generate and communicate allowed fast sets at the beginning of a
+connection. However, a peer MAY send Allowed Fast messages at any
+time.</p>
+<p>A peer SHOULD send Allowed Fast messages to any starting peer unless
+the local peer lacks sufficient resources. A peer MAY reject requests
+for already Allowed Fast pieces if the local peer lacks sufficient
+resources, if the requested piece has already been sent to the
+requesting peer, or if the requesting peer is not a starting peer. Our
+current implementation rejects requests for Allowed Fast messages
+whenever the requesting peer has more than * k * pieces.</p>
+<blockquote>
+When the fast extension is disabled, if a peer recieves an Allowed
+Fast message then the peer MUST close the connection.</blockquote>
+</div>
+<div class="section" id="allowed-fast-set-generation">
+<h1>Allowed Fast Set Generation</h1>
+<p>The canonical algorithm for computing a peer <em>P'*s *allowed fast set</em>
+follows.  All integers in this pseudocode are four bytes represented
+in network (big-endian) byte order.  <em>[a:b]</em> denotes the sequence of
+consecutive bytes from <em>a</em> to <em>b</em> excluding <em>b</em>, i.e., <em>(a, a+1,
+a+2,..., b-1)</em>. <em>x[a:b]</em> denotes a subsequence of elements in an array
+<em>x</em> starting from index <em>a</em> to but not including index <em>b</em>.</p>
+<p>Let <em>ip</em> denote <em>P'*s IPv4 address.  We currently have no
+provisions for IPv6. If a peer is behind a Network Address Translator
+(NAT) then *ip</em> should be the externally facing IP address of the
+NAT.  Since the node sending the <em>Allowed Fast</em> messages computes
+the set, the correct <em>ip</em> is usually the <em>ip</em> address on the other
+end of the connection.  The host computing the set MAY use the <em>ip</em>
+address on the other end of the connection regardless</p>
+<p>Let <em>sz</em> denote the number of pieces in the torrent.</p>
+<p>Let <em>a</em> denote the allowed fast set.</p>
+<p>Let <em>k</em> denote the final number of pieces in the allowed fast set.</p>
+<pre class="literal-block">
+x = 0xFFFFFF00 &amp; ip                           (1)
+x.append(infohash)                            (2)
+while |a| &lt; k:
+  x = SHA1(x)                                 (3)
+  for i in [0:5] and |a| &lt; k:                 (4)
+    j = i*4                                   (5)
+    y = x[j:j+4]                              (6)
+    index = y % sz                            (7)
+    if index not in a:                        (8)
+      add index to a                          (9)
+</pre>
+<p>Step (1) selects the most significant octets in peer <em>P'*s
+ip address.  We do this to prevent a user that obtains more than one
+IP address on the same network from obtaining more than one
+*allowed fast set.</em>  Use of three bytes is heuristic and
+historical.</p>
+<p>Step (3) generates a 20-byte random number on each call.  By
+performing a SHA-1 hash on the previous iteration's hash, we can
+generate an arbitrarily long pseudorandom sequence.</p>
+<p>Steps (4) through (9) partition the 20-byte hash into piece indices
+and add them to the allowed fast set.</p>
+</div>
+<div class="section" id="example-implementation">
+<h1>Example Implementation</h1>
+<p>The following C++ implementation was provided by CacheLogic:</p>
+<pre class="literal-block">
+void generate_fast_set(
+  uint32 k,     // number of pieces in set
+  uint32 sz,    // number of pieces in torrent
+  const char infohash[20], // infohash of torrent
+  uint32 ip, // in host byte order, ie localhost is 0x7f000001
+  std::
+vector&lt;uint32&gt; &amp;a) // generated set of piece indices
+{
+   a.clear();
+   std::string x;
+   char buf[4];
+   *(uint32*)buf = htonl(ip &amp; 0xffffff00);
+   x.assign(buf, 4);
+   x.append(infohash, 20); // (3)
+   while (a.size()&lt;k) {
+     x = SHA1(x); // (4)
+     for ( int i=0&amp;nbsp;; i&lt;5 &amp;&amp; a.size()&lt;k; i++ ) { // (5)
+       int j = i*4; // (6)
+       uint32 y = ntohl(*(uint32*)(x.data()+j)); // (7)
+       uint32 index = y % sz; // (8)
+       if (std::find(a.begin(), a.end(), index)==a.end()) { // (9)
+         a.push_back(index); // (10)
+       }
+     }
+   }
+}
+</pre>
+<p>Example results generated by this function:</p>
+<pre class="literal-block">
+7 piece allowed fast set for torrent with 1313 pieces and hex infohash
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa for node with IP 80.4.4.200:
+  1059,431,808,1217,287,376,1188
+9 piece allowed fast set for torrent with 1313 pieces and hex infohash
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa for node with IP 80.4.4.200:
+  1059,431,808,1217,287,376,1188,353,508
+</pre>
+<!-- Local Variables:
+mode: indented-text
+indent-tabs-mode: nil
+sentence-end-double-space: t
+fill-column: 70
+coding: utf-8
+End: -->
+</div>
+<div class="section" id="id1">
+<h1>References</h1>
+<table class="docutils footnote" frame="void" id="id2" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[1]</a></td><td><a class="reference external" href="http://www.ietf.org/rfc/rfc2119.txt">http://www.ietf.org/rfc/rfc2119.txt</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id4" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id5">[2]</a></td><td><a class="reference external" href="http://www.bittorrent.org/beps/bep_0002.html">http://www.bittorrent.org/beps/bep_0002.html</a></td></tr>
+</tbody>
+</table>
+</div>
+
+
+</div>
+	<div id="footer">
+<hr/>
+</div>
+
+</div>
+</body>
+</html>

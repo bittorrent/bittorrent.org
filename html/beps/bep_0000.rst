@@ -55,5 +55,5 @@ Num        Title
 .. |7| replace:: :raw-html:`<A HREF="bep_0007.html">7</A>`
 .. |8| replace:: :raw-html:`<A HREF="bep_0008.html">8</A>`
 .. |9| replace:: :raw-html:`<A HREF="bep_0009.html">9</A>`
-.. |10| replace:: :raw-html:`<A HREF="bep_0009.html">10</A>`
+.. |10| replace:: :raw-html:`<A HREF="bep_0010.html">10</A>`
 .. |1000| replace:: :raw-html:`<A HREF="bep_1000.html">1000</A>`

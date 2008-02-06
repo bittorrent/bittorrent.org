@@ -23,7 +23,7 @@ Reserved Bit Allocations
  0x80  Azureus Messaging Protocol
 
  reserved[5]
- 0x10  LTEP (LibTorrent Extension Protocol)
+ 0x10  LTEP (Libtorrent Extension Protocol)
 
  reserved[7]
  0x01  BitTorrent DHT
@@ -44,18 +44,20 @@ Reserved Message IDs
  0x06   request
  0x07   piece
  0x08   cancel
+
+ DHT Extension:
  0x09   port
 
- Fast Extensions
-
+ Fast Extensions:
  0x0D   suggest
  0x0E   have all
  0x0F   have none
  0x10   reject request
  0x11   allowed fast
 
- Additional IDs used in deployed clients
+ Additional IDs used in deployed clients:
  0x14   LTEP Handshake (implemented in libtorrent, uTorrent,...)
+
 
 
 ..

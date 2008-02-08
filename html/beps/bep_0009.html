@@ -37,9 +37,9 @@
 </tr>
 <tr class="field"><th class="field-name">Title:</th><td class="field-body">Metadata Extension</td>
 </tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body">10528</td>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">10561</td>
 </tr>
-<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="https://svn.bittorrent.com/trac.cgi/browser/dotorg/trunk/html/beps/bep_0009.rst">2008-02-04 16:10:30 -0800 (Mon, 04 Feb 2008)</a></td>
+<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="https://svn.bittorrent.com/trac.cgi/browser/dotorg/trunk/html/beps/bep_0009.rst">2008-02-06 10:01:00 -0800 (Wed, 06 Feb 2008)</a></td>
 </tr>
 <tr class="field"><th class="field-name">Author:</th><td class="field-body">Greg Hazel &lt;greg&#32;&#97;t&#32;bittorrent.com&gt;, Arvid Norberg &lt;arvid&#32;&#97;t&#32;bittorrent.com&gt;</td>
 </tr>
@@ -57,16 +57,16 @@
 <div class="contents topic" id="contents">
 <p class="topic-title first">Contents</p>
 <ul class="simple">
-<li><a class="reference internal" href="#metadata" id="id4">metadata</a></li>
-<li><a class="reference internal" href="#extension-header" id="id5">extension header</a></li>
-<li><a class="reference internal" href="#extension-message" id="id6">extension message</a><ul>
-<li><a class="reference internal" href="#request" id="id7">request</a></li>
-<li><a class="reference internal" href="#data" id="id8">data</a></li>
-<li><a class="reference internal" href="#reject" id="id9">reject</a></li>
+<li><a class="reference internal" href="#metadata" id="id7">metadata</a></li>
+<li><a class="reference internal" href="#extension-header" id="id8">extension header</a></li>
+<li><a class="reference internal" href="#extension-message" id="id9">extension message</a><ul>
+<li><a class="reference internal" href="#request" id="id10">request</a></li>
+<li><a class="reference internal" href="#data" id="id11">data</a></li>
+<li><a class="reference internal" href="#reject" id="id12">reject</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#magnet-uri-format" id="id10">magnet URI format</a></li>
-<li><a class="reference internal" href="#id1" id="id11">References</a></li>
+<li><a class="reference internal" href="#magnet-uri-format" id="id13">magnet URI format</a></li>
+<li><a class="reference internal" href="#id2" id="id14">References</a></li>
 </ul>
 </div>
 <p>The purpose of this extension is to allow clients to join a swarm and
@@ -80,16 +80,17 @@ on a web page only containing enough information to join the swarm
 <p>This extension only transfers the info-dictionary part of the .torrent
 file. This part can be validated by the info-hash. In this document, that
 part of the .torrent file is referred to as <em>the metadata</em>.</p>
-<p>The metadata is plit up in 16kiB pieces. The pieces are indexed starting
-from 0 for the first 16kiB of metadata.</p>
+<p>The metadata is handled in bocks of 16KiB (65536 Bytes). The metadata blocks
+are indexed starting at 0. All blocks are 16KiB except the last block which may
+be smaller.</p>
 </div>
 <div class="section" id="extension-header">
 <h1>extension header</h1>
-<p>The metadata extension uses the <a class="reference external" href="extension_protocol.html">extension protocol</a> <a class="footnote-reference" href="#id2" id="id3">[1]</a> to advertize its
-existence. It adds the &quot;ut_metadata&quot; entry to the &quot;m&quot; dictionary in the
-extension header hand-shake message. This identifies the message code
-used for this message. It also adds &quot;metadata_size&quot; to the handshake
-message (not the &quot;m&quot; dictionary) specifying an integer value of the
+<p>The metadata extension uses the extension protocol (specified in <a class="reference external" href="http://www.bittorrent.org/beps/bep_0010.html">BEP 0010</a> <a class="footnote-reference" href="#id3" id="id4">[2]</a>
+) to advertize its existence. It adds the &quot;ut_metadata&quot; entry to the &quot;m&quot;
+dictionary in the extension header hand-shake message. This identifies the
+message code used for this message. It also adds &quot;metadata_size&quot; to the
+handshake message (not the &quot;m&quot; dictionary) specifying an integer value of the
 number of bytes of the metadata.</p>
 <p>Example extension handshake message:</p>
 <pre class="literal-block">
@@ -163,14 +164,20 @@ magnet:?xt=urn:btih:&lt;info-hash&gt;&amp;dn=&lt;name&gt;&amp;tr=&lt;tracker-url
 </pre>
 <dl class="docutils">
 <dt>&lt;info-hash&gt;</dt>
-<dd>Is the info-hash encoded as base32.</dd>
+<dd>Is the info-hash encoded as base32 <a class="footnote-reference" href="#base32" id="id1">[1]</a></dd>
 </dl>
 <p><tt class="docutils literal"><span class="pre">xt</span></tt> is the only mandatory parameter. <tt class="docutils literal"><span class="pre">dn</span></tt> is the display name that may be
 used by the client to display while waiting for metadata. <tt class="docutils literal"><span class="pre">tr</span></tt> is a tracker
 url, if there is one. If there are multiple trackers, multiple <tt class="docutils literal"><span class="pre">tr</span></tt> entries
 may be included.</p>
 <p>Both <tt class="docutils literal"><span class="pre">dn</span></tt> and <tt class="docutils literal"><span class="pre">tr</span></tt> are optional.</p>
-<p>If no tracker is specified, the client SHOULD use the DHT to acquire peers.</p>
+<p>If no tracker is specified, the client SHOULD use the DHT (<a class="reference external" href="bep_0005.html">BEP 0005</a> <a class="footnote-reference" href="#id5" id="id6">[3]</a>) to acquire peers.</p>
+<table class="docutils footnote" frame="void" id="base32" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td><a class="reference external" href="http://www.ietf.org/rfc/rfc3548.txt">http://www.ietf.org/rfc/rfc3548.txt</a></td></tr>
+</tbody>
+</table>
 <!-- Local Variables:
 mode: indented-text
 indent-tabs-mode: nil
@@ -179,12 +186,18 @@ fill-column: 70
 coding: utf-8
 End: -->
 </div>
-<div class="section" id="id1">
+<div class="section" id="id2">
 <h1>References</h1>
-<table class="docutils footnote" frame="void" id="id2" rules="none">
+<table class="docutils footnote" frame="void" id="id3" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id3">[1]</a></td><td><a class="reference external" href="extension_protocol.html">extension_protocol.html</a></td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id4">[2]</a></td><td><a class="reference external" href="http://www.bittorrent.org/beps/bep_0010.html">http://www.bittorrent.org/beps/bep_0010.html</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id5" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id6">[3]</a></td><td><a class="reference external" href="bep_0005.html">bep_0005.html</a></td></tr>
 </tbody>
 </table>
 </div>

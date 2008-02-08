@@ -22,7 +22,6 @@ Num    Title
 14     Local Service Discovery
 15     UDP Tracker Protocol
 16     Super-seeding
-17     HTTP Seeding
 =====  ========================================= 
 
 

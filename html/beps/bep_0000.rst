@@ -36,6 +36,7 @@ Num        Title
 |8|        Tracker Peer Obfuscation                  
 |9|        Metadata Extension                        
 |10|       Extension Protocol
+|17|       HTTP Seeding
 |1000|     Pending Standards Track Documents
 ======     ==========================================
 

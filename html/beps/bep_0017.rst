@@ -10,7 +10,7 @@ Post-History:
 
 
 Metadata Extension
-------------------
+==================
 
 * "httpseeds"
 
@@ -36,7 +36,7 @@ to access both URLs to download seed data.
 
 
 Protocol
---------
+========
 
 The client calls the URL given, in the following format::
 
@@ -65,7 +65,7 @@ retry less often if the failure to contact the seed continues.
 
 
 Server-side Implementation Notes
---------------------------------
+================================
 
 The purpose of the http seed script is to limit access to the
 data being downloaded so that the web server isn't overwhelmed
@@ -98,7 +98,7 @@ a seed is present.
 
 
 Client-side Implementation Notes
---------------------------------
+================================
 
 The prototype code base has a default retry time of 30 seconds;
 after 3 retries with errors, the time is lengthened with each

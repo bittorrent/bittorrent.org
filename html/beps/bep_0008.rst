@@ -383,7 +383,7 @@ References
 Example Python Code
 ===================
 
-Dummy tracker implementing tracker peer obfuscation::
+Request handling in a dummy tracker implementing tracker peer obfuscation::
 
   from sha import sha
   from random import randint

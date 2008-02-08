@@ -356,6 +356,7 @@ smaller than the *tracker peer list* for large swarms, and 3) the cost
 of the XOR operation is lighter weight than performing a random
 shuffle.
 
+
 References
 ==========
 
@@ -391,7 +392,7 @@ Request handling in a dummy tracker implementing tracker peer obfuscation::
   from rc4 import rc4  # rc4(k) generates k RC4 pseudorandom bytes.
   
   rand = open("/dev/random","r").read
-  rc4 = RC4()
+  rc4 = rc4()
   
   # tracker configuration
   MAX_PEERS = 100

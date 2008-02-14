@@ -1,4 +1,8 @@
 
+# Be sure to commit changes to .rst files before building the html and then recommit with the updated html.
+# Otherwise, the generated .html will have the svn revision number of the previous change rather than the
+# current changes.
+
 BEPS= \
 	bep_0000.html \
 	bep_0001.html \

@@ -17,7 +17,6 @@ the formal standards track document.
 Num    Title                                     
 =====  =========================================
 11     Peer Exchange
-12     Announce List
 13     Protocol Encryption
 14     Local Service Discovery
 15     UDP Tracker Protocol

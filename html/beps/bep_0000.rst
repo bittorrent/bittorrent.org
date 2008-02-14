@@ -36,6 +36,7 @@ Num        Title
 |8|        Tracker Peer Obfuscation                  
 |9|        Metadata Extension                        
 |10|       Extension Protocol
+|15|       UDP Tracker Protocol
 |17|       HTTP Seeding
 |1000|     Pending Standards Track Documents
 ======     ==========================================
@@ -57,4 +58,6 @@ Num        Title
 .. |8| replace:: :raw-html:`<A HREF="bep_0008.html">8</A>`
 .. |9| replace:: :raw-html:`<A HREF="bep_0009.html">9</A>`
 .. |10| replace:: :raw-html:`<A HREF="bep_0010.html">10</A>`
+.. |15| replace:: :raw-html:`<A HREF="bep_0015.html">15</A>`
+.. |17| replace:: :raw-html:`<A HREF="bep_0017.html">17</A>`
 .. |1000| replace:: :raw-html:`<A HREF="bep_1000.html">1000</A>`

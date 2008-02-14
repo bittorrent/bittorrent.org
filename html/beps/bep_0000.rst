@@ -12,12 +12,11 @@ The BitTorrent Community Forum coordinates the development of the
 BitTorrent protocol suite and its reference implementation. It is the
 wish of Bram Cohen that the BitTorrent mainline python implementation
 remain open source and that the protocol development process be
-modelled after the Python Enhancement Proposal (PEP) process.
+modelled after the Python Enhancement Proposal (PEP) process [#python]_.
 
 This document indexes all BitTorrent Enhancement Proposals (BEPs).
 When a new proposal is submitted, one of the BitTorrent.org editors 
-assigns a BEP number and updates this index appropriately.  The process 
-is modelled after the PEP process used in the python community [#python]_.  Each 
+assigns a BEP number and updates this index appropriately.  Each 
 document has a number that never changes and the history of document is 
 maintained in subversion [#svn]_.  
 

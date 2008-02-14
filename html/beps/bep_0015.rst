@@ -1,0 +1,233 @@
+BEP: 1
+Title: UDP Tracker Protocol for BitTorrent
+Version: $Revision$
+Last-Modified: $Date$
+Author:  Olaf van der Spek <olafvdspek@gmail.com>
+Status:  Active Draft
+Type:    Process
+Created: 13-Feb-2008
+Post-History:
+
+Introduction
+============
+
+To discover other peers in a swarm a client announces it's existance to a tracker.
+The HTTP protocol is used and a typical request contains the following parameters:
+info_hash, key, peer_id, port, downloaded, left, uploaded and compact.
+A response contains a list of peers (host and port) and some other information.
+The request and response are both quite short.
+Since TCP is used, a connection has to be opened and closed, introducing additional overhead.
+
+Overhead
+========
+
+Using HTTP introduces significant overhead. There's overhead at the ethernet layer (14 bytes per packet), at the IP layer (20 bytes per packet), at the TCP layer (20 bytes per packet) and at the HTTP layer.
+About 10 packets are used for a request plus response containing 50 peers and the total number of bytes used is about 1206 [1].
+This overhead can be reduced significantly by using a UDP based protocol. The protocol proposed here uses 4 packets and about 618 bytes, reducing traffic by 50%.
+For a client, saving 1 kbyte every hour isn't significant, but for a tracker serving a million peers, reducing traffic by 50% matters a lot.
+An additional advantage is that a UDP based binary protocol doesn't require a complex parser and no connection handling, reducing the complexity of tracker code and increasing it's performance.
+
+UDP connections / spoofing
+==========================
+
+In the ideal case, only 2 packets would be necessary. However, it is possible to spoof the source address of a UDP packet.
+The tracker has to ensure this doesn't occur, so it calculates a value (connection_id) and sends it to the client.
+If the client spoofed it's source address, it won't receive this value (unless it's sniffing the network).
+The connection_id will then be send to the tracker again in packet 3. The tracker verifies the connection_id and ignores the request if it doesn't match.
+Connection IDs should not be guessable by the client. This is comparable to a TCP handshake and a syn cookie like approach can be used to storing the connection IDs on the tracker side.
+A connection ID can be used for multiple requests. A client can use a connection ID until one minute after it has received it. Trackers should accept the connection ID until two minutes after it has been send.
+
+Time outs
+=========
+
+UDP is an 'unreliable' protocol. This means it doesn't retransmit lost packets itself. The application is responsible for this.
+If a response is not received after 15 * 2 ^ n seconds, the client should retransmit the request, where n starts at 0 and is increased up to 8 (3840 seconds) after every retransmission.
+Note that it is necessary to rerequest a connection ID when it has expired.
+
+Examples
+========
+
+Normal announce:
+t = 0: connect request
+t = 1: connect response
+t = 2: announce request
+t = 3: annonce response
+
+Connect times out:
+t = 0: connect request
+t = 15: connect request
+t = 45: connect request
+t = 105: connect request
+etc
+
+Announce times out:
+t = 0:
+t = 0: connect request
+t = 1: connect response
+t = 2: announce request
+t = 17: announce request
+t = 47: announce request
+t = 107: connect request (because connection ID expired)
+t = 227: connect request
+etc
+
+Multiple requests:
+t = 0: connect request
+t = 1: connect response
+t = 2: announce request
+t = 3: annonce response
+t = 4: announce request
+t = 5: annonce response
+t = 60: announce request
+t = 61: annonce response
+t = 62: connect request
+t = 63: connect response
+t = 64: announce request
+t = 64: scrape request
+t = 64: scrape request
+t = 64: announce request
+t = 65: announce response
+t = 66: announce response
+t = 67: scrape response
+t = 68: scrape response
+
+UDP tracker protocol
+====================
+
+All values are send in network byte order (big endian). Do not expect packets to be exactly of a certain size. Future extensions could increase the size of packets.
+
+Before announcing or scraping, you have to obtain a connection ID.
+
+1. Choose a random transaction ID.
+2. Fill the connect request structure.
+3. Send the packet.
+
+connect request
+Offset  Size            Name            Value
+0       64-bit integer  connection_id   0x41727101980
+8       32-bit integer  action          0 // connect
+12      32-bit integer  transaction_id
+16
+
+1. Receive the packet.
+2. Check whether the packet is at least 16 bytes.
+3. Check whether the transaction ID is equal to the one you chose.
+4. Check whether the action is connect.
+5. Store the connection ID for future use.
+
+connect response
+Offset  Size            Name            Value
+0       32-bit integer  action          0 // connect
+4       32-bit integer  transaction_id
+8       64-bit integer  connection_id
+16
+
+1. Choose a random transaction ID.
+2. Fill the announce request structure.
+3. Send the packet.
+
+announce request
+Offset  Size    Name    Value
+0       64-bit integer  connection_id
+8       32-bit integer  action          1 // announce
+12      32-bit integer  transaction_id
+16      20-byte string  info_hash
+36      20-byte string  peer_id
+56      64-bit integer  downloaded
+64      64-bit integer  left
+72      64-bit integer  uploaded
+80      32-bit integer  event           0 // 0: none; 1: completed; 2: started; 3: stopped
+84      32-bit integer  IP address      0 // default
+88      32-bit integer  key
+92      32-bit integer  num_want        -1 // default
+96      16-bit integer  port
+98
+
+1. Receive the packet.
+2. Check whether the packet is at least 20 bytes.
+3. Check whether the transaction ID is equal to the one you chose.
+4. Check whether the action is announce.
+5. Do not announce again until interval seconds have passed or an event has occurred.
+
+announce response
+Offset      Size            Name            Value
+0           32-bit integer  action          1 // announce
+4           32-bit integer  transaction_id
+8           32-bit integer  interval
+12          32-bit integer  leechers
+16          32-bit integer  seeders
+20 + 6 * n  32-bit integer  IP address
+24 + 6 * n  16-bit integer  TCP port
+20 + 6 * N
+
+Up to about 74 torrents can be scraped at once. A full scrape can't be done with this protocol.
+
+1. Choose a random transaction ID.
+2. Fill the scrape request structure.
+3. Send the packet.
+
+scrape request
+Offset          Size            Name            Value
+0               64-bit integer  connection_id
+8               32-bit integer  action          2 // scrape
+12              32-bit integer  transaction_id
+16 + 20 * n     20-byte string  info_hash
+16 + 20 * N
+
+1. Receive the packet.
+2. Check whether the packet is at least 8 bytes.
+3. Check whether the transaction ID is equal to the one you chose.
+4. Check whether the action is scrape.
+
+scrape response
+Offset      Size            Name            Value
+0           32-bit integer  action          2 // scrape
+4           32-bit integer  transaction_id
+8 + 12 * n  32-bit integer  seeders
+12 + 12 * n 32-bit integer  completed
+16 + 12 * n 32-bit integer  leechers
+8 + 12 * N
+
+If the tracker encounters an error, it might send an error packet.
+
+1. Receive the packet.
+2. Check whether the packet is at least 8 bytes.
+3. Check whether the transaction ID is equal to the one you chose.
+
+error response
+Offset  Size            Name            Value
+0       32-bit integer  action          3 // error
+4       32-bit integer  transaction_id
+8       string  message
+
+Existing implementations
+========================
+Azureus, libtorrent [2], opentracker [3], XBT Client and XBT Tracker support this protocol.
+
+IPv6
+====
+
+IPv6 is not supported at the moment. A simple way to support IPv6 would be to increase the size of all IP addresses to 128 bits when the request is done over IPv6.
+However, I think more experience with IPv6 and discussion is needed before including it.
+
+Extensions
+==========
+
+Extension bits or a version field are not included. Clients and trackers should not assume packets to be of a certain size. This way, additional fields can be added without breaking compatibility.
+
+References and Footnotes
+========================
+
+.. [1] http://xbtt.sourceforge.net/udp_tracker_protocol.html
+.. [2] http://www.rasterbar.com/products/libtorrent/udp_tracker_protocol.html
+.. [3] http://opentracker.blog.h3q.com/
+
+
+..
+   Local Variables:
+   mode: indented-text
+   indent-tabs-mode: nil
+   sentence-end-double-space: t
+   fill-column: 70
+   coding: utf-8
+   End:

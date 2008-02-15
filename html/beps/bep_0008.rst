@@ -284,11 +284,11 @@ By using the SHA-1 of the infohash, the tracker is able to identify
 torrents without sending the plaintext infohash and without requiring
 an additional prior exchange of a shared secret.  Where trackers now
 maintain mappings from infohash to the corresponding torrent's
-peerlist and other torrent-specific state, obfuscated trackers would need 
-one additional mapping from ``sha_ih`` to the torrent's state.
-Tracker may also store encrypted versions of each torrent's peer list,
-to increase computation performance at the expense of increasing
-memory footprint by a constant factor.
+peerlist and other torrent-specific state, obfuscated trackers would
+need one additional mapping from ``sha_ih`` to the torrent's state.
+Trackers may also cache the encrypted version of each torrent's
+tracker peer list, to increase computational performance at the
+expense of increasing memory footprint by a constant factor.
 
 The obfuscation method meets the following criteria:
 

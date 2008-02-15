@@ -2,7 +2,7 @@ BEP: 10
 Title: Extension Protocol
 Version: $Revision$
 Last-Modified: $Date$
-Author:  Arvid Norberg <arvid@bittorrent.com>, Ludvig Strigeus <ludde@utorrent.com>
+Author:  Arvid Norberg <arvid@bittorrent.com>, Ludvig Strigeus <ludde@utorrent.com>, Greg Hazel <greg@bittorrent.com>
 Status:  Draft
 Type:    Standards Track
 Created: 31-Jan-2008

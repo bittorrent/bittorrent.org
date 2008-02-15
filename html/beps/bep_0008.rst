@@ -265,10 +265,7 @@ protocol performed by some deployed network hardware.  By obscuring
 the ip-port pairs network hardware can no longer easily identify
 ip-port pairs that are running BitTorrent by observing peer-to-tracker
 communications.  This deployed hardware under some conditions disrupts
-BitTorrent connections by injecting forged TCP reset packets.  Once a
-BitTorrent connection has been identified, other attacks could also be
-performed such as severely rate limiting or blocking these
-connections.
+BitTorrent connections by injecting forged TCP reset packets.  
 
 This hardware was presumably deployed to get around BitTorrent
 Message Stream Encryption [#MSE]_.  Peers implementing BitTorrent Message Stream

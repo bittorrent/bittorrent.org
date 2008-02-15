@@ -271,7 +271,7 @@ the ip-port pairs network hardware can no longer easily identify
 ip-port pairs that are running BitTorrent by observing peer-to-tracker
 communications.  This deployed hardware under some conditions disrupts
 BitTorrent connections by injecting forged TCP reset packets.  Once a
-BitTorrent connection has been identified, other attacks could be
+BitTorrent connection has been identified, other attacks could also be
 performed such as severely rate limiting or blocking these
 connections.
 

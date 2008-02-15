@@ -37,9 +37,9 @@
 </tr>
 <tr class="field"><th class="field-name">Title:</th><td class="field-body">Tracker Peer Obfuscation</td>
 </tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body">10808</td>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">10811</td>
 </tr>
-<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="https://svn.bittorrent.com/trac.cgi/browser/dotorg/trunk/html/beps/bep_0008.rst">2008-02-15 00:46:13 -0800 (Fri, 15 Feb 2008)</a></td>
+<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="https://svn.bittorrent.com/trac.cgi/browser/dotorg/trunk/html/beps/bep_0008.rst">2008-02-15 00:55:45 -0800 (Fri, 15 Feb 2008)</a></td>
 </tr>
 <tr class="field"><th class="field-name">Author:</th><td class="field-body">David Harrison &lt;dave&#32;&#97;t&#32;bittorrent.com&gt;, Anthony Ciani &lt;tony&#32;&#97;t&#32;ciani.phy.uic.edu&gt;, Arvid Norberg &lt;arvid&#32;&#97;t&#32;bittorrent.com&gt;, Greg Hazel &lt;greg&#32;&#97;t&#32;bittorrent.com&gt;</td>
 </tr>
@@ -237,8 +237,8 @@ bencoded equivalent of:</p>
 <pre class="literal-block">
 peers=5201bedb15d72443e3f1a2df, i=1, n=2
 </pre>
-<p>In each response the tracker includes additional keys such as the
-rerequest <tt class="docutils literal"><span class="pre">interval</span></tt> and the initialization vector <tt class="docutils literal"><span class="pre">iv</span></tt>.</p>
+<p>In each response the tracker includes additional parameters such as
+the rerequest <tt class="docutils literal"><span class="pre">interval</span></tt> and the initialization vector <tt class="docutils literal"><span class="pre">iv</span></tt>.</p>
 <p>The tracker response MUST remain a valid bencoded message.</p>
 </div>
 <div class="section" id="backwards-compatibility">
@@ -288,7 +288,7 @@ the ip-port pairs network hardware can no longer easily identify
 ip-port pairs that are running BitTorrent by observing peer-to-tracker
 communications.  This deployed hardware under some conditions disrupts
 BitTorrent connections by injecting forged TCP reset packets.  Once a
-BitTorrent connection has been identified, other attacks could be
+BitTorrent connection has been identified, other attacks could also be
 performed such as severely rate limiting or blocking these
 connections.</p>
 <p>This hardware was presumably deployed to get around BitTorrent

@@ -22,7 +22,7 @@ This extension only transfers the info-dictionary part of the .torrent
 file. This part can be validated by the info-hash. In this document, that
 part of the .torrent file is referred to as *the metadata*.
 
-The metadata is handled in bocks of 16KiB (65536 Bytes). The metadata blocks
+The metadata is handled in blocks of 16KiB (16384 Bytes). The metadata blocks
 are indexed starting at 0. All blocks are 16KiB except the last block which may
 be smaller.
 
@@ -35,8 +35,6 @@ dictionary in the extension header hand-shake message. This identifies the
 message code used for this message. It also adds "metadata_size" to the
 handshake message (not the "m" dictionary) specifying an integer value of the
 number of bytes of the metadata.
-
-.. _`BEP 0010`: http://www.bittorrent.org/beps/bep_0010.html
 
 Example extension handshake message::
 
@@ -131,8 +129,12 @@ Both ``dn`` and ``tr`` are optional.
 
 If no tracker is specified, the client SHOULD use the DHT (`BEP 0005`_) to acquire peers.
 
+References
+==========
+
 .. [#base32] http://www.ietf.org/rfc/rfc3548.txt
-.. _`BEP 0005`: bep_0005.html
+.. _`BEP 0010`: http://www.bittorrent.org/beps/bep_0010.html
+.. _`BEP 0005`: http://www.bittorrent.org/beps/bep_0005.html
 
 
 ..

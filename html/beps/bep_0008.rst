@@ -431,17 +431,17 @@ Request handling in a dummy tracker implementing tracker peer obfuscation::
     response = {}
     response['iv'] = iv
     numwant = min(numwant, MAX_PEERS)
-    if numwant > num_peers:
+    if numwant >= num_peers:
       response['peers'] = obfuscated_tracker_peer_list
       return response
-    i = randint(0,num_peers)
-    response['i'] = xor(i,x) 
+  
+    i = randint(0,num_peers-numwant)
+    response['i'] = xor(i,x)
     response['n'] = n_xor_y
+    # peers at end of tracker peer list have lower probability of being picked,
+    # but this requires only one copy.
     response['peers'] = obfuscated_tracker_peer_list[i*6:(i+numwant)*6]
-    if len(response['peers']) < numwant * 6:
-      r = numwant - len(response['peers']) / 6
-      response['peers'] = response['peers'] + obfuscated_tracker_peer_list[:r] 
-    return response 
+    return response
   
   init()
   print getpeers(20)

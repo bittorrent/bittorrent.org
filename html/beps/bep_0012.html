@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.5: http://docutils.sourceforge.net/" />
+<title></title>
+<link rel="stylesheet" href="../css/bep.css" type="text/css" />
+</head>
+<body>
+<div class="document">
+
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="../index.html">BitTorrent<span>.org</span></a></h1>
+</div>
+<div id="nav">
+<ul>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../introduction.html">For Users</a></li>
+<li><span>For Developers</span></li>
+<!-- <li><a href="./blog">Blog</a></li> -->
+<li><a href="../donate.html">Donate!</a></li>
+</ul>
+</div> <!-- nav -->
+<!-- ### Begin Content ### -->
+<div id="second">
+
+
+
+<table class="rfc2822 docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">BEP:</th><td class="field-body">12</td>
+</tr>
+<tr class="field"><th class="field-name">Title:</th><td class="field-body">Multitracker Metadata Extension</td>
+</tr>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">10603</td>
+</tr>
+<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="https://svn.bittorrent.com/trac.cgi/browser/dotorg/trunk/html/beps/bep_0012.rst">2008-02-07 17:54:09 -0800 (Thu, 07 Feb 2008)</a></td>
+</tr>
+<tr class="field"><th class="field-name">Author:</th><td class="field-body">John Hoffman &lt;theshadow&#32;&#97;t&#32;degreez.net&gt;</td>
+</tr>
+<tr class="field"><th class="field-name">Status:</th><td class="field-body">Draft</td>
+</tr>
+<tr class="field"><th class="field-name">Type:</th><td class="field-body">Standards Track</td>
+</tr>
+<tr class="field"><th class="field-name">Created:</th><td class="field-body">07-Feb-2008</td>
+</tr>
+<tr class="field"><th class="field-name">Post-History:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#metadata-extension" id="id2">Metadata Extension</a></li>
+<li><a class="reference internal" href="#order-of-processing" id="id3">Order of Processing</a></li>
+</ul>
+</div>
+<div class="section" id="metadata-extension">
+<h1>Metadata Extension</h1>
+<p>In addition to the standard &quot;announce&quot; key, in the main area of the
+metadata file and not part of the &quot;info&quot; section, will be a new key,
+&quot;announce-list&quot;.  This key will refer to a list of lists of URLs, and
+will contain a list of tiers of announces.  If the client is compatible
+with the multitracker specification, and if the &quot;announce-list&quot; key is
+present, the client will ignore the &quot;announce&quot; key and only use the
+URLs in &quot;announce-list&quot;.</p>
+</div>
+<div class="section" id="order-of-processing">
+<h1>Order of Processing</h1>
+<p>The tiers of announces will be processed sequentially; all URLs in each
+tier must be checked before the client goes on to the next tier.  URLs
+within each tier will be processed in a randomly chosen order; in other
+words, the list will be shuffled when first read, and then parsed in
+order.  In addition, if a connection with a tracker is successful, it
+will be moved to the front of the tier.</p>
+<p>Examples:</p>
+<pre class="literal-block">
+d['announce-list'] = [ [tracker1], [backup1], [backup2] ]
+</pre>
+<p>On each announce, first try tracker1, then if that cannot be reached,
+try backup1 and backup2 respectively.  On the next announce, repeat
+in the same order.  This is meant for when the trackers are standard
+and can not share information.</p>
+<blockquote>
+d['announce-list'] = [[ tracker1, tracker2, tracker3 ]]</blockquote>
+<p>First, shuffle the list.  (For argument's sake, we'll say the list
+has already been shuffled.)  Then, if tracker1 cannot be reached, try
+tracker2.  If tracker2 can be reached, the list is now:
+tracker2,tracker1,tracker3.  From then on, this will be the order the
+client tries.  If later neither tracker2 nor tracker1 can be reached,
+but tracker3 responds, then the list will be changed to:
+tracker3,tracker2,tracker1, and will be tried in that order in the
+future.  This form is meant for trackers which can trade peer
+information and will cause the clients to help balance the load
+between the trackers.</p>
+<blockquote>
+d['announce-list'] = [ [ tracker1, tracker2 ], [backup1] ]</blockquote>
+<p>The first tier, consisting of tracker1 and tracker2, is shuffled.
+Both trackers 1 and 2 will be tried on each announce (though perhaps
+in varying order) before the client tries to reach backup1.</p>
+</div>
+
+
+</div>
+	<div id="footer">
+<hr/>
+</div>
+
+</div>
+</body>
+</html>

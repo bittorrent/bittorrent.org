@@ -32,6 +32,10 @@ class Headers(Transform):
 
     default_priority = 360
 
+    # NOTE: There is no bep_base_url.  The base of the BEP directory is specified with pep_base_url
+    # because changing this requires modifying the rst repository.   This value can be changed with the pep-base-url
+    # argument.  For now, I don't want to modify restructured text parsing code.  It means we cannot currently
+    # disambiguate between peps and beps for specifying the base url.
     bep_url = 'bep-%04d'
     bep_cvs_url = ('https://svn.bittorrent.com/trac.cgi/browser/dotorg/trunk/html/beps/bep_%04d.rst')
     #bep_cvs_url = ('http://svn.bittorrent.com/view/*checkout*'
@@ -119,7 +123,7 @@ class Headers(Transform):
                     bepno = int(refbep)
                     newbody.append(nodes.reference(
                         refbep, refbep,
-                        refuri=(self.document.settings.bep_base_url
+                        refuri=(self.document.settings.pep_base_url
                                 + self.bep_url % bepno)))
                     newbody.append(space)
                 para[:] = newbody[:-1] # drop trailing space
@@ -130,7 +134,7 @@ class Headers(Transform):
                     para[:] = [nodes.reference('', date, refuri=cvs_url)]
             elif name == 'content-type':
                 bep_type = para.astext()
-                uri = self.document.settings.bep_base_url + self.bep_url % 12
+                uri = self.document.settings.pep_base_url + self.bep_url % 12
                 para[:] = [nodes.reference('', bep_type, refuri=uri)]
             elif name == 'version' and len(body):
                 utils.clean_rcs_keywords(para, self.rcs_keyword_substitutions)
@@ -268,7 +272,7 @@ class BEPZeroSpecial(nodes.SparseNodeVisitor):
                 text = p.astext()
                 try:
                     bep = int(text)
-                    ref = (self.document.settings.bep_base_url
+                    ref = (self.document.settings.pep_base_url
                            + self.bep_url % bep)
                     p[0] = nodes.reference(text, text, refuri=ref)
                 except ValueError:

@@ -1,7 +1,7 @@
-BEP: 4
+BEP: 5
 Title: DHT Protocol
-Version: 2
-Last-Modified: 11-Jan-2008
+Version: $Revision$
+Last-Modified: $Date$
 Author:  Andrew Loewenstern <drue@bittorrent.com>
 Status:  Draft
 Type:    Standards Track
@@ -23,19 +23,19 @@ other nodes in the DHT to get the location of peers to download from
 using the BitTorrent protocol.
 
 
---------
 Overview
---------
+========
 
 Each node has a globally unique identifier known as the "node ID."
-Node IDs are chosen at random from the same 160-bit space as BitTorrent
-infohashes [#entropy]_.  A "distance metric" is used to compare two node IDs or a node 
-ID and an infohash for "closeness." Nodes must maintain a routing table
-containing the contact information for a small number of other nodes.
-The routing table becomes more detailed as IDs get closer to the node's
-own ID. Nodes know about many other nodes in the DHT that have IDs that
-are "close" to their own but have only a handful of contacts with IDs
-that are very far away from their own.
+Node IDs are chosen at random from the same 160-bit space as
+BitTorrent infohashes [#entropy]_.  A "distance metric" is used to
+compare two node IDs or a node ID and an infohash for "closeness."
+Nodes must maintain a routing table containing the contact information
+for a small number of other nodes.  The routing table becomes more
+detailed as IDs get closer to the node's own ID. Nodes know about many
+other nodes in the DHT that have IDs that are "close" to their own but
+have only a handful of contacts with IDs that are very far away from
+their own.
 
 In Kademlia, the distance metric is XOR and the result is interpreted
 as an unsigned integer. ``distance(A,B) = |A xor B|`` Smaller values
@@ -70,9 +70,8 @@ concatenated onto a secret that changes every five minutes and tokens
 up to ten minutes old are accepted.
 
 
--------------
 Routing Table
--------------
+=============
 
 Every node maintains a routing table of known good nodes. The nodes in
 the routing table are used as starting points for queries in the
@@ -138,9 +137,8 @@ closer and closer nodes until it cannot find any closer. The routing
 table should be saved between invocations of the client software.
 
 
------------------------------
 BitTorrent Protocol Extension
------------------------------
+=============================
 
 The BitTorrent protocol has been extended to exchange node UDP port
 numbers between peers that are introduced by a tracker. In this way,
@@ -161,9 +159,8 @@ ping is recieved, the node should attempt to insert the new contact
 information into their routing table according to the usual rules.
 
 
------------------------
 Torrent File Extensions
------------------------
+=======================
 
 A trackerless torrent dictionary does not have an "announce" key.
 Instead, a trackerless torrent has a "nodes" key. This key should be
@@ -180,9 +177,8 @@ automatically add this node to clients routing tables.
 
   
 
--------------
 KRPC Protocol
--------------
+=============
 
 The KRPC protocol is a simple RPC mechanism consisting of bencoded
 dictionaries sent over UDP. A single query packet is sent out and a
@@ -261,9 +257,8 @@ Example Error Packets:
   bencoded = d1:eli201e23:A Generic Error Ocurrede1:t2:aa1:y1:ee
 
   
------------
 DHT Queries
------------
+===========
 
 All queries have an "id" key and value containing the node ID of the
 querying node. All responses have an "id" key and value containing the
@@ -406,9 +401,19 @@ Example Packets:
   bencoded = d1:rd2:id20:mnopqrstuvwxyz123456e1:t2:aa1:y1:re
 
 References
-----------
+==========
 
 .. [#Kademlia] Peter Maymounkov, David Mazieres, "Kademlia: A Peer-to-peer Information System Based on the XOR Metric", *IPTPS 2002*. http://www.cs.rice.edu/Conferences/IPTPS02/109.pdf
 
 .. [#entropy] Use SHA1 and plenty of entropy to ensure a unique ID.
 
+
+
+..
+   Local Variables:
+   mode: indented-text
+   indent-tabs-mode: nil
+   sentence-end-double-space: t
+   fill-column: 70
+   coding: utf-8
+   End:

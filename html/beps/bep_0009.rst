@@ -1,7 +1,7 @@
-BEP: 8
+BEP: 9
 Title: Metadata Extension
-Version: 3
-Last-Modified: 02-Feb-2008
+Version: $Revision$
+Last-Modified: $Date$
 Author:  Greg Hazel <greg@bittorrent.com>, Arvid Norberg <arvid@bittorrent.com>
 Status:  Draft
 Type:    Standards Track
@@ -16,26 +16,25 @@ on a web page only containing enough information to join the swarm
 (the info hash).
 
 metadata
---------
+========
 
 This extension only transfers the info-dictionary part of the .torrent
 file. This part can be validated by the info-hash. In this document, that
 part of the .torrent file is referred to as *the metadata*.
 
-The metadata is plit up in 16kiB pieces. The pieces are indexed starting
-from 0 for the first 16kiB of metadata.
+The metadata is handled in blocks of 16KiB (16384 Bytes). The metadata blocks
+are indexed starting at 0. All blocks are 16KiB except the last block which may
+be smaller.
 
 extension header
-----------------
+================
 
-The metadata extension uses the `extension protocol`_ to advertize its
-existence. It adds the "ut_metadata" entry to the "m" dictionary in the
-extension header hand-shake message. This identifies the message code
-used for this message. It also adds "metadata_size" to the handshake
-message (not the "m" dictionary) specifying an integer value of the
+The metadata extension uses the extension protocol (specified in `BEP 0010`_
+) to advertize its existence. It adds the "ut_metadata" entry to the "m"
+dictionary in the extension header hand-shake message. This identifies the
+message code used for this message. It also adds "metadata_size" to the
+handshake message (not the "m" dictionary) specifying an integer value of the
 number of bytes of the metadata.
-
-.. _`extension protocol`: extension_protocol.html
 
 Example extension handshake message::
 
@@ -43,7 +42,7 @@ Example extension handshake message::
 
 
 extension message
------------------
+=================
 
 The extension messages are bencoded. There are 3 different kinds of messages:
 
@@ -56,7 +55,7 @@ corresponding to the type of message. They also have a key "piece", which
 indicates which part of the metadata this message refers to.
 
 request
-~~~~~~~
+-------
 
 The ``request`` message does not have any additional keys in the dictionary.
 The response to this message, from a peer supporting the extension, is either
@@ -76,7 +75,7 @@ Example::
 That request message requests the first metadata piece.
 
 data
-~~~~
+----
 
 The ``data`` message adds another entry to the dictionary, "total_size". This
 key has the same semantics as the "metadata_size" in the extension header. This
@@ -96,7 +95,7 @@ Example::
 The ``x`` represents binary data (the metadata).
 
 reject
-~~~~~~
+------
 
 The ``reject`` message does not have any additional keys in its message.
 It SHOULD be interpreted as the peer does not have the piece of metadata
@@ -112,14 +111,14 @@ Example::
 	d8:msg_typei1e5:piecei0ee
 
 magnet URI format
------------------
+=================
 
 The magnet URI format is::
 
 	magnet:?xt=urn:btih:<info-hash>&dn=<name>&tr=<tracker-url>
 
 <info-hash>
-	Is the info-hash encoded as base32.
+	Is the info-hash encoded as base32 [#base32]_
 
 ``xt`` is the only mandatory parameter. ``dn`` is the display name that may be
 used by the client to display while waiting for metadata. ``tr`` is a tracker
@@ -128,6 +127,21 @@ may be included.
 
 Both ``dn`` and ``tr`` are optional.
 
-If no tracker is specified, the client SHOULD use the DHT to acquire peers.
+If no tracker is specified, the client SHOULD use the DHT (`BEP 0005`_) to acquire peers.
 
+References
+==========
 
+.. [#base32] http://www.ietf.org/rfc/rfc3548.txt
+.. _`BEP 0010`: http://www.bittorrent.org/beps/bep_0010.html
+.. _`BEP 0005`: http://www.bittorrent.org/beps/bep_0005.html
+
+
+..
+   Local Variables:
+   mode: indented-text
+   indent-tabs-mode: nil
+   sentence-end-double-space: t
+   fill-column: 70
+   coding: utf-8
+   End:

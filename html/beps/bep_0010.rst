@@ -1,8 +1,8 @@
-BEP: 9
+BEP: 10
 Title: Extension Protocol
-Version: 3
-Last-Modified: 02-Feb-2008
-Author:  Arvid Norberg <arvid@bittorrent.com>, Ludvig Strigeus <ludde@utorrent.com>
+Version: $Revision$
+Last-Modified: $Date$
+Author:  Arvid Norberg <arvid@bittorrent.com>, Ludvig Strigeus <bittorrent@strigeus.com>, Greg Hazel <greg@bittorrent.com>
 Status:  Draft
 Type:    Standards Track
 Created: 31-Jan-2008
@@ -53,7 +53,7 @@ follows (including the message headers used by the bittorrent protocol):
 
 
 handshake message
------------------
+=================
 
 The payload of the handshake message is a bencoded dictionary. All items
 in the dictionary are optional. Any unknown names should be ignored
@@ -170,7 +170,7 @@ named in the example above (such as ``p``) are just examples of possible
 extensions.
 
 rationale
----------
+=========
 
 The reason why the extension messages' IDs would be defined in the handshake
 is to avoid having a global registry of message IDs. Instead the names of the
@@ -206,3 +206,12 @@ protocol more readable for a human, but the BT protocol wasn't designed to
 be a human readable protocol, so why bother.
 
 
+
+..
+   Local Variables:
+   mode: indented-text
+   indent-tabs-mode: nil
+   sentence-end-double-space: t
+   fill-column: 70
+   coding: utf-8
+   End:

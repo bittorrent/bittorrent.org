@@ -1,7 +1,7 @@
-BEP: 2
+BEP: 3
 Title: The BitTorrent Protocol Specification
-Version: 2
-Last-Modified: 11-Jan-2008
+Version: $Revision$
+Last-Modified: $Date$
 Author:  Bram Cohen <bram@bittorrent.com>
 Status:  Final
 Type:    Standard
@@ -340,4 +340,13 @@ optimistically unchoked rotates every 30 seconds. To give them a
 decent chance of getting a complete piece to upload, new connections
 are three times as likely to start as the current optimistic unchoke
 as anywhere else in the rotation.
+
+..
+   Local Variables:
+   mode: indented-text
+   indent-tabs-mode: nil
+   sentence-end-double-space: t
+   fill-column: 70
+   coding: utf-8
+   End:
 

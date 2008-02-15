@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.5: http://docutils.sourceforge.net/" />
+<title></title>
+<link rel="stylesheet" href="../css/bep.css" type="text/css" />
+</head>
+<body>
+<div class="document">
+
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="../index.html">BitTorrent<span>.org</span></a></h1>
+</div>
+<div id="nav">
+<ul>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../introduction.html">For Users</a></li>
+<li><span>For Developers</span></li>
+<!-- <li><a href="./blog">Blog</a></li> -->
+<li><a href="../donate.html">Donate!</a></li>
+</ul>
+</div> <!-- nav -->
+<!-- ### Begin Content ### -->
+<div id="second">
+
+
+
+<table class="rfc2822 docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">BEP:</th><td class="field-body">17</td>
+</tr>
+<tr class="field"><th class="field-name">Title:</th><td class="field-body">HTTP Seeding</td>
+</tr>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">10603</td>
+</tr>
+<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="https://svn.bittorrent.com/trac.cgi/browser/dotorg/trunk/html/beps/bep_0017.rst">2008-02-07 17:54:09 -0800 (Thu, 07 Feb 2008)</a></td>
+</tr>
+<tr class="field"><th class="field-name">Author:</th><td class="field-body">John Hoffman &lt;theshadow&#32;&#97;t&#32;degreez.net&gt;, DeHackEd</td>
+</tr>
+<tr class="field"><th class="field-name">Status:</th><td class="field-body">Draft</td>
+</tr>
+<tr class="field"><th class="field-name">Type:</th><td class="field-body">Standards Track</td>
+</tr>
+<tr class="field"><th class="field-name">Created:</th><td class="field-body">07-Feb-2008</td>
+</tr>
+<tr class="field"><th class="field-name">Post-History:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#metadata-extension" id="id2">Metadata Extension</a></li>
+<li><a class="reference internal" href="#protocol" id="id3">Protocol</a></li>
+<li><a class="reference internal" href="#server-side-implementation-notes" id="id4">Server-side Implementation Notes</a></li>
+<li><a class="reference internal" href="#client-side-implementation-notes" id="id5">Client-side Implementation Notes</a></li>
+</ul>
+</div>
+<div class="section" id="metadata-extension">
+<h1>Metadata Extension</h1>
+<ul class="simple">
+<li>&quot;httpseeds&quot;</li>
+</ul>
+<p>In the main area of the metadata file and not part of the &quot;info&quot;
+section, will be a new key, &quot;httpseeds&quot;.  This key will refer to a
+list of URLs, and will contain a list of web addresses where torrent
+data can be retrieved.  This key may be safely ignored if the client
+is not capable of using it.</p>
+<p>Examples:</p>
+<pre class="literal-block">
+d['httpseeds'] = [ 'http://www.whatever.com/seed.php' ]
+</pre>
+<p>This specifies the client can retrieve data by accessing the given
+URL with the parameters supplied in the protocol specification
+below:</p>
+<pre class="literal-block">
+d['httpseeds'] = [ 'http://www.site1.com/source1.php',
+                   'http://www.site2.com/source2.php'  ]
+</pre>
+<p>More than one URL may be specified; if so, the client will attempt
+to access both URLs to download seed data.</p>
+</div>
+<div class="section" id="protocol">
+<h1>Protocol</h1>
+<p>The client calls the URL given, in the following format:</p>
+<pre class="literal-block">
+&lt;url&gt;?info_hash=[hash]&amp;piece=[piece]{&amp;ranges=[start]-[end]{,[start]-[end]}...}
+</pre>
+<p>Examples:</p>
+<pre class="literal-block">
+http://www.whatever.com/seed.php?info_hash=%9C%D9i%8A%F5Uu%1A%91%86%AE%06lW%EA%21W%235%E0&amp;piece=3
+http://www.whatever.com/seed.php?info_hash=%9C%D9i%8A%F5Uu%1A%91%86%AE%06lW%EA%21W%235%E0&amp;piece=8&amp;ranges=49152-131071,180224-262143
+</pre>
+<p>The URL would be for a script which has access to the files
+contained in the torrent, and to the metadata (.torrent) file
+itself, so that it may calculate what byte ranges to pull from
+what files.  One such script has been written by DeHackEd, and
+is available at <a class="reference external" href="http://bt.degreez.net">http://bt.degreez.net</a> .</p>
+<p>The script should return, if everything is okay, either a status
+of 200 (OK) and a block of data (either the entire piece if no
+ranges were given, or the ranges of data requested for that piece
+appended together), in binary format, or 503 (Service Temporarily
+Unavailable), with the body of the return being an ASCII integer
+value specifying how long the client should wait before retrying.
+The client should consider any other return code as an error.
+In the case of an error, the client should retry, but should
+retry less often if the failure to contact the seed continues.</p>
+</div>
+<div class="section" id="server-side-implementation-notes">
+<h1>Server-side Implementation Notes</h1>
+<p>The purpose of the http seed script is to limit access to the
+data being downloaded so that the web server isn't overwhelmed
+by clients asking for the data.  If it weren't for this limiting,
+there would be no way to prevent someone from coding a client
+to try to download continuously or multiply, resulting in a
+heavy load on the server.  Limiting the download rate also
+allows an http seed script to be run on a web account where
+the total amount of data downloaded is restricted or may result
+in extra service charges.</p>
+<p>The script must provide three major functions:</p>
+<ol class="arabic simple">
+<li>Limit its average upload to a reasonable level.</li>
+<li>Intelligently tell peers how long they should wait before
+retrying.</li>
+<li>translate from an info-hash and piece number to a byte range
+within a file or set of files, and return those bytes.</li>
+</ol>
+<p>Another highly desirable function is to check whether peers are
+retrying too often, and to automatically ban those peers.</p>
+<p>Other desirable features include a way of monitoring the tracker
+the torrent is using and to stop uploading data if sufficient
+P2P seeds exist, and a way to feed back to the tracker to show
+a seed is present.</p>
+</div>
+<div class="section" id="client-side-implementation-notes">
+<h1>Client-side Implementation Notes</h1>
+<p>The prototype code base has a default retry time of 30 seconds;
+after 3 retries with errors, the time is lengthened with each
+cycle.</p>
+<p>The prototype code will not display any errors with contacting
+http seeds (unless the URL given in the .torrent is incorrect)
+until it has received data from that seed.  (The prototype code
+also won't display any errors for any http reply that was
+actually received.)</p>
+<p>Current behavior is:  Request the rarest piece you're missing
+in entirety that you can locate.  If you have no pieces that
+aren't partially downloaded, skip one retry cycle, then start
+requesting partials.  If you receive a 503 response, set the
+retry time equal to the integer value received in the response.</p>
+</div>
+
+
+</div>
+	<div id="footer">
+<hr/>
+</div>
+
+</div>
+</body>
+</html>

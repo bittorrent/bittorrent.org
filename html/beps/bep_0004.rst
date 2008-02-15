@@ -1,7 +1,7 @@
-BEP: 3
+BEP: 4
 Title: Assigned Numbers
-Version: 1
-Last-Modified: 31-Jan-2008
+Version: $Revision$
+Last-Modified: $Date$
 Author:  David Harrison
 Status:  Active
 Type:    Process
@@ -15,7 +15,7 @@ editor@bittorrent.org.  Contact the same address if you are aware of
 any omissions.
 
 Reserved Bit Allocations
-------------------------
+========================
 
 ::
 
@@ -23,14 +23,14 @@ Reserved Bit Allocations
  0x80  Azureus Messaging Protocol
 
  reserved[5]
- 0x10  LTEP (LibTorrent Extension Protocol)
+ 0x10  LTEP (Libtorrent Extension Protocol)
 
  reserved[7]
  0x01  BitTorrent DHT
  0x04  suggest, haveall, havenone, reject request, and allow fast extensions
 
 Reserved Message IDs
---------------------
+====================
 
 ::
 
@@ -44,15 +44,27 @@ Reserved Message IDs
  0x06   request
  0x07   piece
  0x08   cancel
+
+ DHT Extension:
  0x09   port
 
- Fast Extensions
-
+ Fast Extensions:
  0x0D   suggest
  0x0E   have all
  0x0F   have none
  0x10   reject request
  0x11   allowed fast
 
- Additional IDs used in deployed clients
+ Additional IDs used in deployed clients:
  0x14   LTEP Handshake (implemented in libtorrent, uTorrent,...)
+
+
+
+..
+   Local Variables:
+   mode: indented-text
+   indent-tabs-mode: nil
+   sentence-end-double-space: t
+   fill-column: 70
+   coding: utf-8
+   End:

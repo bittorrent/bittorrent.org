@@ -1,4 +1,8 @@
 
+# Be sure to commit changes to .rst files before building the html and then recommit with the updated html.
+# Otherwise, the generated .html will have the svn revision number of the previous change rather than the
+# current changes.
+
 BEPS= \
 	bep_0000.html \
 	bep_0001.html \
@@ -10,13 +14,22 @@ BEPS= \
 	bep_0007.html \
 	bep_0008.html \
 	bep_0009.html \
+	bep_0010.html \
+	bep_0012.html \
+	bep_0015.html \
+	bep_0017.html \
 	bep_1000.html \
 
 all:	$(BEPS) 
 
-%.html:%.rst
-	rstbep2html.py --template=template.txt --cloak-email-addresses --link-stylesheet --stylesheet=../css/bep.css --no-toc-backlinks $? >$@ --traceback
+%.html:%.rst_post
+	rstbep2html.py --template=template.txt --pep-base-url=http://www.bittorrent.org/beps/ --cloak-email-addresses --link-stylesheet --stylesheet=../css/bep.css --no-toc-backlinks $? >$@ --traceback
 
-	#~/docutils/tools/rst2html.py --template=../template.txt --cloak-email-addresses --link-stylesheet --stylesheet=../css/screen.css --no-doc-title --no-toc-backlinks $? >$@
+%.rst_post: %.rst
+	python postprocess.py $? > $@ 
+
+#%.html:%.rst
+#	rstpep2html.py --template=template.txt --cloak-email-addresses --link-stylesheet --stylesheet=../css/bep.css --no-toc-backlinks $? >$@ --traceback
+
 
 

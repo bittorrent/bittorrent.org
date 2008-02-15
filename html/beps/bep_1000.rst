@@ -1,7 +1,7 @@
 BEP: 1000
 Title: Pending Standards Track Documents
-Version: 2
-Last-Modified: 02-Feb-2008
+Version: $Revision$
+Last-Modified: $Date$
 Author:  David Harrison <dave@bittorrent.com>
 Status:  Active
 Type:    Process
@@ -16,12 +16,19 @@ the formal standards track document.
 =====  =========================================  
 Num    Title                                     
 =====  =========================================
-10     Peer Exchange
-11     Announce List
-12     Protocol Encryption
-13     Local Service Discovery
-14     UDP Tracker Protocol
-15     Super-seeding
+11     Peer Exchange
+13     Protocol Encryption
+14     Local Service Discovery
+16     Super-seeding
 =====  ========================================= 
 
 
+
+..
+   Local Variables:
+   mode: indented-text
+   indent-tabs-mode: nil
+   sentence-end-double-space: t
+   fill-column: 70
+   coding: utf-8
+   End:

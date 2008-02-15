@@ -1,6 +1,5 @@
 /*
-   BitTorrent.org Screen CSS
-   2006 Apr 6, bri
+   BitTorrent.org BEP CSS
 */ 
 
 body {
@@ -11,7 +10,7 @@ body {
 	font:10px/1.5em "Trebuchet MS",sans-serif; 
 	text-align:center; 
 	}
-    
+
 #upper {
     margin:0;
     padding:60px 0;
@@ -71,6 +70,12 @@ body {
     line-height:1.2em;
     background:url("../img/li.gif") no-repeat 0 0; 
     }
+
+#first p {
+	font-size:3pt;
+	line-height:80pt;
+}
+    
 
 #second li,
 #second dt {
@@ -179,6 +184,10 @@ h5 {
 
 table {
     border:0;
+    border-style:2;
+    margin-left:4em;  
+    //margin-top:4em;
+    //margin-bottom:4em;
     }
 
 td {
@@ -280,4 +289,18 @@ h1 a:hover {
 a img {
 	border:0; 
 	}
+
+.literal-block {
+	margin-left:4em;
+}
+
+div.figure {
+	margin:2em 4em 1em 4em;
+	text-align: center;
+	font-size: 7pt;
+}
+
+p.caption {
+	text-align: left;
+}
 

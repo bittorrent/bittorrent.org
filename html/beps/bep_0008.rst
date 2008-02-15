@@ -1,7 +1,7 @@
-BEP: 7
+BEP: 8
 Title: Tracker Peer Obfuscation
-Version: 3
-Last-Modified: 02-Feb-2008
+Version: $Revision$
+Last-Modified: $Date$
 Author:  David Harrison <dave@bittorrent.com>, Anthony Ciani <tony@ciani.phy.uic.edu>, Arvid Norberg <arvid@bittorrent.com>, Greg Hazel <greg@bittorrent.com> 
 Status:  Draft
 Type:    Standards Track
@@ -9,7 +9,7 @@ Created: 31-Jan-2008
 Post-History:
 
 This extends the tracker protocol to support simple obfuscation of the
-peers it returns, using the info hash as a shared secret between the
+peers it returns, using the infohash as a shared secret between the
 peer and the tracker. The obfuscation does not provide any security
 against eavesdroppers that know the infohash of the torrent.  The goal
 is to prevent internet service providers and other network
@@ -21,14 +21,12 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
 "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are
 to be interpreted as described in IETF `RFC 2119`_. 
 
-.. _`RFC 2119`: http://tools.ietf.org/html/rfc2119
 
-
-announce parameter
-------------------
+Announce Parameter
+==================
 
 When using this extension, instead of passing the ``info_hash`` parameter
-to the tracker, an ``sha_ih`` is passed.
+to the tracker, a ``sha_ih`` is passed.
 
 The value of ``sha_ih`` MUST be the info-hash of the torrent, with a second
 SHA-1 applied to it.
@@ -44,53 +42,54 @@ The value MUST be url encoded, just like the ``info_hash``.  Thus the
 This extension does not change the semantics of any parameter passed
 in the peer's announce.
 
-announce response
------------------
+Announce Response
+=================
 
-If the tracker supports this extension, the response should be exactly the
-same as if the ``info_hash`` was passed, except that any field that contains
-peer information (such as ``peers``, ``peers6`` or any other field defined
-by another extension) MUST be obfuscated as described in the next section.
+If the tracker supports this extension, the response should be exactly
+the same as if the ``info_hash`` had been passed, except that any
+field that contains peer information (such as ``peers``, ``peers6`` or
+any other field defined by another extension) MUST be obfuscated as
+described in the next section.
 
 There are additional parameters the tracker may OPTIONALLY return.
 These are discussed in the optimizations_ section.
 
-peer list obfuscation
----------------------
+Peer List Obfuscation
+=====================
 
 We distinguish between the *tracker peer list* and the *returned peer
 list*.  The *tracker peer list* contains the ip-port pairs of all
-peers that have reported to the tracker that they are downloading or
-seeding a given file with a given infohash.  The tracker may store
-this peer list however it wishes.  The *returned peer list* contains a
-packed array of ip-port pairs conforming to the BitTorrent protocol
-specification.  If the swarm is sufficiently large then the returned
-ip-port pairs constitute a subset of the ip-port pairs in the
-*tracker peer list*.
+known peers in a given torrent, i.e., those peers that have reported
+to the tracker that they are transferring the file with a given
+infohash.  The tracker may store this peer list however it wishes.
+The *returned peer list* contains a packed array of ip-port pairs
+conforming to the BitTorrent protocol specification.  If the swarm is
+sufficiently large then the returned ip-port pairs constitute a subset
+of the ip-port pairs in the *tracker peer list*.
 
 The returned peer list is encrypted using RC4-drop768 encryption using
-the infohash as a shared secret and optionally an initialization
-vector.  
+the infohash as a shared secret and optionally employing an
+initialization vector.
 
 For the remainder of this document RC4 refers to RC4-drop768.  In the
 process of encryption, RC4 generates a pseudorandom string that is
 XOR'd with the plaintext to generate the ciphertext.  The receiver
 recovers the plaintext by generating the same pseudorandom string and
 XOR'ing it with the ciphertext.  In generating the pseudorandom
-string, the tracker and client MUST discard the first 768 bytes.  All
-indices into the pseudorandom string ignore the first 768 bytes, i.e.,
-index 0 refers to the first undiscarded byte.
+string, the tracker and client MUST discard the first 768 bytes.  The
+next 8 bytes in the pseudorandom string are reserved for optimizations
+discussed in the next section.
 
 To communicate an initialization vector, the tracker includes in the
 bencoded response the key ``iv`` with value set to a byte string
 containing the initialization vector.  The initialization vector can
 be of arbitrary length and is sent in plaintext.
 
-If the tracker sends no initialization vector then the first 64-bits
-of the infohash are used as the RC4 key.  If the tracker provides an
+If the tracker sends no initialization vector then the infohash is
+used as the RC4 key (160 bit key).  If the tracker provides an
 initialization vector then the RC4 key is generated by appending the
-vector to the infohash and then hashing with sha1.  The first 64 bits
-of the resulting hash are then used as the RC4 key.
+vector to the infohash and then hashing with SHA-1.  The resulting
+hash is then used as the RC4 key.  
 
 For example, given infohash ``aaf4c61ddcc5e8a2dabedef3b482cd9aea9434d``
 and initialization vector ``abcd`` both represented in hex, the RC4 key
@@ -98,24 +97,21 @@ is derived as follows:
 
 ::
  
-   hash = sha1( 'aaf4c61ddcc5e8a2dabedef3b482cd9aea9434dabcd' )
-   key = hash[0:64]
+   key = sha1( 'aaf4c61ddcc5e8a2dabedef3b482cd9aea9434dabcd' )
 
-where [i:j] denotes the ith through jth bit including the ith but
-excluding the jth.  The resulting key in hex is ``f36e9cae87cf33e0``.
-
-A 64-bit key is used to avoid U.S. export restrictions. 
+The resulting key in hex is ``f36e9cae87cf33e07645ef5ca745a8a83469f31e``.
 
 It is RECOMMENDED that the tracker use the initialization vector, and
 that it change the ``iv`` on roughly the same period as the rerequest
 interval.  The reasoning for this is contained in the rationale.
 
-optimizations
--------------
+
+Optimizations
+=============
 
 The described optimizations are OPTIONAL for the tracker, but the
-corresponding client-side MUST be implemented by those that support
-this extension.  These extensions hobble the strength of the RC4
+corresponding client-side MUST be implemented by clients that support
+this extension.  These optimizations hobble the strength of the RC4
 encryption in order to improve tracker performance.  In the rationale_
 section we discuss why hobbling RC4 is reasonable and in many cases
 has negligible foreseen effect on security.
@@ -133,43 +129,52 @@ RECOMMENDED that the tracker periodically reshuffle the peerlist with
 period similar to the rerequest interval.  After each reshuffle the
 tracker reperforms the operations described in this section.
 
-To reduce computation the tracker may cache the pseudorandom string
+To reduce computation the tracker MAY cache the pseudorandom string
 generated by RC4 and reuse it as peers arrive and depart.
 
 The tracker MAY also cache the encrypted tracker peer list.  To
-support this the tracker must pass two additional keys *i* and *n*
-each with integer values.  Decryption starts by XORing from *6i* bytes
-for ipv4 (or *18i* for ipv6) into the pseudorandom string.  Assuming
-that the tracker encrypted the tracker peer list starting from the
-first byte in the pseudorandom string then *i* also corresponds to the
-*ith* ip-port pair in the tracker peer list and the starting point of
-the copy into the returned request.  
+support this the tracker MUST pass two additional keys *i* and *n*
+each with 32-bit integer values, except the tracker MAY omit *i* and
+*n* when *i=0* and the *returned peer list* is the entire *tracker peer
+list*.  Whether the tracker returns *i* and *n*, the first 8 bytes of
+the RC4 psuedorandom string are reserved for obscuring *i* and *n*.
+We come back to this momentarily.  Decryption starts by XORing from
+*6i* bytes for ipv4 (or *18i* for ipv6) into the pseudorandom string
+after the discarded and reserved bytes.  Assuming that the tracker
+encrypted the tracker peer list starting from the first byte after the
+discarded and reserved bytes in the pseudorandom string then *i* also
+corresponds to the *ith* ip-port pair in the tracker peer list.
 
 So that the client and the tracker do not have to generate an
 arbitrarily long pseudorandom string to support large swarms, we
 assume the tracker bounds the length of the pseudorandom string and
-reports the length in ip-port pairs as the value to key *n*.  We
-RECOMMEND that *n* be equal to the length of the tracker peer list or
-random but within constant factor of the longest peerlist returned by
-the tracker, whichever is smaller.  Thus the tracker encrypts the
-*jth* byte of the *ith* ip-port pair in an ipv4 tracker peer list by
-XORing with the byte *(6i+j)* `mod` *n* bytes into the pseudorandom
-string.
+reports the length in ip-port pairs as the value to key *n*.  *n*
+excludes reserved and discarded bytes.  We RECOMMEND that *n* be equal
+to the length of the tracker peer list or random but within constant
+factor of the longest peerlist returned by the tracker, whichever is
+smaller.  Thus the tracker encrypts the *jth* byte of the *ith*
+ip-port pair in an ipv4 tracker peer list by XORing with the byte
+*(6i+j)* `mod` *n* bytes into the pseudorandom string.
 
-Since providing *i* and *n* significantly reduces the cost for an
-attacker to recover the pseudorandom string, the tracker MUST XOR the
-value of *i* with the 32 bits beginning with the 8th least significant
-byte of the infohash and *n* with the least significant 32 bits of the
-infohash.  We do not use the first 64 bits of the infohash since the
-first 64 bits are used as the RC4 key when not specifying an
-initialization vector.
- 
+Transmitting *i* and *n* as plaintext would significantly reduce the
+cost for an attacker to recover the pseudorandom string.  The tracker
+MUST XOR the value of *i* with the first 32 bits of the pseudorandom
+string.  The tracker then XORs *n* with the next 32 bits from the
+pseudorandom string (see Figure 1).
+
+.. figure:: bep_0008_pseudo.png
+
+   **Figure 1:** The first 768 bytes of the RC4 pseudorandom
+   string are discarded.  The key *i* in the tracker response has
+   value ``x xor i``.  The key *n* has value ``y xor n``.
+
 We describe encryption in the following example for an ipv4 tracker peer 
 list consisting of 3 ip-port pairs, and using an RC4 pseudorandom string 
 of length *n=2*. *n* is small for purposes of illustration.  Also, for the 
-purpose of illustration, the tracker returns only 3 peers at a time.
+purpose of illustration, the tracker returns only 2 peers at a time.
 
 ::
+
   Given the following peer list
   (208.72.193.86, 6881), (209.81.173.15,14321), (128.213.6.8, 6881)
 
@@ -177,7 +182,8 @@ purpose of illustration, the tracker returns only 3 peers at a time.
                
   d048c1561ae1d151ad0f37f180d506081ae1 
 
-  which we XOR with an RC4 pseudorandom string, e.g.,
+  which we XOR with an RC4 pseudorandom string excluding discarded and
+  reserved bytes, e.g.,
 
   a496e5f9b83e835013d42226
 
@@ -188,18 +194,24 @@ purpose of illustration, the tracker returns only 3 peers at a time.
 Because the RC4 pseudorandom string is shorter than the tracker
 peer list, we wrap to the beginning of the pseudorandom string.
 
-  In the first response, the tracker would return
+A tracker returning the first two peers would return the bencoded
+equivalent of::
 
-  *peers=74de24afa2df5201bedb15d7*, *i=0*, *n=2*
+  peers=74de24afa2df5201bedb15d7, i=0, n=2
 
-  In the second response, the tracker would return
+A tracker returning the second and third peer would return the
+bencoded equivalent of::
 
-  *peers=5201bedb15d72443e3f1a2df*, *i=1*, *n=2*
+  peers=5201bedb15d72443e3f1a2df, i=1, n=2
+
+In each response the tracker includes additional parameters such as
+the rerequest ``interval`` and the initialization vector ``iv``.
 
 The tracker response MUST remain a valid bencoded message.
 
-backwards compatibility
------------------------
+
+Backwards Compatibility
+=======================
 
 Trackers that support obfuscation are identified in the .torrent file
 by the inclusion of an ``obfuscate-announce-list`` which otherwise has the 
@@ -225,33 +237,41 @@ Peers MUST never send both the ``info_hash`` and ``sha_ih`` parameters
 in the same request, since that would defeat the purpose of the shared
 secret.
 
-- any peer that reports a sha_ih is assumed to implement protocol encryption.
-- tracker OPTIONALLY includes a ``flags`` key that contains one byte per
-  peer in the reported peer list.  The first bit of each byte specifies
-  whether the peer support protocol encryption. (How do we protect
-  the flags field from modification?)
-- if no flags field is present then all peers should be assumed to support protocol encryption
-- if a flags field is present then those peers that support protocol
-  a 
+Any peer that requests with a ``sha_ih`` SHOULD implement Message
+Stream Encryption (MSE) [#MSE]_.  Any peer returned from the tracker
+in response to a request with a ``sha_ih`` SHOULD be assumed to
+support Message Stream Encryption.  We include these provisions
+because if a peer communicates with another peer without using MSE
+then the BitTorrent protocol is trivially identified from the first
+twenty bytes of the BitTorrent header and the ``info_hash`` appears in
+plaintext as the next twenty bytes, hence also defeating the purpose
+of the shared secret.
 
-rationale
----------
+If the tracker does not know enough peers assumed to support MSE to
+return the desired number of peers then it MAY include peers that are
+not assumed to support MSE.  If a peer closes a connection in response
+to an encrypted header then the initiating peer SHOULD assume that the
+peer does not support MSE.  The initiating peer however SHOULD ONLY
+initiate unencrypted connections when all peers have been tried and
+those that support MSE fail to provide "adequate performance."  We
+intentionally omit any definition of "adequate performance."
+
+
+Rationale
+=========
 
 This extension directly addresses a known attack on the BitTorrent
 protocol performed by some deployed network hardware.  By obscuring
 the ip-port pairs network hardware can no longer easily identify
 ip-port pairs that are running BitTorrent by observing peer-to-tracker
 communications.  This deployed hardware under some conditions disrupts
-BitTorrent connections by injecting forged TCP reset packets.  Once a
-BitTorrent connection has been identified, other attacks could be
-performed such as severely rate limiting or blocking these
-connections.
+BitTorrent connections by injecting forged TCP reset packets.  
 
-This hardware was presumably deployed to get around `BitTorrent
-Protocol Encryption`_.  Peers implementing BitTorrent Protocol
+This hardware was presumably deployed to get around BitTorrent
+Message Stream Encryption [#MSE]_.  Peers implementing BitTorrent Message Stream
 Encryption obfuscate peer-to-peer connections by employing RC4
 encryption on every byte from the first byte transferred. BitTorrent
-Protocol Encryption thus increases the difficulty for a device
+Message Stream Encryption thus increases the difficulty for a device
 observing passing packets to identify BitTorrent peer-to-peer
 connections.
 
@@ -259,17 +279,17 @@ By using the SHA-1 of the infohash, the tracker is able to identify
 torrents without sending the plaintext infohash and without requiring
 an additional prior exchange of a shared secret.  Where trackers now
 maintain mappings from infohash to the corresponding torrent's
-peerlist and other torrent-specific state, obfuscated trackers would need 
-one additional mapping from ``sha_ih`` to the torrent's state.
-Tracker may also store encrypted versions of each torrent's peer list,
-to increase computation performance at the expense of increasing
-memory footprint by a constant factor.
+peerlist and other torrent-specific state, obfuscated trackers would
+need one additional mapping from ``sha_ih`` to the torrent's state.
+Trackers may also cache the encrypted version of each torrent's
+tracker peer list, to increase computational performance at the
+expense of increasing memory footprint by a constant factor.
 
 The obfuscation method meets the following criteria:
 
-- The entire plaintext of the peer list is not easily obtained
-  even if an eavesdropper identifies ip-port pairs from
-  subsequent connections from a peer that has received a tracker response.
+- The entire plaintext of the peer list is not easily obtained even if
+  an eavesdropper identifies ip-port pairs from subsequent connections
+  initiated by a peer that has received a tracker response.
 
 - Even when a subsequent connection from a peer that has received a 
   tracker response is observed by an eavesdropper, it is difficult to 
@@ -287,18 +307,19 @@ When the optimizations_ are used,
 
 The objective is NOT to create a cryptographically secure protocol
 that can survive unlimited observation of passing packets and
-substantial computational resources on network timescales.  The object
+substantial computational resources on network timescales.  The objective
 is to raise the bar sufficiently to deter attacks based on observing
 ip-port numbers in peer-to-tracker communications.
 
 If a tracker observes a large number of tracker requests and responses
 and subsequent connections, it is possible to attack the encryption.
 RC4 is known to have a number of weaknesses especially in the way it
-was used with WEP [and HERE].  However, with tracker peer obfuscation, the
-number of bytes transferred between the tracker and a client is likely
-significantly smaller than transfer between a wireless computer and a
-basestation.  An attacker faces a much larger task in obtaining
-sufficient probable plaintext to directly break the encryption.
+was used with WEP [#Borisov]_ [#Scott]_ [#Stubblefeld]_.  However,
+with tracker peer obfuscation, the number of bytes transferred between
+the tracker and a client is likely significantly smaller than transferred
+between a wireless computer and a basestation.  An attacker faces a
+much larger task in obtaining sufficient probable plaintext to
+directly break the encryption.
 
 Hobbling the RC4 encryption by using a bounded-length RC4 pseudorandom
 string for small swarms is likely to have negilgible impact on
@@ -327,12 +348,110 @@ a new pseudorandom string using RC4 on this same time interval is
 likely to incur negligible performance penalty because 1) RC4 is a
 small constant factor more expensive than a shuffle on an input string
 of equal length, 2) the generated pseudorandom string is only *n*
-bytes long where recommended *n* is within a small constant factor
-larger than the largest response size and thus much smaller than the
-tracker peer list for large swarms, and 3) the cost of the XOR
-operation is lighter weight than performing a random shuffle.
+ip-port pairs long where recommended *n* is within a small constant
+factor larger than the largest *returned peer list* and thus much
+smaller than the *tracker peer list* for large swarms, and 3) the cost
+of the XOR operation is lighter weight than performing a random
+shuffle.
 
+
+References
+==========
 
 .. _`RFC 2119`: http://tools.ietf.org/html/rfc2119
-.. _`BitTorrent Protocol Encryption`: http://www.bittorrent.org/beps/bep_0013.html
 
+.. [#MSE] BitTorrent Message Stream Encryption
+   (http://www.azureuswiki.com/index.php/Message_Stream_Encryption)
+
+.. [#Borisov] Nikita Borisov, Ian Goldberg, and David Wagner. Intercepting 
+   mobile communications: the insecurity of 802.11. In ACM MobiCom 2001, 
+   pages 180-189. ACM Press, 2001.
+
+.. [#Scott] Scott R. Fluhrer, Itsik Mantin, and Adi
+   Shamir. Weaknesses in the key scheduling algorithm of RC4. In Serge
+   Vaudenay and Amr M. Youssef, editors, Selected Areas in
+   Cryptography 2001, volume 2259 of Lecture Notes in Computer
+   Science, pages 1-24. Springer, 2001.
+
+.. [#Stubblefeld] Adam Stubblefeld, John Ioannidis, and Aviel
+   D. Rubin. A key recovery attack on the 802.11b wired equivalent
+   privacy protocol (WEP). ACM Transactions on Information and System
+   Security, 7(2):319-332, May 2004.
+
+
+Example Python Code
+===================
+
+Request handling in a dummy tracker implementing tracker peer obfuscation::
+
+  from sha import sha
+  from random import randint
+  from struct import unpack
+  from rc4 import rc4  # rc4(k) generates k RC4 pseudorandom bytes.
+  
+  rand = open("/dev/random","r").read
+  rc4 = rc4()
+  
+  # tracker configuration
+  MAX_PEERS = 100
+  
+  # per torrent state.
+  infohash = sha("dummy_info").digest()
+  pseudo = ''                        # pseudorandom RC4 string.
+  num_peers = 1000                   # current swarm size.
+  tracker_peer_list = rand(6) * num_peers 
+  obfuscated_tracker_peer_list = '' 
+  
+  def xor(plaintext,pseudo):
+    isint = False
+    if type(plaintext) == int: # convert to byte string.
+      plaintext = "".join([chr(int(x,16)) for x in "%.4x" % plaintext])
+      isint = True
+    n = len(pseudo) 
+    ciphertext = "".join( 
+      [chr(ord(pseudo[i%n])^ord(plaintext[i])) for i in xrange(len(plaintext))])
+    if isint:
+      ciphertext = unpack("!I", ciphertext)[0]   # convert back to unsigned int
+    return ciphertext
+  
+  def init():  # called once per rerequest interval.
+    global iv, x, n, n_xor_y, obfuscated_tracker_peer_list
+    iv = rand(20)
+    rc4.key = sha(infohash + iv).digest()
+    rc4(768)                         # discard first 768
+    x = rc4(4)
+    y = rc4(4)
+    n = min(num_peers, randint(MAX_PEERS * 2, MAX_PEERS * 4))
+    n_xor_y = xor(n,y)
+    pseudo = rc4(n*6)
+    obfuscated_tracker_peer_list = xor(tracker_peer_list,pseudo)
+  
+  def getpeers( numwant ):
+    global iv, x, n, n_xor_y, obfuscated_tracker_peer_list
+    response = {}
+    response['iv'] = iv
+    numwant = min(numwant, MAX_PEERS)
+    if numwant > num_peers:
+      response['peers'] = obfuscated_tracker_peer_list
+      return response
+    i = randint(0,num_peers)
+    response['i'] = xor(i,x) 
+    response['n'] = n_xor_y
+    response['peers'] = obfuscated_tracker_peer_list[i*6:(i+numwant)*6]
+    if len(response['peers']) < numwant * 6:
+      r = numwant - len(response['peers']) / 6
+      response['peers'] = response['peers'] + obfuscated_tracker_peer_list[:r] 
+    return response 
+  
+  init()
+  print getpeers(20)
+
+
+..
+   Local Variables:
+   mode: indented-text
+   indent-tabs-mode: nil
+   sentence-end-double-space: t
+   fill-column: 70
+   coding: utf-8
+   End:

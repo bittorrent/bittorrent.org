@@ -35,19 +35,21 @@
 <tbody valign="top">
 <tr class="field"><th class="field-name">BEP:</th><td class="field-body">2</td>
 </tr>
-<tr class="field"><th class="field-name">Title:</th><td class="field-body">The BitTorrent Protocol Specification</td>
+<tr class="field"><th class="field-name">Title:</th><td class="field-body">Sample reStructured Text BEP Template</td>
 </tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body">2</td>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">10535</td>
 </tr>
-<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="https://svn.bittorrent.com/trac.cgi/browser/dotorg/trunk/html/beps/bep_0002.rst">11-Jan-2008</a></td>
+<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="https://svn.bittorrent.com/trac.cgi/browser/dotorg/trunk/html/beps/bep_0002.rst">2008-02-04 17:52:40 -0800 (Mon, 04 Feb 2008)</a></td>
 </tr>
-<tr class="field"><th class="field-name">Author:</th><td class="field-body">Bram Cohen &lt;bram&#32;&#97;t&#32;bittorrent.com&gt;</td>
+<tr class="field"><th class="field-name">Author:</th><td class="field-body">David Harrison &lt;dave&#32;&#97;t&#32;bittorrent.com&gt;</td>
 </tr>
-<tr class="field"><th class="field-name">Status:</th><td class="field-body">Final</td>
+<tr class="field"><th class="field-name">Status:</th><td class="field-body">Active</td>
 </tr>
-<tr class="field"><th class="field-name">Type:</th><td class="field-body">Standard</td>
+<tr class="field"><th class="field-name">Type:</th><td class="field-body">Process</td>
 </tr>
-<tr class="field"><th class="field-name">Created:</th><td class="field-body">10-Jan-2008</td>
+<tr class="field"><th class="field-name">Content-Type:</th><td class="field-body"><a class="reference external" href="http://www.bittorrent.org/beps/bep-0012">text/x-rst</a></td>
+</tr>
+<tr class="field"><th class="field-name">Created:</th><td class="field-body">02-Feb-2008</td>
 </tr>
 <tr class="field"><th class="field-name">Post-History:</th><td class="field-body"></td>
 </tr>
@@ -57,306 +59,641 @@
 <div class="contents topic" id="contents">
 <p class="topic-title first">Contents</p>
 <ul class="simple">
-<li><a class="reference internal" href="#a-bittorrent-file-distribution-consists-of-these-entities" id="id2">A BitTorrent file distribution consists of these entities:</a></li>
-<li><a class="reference internal" href="#to-start-serving-a-host-goes-through-the-following-steps" id="id3">To start serving, a host goes through the following steps:</a></li>
-<li><a class="reference internal" href="#to-start-downloading-a-user-does-the-following" id="id4">To start downloading, a user does the following:</a></li>
-<li><a class="reference internal" href="#the-connectivity-is-as-follows" id="id5">The connectivity is as follows:</a></li>
-<li><a class="reference internal" href="#metainfo-files-are-bencoded-dictionaries-with-the-following-keys" id="id6">Metainfo files are bencoded dictionaries with the following keys:</a></li>
-<li><a class="reference internal" href="#tracker-get-requests-have-the-following-keys" id="id7">Tracker GET requests have the following keys:</a></li>
-<li><a class="reference internal" href="#all-non-keepalive-messages-start-with-a-single-byte-which-gives-their-type" id="id8">All non-keepalive messages start with a single byte which gives their type.</a></li>
-<li><a class="reference internal" href="#the-possible-values-are" id="id9">The possible values are:</a></li>
+<li><a class="reference internal" href="#abstract" id="id22">Abstract</a></li>
+<li><a class="reference internal" href="#rationale" id="id23">Rationale</a></li>
+<li><a class="reference internal" href="#how-to-use-this-template" id="id24">How to Use This Template</a></li>
+<li><a class="reference internal" href="#restructuredtext-bep-formatting-requirements" id="id25">ReStructuredText BEP Formatting Requirements</a><ul>
+<li><a class="reference internal" href="#general" id="id26">General</a></li>
+<li><a class="reference internal" href="#section-headings" id="id27">Section Headings</a></li>
+<li><a class="reference internal" href="#paragraphs" id="id28">Paragraphs</a></li>
+<li><a class="reference internal" href="#inline-markup" id="id29">Inline Markup</a></li>
+<li><a class="reference internal" href="#block-quotes" id="id30">Block Quotes</a></li>
+<li><a class="reference internal" href="#literal-blocks" id="id31">Literal Blocks</a></li>
+<li><a class="reference internal" href="#lists" id="id32">Lists</a></li>
+<li><a class="reference internal" href="#tables" id="id33">Tables</a></li>
+<li><a class="reference internal" href="#hyperlinks" id="id34">Hyperlinks</a></li>
+<li><a class="reference internal" href="#footnotes" id="id35">Footnotes</a></li>
+<li><a class="reference internal" href="#images" id="id36">Images</a></li>
+<li><a class="reference internal" href="#comments" id="id37">Comments</a></li>
+<li><a class="reference internal" href="#escaping-mechanism" id="id38">Escaping Mechanism</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#habits-to-avoid" id="id39">Habits to Avoid</a></li>
+<li><a class="reference internal" href="#resources" id="id40">Resources</a></li>
+<li><a class="reference internal" href="#acknowledgements" id="id41">Acknowledgements</a></li>
+<li><a class="reference internal" href="#references" id="id42">References</a></li>
+<li><a class="reference internal" href="#copyright" id="id43">Copyright</a></li>
 </ul>
 </div>
-<p>BitTorrent is a protocol for distributing files. It identifies content
-by URL and is designed to integrate seamlessly with the web. Its
-advantage over plain HTTP is that when multiple downloads of the same
-file happen concurrently, the downloaders upload to each other, making
-it possible for the file source to support very large numbers of
-downloaders with only a modest increase in its load.</p>
-<div class="section" id="a-bittorrent-file-distribution-consists-of-these-entities">
-<h1>A BitTorrent file distribution consists of these entities:</h1>
+<div class="section" id="abstract">
+<h1>Abstract</h1>
+<p>This BEP provides a boilerplate or sample template for creating your
+own reStructuredText BEPs.  In conjunction with the content guidelines
+in BEP 1 <a class="footnote-reference" href="#bep-1" id="id1">[1]</a>, this should make it easy for you to conform your own
+BEPs to the format outlined below.</p>
+<p>Note: if you are reading this BEP via the web, you should first grab
+the text (reStructuredText) source of this BEP in order to complete
+the steps below.  <strong>DO NOT USE THE HTML FILE AS YOUR TEMPLATE!</strong></p>
+<p>To get the source this (or any) BEP, look at the top of the HTML page
+and click on the date &amp; time on the &quot;Last-Modified&quot; line.  It is a
+link to the source text in the BitTorrent.org subversion repository.</p>
+</div>
+<div class="section" id="rationale">
+<h1>Rationale</h1>
+<p>BEP submissions come in a wide variety of forms, not all adhering
+to the format guidelines set forth below.  Use this template, in
+conjunction with the format guidelines below, to ensure that your
+BEP submission won't get automatically rejected because of form.</p>
+<p>ReStructuredText is offered as an alternative to plaintext BEPs, to
+allow BEP authors more functionality and expressivity, while
+maintaining easy readability in the source text.  The processed HTML
+form makes the functionality accessible to readers: live hyperlinks,
+styled text, tables, images, and automatic tables of contents, among
+other advantages.</p>
+</div>
+<div class="section" id="how-to-use-this-template">
+<h1>How to Use This Template</h1>
+<p>To use this template you must first decide whether your BEP is going
+to be an Informational or Standards Track BEP.  Most BEPs are
+Standards Track because they propose a new feature for the BitTorrent
+system including the BitTorrent suite of protocols.  When in doubt,
+read BEP 1 for details or contact the BEP editors
+&lt;<a class="reference external" href="mailto:editor&#37;&#52;&#48;bittorrent&#46;org">editor<span>&#64;</span>bittorrent<span>&#46;</span>org</a>&gt;.</p>
+<p>Once you've decided which type of BEP yours is going to be, follow the
+directions below.</p>
+<ul>
+<li><p class="first">Make a copy of this file (<tt class="docutils literal"><span class="pre">.rst</span></tt> file, <strong>not</strong> HTML!)  and perform
+the following edits.</p>
+</li>
+<li><p class="first">Replace the &quot;BEP: 2&quot; header with &quot;BEP: XXX&quot; since you don't yet have
+a BEP number assignment.</p>
+</li>
+<li><p class="first">Change the Title header to the title of your BEP.</p>
+</li>
+<li><p class="first">Leave the Version and Last-Modified headers alone; we'll take care
+of those when we check your BEP into BitTorrent's Subversion repository.
+These headers consist of keywords (&quot;Revision&quot; and &quot;Date&quot; enclosed in
+&quot;$&quot;-signs) which are automatically expanded by the repository.
+Please do not edit the expanded date or revision text.</p>
+</li>
+<li><p class="first">Change the Author header to include your name, and optionally your
+email address.  Be sure to follow the format carefully: your name
+must appear first, and it must not be contained in parentheses.
+Your email address may appear second (or it can be omitted) and if
+it appears, it must appear in angle brackets.  It is okay to
+obfuscate your email address.</p>
+</li>
+<li><p class="first">If there is a mailing list for discussion of your new feature, add a
+Discussions-To header right after the Author header.  You should not
+add a Discussions-To header if the mailing list to be used is
+<a class="reference external" href="mailto:bittorrent-list&#37;&#52;&#48;bittorrent&#46;org">bittorrent-list<span>&#64;</span>bittorrent<span>&#46;</span>org</a>, or if discussions should be sent to
+you directly.  Most Informational BEPs don't have a Discussions-To
+header.</p>
+</li>
+<li><p class="first">Change the Status header to &quot;Draft&quot;.</p>
+</li>
+<li><p class="first">For Standards Track BEPs, change the Type header to &quot;Standards
+Track&quot;.</p>
+</li>
+<li><p class="first">For Informational BEPs, change the Type header to &quot;Informational&quot;.</p>
+</li>
+<li><p class="first">For Standards Track BEPs, if your feature depends on the acceptance
+of some other currently in-development BEP, add a Requires header
+right after the Type header.  The value should be the BEP number of
+the BEP yours depends on.  Don't add this header if your dependent
+feature is described in a Final BEP.</p>
+</li>
+<li><p class="first">Change the Created header to today's date.  Be sure to follow the
+format carefully: it must be in <tt class="docutils literal"><span class="pre">dd-mmm-yyyy</span></tt> format, where the
+<tt class="docutils literal"><span class="pre">mmm</span></tt> is the 3 English letter month abbreviation, i.e. one of Jan,
+Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec.</p>
+</li>
+<li><p class="first">Leave Post-History alone for now; you'll add dates to this header
+each time you post your BEP to <a class="reference external" href="mailto:bittorrent-list&#37;&#52;&#48;bittorrent&#46;org">bittorrent-list<span>&#64;</span>bittorrent<span>&#46;</span>org</a>.  If
+you posted your BEP to the lists on August 14, 2001 and September 3,
+2001, the Post-History header would look like:</p>
+<pre class="literal-block">
+Post-History: 14-Aug-2001, 03-Sept-2001
+</pre>
+<p>You must manually add new dates and check them in.  If you don't
+have check-in privileges, send your changes to the BEP editors.</p>
+</li>
+<li><p class="first">Add a Replaces header if your BEP obsoletes an earlier BEP.  The
+value of this header is the number of the BEP that your new BEP is
+replacing.  Only add this header if the older BEP is in &quot;final&quot;
+form, i.e. is either Accepted, Final, or Rejected.  You aren't
+replacing an older open BEP if you're submitting a competing idea.</p>
+</li>
+<li><p class="first">Now write your Abstract, Rationale, and other content for your BEP,
+replacing all this gobbledygook with your own text. Be sure to
+adhere to the format guidelines below, specifically on the
+prohibition of tab characters and the indentation requirements.</p>
+</li>
+<li><p class="first">Update your References and Copyright section.  Usually you'll place
+your BEP into the public domain, in which case just leave the
+Copyright section alone.  Alternatively, you can use the <a class="reference external" href="http://www.opencontent.org/openpub/">Open
+Publication License</a> <a class="footnote-reference" href="#id14" id="id15">[6]</a>, but public domain is still strongly
+preferred.</p>
+</li>
+<li><p class="first">Leave the Emacs stanza at the end of this file alone, including the
+formfeed character (&quot;^L&quot;, or <tt class="docutils literal"><span class="pre">\f</span></tt>).</p>
+</li>
+<li><p class="first">Send your BEP submission to the BEP editors at <a class="reference external" href="mailto:editor&#37;&#52;&#48;bittorrent&#46;org">editor<span>&#64;</span>bittorrent<span>&#46;</span>org</a>.</p>
+</li>
+</ul>
+</div>
+<div class="section" id="restructuredtext-bep-formatting-requirements">
+<h1>ReStructuredText BEP Formatting Requirements</h1>
+<p>The following is a BEP-specific summary of reStructuredText syntax.
+For the sake of simplicity and brevity, much detail is omitted.  For
+more detail, see <a class="reference internal" href="#resources">Resources</a> below.  <a class="reference internal" href="#literal-blocks">Literal blocks</a> (in which no
+markup processing is done) are used for examples throughout, to
+illustrate the plaintext markup.</p>
+<div class="section" id="general">
+<h2>General</h2>
+<p>You must adhere to the Emacs convention of adding two spaces at the
+end of every sentence.</p>
+<p>Tab characters must never appear in the document at all.  A BEP should
+include the standard Emacs stanza included by example at the bottom of
+this BEP.</p>
+</div>
+<div class="section" id="section-headings">
+<h2>Section Headings</h2>
+<p>BEP headings must begin in column zero and the initial letter of each
+word must be capitalized as in book titles.  Acronyms should be in all
+capitals.  Section titles must be adorned with an underline, a single
+repeated punctuation character, which begins in column zero and must
+extend at least as far as the right edge of the title text (4
+characters minimum).  First-level section titles are underlined with
+&quot;=&quot; (equals signs), second-level section titles with &quot;-&quot; (hyphens),
+and third-level section titles with &quot;'&quot; (single quotes or
+apostrophes).  For example:</p>
+<pre class="literal-block">
+First-Level Title
+=================
+
+Second-Level Title
+------------------
+
+Third-Level Title
+'''''''''''''''''
+</pre>
+<p>If there are more than three levels of sections in your BEP, you may
+insert overline/underline-adorned titles for the first and second
+levels as follows:</p>
+<pre class="literal-block">
+============================
+First-Level Title (optional)
+============================
+
+-----------------------------
+Second-Level Title (optional)
+-----------------------------
+
+Third-Level Title
+=================
+
+Fourth-Level Title
+------------------
+
+Fifth-Level Title
+'''''''''''''''''
+</pre>
+<p>You shouldn't have more than five levels of sections in your BEP.  If
+you do, you should consider rewriting it.</p>
+<p>You must use two blank lines between the last line of a section's body
+and the next section heading.  If a subsection heading immediately
+follows a section heading, a single blank line in-between is
+sufficient.</p>
+<p>The body of each section is not normally indented, although some
+constructs do use indentation, as described below.  Blank lines are
+used to separate constructs.</p>
+</div>
+<div class="section" id="paragraphs">
+<h2>Paragraphs</h2>
+<p>Paragraphs are left-aligned text blocks separated by blank lines.
+Paragraphs are not indented unless they are part of an indented
+construct (such as a block quote or a list item).</p>
+</div>
+<div class="section" id="inline-markup">
+<h2>Inline Markup</h2>
+<p>Portions of text within paragraphs and other text blocks may be
+styled.  For example:</p>
+<pre class="literal-block">
+Text may be marked as *emphasized* (single asterisk markup,
+typically shown in italics) or **strongly emphasized** (double
+asterisks, typically boldface).  ``Inline literals`` (using double
+backquotes) are typically rendered in a monospaced typeface.  No
+further markup recognition is done within the double backquotes,
+so they're safe for any kind of code snippets.
+</pre>
+</div>
+<div class="section" id="block-quotes">
+<h2>Block Quotes</h2>
+<p>Block quotes consist of indented body elements.  For example:</p>
+<pre class="literal-block">
+This is a paragraph.
+
+    This is a block quote.
+
+    A block quote may contain many paragraphs.
+</pre>
+<p>Block quotes are used to quote extended passages from other sources.
+Block quotes may be nested inside other body elements.  Use 4 spaces
+per indent level.</p>
+</div>
+<div class="section" id="literal-blocks">
+<h2>Literal Blocks</h2>
+<!-- In the text below, double backquotes are used to denote inline
+literals.  "``::``" is written so that the colons will appear in a
+monospaced font; the backquotes (``) are markup, not part of the
+text.  See "Inline Markup" above.
+
+By the way, this is a comment, described in "Comments" below. -->
+<p>Literal blocks are used for code samples or preformatted ASCII art. To
+indicate a literal block, preface the indented text block with
+&quot;<tt class="docutils literal"><span class="pre">::</span></tt>&quot; (two colons).  The literal block continues until the end of
+the indentation.  Indent the text block by 4 spaces.  For example:</p>
+<pre class="literal-block">
+This is a typical paragraph.  A literal block follows.
+
+::
+
+    for a in [5,4,3,2,1]:   # this is program code, shown as-is
+        print a
+    print &quot;it's...&quot;
+    # a literal block continues until the indentation ends
+</pre>
+<p>The paragraph containing only &quot;<tt class="docutils literal"><span class="pre">::</span></tt>&quot; will be completely removed from
+the output; no empty paragraph will remain.  &quot;<tt class="docutils literal"><span class="pre">::</span></tt>&quot; is also
+recognized at the end of any paragraph.  If immediately preceded by
+whitespace, both colons will be removed from the output.  When text
+immediately precedes the &quot;<tt class="docutils literal"><span class="pre">::</span></tt>&quot;, <em>one</em> colon will be removed from
+the output, leaving only one colon visible (i.e., &quot;<tt class="docutils literal"><span class="pre">::</span></tt>&quot; will be
+replaced by &quot;<tt class="docutils literal"><span class="pre">:</span></tt>&quot;).  For example, one colon will remain visible
+here:</p>
+<pre class="literal-block">
+Paragraph::
+
+    Literal block
+</pre>
+</div>
+<div class="section" id="lists">
+<h2>Lists</h2>
+<p>Bullet list items begin with one of &quot;-&quot;, &quot;*&quot;, or &quot;+&quot; (hyphen,
+asterisk, or plus sign), followed by whitespace and the list item
+body.  List item bodies must be left-aligned and indented relative to
+the bullet; the text immediately after the bullet determines the
+indentation.  For example:</p>
+<pre class="literal-block">
+This paragraph is followed by a list.
+
+* This is the first bullet list item.  The blank line above the
+  first list item is required; blank lines between list items
+  (such as below this paragraph) are optional.
+
+* This is the first paragraph in the second item in the list.
+
+  This is the second paragraph in the second item in the list.
+  The blank line above this paragraph is required.  The left edge
+  of this paragraph lines up with the paragraph above, both
+  indented relative to the bullet.
+
+  - This is a sublist.  The bullet lines up with the left edge of
+    the text blocks above.  A sublist is a new list so requires a
+    blank line above and below.
+
+* This is the third item of the main list.
+
+This paragraph is not part of the list.
+</pre>
+<p>Enumerated (numbered) list items are similar, but use an enumerator
+instead of a bullet.  Enumerators are numbers (1, 2, 3, ...), letters
+(A, B, C, ...; uppercase or lowercase), or Roman numerals (i, ii, iii,
+iv, ...; uppercase or lowercase), formatted with a period suffix
+(&quot;1.&quot;, &quot;2.&quot;), parentheses (&quot;(1)&quot;, &quot;(2)&quot;), or a right-parenthesis
+suffix (&quot;1)&quot;, &quot;2)&quot;).  For example:</p>
+<pre class="literal-block">
+1. As with bullet list items, the left edge of paragraphs must
+   align.
+
+2. Each list item may contain multiple paragraphs, sublists, etc.
+
+   This is the second paragraph of the second list item.
+
+   a) Enumerated lists may be nested.
+   b) Blank lines may be omitted between list items.
+</pre>
+<p>Definition lists are written like this:</p>
+<pre class="literal-block">
+what
+    Definition lists associate a term with a definition.
+
+how
+    The term is a one-line phrase, and the definition is one
+    or more paragraphs or body elements, indented relative to
+    the term.
+</pre>
+</div>
+<div class="section" id="tables">
+<h2>Tables</h2>
+<p>Simple tables are easy and compact but you are not required to use
+simple tables:</p>
+<pre class="literal-block">
+=====  =====  =======
+  A      B    A and B
+=====  =====  =======
+False  False  False
+True   False  False
+False  True   False
+True   True   True
+=====  =====  =======
+</pre>
+<p>There must be at least two columns in a table (to differentiate from
+section titles).  Column spans use underlines of hyphens (&quot;Inputs&quot;
+spans the first two columns):</p>
+<pre class="literal-block">
+=====  =====  ======
+   Inputs     Output
+------------  ------
+  A      B    A or B
+=====  =====  ======
+False  False  False
+True   False  True
+False  True   True
+True   True   True
+=====  =====  ======
+</pre>
+<p>Text in a first-column cell starts a new row.  No text in the first
+column indicates a continuation line; the rest of the cells may
+consist of multiple lines.  For example:</p>
+<pre class="literal-block">
+=====  =========================
+col 1  col 2
+=====  =========================
+1      Second column of row 1.
+2      Second column of row 2.
+       Second line of paragraph.
+3      - Second column of row 3.
+
+       - Second item in bullet
+         list (row 3, column 2).
+=====  =========================
+</pre>
+</div>
+<div class="section" id="hyperlinks">
+<h2>Hyperlinks</h2>
+<p>When referencing an external web page in the body of a BEP, you should
+include the title of the page in the text, with either an inline
+hyperlink reference to the URL or a footnote reference (see
+<a class="reference internal" href="#footnotes">Footnotes</a> below).  Do not include the URL in the body text of the
+BEP.</p>
+<p>Hyperlink references use backquotes and a trailing underscore to mark
+up the reference text; backquotes are optional if the reference text
+is a single word.  For example:</p>
+<pre class="literal-block">
+In this paragraph, we refer to the `BitTorrent web site`_.
+</pre>
+<p>An explicit target provides the URL.  Put targets in a References
+section at the end of the BEP, or immediately after the reference.
+Hyperlink targets begin with two periods and a space (the &quot;explicit
+markup start&quot;), followed by a leading underscore, the reference text,
+a colon, and the URL (absolute or relative):</p>
+<pre class="literal-block">
+.. _BitTorrent web site: http://www.bittorrent.org/
+</pre>
+<p>The reference text and the target text must match (although the match
+is case-insensitive and ignores differences in whitespace).  Note that
+the underscore trails the reference text but precedes the target text.
+If you think of the underscore as a right-pointing arrow, it points
+<em>away</em> from the reference and <em>toward</em> the target.</p>
+<p>The same mechanism can be used for internal references.  Every unique
+section title implicitly defines an internal hyperlink target.  We can
+make a link to the Abstract section like this:</p>
+<pre class="literal-block">
+Here is a hyperlink reference to the `Abstract`_ section.  The
+backquotes are optional since the reference text is a single word;
+we can also just write: Abstract_.
+</pre>
+<p>Footnotes containing the URLs from external targets will be generated
+automatically at the end of the References section of the BEP, along
+with footnote references linking the reference text to the footnotes.</p>
+<p>Text of the form &quot;BEP x&quot; or &quot;RFC x&quot; (where &quot;x&quot; is a number) will be
+linked automatically to the appropriate URLs.</p>
+</div>
+<div class="section" id="footnotes">
+<h2>Footnotes</h2>
+<p>Footnote references consist of a left square bracket, a number, a
+right square bracket, and a trailing underscore:</p>
+<pre class="literal-block">
+This sentence ends with a footnote reference [1]_.
+</pre>
+<p>Whitespace must precede the footnote reference.  Leave a space between
+the footnote reference and the preceding word.</p>
+<p>When referring to another BEP, include the BEP number in the body
+text, such as &quot;BEP 1&quot;.  The title may optionally appear.  Add a
+footnote reference following the title.  For example:</p>
+<pre class="literal-block">
+Refer to BEP 1 [2]_ for more information.
+</pre>
+<p>Add a footnote that includes the BEP's title and author.  It may
+optionally include the explicit URL on a separate line, but only in
+the References section.  Footnotes begin with &quot;.. &quot; (the explicit
+markup start), followed by the footnote marker (no underscores),
+followed by the footnote body.  For example:</p>
+<pre class="literal-block">
+References
+==========
+
+.. [2] BEP 1, &quot;BEP Purpose and Guidelines&quot;, Harrison
+   (http://www.bittorrent.org/beps/bep_0001)
+</pre>
+<p>If you decide to provide an explicit URL for a BEP, please use this as
+the URL template:</p>
+<pre class="literal-block">
+http://www.bittorrent.org/beps/bep_xxxx
+</pre>
+<p>BEP numbers in URLs must be padded with zeros from the left, so as to
+be exactly 4 characters wide, however BEP numbers in the text are
+never padded.</p>
+<p>During the course of developing your BEP, you may have to add, remove,
+and rearrange footnote references, possibly resulting in mismatched
+references, obsolete footnotes, and confusion.  Auto-numbered
+footnotes allow more freedom.  Instead of a number, use a label of the
+form &quot;#word&quot;, where &quot;word&quot; is a mnemonic consisting of alphanumerics
+plus internal hyphens, underscores, and periods (no whitespace or
+other characters are allowed).  For example:</p>
+<pre class="literal-block">
+Refer to BEP 1 [#BEP-1]_ for more information.
+
+References
+==========
+
+.. [#BEP-1] BEP 1, &quot;BEP Purpose and Guidelines&quot;, Harrison
+
+   http://www.bittorrent.org/beps/bep-0001
+</pre>
+<p>Footnotes and footnote references will be numbered automatically, and
+the numbers will always match.  Once a BEP is finalized, auto-numbered
+labels should be replaced by numbers for simplicity.</p>
+</div>
+<div class="section" id="images">
+<h2>Images</h2>
+<p>If your BEP contains a diagram, you may include it in the processed
+output using the &quot;image&quot; directive:</p>
+<pre class="literal-block">
+.. image:: diagram.png
+</pre>
+<p>Any browser-friendly graphics format is possible: .png, .jpeg, .gif,
+.tiff, etc.</p>
+<p>Since this image will not be visible to readers of the BEP in source
+text form, you should consider including a description or ASCII art
+alternative, using a comment (below).</p>
+</div>
+<div class="section" id="comments">
+<h2>Comments</h2>
+<p>A comment block is an indented block of arbitrary text immediately
+following an explicit markup start: two periods and whitespace.  Leave
+the &quot;..&quot; on a line by itself to ensure that the comment is not
+misinterpreted as another explicit markup construct.  Comments are not
+visible in the processed document.  For the benefit of those reading
+your BEP in source form, please consider including a descriptions of
+or ASCII art alternatives to any images you include.  For example:</p>
+<pre class="literal-block">
+.. image:: dataflow.png
+
+..
+   Data flows from the input module, through the &quot;black box&quot;
+   module, and finally into (and through) the output module.
+</pre>
+<p>The Emacs stanza at the bottom of this document is inside a comment.</p>
+</div>
+<div class="section" id="escaping-mechanism">
+<h2>Escaping Mechanism</h2>
+<p>reStructuredText uses backslashes (&quot;<tt class="docutils literal"><span class="pre">\</span></tt>&quot;) to override the special
+meaning given to markup characters and get the literal characters
+themselves.  To get a literal backslash, use an escaped backslash
+(&quot;<tt class="docutils literal"><span class="pre">\\</span></tt>&quot;).  There are two contexts in which backslashes have no
+special meaning: <a class="reference internal" href="#literal-blocks">literal blocks</a> and inline literals (see <a class="reference internal" href="#inline-markup">Inline
+Markup</a> above).  In these contexts, no markup recognition is done,
+and a single backslash represents a literal backslash, without having
+to double up.</p>
+<p>If you find that you need to use a backslash in your text, consider
+using inline literals or a literal block instead.</p>
+</div>
+</div>
+<div class="section" id="habits-to-avoid">
+<h1>Habits to Avoid</h1>
+<p>Many programmers who are familiar with TeX often write quotation marks
+like this:</p>
+<pre class="literal-block">
+`single-quoted' or ``double-quoted''
+</pre>
+<p>Backquotes are significant in reStructuredText, so this practice
+should be avoided.  For ordinary text, use ordinary 'single-quotes' or
+&quot;double-quotes&quot;.  For inline literal text (see <a class="reference internal" href="#inline-markup">Inline Markup</a>
+above), use double-backquotes:</p>
+<pre class="literal-block">
+``literal text: in here, anything goes!``
+</pre>
+</div>
+<div class="section" id="resources">
+<h1>Resources</h1>
+<p>Many other constructs and variations are possible.  For more details
+about the reStructuredText markup, in increasing order of
+thoroughness, please see:</p>
 <ul class="simple">
-<li>An ordinary web server</li>
-<li>A static 'metainfo' file</li>
-<li>A BitTorrent tracker</li>
-<li>An 'original' downloader</li>
-<li>The end user web browsers</li>
-<li>The end user downloaders</li>
+<li><a class="reference external" href="http://docutils.sourceforge.net/docs/rst/quickstart.html">A ReStructuredText Primer</a> <a class="footnote-reference" href="#id16" id="id17">[7]</a>, a gentle introduction.</li>
+<li><a class="reference external" href="http://docutils.sourceforge.net/docs/rst/quickref.html">Quick reStructuredText</a> <a class="footnote-reference" href="#id18" id="id19">[8]</a>, a users' quick reference.</li>
+<li><a class="reference external" href="http://docutils.sourceforge.net/spec/rst/reStructuredText.html">reStructuredText Markup Specification</a> <a class="footnote-reference" href="#id20" id="id21">[9]</a>, the final authority.</li>
 </ul>
-<p>There are ideally many end users for a single file.</p>
+<p>The processing of reStructuredText BEPs is done using <a class="reference external" href="http://docutils.sourceforge.net/">Docutils</a> <a class="footnote-reference" href="#id7" id="id9">[3]</a>.  If
+you have a question or require assistance with reStructuredText or
+Docutils, please <a class="reference external" href="mailto:docutils-users&#37;&#52;&#48;lists&#46;sourceforge&#46;net?subject=BEPs">post a message</a> <a class="footnote-reference" href="#id10" id="id11">[4]</a> to the <a class="reference external" href="http://docutils.sf.net/docs/user/mailing-lists.html#docutils-users">Docutils-users mailing
+list</a> <a class="footnote-reference" href="#id12" id="id13">[5]</a>.  The <a class="reference external" href="http://docutils.sourceforge.net/">Docutils project web site</a> <a class="footnote-reference" href="#id7" id="id8">[3]</a> has more information.</p>
+<p>This document was derived heavily from PEP-0012 <a class="footnote-reference" href="#pep-12" id="id6">[2]</a>.  In many places
+text was simply copied and modified.  Although the PEP-0012 text
+was written by David Goodger and Barry Warsaw, they are not
+responsible for its use in the BitTorent Enhancement Process, and
+should not be bothered with technical questions specific to BitTorrent
+or the BEP process.  Please direct all comments to the BitTorrent
+editors &lt;<a class="reference external" href="mailto:editor&#37;&#52;&#48;bittorrent&#46;org">editor<span>&#64;</span>bittorrent<span>&#46;</span>org</a>&gt; or the BitTorrent mailing list
+&lt;<a class="reference external" href="mailto:bittorrent-list&#37;&#52;&#48;bittorrent&#46;org">bittorrent-list<span>&#64;</span>bittorrent<span>&#46;</span>org</a>&gt;.</p>
 </div>
-<div class="section" id="to-start-serving-a-host-goes-through-the-following-steps">
-<h1>To start serving, a host goes through the following steps:</h1>
-<ol class="arabic simple">
-<li>Start running a tracker (or, more likely, have one running already).</li>
-<li>Start running an ordinary web server, such as apache, or have one already.</li>
-<li>Associate the extension .torrent with mimetype application/x-bittorrent on their web server (or have done so already).</li>
-<li>Generate a metainfo (.torrent) file using the complete file to be served and the URL of the tracker.</li>
-<li>Put the metainfo file on the web server.</li>
-<li>Link to the metainfo (.torrent) file from some other web page.</li>
-<li>Start a downloader which already has the complete file (the 'origin').</li>
-</ol>
+<div class="section" id="acknowledgements">
+<h1>Acknowledgements</h1>
+<p>Thanks to Barry Warsaw, David Goodger, and Guido van Rossum for their
+guidance.</p>
 </div>
-<div class="section" id="to-start-downloading-a-user-does-the-following">
-<h1>To start downloading, a user does the following:</h1>
-<ol class="arabic simple">
-<li>Install BitTorrent (or have done so already).</li>
-<li>Surf the web.</li>
-<li>Click on a link to a .torrent file.</li>
-<li>Select where to save the file locally, or select a partial download to resume.</li>
-<li>Wait for download to complete.</li>
-<li>Tell downloader to exit (it keeps uploading until this happens).</li>
-</ol>
+<div class="section" id="references">
+<h1>References</h1>
+<table class="docutils footnote" frame="void" id="bep-1" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>BEP_0001. BEP Purpose and Guidelines, Harrison
+(<a class="reference external" href="http://www.bittorrent.org/beps/bep_0001">http://www.bittorrent.org/beps/bep_0001</a>)</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="pep-12" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id6">[2]</a></td><td>PEP-0012. Sample reStructuredText PEP Template, Goodger, Warsaw
+(<a class="reference external" href="http://www.python.org/peps/pep-0012">http://www.python.org/peps/pep-0012</a>)</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id7" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[3]</td><td><em>(<a class="fn-backref" href="#id8">1</a>, <a class="fn-backref" href="#id9">2</a>)</em> <a class="reference external" href="http://docutils.sourceforge.net/">http://docutils.sourceforge.net/</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id10" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id11">[4]</a></td><td><a class="reference external" href="mailto:docutils-users&#37;&#52;&#48;lists&#46;sourceforge&#46;net?subject=BEPs">mailto:docutils-users<span>&#64;</span>lists<span>&#46;</span>sourceforge<span>&#46;</span>net?subject=BEPs</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id12" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id13">[5]</a></td><td><a class="reference external" href="http://docutils.sf.net/docs/user/mailing-lists.html#docutils-users">http://docutils.sf.net/docs/user/mailing-lists.html#docutils-users</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id14" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id15">[6]</a></td><td><a class="reference external" href="http://www.opencontent.org/openpub/">http://www.opencontent.org/openpub/</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id16" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id17">[7]</a></td><td><a class="reference external" href="http://docutils.sourceforge.net/docs/rst/quickstart.html">http://docutils.sourceforge.net/docs/rst/quickstart.html</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id18" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id19">[8]</a></td><td><a class="reference external" href="http://docutils.sourceforge.net/docs/rst/quickref.html">http://docutils.sourceforge.net/docs/rst/quickref.html</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id20" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id21">[9]</a></td><td><a class="reference external" href="http://docutils.sourceforge.net/spec/rst/reStructuredText.html">http://docutils.sourceforge.net/spec/rst/reStructuredText.html</a></td></tr>
+</tbody>
+</table>
 </div>
-<div class="section" id="the-connectivity-is-as-follows">
-<h1>The connectivity is as follows:</h1>
-<ul class="simple">
-<li>Strings are length-prefixed base ten followed by a colon and the string. For example <tt class="docutils literal"><span class="pre">4:spam</span></tt> corresponds to 'spam'.</li>
-<li>Integers are represented by an 'i' followed by the number in base 10
-followed by an 'e'. For example <tt class="docutils literal"><span class="pre">i3e</span></tt> corresponds to 3 and
-<tt class="docutils literal"><span class="pre">i-3e</span></tt> corresponds to -3. Integers have no size
-limitation. <tt class="docutils literal"><span class="pre">i-0e</span></tt> is invalid. All encodings with a leading
-zero, such as <tt class="docutils literal"><span class="pre">i03e</span></tt>, are invalid, other than
-<tt class="docutils literal"><span class="pre">i0e</span></tt>, which of course corresponds to 0.</li>
-<li>Lists are encoded as an 'l' followed by their elements (also
-bencoded) followed by an 'e'. For example <tt class="docutils literal"><span class="pre">l4:spam4:eggse</span></tt>
-corresponds to ['spam', 'eggs'].</li>
-<li>Dictionaries are encoded as a 'd' followed by a list of alternating
-keys and their corresponding values followed by an 'e'. For example,
-<tt class="docutils literal"><span class="pre">d3:cow3:moo4:spam4:eggse</span></tt> corresponds to {'cow': 'moo',
-'spam': 'eggs'} and <tt class="docutils literal"><span class="pre">d4:spaml1:a1:bee</span></tt> corresponds to
-{'spam': ['a', 'b']}. Keys must be strings and appear in sorted order
-(sorted as raw strings, not alphanumerics).</li>
-</ul>
-</div>
-<div class="section" id="metainfo-files-are-bencoded-dictionaries-with-the-following-keys">
-<h1>Metainfo files are bencoded dictionaries with the following keys:</h1>
-<dl class="docutils">
-<dt>announce</dt>
-<dd>The URL of the tracker.</dd>
-<dt>info</dt>
-<dd><p class="first">This maps to a dictionary, with keys described below.</p>
-<p>The <tt class="docutils literal"><span class="pre">name</span></tt> key maps to a string which is the suggested name
-to save the file (or directory) as. It is purely advisory.</p>
-<p><tt class="docutils literal"><span class="pre">piece</span> <span class="pre">length</span></tt> maps to the number of bytes in each piece
-the file is split into. For the purposes of transfer, files are
-split into fixed-size pieces which are all the same length except for
-possibly the last one which may be truncated. <tt class="docutils literal"><span class="pre">piece</span>
-<span class="pre">length</span></tt> is almost always a power of two, most commonly 2 18 =
-256 K (BitTorrent prior to version 3.2 uses 2 20 = 1 M as
-default).</p>
-<p><tt class="docutils literal"><span class="pre">pieces</span></tt> maps to a string whose length is a multiple of
-20. It is to be subdivided into strings of length 20, each of which is
-the SHA1 hash of the piece at the corresponding index.</p>
-<p>There is also a key <tt class="docutils literal"><span class="pre">length</span></tt> or a key <tt class="docutils literal"><span class="pre">files</span></tt>,
-but not both or neither. If <tt class="docutils literal"><span class="pre">length</span></tt> is present then the
-download represents a single file, otherwise it represents a set of
-files which go in a directory structure.</p>
-<p>In the single file case, <tt class="docutils literal"><span class="pre">length</span></tt> maps to the length of
-the file in bytes.</p>
-<p>For the purposes of the other keys, the multi-file case is treated as
-only having a single file by concatenating the files in the order they
-appear in the files list. The files list is the value
-<tt class="docutils literal"><span class="pre">files</span></tt> maps to, and is a list of dictionaries containing
-the following keys:</p>
-<p><tt class="docutils literal"><span class="pre">length</span></tt> - The length of the file, in bytes.</p>
-<p><tt class="docutils literal"><span class="pre">path</span></tt> - A list of strings corresponding to subdirectory
-names, the last of which is the actual file name (a zero length list
-is an error case).</p>
-<p class="last">In the single file case, the name key is the name of a file, in the
-muliple file case, it's the name of a directory.</p>
-</dd>
-</dl>
-</div>
-<div class="section" id="tracker-get-requests-have-the-following-keys">
-<h1>Tracker GET requests have the following keys:</h1>
-<dl class="docutils">
-<dt>info_hash</dt>
-<dd>The 20 byte sha1 hash of the bencoded form of the info value from the
-metainfo file. Note that this is a substring of the metainfo
-file. This value will almost certainly have to be escaped.</dd>
-<dt>peer_id</dt>
-<dd>A string of length 20 which this downloader uses as its id. Each
-downloader generates its own id at random at the start of a new
-download. This value will also almost certainly have to be escaped.</dd>
-<dt>ip</dt>
-<dd>An optional parameter giving the IP (or dns name) which this peer is
-at. Generally used for the origin if it's on the same machine as the
-tracker.</dd>
-<dt>port</dt>
-<dd>The port number this peer is listening on. Common behavior is for a
-downloader to try to listen on port 6881 and if that port is taken try
-6882, then 6883, etc. and give up after 6889.</dd>
-<dt>uploaded</dt>
-<dd>The total amount uploaded so far, encoded in base ten ascii.</dd>
-<dt>downloaded</dt>
-<dd>The total amount downloaded so far, encoded in base ten ascii.</dd>
-<dt>left</dt>
-<dd>The number of bytes this peer still has to download, encoded in
-base ten ascii. Note that this can't be computed from downloaded and
-the file length since it might be a resume, and there's a chance that
-some of the downloaded data failed an integrity check and had to be
-re-downloaded.</dd>
-<dt>event</dt>
-<dd>This is an optional key which maps to <tt class="docutils literal"><span class="pre">started</span></tt>,
-<tt class="docutils literal"><span class="pre">completed</span></tt>, or <tt class="docutils literal"><span class="pre">stopped</span></tt> (or
-<tt class="docutils literal"><span class="pre">empty</span></tt>, which is the same as not being present). If not
-present, this is one of the announcements done at regular
-intervals. An announcement using <tt class="docutils literal"><span class="pre">started</span></tt> is sent when a
-download first begins, and one using <tt class="docutils literal"><span class="pre">completed</span></tt> is sent
-when the download is complete. No <tt class="docutils literal"><span class="pre">completed</span></tt> is sent if
-the file was complete when started. Downloaders send an announcement
-using <tt class="docutils literal"><span class="pre">stopped</span></tt> when they cease downloading.</dd>
-</dl>
-<p>Tracker responses are bencoded dictionaries. If a tracker response
-has a key <tt class="docutils literal"><span class="pre">failure</span> <span class="pre">reason</span></tt>, then that maps to a human
-readable string which explains why the query failed, and no other keys
-are required. Otherwise, it must have two keys: <tt class="docutils literal"><span class="pre">interval</span></tt>,
-which maps to the number of seconds the downloader should wait between
-regular rerequests, and <tt class="docutils literal"><span class="pre">peers</span></tt>. <tt class="docutils literal"><span class="pre">peers</span></tt> maps to
-a list of dictionaries corresponding to <tt class="docutils literal"><span class="pre">peers</span></tt>, each of
-which contains the keys <tt class="docutils literal"><span class="pre">peer</span> <span class="pre">id</span></tt>, <tt class="docutils literal"><span class="pre">ip</span></tt>, and
-<tt class="docutils literal"><span class="pre">port</span></tt>, which map to the peer's self-selected ID, IP
-address or dns name as a string, and port number, respectively. Note
-that downloaders may rerequest on nonscheduled times if an event
-happens or they need more peers.</p>
-<p>If you want to make any extensions to metainfo files or tracker
-queries, please coordinate with Bram Cohen to make sure that all
-extensions are done compatibly.</p>
-<p>BitTorrent's peer protocol operates over TCP. It performs efficiently
-without setting any socket options.</p>
-<p>Peer connections are symmetrical. Messages sent in both directions
-look the same, and data can flow in either direction.</p>
-<p>The peer protocol refers to pieces of the file by index as
-described in the metainfo file, starting at zero. When a peer finishes
-downloading a piece and checks that the hash matches, it announces
-that it has that piece to all of its peers.</p>
-<p>Connections contain two bits of state on either end: choked or not,
-and interested or not. Choking is a notification that no data will be
-sent until unchoking happens. The reasoning and common techniques
-behind choking are explained later in this document.</p>
-<p>Data transfer takes place whenever one side is interested and the
-other side is not choking. Interest state must be kept up to date at
-all times - whenever a downloader doesn't have something they
-currently would ask a peer for in unchoked, they must express lack of
-interest, despite being choked. Implementing this properly is tricky,
-but makes it possible for downloaders to know which peers will start
-downloading immediately if unchoked.</p>
-<p>Connections start out choked and not interested.</p>
-<p>When data is being transferred, downloaders should keep several
-piece requests queued up at once in order to get good TCP performance
-(this is called 'pipelining'.) On the other side, requests which can't
-be written out to the TCP buffer immediately should be queued up in
-memory rather than kept in an application-level network buffer, so
-they can all be thrown out when a choke happens.</p>
-<p>The peer wire protocol consists of a handshake followed by a
-never-ending stream of length-prefixed messages. The handshake starts
-with character ninteen (decimal) followed by the string 'BitTorrent
-protocol'. The leading character is a length prefix, put there in the
-hope that other new protocols may do the same and thus be trivially
-distinguishable from each other.</p>
-<p>All later integers sent in the protocol are encoded as four bytes
-big-endian.</p>
-<p>After the fixed headers come eight reserved bytes, which are all
-zero in all current implementations. If you wish to extend the
-protocol using these bytes, please coordinate with Bram Cohen to make
-sure all extensions are done compatibly.</p>
-<p>Next comes the 20 byte sha1 hash of the bencoded form of the info
-value from the metainfo file. (This is the same value which is
-announced as <tt class="docutils literal"><span class="pre">info_hash</span></tt> to the tracker, only here it's raw
-instead of quoted here). If both sides don't send the same value, they
-sever the connection. The one possible exception is if a downloader
-wants to do multiple downloads over a single port, they may wait for
-incoming connections to give a download hash first, and respond with
-the same one if it's in their list.</p>
-<p>After the download hash comes the 20-byte peer id which is reported
-in tracker requests and contained in peer lists in tracker
-responses. If the receiving side's peer id doesn't match the one the
-initiating side expects, it severs the connection.</p>
-<p>That's it for handshaking, next comes an alternating stream of
-length prefixes and messages. Messages of length zero are keepalives,
-and ignored. Keepalives are generally sent once every two minutes, but
-note that timeouts can be done much more quickly when data is
-expected.</p>
-</div>
-<div class="section" id="all-non-keepalive-messages-start-with-a-single-byte-which-gives-their-type">
-<h1>All non-keepalive messages start with a single byte which gives their type.</h1>
-</div>
-<div class="section" id="the-possible-values-are">
-<h1>The possible values are:</h1>
-<ul class="simple">
-<li>0 - choke</li>
-<li>1 - unchoke</li>
-<li>2 - interested</li>
-<li>3 - not interested</li>
-<li>4 - have</li>
-<li>5 - bitfield</li>
-<li>6 - request</li>
-<li>7 - piece</li>
-<li>8 - cancel</li>
-</ul>
-<p>'choke', 'unchoke', 'interested', and 'not interested' have no payload.</p>
-<p>'bitfield' is only ever sent as the first message. Its payload is a
-bitfield with each index that downloader has sent set to one and the
-rest set to zero. Downloaders which don't have anything yet may skip
-the 'bitfield' message. The first byte of the bitfield corresponds to
-indices 0 - 7 from high bit to low bit, respectively. The next one
-8-15, etc. Spare bits at the end are set to zero.</p>
-<p>The 'have' message's payload is a single number, the index which
-that downloader just completed and checked the hash of.</p>
-<p>'request' messages contain an index, begin, and length. The last
-two are byte offsets. Length is generally a power of two unless it
-gets truncated by the end of the file. All current implementations use
-2 15 , and close connections which request an amount greater than 2
-17.</p>
-<p>'cancel' messages have the same payload as request messages. They
-are generally only sent towards the end of a download, during what's
-called 'endgame mode'. When a download is almost complete, there's a
-tendency for the last few pieces to all be downloaded off a single
-hosed modem line, taking a very long time. To make sure the last few
-pieces come in quickly, once requests for all pieces a given
-downloader doesn't have yet are currently pending, it sends requests
-for everything to everyone it's downloading from. To keep this from
-becoming horribly inefficient, it sends cancels to everyone else every
-time a piece arrives.</p>
-<p>'piece' messages contain an index, begin, and piece. Note that they
-are correlated with request messages implicitly. It's possible for an
-unexpected piece to arrive if choke and unchoke messages are sent in
-quick succession and/or transfer is going very slowly.</p>
-<p>Downloaders generally download pieces in random order, which does a
-reasonably good job of keeping them from having a strict subset or
-superset of the pieces of any of their peers.</p>
-<p>Choking is done for several reasons. TCP congestion control behaves
-very poorly when sending over many connections at once. Also, choking
-lets each peer use a tit-for-tat-ish algorithm to ensure that they get
-a consistent download rate.</p>
-<p>The choking algorithm described below is the currently deployed
-one. It is very important that all new algorithms work well both in a
-network consisting entirely of themselves and in a network consisting
-mostly of this one.</p>
-<p>There are several criteria a good choking algorithm should meet. It
-should cap the number of simultaneous uploads for good TCP
-performance. It should avoid choking and unchoking quickly, known as
-'fibrillation'. It should reciprocate to peers who let it
-download. Finally, it should try out unused connections once in a
-while to find out if they might be better than the currently used
-ones, known as optimistic unchoking.</p>
-<p>The currently deployed choking algorithm avoids fibrillation by
-only changing who's choked once every ten seconds. It does
-reciprocation and number of uploads capping by unchoking the four
-peers which it has the best download rates from and are
-interested. Peers which have a better upload rate but aren't
-interested get unchoked and if they become interested the worst
-uploader gets choked. If a downloader has a complete file, it uses its
-upload rate rather than its download rate to decide who to
-unchoke.</p>
-<p>For optimistic unchoking, at any one time there is a single peer
-which is unchoked regardless of it's upload rate (if interested, it
-counts as one of the four allowed downloaders.) Which peer is
-optimistically unchoked rotates every 30 seconds. To give them a
-decent chance of getting a complete piece to upload, new connections
-are three times as likely to start as the current optimistic unchoke
-as anywhere else in the rotation.</p>
+<div class="section" id="copyright">
+<h1>Copyright</h1>
+<p>This document has been placed in the public domain.</p>
+<!-- Local Variables:
+mode: indented-text
+indent-tabs-mode: nil
+sentence-end-double-space: t
+fill-column: 70
+coding: utf-8
+End: -->
 </div>
 
 

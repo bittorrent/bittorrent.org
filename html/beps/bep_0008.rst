@@ -26,7 +26,7 @@ Announce Parameter
 ==================
 
 When using this extension, instead of passing the ``info_hash`` parameter
-to the tracker, an ``sha_ih`` is passed.
+to the tracker, a ``sha_ih`` is passed.
 
 The value of ``sha_ih`` MUST be the info-hash of the torrent, with a second
 SHA-1 applied to it.
@@ -45,10 +45,11 @@ in the peer's announce.
 Announce Response
 =================
 
-If the tracker supports this extension, the response should be exactly the
-same as if the ``info_hash`` was passed, except that any field that contains
-peer information (such as ``peers``, ``peers6`` or any other field defined
-by another extension) MUST be obfuscated as described in the next section.
+If the tracker supports this extension, the response should be exactly
+the same as if the ``info_hash`` had been passed, except that any
+field that contains peer information (such as ``peers``, ``peers6`` or
+any other field defined by another extension) MUST be obfuscated as
+described in the next section.
 
 There are additional parameters the tracker may OPTIONALLY return.
 These are discussed in the optimizations_ section.
@@ -58,13 +59,13 @@ Peer List Obfuscation
 
 We distinguish between the *tracker peer list* and the *returned peer
 list*.  The *tracker peer list* contains the ip-port pairs of all
-known peers in a given torrent, i.e., those peers that have reported to
-the tracker that they are downloading or seeding a given file with a
-given infohash.  The tracker may store this peer list however it
-wishes.  The *returned peer list* contains a packed array of ip-port
-pairs conforming to the BitTorrent protocol specification.  If the
-swarm is sufficiently large then the returned ip-port pairs constitute
-a subset of the ip-port pairs in the *tracker peer list*.
+known peers in a given torrent, i.e., those peers that have reported
+to the tracker that they are transferring the file with a given
+infohash.  The tracker may store this peer list however it wishes.
+The *returned peer list* contains a packed array of ip-port pairs
+conforming to the BitTorrent protocol specification.  If the swarm is
+sufficiently large then the returned ip-port pairs constitute a subset
+of the ip-port pairs in the *tracker peer list*.
 
 The returned peer list is encrypted using RC4-drop768 encryption using
 the infohash as a shared secret and optionally employing an

@@ -37,9 +37,9 @@
 </tr>
 <tr class="field"><th class="field-name">Title:</th><td class="field-body">Tracker Peer Obfuscation</td>
 </tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body">10762</td>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">10808</td>
 </tr>
-<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="https://svn.bittorrent.com/trac.cgi/browser/dotorg/trunk/html/beps/bep_0008.rst">2008-02-14 13:37:25 -0800 (Thu, 14 Feb 2008)</a></td>
+<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="https://svn.bittorrent.com/trac.cgi/browser/dotorg/trunk/html/beps/bep_0008.rst">2008-02-15 00:46:13 -0800 (Fri, 15 Feb 2008)</a></td>
 </tr>
 <tr class="field"><th class="field-name">Author:</th><td class="field-body">David Harrison &lt;dave&#32;&#97;t&#32;bittorrent.com&gt;, Anthony Ciani &lt;tony&#32;&#97;t&#32;ciani.phy.uic.edu&gt;, Arvid Norberg &lt;arvid&#32;&#97;t&#32;bittorrent.com&gt;, Greg Hazel &lt;greg&#32;&#97;t&#32;bittorrent.com&gt;</td>
 </tr>
@@ -81,7 +81,7 @@ to be interpreted as described in IETF <a class="reference external" href="http:
 <div class="section" id="announce-parameter">
 <h1>Announce Parameter</h1>
 <p>When using this extension, instead of passing the <tt class="docutils literal"><span class="pre">info_hash</span></tt> parameter
-to the tracker, an <tt class="docutils literal"><span class="pre">sha_ih</span></tt> is passed.</p>
+to the tracker, a <tt class="docutils literal"><span class="pre">sha_ih</span></tt> is passed.</p>
 <p>The value of <tt class="docutils literal"><span class="pre">sha_ih</span></tt> MUST be the info-hash of the torrent, with a second
 SHA-1 applied to it.</p>
 <p>For example if a torrent has infohash with hex representation
@@ -95,10 +95,11 @@ in the peer's announce.</p>
 </div>
 <div class="section" id="announce-response">
 <h1>Announce Response</h1>
-<p>If the tracker supports this extension, the response should be exactly the
-same as if the <tt class="docutils literal"><span class="pre">info_hash</span></tt> was passed, except that any field that contains
-peer information (such as <tt class="docutils literal"><span class="pre">peers</span></tt>, <tt class="docutils literal"><span class="pre">peers6</span></tt> or any other field defined
-by another extension) MUST be obfuscated as described in the next section.</p>
+<p>If the tracker supports this extension, the response should be exactly
+the same as if the <tt class="docutils literal"><span class="pre">info_hash</span></tt> had been passed, except that any
+field that contains peer information (such as <tt class="docutils literal"><span class="pre">peers</span></tt>, <tt class="docutils literal"><span class="pre">peers6</span></tt> or
+any other field defined by another extension) MUST be obfuscated as
+described in the next section.</p>
 <p>There are additional parameters the tracker may OPTIONALLY return.
 These are discussed in the <a class="reference internal" href="#optimizations">optimizations</a> section.</p>
 </div>
@@ -106,13 +107,13 @@ These are discussed in the <a class="reference internal" href="#optimizations">o
 <h1>Peer List Obfuscation</h1>
 <p>We distinguish between the <em>tracker peer list</em> and the <em>returned peer
 list</em>.  The <em>tracker peer list</em> contains the ip-port pairs of all
-known peers in a given torrent, i.e., those peers that have reported to
-the tracker that they are downloading or seeding a given file with a
-given infohash.  The tracker may store this peer list however it
-wishes.  The <em>returned peer list</em> contains a packed array of ip-port
-pairs conforming to the BitTorrent protocol specification.  If the
-swarm is sufficiently large then the returned ip-port pairs constitute
-a subset of the ip-port pairs in the <em>tracker peer list</em>.</p>
+known peers in a given torrent, i.e., those peers that have reported
+to the tracker that they are transferring the file with a given
+infohash.  The tracker may store this peer list however it wishes.
+The <em>returned peer list</em> contains a packed array of ip-port pairs
+conforming to the BitTorrent protocol specification.  If the swarm is
+sufficiently large then the returned ip-port pairs constitute a subset
+of the ip-port pairs in the <em>tracker peer list</em>.</p>
 <p>The returned peer list is encrypted using RC4-drop768 encryption using
 the infohash as a shared secret and optionally employing an
 initialization vector.</p>
@@ -128,24 +129,23 @@ discussed in the next section.</p>
 bencoded response the key <tt class="docutils literal"><span class="pre">iv</span></tt> with value set to a byte string
 containing the initialization vector.  The initialization vector can
 be of arbitrary length and is sent in plaintext.</p>
-<p>If the tracker sends no initialization vector then the first 64-bits
-of the infohash are used as the RC4 key.  If the tracker provides an
+<p>If the tracker sends no initialization vector then the infohash is
+used as the RC4 key (160 bit key).  If the tracker provides an
 initialization vector then the RC4 key is generated by appending the
-vector to the infohash and then hashing with SHA-1.  The first 64 bits
-of the resulting hash are then used as the RC4 key.  The string from
-which the RC4 key is derived whether it be the infohash or the SHA-1 of
-the initialization vector appended to the infohash is called the
+vector to the infohash and then hashing with SHA-1.  The resulting
+hash is then used as the RC4 key.  The string from which the RC4 key
+is derived whether it be the infohash or the SHA-1 of the
+initialization vector appended to the infohash is called the
 <em>intermediate string</em>.</p>
 <p>For example, given infohash <tt class="docutils literal"><span class="pre">aaf4c61ddcc5e8a2dabedef3b482cd9aea9434d</span></tt>
 and initialization vector <tt class="docutils literal"><span class="pre">abcd</span></tt> both represented in hex, the RC4 key
 is derived as follows:</p>
 <pre class="literal-block">
-intermediate = sha1( 'aaf4c61ddcc5e8a2dabedef3b482cd9aea9434dabcd' )
-key = intermediate[0:64]
+key = sha1( 'aaf4c61ddcc5e8a2dabedef3b482cd9aea9434dabcd' )
 </pre>
-<p>where [i:j] denotes the ith through <em>jth</em> bit including the <em>ith</em> but
-excluding the <em>jth</em>.  The resulting key in hex is <tt class="docutils literal"><span class="pre">f36e9cae87cf33e0</span></tt>.</p>
-<p>A 64-bit key is used to avoid U.S. export restrictions.</p>
+<p>where [i:j] denotes the <em>ith</em> through <em>jth</em> bit including the <em>ith</em>
+but excluding the <em>jth</em>.  The resulting key in hex is
+<tt class="docutils literal"><span class="pre">f36e9cae87cf33e07645ef5ca745a8a83469f31e</span></tt>.</p>
 <p>It is RECOMMENDED that the tracker use the initialization vector, and
 that it change the <tt class="docutils literal"><span class="pre">iv</span></tt> on roughly the same period as the rerequest
 interval.  The reasoning for this is contained in the rationale.</p>
@@ -274,10 +274,10 @@ of the shared secret.</p>
 <p>If the tracker does not know enough peers assumed to support MSE to
 return the desired number of peers then it MAY include peers that are
 not assumed to support MSE.  If a peer closes a connection in response
-to an encrypted header then the initiating peer SHOULD try other peers
-in the peer list returning to the peer that closed the connection only
-when all other peers known or not yet known to support MSE have been
-tried and have failed to provide &quot;adequate performance.&quot;  We
+to an encrypted header then the initiating peer SHOULD assume that the
+peer does not support MSE.  The initiating peer however SHOULD ONLY
+initiate unencrypted connections when all peers have been tried and
+those that support MSE fail to provide &quot;adequate performance.&quot;  We
 intentionally omit any definition of &quot;adequate performance.&quot;</p>
 </div>
 <div class="section" id="rationale">
@@ -449,7 +449,7 @@ def xor(plaintext,pseudo):
 def init():  # called once per rerequest interval.
   global iv, x, n, n_xor_y, obfuscated_tracker_peer_list
   iv = rand(20)
-  rc4.key = sha(infohash + iv).digest()[0:8]
+  rc4.key = sha(infohash + iv).digest()
   rc4(768)                         # discard first 768
   x = rc4(4)
   y = rc4(4)

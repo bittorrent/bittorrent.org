@@ -99,9 +99,7 @@ is derived as follows:
  
    key = sha1( 'aaf4c61ddcc5e8a2dabedef3b482cd9aea9434dabcd' )
 
-where [i:j] denotes the *ith* through *jth* bit including the *ith*
-but excluding the *jth*.  The resulting key in hex is
-``f36e9cae87cf33e07645ef5ca745a8a83469f31e``.
+The resulting key in hex is ``f36e9cae87cf33e07645ef5ca745a8a83469f31e``.
 
 It is RECOMMENDED that the tracker use the initialization vector, and
 that it change the ``iv`` on roughly the same period as the rerequest

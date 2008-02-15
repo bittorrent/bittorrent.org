@@ -209,8 +209,8 @@ bencoded equivalent of::
 
   peers=5201bedb15d72443e3f1a2df, i=1, n=2
 
-In each response the tracker includes additional keys such as the
-rerequest ``interval`` and the initialization vector ``iv``.
+In each response the tracker includes additional parameters such as
+the rerequest ``interval`` and the initialization vector ``iv``.
 
 The tracker response MUST remain a valid bencoded message.
 

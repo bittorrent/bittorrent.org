@@ -18,32 +18,30 @@ This document indexes all BitTorrent Enhancement Proposals (BEPs).
 When a new proposal is submitted, one of the BitTorrent.org editors 
 assigns a BEP number and updates this index appropriately.  Each 
 document has a number that never changes and the history of document is 
-maintained in subversion [#svn]_.  
-
-
-======     ==========================================  
-Num        Title                                     
-======     ==========================================
-|0|        Index of BitTorrent Enhancement Proporsals
-|1|        The BEP Process                           
-|2|        Sample reStructured Text BEP Template
-|3|        The BitTorrent Protocol Specification     
-|4|        Known Number Allocations                  
-|5|        DHT Protocol                              
-|6|        Fast Extension                            
-|7|        IPv6 Tracker Extension                    
-|8|        Tracker Peer Obfuscation                  
-|9|        Metadata Extension                        
-|10|       Extension Protocol
-|12|       Multitracker Metadata Extension
-|15|       UDP Tracker Protocol
-|17|       HTTP Seeding
-|1000|     Pending Standards Track Documents
-======     ==========================================
-
-
+maintained in subversion [#svn]_.
+  
 .. role:: raw-html(raw)
    :format: html
+
+======     ===================  
+Num        Title              
+======     ===================
+|0|        :raw-html:`<A HREF="bep_0000.html">Index of BitTorrent Enhancement Proporsals </A>`
+|1|        :raw-html:`<A HREF="bep_0001.html">The BEP Process</A>`
+|2|        :raw-html:`<A HREF="bep_0002.html">Sample reStructured Text BEP Template</A>`
+|3|        :raw-html:`<A HREF="bep_0003.html">The BitTorrent Protocol Specification</A>`
+|4|        :raw-html:`<A HREF="bep_0004.html">Known Number Allocations </A>`
+|5|        :raw-html:`<A HREF="bep_0005.html">DHT Protocol </A>`
+|6|        :raw-html:`<A HREF="bep_0006.html">Fast Extension </A>`
+|7|        :raw-html:`<A HREF="bep_0007.html">IPv6 Tracker Extension   </A>`
+|8|        :raw-html:`<A HREF="bep_0008.html">Tracker Peer Obfuscation </A>`
+|9|        :raw-html:`<A HREF="bep_0009.html">Metadata Extension </A>`
+|10|       :raw-html:`<A HREF="bep_0010.html">Extension Protocol </A>`
+|12|       :raw-html:`<A HREF="bep_0012.html">Multitracker Metadata Extension</A>`
+|15|       :raw-html:`<A HREF="bep_0015.html">UDP Tracker Protocol</A>`
+|17|       :raw-html:`<A HREF="bep_0017.html">HTTP Seeding</A>`
+|1000|     :raw-html:`<A HREF="bep_1000.html">Pending Standards Track Documents</A>`
+======     ===================
 
 .. [#python] http://www.python.org/dev/peps/
 .. [#svn] http://svn.bittorrent.org

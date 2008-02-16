@@ -118,7 +118,7 @@ The magnet URI format is::
 	magnet:?xt=urn:btih:<info-hash>&dn=<name>&tr=<tracker-url>
 
 <info-hash>
-	Is the info-hash encoded as base32 [#base32]_
+	Is the info-hash encoded as `base32`_
 
 ``xt`` is the only mandatory parameter. ``dn`` is the display name that may be
 used by the client to display while waiting for metadata. ``tr`` is a tracker
@@ -132,7 +132,7 @@ If no tracker is specified, the client SHOULD use the DHT (`BEP 0005`_) to acqui
 References
 ==========
 
-.. [#base32] http://www.ietf.org/rfc/rfc3548.txt
+.. _`base32`: http://www.ietf.org/rfc/rfc3548.txt
 .. _`BEP 0010`: http://www.bittorrent.org/beps/bep_0010.html
 .. _`BEP 0005`: http://www.bittorrent.org/beps/bep_0005.html
 

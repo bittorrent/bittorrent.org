@@ -37,9 +37,9 @@
 </tr>
 <tr class="field"><th class="field-name">Title:</th><td class="field-body">Tracker Peer Obfuscation</td>
 </tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body">10836</td>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">10851</td>
 </tr>
-<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="https://svn.bittorrent.com/trac.cgi/browser/dotorg/trunk/html/beps/bep_0008.rst">2008-02-15 13:48:38 -0800 (Fri, 15 Feb 2008)</a></td>
+<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="https://svn.bittorrent.com/trac.cgi/browser/dotorg/trunk/html/beps/bep_0008.rst">2008-02-15 15:04:41 -0800 (Fri, 15 Feb 2008)</a></td>
 </tr>
 <tr class="field"><th class="field-name">Author:</th><td class="field-body">David Harrison &lt;dave&#32;&#97;t&#32;bittorrent.com&gt;, Anthony Ciani &lt;tony&#32;&#97;t&#32;ciani.phy.uic.edu&gt;, Arvid Norberg &lt;arvid&#32;&#97;t&#32;bittorrent.com&gt;, Greg Hazel &lt;greg&#32;&#97;t&#32;bittorrent.com&gt;</td>
 </tr>
@@ -455,16 +455,16 @@ def getpeers( numwant ):
   response = {}
   response['iv'] = iv
   numwant = min(numwant, MAX_PEERS)
-  if numwant &gt; num_peers:
+  if numwant &gt;= num_peers:
     response['peers'] = obfuscated_tracker_peer_list
     return response
-  i = randint(0,num_peers)
+
+  i = randint(0,num_peers-numwant)
   response['i'] = xor(i,x)
   response['n'] = n_xor_y
+  # peers at end of tracker peer list have lower probability of being picked,
+  # but this requires only one copy.
   response['peers'] = obfuscated_tracker_peer_list[i*6:(i+numwant)*6]
-  if len(response['peers']) &lt; numwant * 6:
-    r = numwant - len(response['peers']) / 6
-    response['peers'] = response['peers'] + obfuscated_tracker_peer_list[:r]
   return response
 
 init()

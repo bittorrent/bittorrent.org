@@ -1,0 +1,83 @@
+BEP: 18
+Title: Search Engine Specificiation
+Version: $Revision$
+Last-Modified: $Date$
+Author:  Richard Choi <rchoi@bittorrent.com>
+Status:  Draft
+Type:    Standards Track
+Content-Type: text/x-rst
+Created: 12-Feb-2008
+Post-History: 
+
+
+Rationale
+=========
+
+The .btsearch file will specify the structure through which the
+client can conduct searches on torrent search engines.  By
+publishing a simple .btsearch file, search engines can easily be
+added to a client's built-in torrent search box.
+
+
+Formatting
+==========
+
+The .btsearch file is based on a subset of the broader `OpenSearch 
+description document`_, and consists of the following elements.
+
+.. _`OpenSearch description document`: http://www.opensearch.org/Specifications/OpenSearch
+
+OpenSearchDescription element
+-----------------------------
+
+The root node of the .btsearch document
+Parent: None
+Requirements: Must appear once as the root node
+
+ShortName element
+-----------------
+
+Contains a short human-readable name for the search engine
+Parent: OpenSearchDescription
+Requirements: Must appear exactly once
+
+Description element
+-------------------
+
+Contains a human-readable description of the search engine
+Parent: OpenSearchDescription
+Requirements: Must appear exactly once
+
+Url element
+-----------
+
+Describes structure through which search requests are made
+Parent: OpenSearchDescription
+Requirements: Must appear exactly once
+Attributes: template - specifies a parameterized template URL for the
+search query, in which {searchTerms} is replaced by the user-supplied
+query.
+
+Example
+=======
+
+::
+
+ <?xml version="1.0"?>
+ <OpenSearchDescription>
+ <ShortName>BitTorrent</ShortName>
+ <Description>Search torrents on BitTorrent.com</Description>
+ <Url template="http://www.bittorrent.com/search?q={searchTerms}&category=All"/>
+ </OpenSearchDescription>
+
+
+
+..
+   Local Variables:
+   mode: indented-text
+   indent-tabs-mode: nil
+   sentence-end-double-space: t
+   fill-column: 70
+   coding: utf-8
+   End:
+

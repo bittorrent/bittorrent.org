@@ -31,6 +31,7 @@ OpenSearchDescription element
 -----------------------------
 
 The root node of the .btsearch document::
+
  Parent: None
  Requirements: Must appear once as the root node
 
@@ -38,6 +39,7 @@ ShortName element
 -----------------
 
 Contains a short human-readable name for the search engine::
+
  Parent: OpenSearchDescription
  Requirements: Must appear exactly once
 
@@ -45,6 +47,7 @@ Description element
 -------------------
 
 Contains a human-readable description of the search engine::
+
  Parent: OpenSearchDescription
  Requirements: Must appear exactly once
 
@@ -52,6 +55,7 @@ Url element
 -----------
 
 Describes structure through which search requests are made::
+
  Parent: OpenSearchDescription
  Requirements: Must appear exactly once
  Attributes: template - specifies a parameterized template URL for the

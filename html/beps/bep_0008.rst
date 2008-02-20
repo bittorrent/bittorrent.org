@@ -22,8 +22,8 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
 to be interpreted as described in IETF `RFC 2119`_. 
 
 
-Announce Parameters
-===================
+Announce
+========
 
 When using this extension, instead of passing the ``info_hash`` parameter
 to the tracker, a ``sha_ih`` is passed.
@@ -40,10 +40,10 @@ The value MUST be url encoded, just like the ``info_hash``.  Thus the
 ``kO%89%A5N-%27%EC%D7%E8%DA%05%B4%AB%8F%D9%D1%D8%B1%19``.
 
 If the ``sha_ih`` is passed then the value for the ``port`` parameter
-should be treated as a 16 bit integer and must be obscured in the same
-manner as the peer list as described in the `Obfuscation Method`_
-section.  Similarly if the optional ``ip`` parameter is passed in the
-announce then its value MUST also be so oscured.
+should be treated as a 16 bit integer and MUST be obscured as
+described in the `Obfuscation Method`_ section.  Similarly if the
+optional ``ip`` parameter is passed in the announce then its value
+MUST also be so obscured.
 
 This extension does not change the semantics of any parameter passed
 in the peer's announce.
@@ -63,7 +63,7 @@ These are discussed in the optimizations_ section.
 Obfuscation Method
 ==================
 
-The values for the``ip`` and ``port`` announce parameters, the
+The values for the ``ip`` and ``port`` announce parameters, the
 *returned peer list* and any other values that contain peer
 information are obscured using the method described in this section.
 

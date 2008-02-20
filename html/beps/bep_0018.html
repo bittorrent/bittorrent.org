@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.5: http://docutils.sourceforge.net/" />
+<title></title>
+<link rel="stylesheet" href="../css/bep.css" type="text/css" />
+</head>
+<body>
+<div class="document">
+
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="../index.html">BitTorrent<span>.org</span></a></h1>
+</div>
+<div id="nav">
+<ul>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../introduction.html">For Users</a></li>
+<li><a href="bep_0000.html"><span>For Developers</span></a></li>
+<!-- <li><a href="./blog">Blog</a></li> -->
+<li><a href="../donate.html">Donate!</a></li>
+</ul>
+</div> <!-- nav -->
+<!-- ### Begin Content ### -->
+<div id="second">
+
+
+
+<table class="rfc2822 docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">BEP:</th><td class="field-body">18</td>
+</tr>
+<tr class="field"><th class="field-name">Title:</th><td class="field-body">Search Engine Specificiation</td>
+</tr>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">10858</td>
+</tr>
+<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="https://svn.bittorrent.com/trac.cgi/browser/dotorg/trunk/html/beps/bep_0018.rst">2008-02-15 17:35:59 -0800 (Fri, 15 Feb 2008)</a></td>
+</tr>
+<tr class="field"><th class="field-name">Author:</th><td class="field-body">Richard Choi &lt;rchoi&#32;&#97;t&#32;bittorrent.com&gt;</td>
+</tr>
+<tr class="field"><th class="field-name">Status:</th><td class="field-body">Draft</td>
+</tr>
+<tr class="field"><th class="field-name">Type:</th><td class="field-body">Standards Track</td>
+</tr>
+<tr class="field"><th class="field-name">Content-Type:</th><td class="field-body"><a class="reference external" href="http://www.bittorrent.org/beps/bep-0012">text/x-rst</a></td>
+</tr>
+<tr class="field"><th class="field-name">Created:</th><td class="field-body">12-Feb-2008</td>
+</tr>
+<tr class="field"><th class="field-name">Post-History:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#rationale" id="id4">Rationale</a></li>
+<li><a class="reference internal" href="#formatting" id="id5">Formatting</a><ul>
+<li><a class="reference internal" href="#opensearchdescription-element" id="id6">OpenSearchDescription element</a></li>
+<li><a class="reference internal" href="#shortname-element" id="id7">ShortName element</a></li>
+<li><a class="reference internal" href="#description-element" id="id8">Description element</a></li>
+<li><a class="reference internal" href="#url-element" id="id9">Url element</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#example" id="id10">Example</a></li>
+<li><a class="reference internal" href="#id1" id="id11">References</a></li>
+</ul>
+</div>
+<div class="section" id="rationale">
+<h1>Rationale</h1>
+<p>The .btsearch file specifies the structure through which the
+client can conduct searches on torrent search engines.  By
+publishing a simple .btsearch file, search engines can easily be
+added to a client's built-in torrent search box.</p>
+</div>
+<div class="section" id="formatting">
+<h1>Formatting</h1>
+<p>The .btsearch file is based on a subset of the broader <a class="reference external" href="http://www.opensearch.org/Specifications/OpenSearch">OpenSearch
+description document</a> <a class="footnote-reference" href="#id2" id="id3">[1]</a>, and consists of the following elements.</p>
+<div class="section" id="opensearchdescription-element">
+<h2>OpenSearchDescription element</h2>
+<p>The root node of the .btsearch document:</p>
+<pre class="literal-block">
+Parent: None
+Requirements: Must appear once as the root node
+</pre>
+</div>
+<div class="section" id="shortname-element">
+<h2>ShortName element</h2>
+<p>Contains a short human-readable name for the search engine:</p>
+<pre class="literal-block">
+Parent: OpenSearchDescription
+Requirements: Must appear exactly once
+</pre>
+</div>
+<div class="section" id="description-element">
+<h2>Description element</h2>
+<p>Contains a human-readable description of the search engine:</p>
+<pre class="literal-block">
+Parent: OpenSearchDescription
+Requirements: Must appear exactly once
+</pre>
+</div>
+<div class="section" id="url-element">
+<h2>Url element</h2>
+<p>Describes structure through which search requests are made:</p>
+<pre class="literal-block">
+Parent: OpenSearchDescription
+Requirements: Must appear exactly once
+Attributes: template - specifies a parameterized template URL for the
+search query, in which {searchTerms} is replaced by the user-supplied
+query.
+</pre>
+</div>
+</div>
+<div class="section" id="example">
+<h1>Example</h1>
+<pre class="literal-block">
+&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;OpenSearchDescription&gt;
+&lt;ShortName&gt;BitTorrent&lt;/ShortName&gt;
+&lt;Description&gt;Search torrents on BitTorrent.com&lt;/Description&gt;
+&lt;Url template=&quot;http://www.bittorrent.com/search?q={searchTerms}&amp;category=All&quot;/&gt;
+&lt;/OpenSearchDescription&gt;
+</pre>
+<!-- Local Variables:
+mode: indented-text
+indent-tabs-mode: nil
+sentence-end-double-space: t
+fill-column: 70
+coding: utf-8
+End: -->
+</div>
+<div class="section" id="id1">
+<h1>References</h1>
+<table class="docutils footnote" frame="void" id="id2" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[1]</a></td><td><a class="reference external" href="http://www.opensearch.org/Specifications/OpenSearch">http://www.opensearch.org/Specifications/OpenSearch</a></td></tr>
+</tbody>
+</table>
+</div>
+
+
+</div>
+	<div id="footer">
+<hr/>
+</div>
+
+</div>
+</body>
+</html>

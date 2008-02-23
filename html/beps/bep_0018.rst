@@ -59,8 +59,8 @@ Describes structure through which search requests are made::
  Parent: OpenSearchDescription
  Requirements: Must appear exactly once
  Attributes: template - specifies a parameterized template URL for the
- search query, in which {searchTerms} is replaced by the user-supplied
- query.
+ search query, in which {searchTerms} is replaced by the URL-encoded 
+ user-supplied query.
 
 Example
 =======

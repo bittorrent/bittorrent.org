@@ -23,7 +23,7 @@ documenting the design decisions that have gone into BitTorrent. The BEP
 author is responsible for building consensus within the community and
 documenting dissenting opinions.
 
-Because the BEPs are maintained as text files in a versioned
+Because the BEPs are maintained as reStructured text files in a versioned
 repository, their revision history is the historical record of the
 feature proposal [#svn]_.
 
@@ -71,7 +71,7 @@ Each BEP must have a champion -- someone who writes the BEP using the
 style and format described below, shepherds the discussions in the
 appropriate forums, and attempts to build community consensus around
 the idea. The BEP champion should first post a description of the idea
-to the bitorrent-list@bittorrent.org.
+to the BEPs forum at forum.bittorrent.org.
 
 If the champion believes the idea warrants a BEP then the champion
 emails the BEP editor <editor@bittorrent.org> with a proposed title
@@ -89,9 +89,8 @@ for Life, Bram Cohen) can be consulted during the approval phase, and
 is the final arbiter of the draft's BEP-ability.
 
 If a pre-BEP is rejected, the author may elect to take the pre-BEP to
-the bittorrent-list@bittorrent.org mailing list seeking feedback and
-consesnsus from the community at large.  A proposal may be re-submitted
-after it has been revised.
+the BEP forum seeking feedback and consesnsus from the community at large.  
+A proposal may be re-submitted after it has been revised.
 
 The champion is then responsible for marshaling community support for
 it. As updates are necessary, the BEP author can check in new versions
@@ -107,9 +106,9 @@ client with publicy available code before it can be considered Final.
 BEP champions are responsible for collecting community feedback on a
 BEP before submitting it for review. A BEP that has not been discussed
 on bittorrent-list@bittorrent.org will not be accepted. However, wherever
-possible, long open-ended discussions on public mailing lists should
+possible, long open-ended discussions in the BEP forum should
 be avoided. Strategies to keep the discussions efficient include:
-setting up a separate SIG mailing list for the topic, having the BEP
+setting up a separate SIG forum for the topic, having the BEP
 author accept private comments in the early design phases, setting up
 a wiki page, etc. BEP authors should use their discretion here.
 
@@ -168,8 +167,8 @@ was written by Barry Warsaw, Jeremy Hylton, and David Goodger, they
 are not responsible for its use in the BitTorent Enhancement Process,
 and should not be bothered with technical questions specific to
 BitTorrent or the BEP process.  Please direct all comments to the
-BitTorrent editors <editor@bittorrent.org> or the BitTorrent mailing
-list <bittorrent-list@bittorrent.org>.
+BitTorrent editors <editor@bittorrent.org> or the forums at
+forum.bittorrent.org.
 
 Acknowledgements
 ================

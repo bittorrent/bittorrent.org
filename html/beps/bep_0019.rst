@@ -1,0 +1,372 @@
+BEP: 19 
+Title: WebSeed - HTTP/FTP Seeding (GetRight style)
+Version: $Revision$
+Last-Modified: $Date$
+Author:  Michael Burford <michael @at@ getright.com>
+Status:  Draft
+Type:    Standards Track
+Content-Type: text/x-rst
+Created: 21-Feb-2008
+Post-History: 
+
+
+Abstract
+========
+
+Using HTTP or FTP servers as seeds for BitTorrent downloads.
+
+
+Rationale
+=========
+
+Many websites that list a BitTorrent download also provide a 
+HTTP or FTP URL for the same file.  The files are identical. 
+A WebSeeding BitTorrent client can download from either source, 
+putting all the parts together into one complete file.
+
+The HTTP or FTP server acts as a permanently unchoked seed.  
+
+
+Advantages
+==========
+
+There is always an unchoked seed where anybody can get started. 
+
+It does not break or change anything for clients that do not 
+recognize the addition to the metadata.  
+
+Clients that do not support HTTP/FTP Seeding would still get 
+the benefit from peers sharing pieces originally from an HTTP/FTP 
+server. 
+
+The metadata does not have to be changed.  Download Manager tools
+(such as GetRight) commonly can add multiple HTTP/FTP mirror URLs 
+for a file, usually by the user action of clicking multiple links
+on a web page and recognizing the same file name.  
+
+Everybody is quite familiar with HTTP/FTP servers and their 
+protocols.  
+
+It has already been implemented in GetRight, the Mainline client, 
+uTorrent, Azureus, libTorrent, and likely others.
+
+Changes are only needed in BitTorrent clients.  No changes to
+trackers, HTTP, or FTP servers are needed.  No scripts are
+needed on the HTTP or FTP server.
+
+As this is already supported in many very common clients (notably 
+the Mainline client itself) seeding for a BitTorrent download
+could be done entirely with a company or individual's existing
+HTTP/FTP servers.
+
+
+Metadata Extension
+==================
+
+In the main area of the metadata file and not part of the "info" 
+section, will be a new key, "url-list".  This key will refer to 
+a one or more URLs, and will contain a list of web addresses where 
+torrent data can be retrieved.  This key may be safely ignored 
+if the client is not capable of using it.
+
+For example (on multiple lines for readability): 
+   d 
+   8:announce27:http://tracker.com/announce 
+   8:url-list26:http://mirror.com/file.exe 
+   4:info... 
+
+If the "url-list" URL ends in a slash, "/" the client must add 
+the "name" from the torrent to make the full URL.  This allows 
+.torrent generators to treat this field same for single file and 
+multi-file torrents.
+
+
+Multi-File Torrents
+-------------------
+
+BitTorrent clients normally use the "name" from the torrent info 
+section to make a folder, then use the "path/file" items from the 
+info section within that folder.  For the case of Multi-File 
+torrents, the "url-list" must be a root folder where a client 
+could add the same "name" and "path/file" to create the URL for 
+the request. 
+
+For example:
+   ... 
+   8:url-list22:http://mirror.com/pub/ 
+   4:infod5:filesld6:lengthi949e4:pathl10:Readme.txte 
+   e4:name7:michael 
+
+   A client would use all that to build a url: 
+   http://mirror.com/pub/michael/Readme.txt 
+
+
+Client Implementation Overview
+==============================
+
+A client should ignore any protocols it does not know from the url-list.  
+A client may choose to implement HTTP but not FTP, or vice-versa.
+
+HTTP/FTP are "streaming" type protocols, and do not have BitTorrent's 
+concept of blocks.  For HTTP you can use byte-ranges to resume 
+anywhere or download specific ranges you specify, but with FTP you 
+can only say where to start the download.  
+
+I wanted to have many sequential blocks ("gaps") in the data 
+downloaded from BitTorrent peers so a HTTP/FTP connection would 
+have big spaces to fill in.  You could use the byte-ranges with 
+HTTP to request individual blocks--but each request will show 
+in the server's logs, and somebody is going to think it is a 
+denial of service attack on them if their shows 100's of connections 
+in their log from the same IP.  
+
+In GetRight's implementation, I made a couple changes to the usual 
+"rarest first" piece-selection method to better allow "gaps" to develop 
+between pieces.  That way there are longer spaces in the file for HTTP 
+and FTP threads to fill.  They can start at the beginning of a gap and 
+download until they get to the end. 
+
+
+Client Implementation Notes
+===========================
+
+Changes to the standard BitTorrent algorithms to optimize the ability 
+of HTTP and FTP connections to fill in many sequential blocks in the file.
+
+
+Definition of Gaps
+------------------
+
+Gaps are spaces of multiple pieces in a row that the client does not have. 
+
+Given a bitfield "YYnnnnYnnY" where Y is pieces it has and n are ones it 
+does not have, there are two "gaps", one of 4 pieces, and another of 2. 
+
+
+Piece Selection
+---------------
+
+The major change is to the Piece Selection.
+
+If everything else is more-or-less equivalent, it is better to pick a 
+piece to do from the gap of 2 when requesting a piece from a BitTorrent peer. 
+
+In any gap, it is best to fill in from the end (ie, the highest piece number 
+first).  
+
+So given bitfield "YYnnnnYnnY" if the rareness of all the n pieces is similar
+it is better to select one of the # pieces "YYnnnnY##Y" and the best 
+would be to select piece $ "YYnnnnYn$Y"
+
+These maximize the contiguous pieces for HTTP/FTP connections.  This allows
+a HTTP/FTP connection to start at the beginning of a large gap and download
+the most data before it gets to a piece the client already has. 
+
+
+Changes to Piece Selection
+--------------------------
+
+Change the "rarest first" piece selection to a "pretty rare with biggest 
+distance from another completed piece". 
+
+
+Pretty Rare With Biggest Gap
+''''''''''''''''''''''''''''
+
+When scanning for the rarest piece, if the distance from another completed 
+piece is less than that for the current rarest piece, it must be "rare-X". 
+Or if the distance is greater than the current piece's, it can be rare+X 
+to be picked as the next piece. (For no better reason than it seemed to make 
+sense at the time and scale, X is the square root of the number of peers 
+minus 1.)  
+
+So if 3 peers had the current rarest piece, the normal algorithm would 
+pick a piece where 2 peers had it.  The changed algorithm would require 
+that only 1 peer has the piece if that piece's distance from a complete 
+piece was less than the gap for the current rarest piece. 
+
+If the gap is bigger and the piece is the same "rareness" or the usual 
+"rare-1" that piece is selected. (So if the gap is bigger, a piece with 
+either 2 or 3 peers would be chosen.) 
+
+So given "YYnnn1Yn2Y", unless 1 is a lot more rare than 2, it's better to 
+pick piece 2. 
+
+Pseudo-Code logic:
+
+::
+   X = sqrt(Peers) - 1;
+   Gap = 0;
+   CurGap = 0;
+   CurRarest = MaxPieces+1;
+   for (i=0; i<MaxPieces; i++) {
+       if (IDoNotHavePiece(i)) {
+           Gap++;
+           if (PeerHasPiece(i)) {
+               PieceRareness = NumberOfPeersWithThePiece();
+               if (PieceRareness<(CurRarest-X) || 
+                   (PieceRareness<=(CurRarest+X) && Gap>CurGap)) {
+                   CurRarest = PieceRareness;
+                   CurGap = Gap;
+                   NextPiece = i;
+               }
+           }
+       } else {
+           Gap = 0;
+       }
+   }
+
+
+Fill In The Gaps
+''''''''''''''''
+
+If a file is more than 50% complete, it uses a different method for piece
+selection randomly.  (With over 50%, you should have a large number of 
+pieces that other peers will want to download.)
+
+Every few pieces (in GetRight it is randomly 1 in 10), it will pick the 
+piece with the smallest gap from a complete piece, ignoring all rareness.  
+For the bitfield "YYnnnnYnnY" it would select piece # "YYnnnnYn#Y".  This 
+helps fill in small gaps.
+
+Clients can choose whether to do this step or not, and if implementing 
+could use another percent of file completion.
+
+Pseudo-Code logic:
+
+::
+   Gap = 0;
+   Piece = -1;
+   CurGap = MaxPieces+1;
+   for (i=0; i<MaxPieces; i++) {
+       if (IDoNotHavePiece(i)) {
+           Gap++;
+           if (PeerHasPiece(i)) {
+               Piece = i;
+           }
+       } else {----
+           if (Gap<CurGap && Gap>0 && Piece!=-1) {
+               CurGap = Gap;
+               NextPiece = Piece;
+           }
+           Gap = 0;
+           Piece = -1;
+       }
+   }
+
+
+HTTP and FTP Optimizations
+--------------------------
+
+No changes are needed to the HTTP/FTP protocols or servers.
+
+If the client knows the HTTP/FTP download is part of a BitTorrent download, 
+when the very first connection is made it is better to start the HTTP/FTP 
+download somewhere randomly in the file.  This way it is more likely the 
+first HTTP pieces it gets will be useful for sharing to the BitTorrent peers. 
+
+If a BitTorrent download is already progressing when starting a HTTP/FTP 
+connection, the HTTP/FTP should start at the beginning of the biggest gap. 
+Given a bitfield "YYnnnnYnnY" it should start at #: "YY#nnnYnnY" 
+
+If it successfully downloads a piece from a HTTP/FTP server, but the SHA 
+checksum does not match, the connection must be closed and that URL should 
+be discarded. 
+
+A client does not need to discard a HTTP or FTP server URL if it gets
+a "busy" reply.
+
+
+Multi-File Torrents
+===================
+
+Additional selection algorithms will be needed when using HTTP/FTP servers
+for a multi-file torrent.
+
+A client may select BitTorrent pieces to optimize so entire large files can
+be downloaded from the HTTP/FTP servers.
+
+For torrents containing small files, several HTTP/FTP transfers may be needed 
+for one Piece.  In this case, it may make more sense to do those using 
+BitTorrent.  For example, if there were 100 1KB files, assuming even the worst
+case of 32KB Pieces, it would take 100 HTTP/FTP transfers to do the files, 
+but only 4 BitTorrent piece requests.  
+
+Giving BitTorrent piece selection a higher priority for smaller files, 
+and HTTP/FTP a higher priority for larger files would work well.
+
+
+Another Possible Client Implementation
+======================================
+
+If a client only supported HTTP and not FTP, it could take advantage of
+HTTP's byte-range requests, but request more than one piece at a time.  
+
+Blocks of pieces could treated as a single set and a single byte-range 
+request to the HTTP server.  This would reduce the number of HTTP connections,
+and might work well for a client.  
+
+Pieces could be treated as blocks of 10, 50, or 100. If I had done this way, 
+I might have chosen "Pieces Per Block" to be MaxPieces/20.  So requesting
+about 5% of the file at a time.
+
+
+A Not Recommended Client Implementation
+=======================================
+
+A client could simply use HTTP byte-ranges to request individual pieces.
+
+Some server administrators would not like this, because there will be 100s
+or 1000s of requests in their logs for a single file.  Some may even think
+it is a denial of service attack on them.
+
+
+More On Other Protocols
+=======================
+
+HTTP and FTP are listed in this BEP as the seeding protocols, 
+but a client could use **any** other protocol that allows downloading
+data.  HTTPS, FTPS, or SFTP are obvious, but not likely supported
+by many clients (GetRight can do HTTPS and FTPS, but not SFTP).  
+
+I am sure RTSP and MMS are possible as well.  Potentially even 
+Usenet's NNTP protocol could be used.  
+
+Other protocols may have additional issues, such as not allowing
+a download to start anywhere other than the beginning of the file.
+
+A client may choose to implement only one of the HTTP or FTP protocols
+but not both.  
+
+
+Acknowledgements
+================
+
+Thanks to Arvid Norberg (libtorrent.sf.net author) for helping clarify 
+the Multi-File torrent parts.  And of course to Bram Cohen for creating 
+this whole BitTorrent protocol.
+
+
+References
+==========
+
+.. Original WebSeeding document by Michael Burford
+  (http://www.getright.com/seedtorrent.html)
+
+
+Copyright
+=========
+
+This document has been placed in the public domain.
+
+
+
+..
+  Local Variables:
+  mode: indented-text
+  indent-tabs-mode: nil
+  sentence-end-double-space: t
+  fill-column: 70
+  coding: utf-8
+  End:
+

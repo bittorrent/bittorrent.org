@@ -1,0 +1,381 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.5: http://docutils.sourceforge.net/" />
+<title></title>
+<link rel="stylesheet" href="../css/bep.css" type="text/css" />
+</head>
+<body>
+<div class="document">
+
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="../index.html">BitTorrent<span>.org</span></a></h1>
+</div>
+<div id="nav">
+<ul>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../introduction.html">For Users</a></li>
+<li><a href="bep_0000.html"><span>For Developers</span></a></li>
+<!-- <li><a href="./blog">Blog</a></li> -->
+<li><a href="../donate.html">Donate!</a></li>
+</ul>
+</div> <!-- nav -->
+<!-- ### Begin Content ### -->
+<div id="second">
+
+
+
+<table class="rfc2822 docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">BEP:</th><td class="field-body">19</td>
+</tr>
+<tr class="field"><th class="field-name">Title:</th><td class="field-body">WebSeed - HTTP/FTP Seeding (GetRight style)</td>
+</tr>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">11013</td>
+</tr>
+<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="https://svn.bittorrent.com/trac.cgi/browser/dotorg/trunk/html/beps/bep_0019.rst">2008-02-25 12:55:48 -0800 (Mon, 25 Feb 2008)</a></td>
+</tr>
+<tr class="field"><th class="field-name">Author:</th><td class="field-body">Michael Burford &lt;michael &#64;at&#64; getright.com&gt;</td>
+</tr>
+<tr class="field"><th class="field-name">Status:</th><td class="field-body">Draft</td>
+</tr>
+<tr class="field"><th class="field-name">Type:</th><td class="field-body">Standards Track</td>
+</tr>
+<tr class="field"><th class="field-name">Content-Type:</th><td class="field-body"><a class="reference external" href="http://www.bittorrent.org/beps/bep-0012">text/x-rst</a></td>
+</tr>
+<tr class="field"><th class="field-name">Created:</th><td class="field-body">21-Feb-2008</td>
+</tr>
+<tr class="field"><th class="field-name">Post-History:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#abstract" id="id2">Abstract</a></li>
+<li><a class="reference internal" href="#rationale" id="id3">Rationale</a></li>
+<li><a class="reference internal" href="#advantages" id="id4">Advantages</a></li>
+<li><a class="reference internal" href="#metadata-extension" id="id5">Metadata Extension</a><ul>
+<li><a class="reference internal" href="#multi-file-torrents" id="id6">Multi-File Torrents</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#client-implementation-overview" id="id7">Client Implementation Overview</a></li>
+<li><a class="reference internal" href="#client-implementation-notes" id="id8">Client Implementation Notes</a><ul>
+<li><a class="reference internal" href="#definition-of-gaps" id="id9">Definition of Gaps</a></li>
+<li><a class="reference internal" href="#piece-selection" id="id10">Piece Selection</a></li>
+<li><a class="reference internal" href="#changes-to-piece-selection" id="id11">Changes to Piece Selection</a><ul>
+<li><a class="reference internal" href="#pretty-rare-with-biggest-gap" id="id12">Pretty Rare With Biggest Gap</a></li>
+<li><a class="reference internal" href="#fill-in-the-gaps" id="id13">Fill In The Gaps</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#http-and-ftp-optimizations" id="id14">HTTP and FTP Optimizations</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id1" id="id15">Multi-File Torrents</a></li>
+<li><a class="reference internal" href="#another-possible-client-implementation" id="id16">Another Possible Client Implementation</a></li>
+<li><a class="reference internal" href="#a-not-recommended-client-implementation" id="id17">A Not Recommended Client Implementation</a></li>
+<li><a class="reference internal" href="#more-on-other-protocols" id="id18">More On Other Protocols</a></li>
+<li><a class="reference internal" href="#acknowledgements" id="id19">Acknowledgements</a></li>
+<li><a class="reference internal" href="#references" id="id20">References</a></li>
+<li><a class="reference internal" href="#copyright" id="id21">Copyright</a></li>
+</ul>
+</div>
+<div class="section" id="abstract">
+<h1>Abstract</h1>
+<p>Using HTTP or FTP servers as seeds for BitTorrent downloads.</p>
+</div>
+<div class="section" id="rationale">
+<h1>Rationale</h1>
+<p>Many websites that list a BitTorrent download also provide a
+HTTP or FTP URL for the same file.  The files are identical.
+A WebSeeding BitTorrent client can download from either source,
+putting all the parts together into one complete file.</p>
+<p>The HTTP or FTP server acts as a permanently unchoked seed.</p>
+</div>
+<div class="section" id="advantages">
+<h1>Advantages</h1>
+<p>There is always an unchoked seed where anybody can get started.</p>
+<p>It does not break or change anything for clients that do not
+recognize the addition to the metadata.</p>
+<p>Clients that do not support HTTP/FTP Seeding would still get
+the benefit from peers sharing pieces originally from an HTTP/FTP
+server.</p>
+<p>The metadata does not have to be changed.  Download Manager tools
+(such as GetRight) commonly can add multiple HTTP/FTP mirror URLs
+for a file, usually by the user action of clicking multiple links
+on a web page and recognizing the same file name.</p>
+<p>Everybody is quite familiar with HTTP/FTP servers and their
+protocols.</p>
+<p>It has already been implemented in GetRight, the Mainline client,
+uTorrent, Azureus, libTorrent, and likely others.</p>
+<p>Changes are only needed in BitTorrent clients.  No changes to
+trackers, HTTP, or FTP servers are needed.  No scripts are
+needed on the HTTP or FTP server.</p>
+<p>As this is already supported in many very common clients (notably
+the Mainline client itself) seeding for a BitTorrent download
+could be done entirely with a company or individual's existing
+HTTP/FTP servers.</p>
+</div>
+<div class="section" id="metadata-extension">
+<h1>Metadata Extension</h1>
+<p>In the main area of the metadata file and not part of the &quot;info&quot;
+section, will be a new key, &quot;url-list&quot;.  This key will refer to
+a one or more URLs, and will contain a list of web addresses where
+torrent data can be retrieved.  This key may be safely ignored
+if the client is not capable of using it.</p>
+<dl class="docutils">
+<dt>For example (on multiple lines for readability):</dt>
+<dd>d
+8:announce27:http://tracker.com/announce
+8:url-list26:http://mirror.com/file.exe
+4:info...</dd>
+</dl>
+<p>If the &quot;url-list&quot; URL ends in a slash, &quot;/&quot; the client must add
+the &quot;name&quot; from the torrent to make the full URL.  This allows
+.torrent generators to treat this field same for single file and
+multi-file torrents.</p>
+<div class="section" id="multi-file-torrents">
+<h2>Multi-File Torrents</h2>
+<p>BitTorrent clients normally use the &quot;name&quot; from the torrent info
+section to make a folder, then use the &quot;path/file&quot; items from the
+info section within that folder.  For the case of Multi-File
+torrents, the &quot;url-list&quot; must be a root folder where a client
+could add the same &quot;name&quot; and &quot;path/file&quot; to create the URL for
+the request.</p>
+<dl class="docutils">
+<dt>For example:</dt>
+<dd><p class="first">...
+8:url-list22:http://mirror.com/pub/
+4:infod5:filesld6:lengthi949e4:pathl10:Readme.txte
+e4:name7:michael</p>
+<p class="last">A client would use all that to build a url:
+<a class="reference external" href="http://mirror.com/pub/michael/Readme.txt">http://mirror.com/pub/michael/Readme.txt</a></p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="client-implementation-overview">
+<h1>Client Implementation Overview</h1>
+<p>A client should ignore any protocols it does not know from the url-list.
+A client may choose to implement HTTP but not FTP, or vice-versa.</p>
+<p>HTTP/FTP are &quot;streaming&quot; type protocols, and do not have BitTorrent's
+concept of blocks.  For HTTP you can use byte-ranges to resume
+anywhere or download specific ranges you specify, but with FTP you
+can only say where to start the download.</p>
+<p>I wanted to have many sequential blocks (&quot;gaps&quot;) in the data
+downloaded from BitTorrent peers so a HTTP/FTP connection would
+have big spaces to fill in.  You could use the byte-ranges with
+HTTP to request individual blocks--but each request will show
+in the server's logs, and somebody is going to think it is a
+denial of service attack on them if their shows 100's of connections
+in their log from the same IP.</p>
+<p>In GetRight's implementation, I made a couple changes to the usual
+&quot;rarest first&quot; piece-selection method to better allow &quot;gaps&quot; to develop
+between pieces.  That way there are longer spaces in the file for HTTP
+and FTP threads to fill.  They can start at the beginning of a gap and
+download until they get to the end.</p>
+</div>
+<div class="section" id="client-implementation-notes">
+<h1>Client Implementation Notes</h1>
+<p>Changes to the standard BitTorrent algorithms to optimize the ability
+of HTTP and FTP connections to fill in many sequential blocks in the file.</p>
+<div class="section" id="definition-of-gaps">
+<h2>Definition of Gaps</h2>
+<p>Gaps are spaces of multiple pieces in a row that the client does not have.</p>
+<p>Given a bitfield &quot;YYnnnnYnnY&quot; where Y is pieces it has and n are ones it
+does not have, there are two &quot;gaps&quot;, one of 4 pieces, and another of 2.</p>
+</div>
+<div class="section" id="piece-selection">
+<h2>Piece Selection</h2>
+<p>The major change is to the Piece Selection.</p>
+<p>If everything else is more-or-less equivalent, it is better to pick a
+piece to do from the gap of 2 when requesting a piece from a BitTorrent peer.</p>
+<p>In any gap, it is best to fill in from the end (ie, the highest piece number
+first).</p>
+<p>So given bitfield &quot;YYnnnnYnnY&quot; if the rareness of all the n pieces is similar
+it is better to select one of the # pieces &quot;YYnnnnY##Y&quot; and the best
+would be to select piece $ &quot;YYnnnnYn$Y&quot;</p>
+<p>These maximize the contiguous pieces for HTTP/FTP connections.  This allows
+a HTTP/FTP connection to start at the beginning of a large gap and download
+the most data before it gets to a piece the client already has.</p>
+</div>
+<div class="section" id="changes-to-piece-selection">
+<h2>Changes to Piece Selection</h2>
+<p>Change the &quot;rarest first&quot; piece selection to a &quot;pretty rare with biggest
+distance from another completed piece&quot;.</p>
+<div class="section" id="pretty-rare-with-biggest-gap">
+<h3>Pretty Rare With Biggest Gap</h3>
+<p>When scanning for the rarest piece, if the distance from another completed
+piece is less than that for the current rarest piece, it must be &quot;rare-X&quot;.
+Or if the distance is greater than the current piece's, it can be rare+X
+to be picked as the next piece. (For no better reason than it seemed to make
+sense at the time and scale, X is the square root of the number of peers
+minus 1.)</p>
+<p>So if 3 peers had the current rarest piece, the normal algorithm would
+pick a piece where 2 peers had it.  The changed algorithm would require
+that only 1 peer has the piece if that piece's distance from a complete
+piece was less than the gap for the current rarest piece.</p>
+<p>If the gap is bigger and the piece is the same &quot;rareness&quot; or the usual
+&quot;rare-1&quot; that piece is selected. (So if the gap is bigger, a piece with
+either 2 or 3 peers would be chosen.)</p>
+<p>So given &quot;YYnnn1Yn2Y&quot;, unless 1 is a lot more rare than 2, it's better to
+pick piece 2.</p>
+<p>Pseudo-Code logic:</p>
+<pre class="literal-block">
+X = sqrt(Peers) - 1;
+Gap = 0;
+CurGap = 0;
+CurRarest = MaxPieces+1;
+for (i=0; i&lt;MaxPieces; i++) {
+    if (IDoNotHavePiece(i)) {
+        Gap++;
+        if (PeerHasPiece(i)) {
+            PieceRareness = NumberOfPeersWithThePiece();
+            if (PieceRareness&lt;(CurRarest-X) ||
+                (PieceRareness&lt;=(CurRarest+X) &amp;&amp; Gap&gt;CurGap)) {
+                CurRarest = PieceRareness;
+                CurGap = Gap;
+                NextPiece = i;
+            }
+        }
+    } else {
+        Gap = 0;
+    }
+}
+</pre>
+</div>
+<div class="section" id="fill-in-the-gaps">
+<h3>Fill In The Gaps</h3>
+<p>If a file is more than 50% complete, it uses a different method for piece
+selection randomly.  (With over 50%, you should have a large number of
+pieces that other peers will want to download.)</p>
+<p>Every few pieces (in GetRight it is randomly 1 in 10), it will pick the
+piece with the smallest gap from a complete piece, ignoring all rareness.
+For the bitfield &quot;YYnnnnYnnY&quot; it would select piece # &quot;YYnnnnYn#Y&quot;.  This
+helps fill in small gaps.</p>
+<p>Clients can choose whether to do this step or not, and if implementing
+could use another percent of file completion.</p>
+<p>Pseudo-Code logic:</p>
+<pre class="literal-block">
+Gap = 0;
+Piece = -1;
+CurGap = MaxPieces+1;
+for (i=0; i&lt;MaxPieces; i++) {
+    if (IDoNotHavePiece(i)) {
+        Gap++;
+        if (PeerHasPiece(i)) {
+            Piece = i;
+        }
+    } else {----
+        if (Gap&lt;CurGap &amp;&amp; Gap&gt;0 &amp;&amp; Piece!=-1) {
+            CurGap = Gap;
+            NextPiece = Piece;
+        }
+        Gap = 0;
+        Piece = -1;
+    }
+}
+</pre>
+</div>
+</div>
+<div class="section" id="http-and-ftp-optimizations">
+<h2>HTTP and FTP Optimizations</h2>
+<p>No changes are needed to the HTTP/FTP protocols or servers.</p>
+<p>If the client knows the HTTP/FTP download is part of a BitTorrent download,
+when the very first connection is made it is better to start the HTTP/FTP
+download somewhere randomly in the file.  This way it is more likely the
+first HTTP pieces it gets will be useful for sharing to the BitTorrent peers.</p>
+<p>If a BitTorrent download is already progressing when starting a HTTP/FTP
+connection, the HTTP/FTP should start at the beginning of the biggest gap.
+Given a bitfield &quot;YYnnnnYnnY&quot; it should start at #: &quot;YY#nnnYnnY&quot;</p>
+<p>If it successfully downloads a piece from a HTTP/FTP server, but the SHA
+checksum does not match, the connection must be closed and that URL should
+be discarded.</p>
+<p>A client does not need to discard a HTTP or FTP server URL if it gets
+a &quot;busy&quot; reply.</p>
+</div>
+</div>
+<div class="section" id="id1">
+<h1>Multi-File Torrents</h1>
+<p>Additional selection algorithms will be needed when using HTTP/FTP servers
+for a multi-file torrent.</p>
+<p>A client may select BitTorrent pieces to optimize so entire large files can
+be downloaded from the HTTP/FTP servers.</p>
+<p>For torrents containing small files, several HTTP/FTP transfers may be needed
+for one Piece.  In this case, it may make more sense to do those using
+BitTorrent.  For example, if there were 100 1KB files, assuming even the worst
+case of 32KB Pieces, it would take 100 HTTP/FTP transfers to do the files,
+but only 4 BitTorrent piece requests.</p>
+<p>Giving BitTorrent piece selection a higher priority for smaller files,
+and HTTP/FTP a higher priority for larger files would work well.</p>
+</div>
+<div class="section" id="another-possible-client-implementation">
+<h1>Another Possible Client Implementation</h1>
+<p>If a client only supported HTTP and not FTP, it could take advantage of
+HTTP's byte-range requests, but request more than one piece at a time.</p>
+<p>Blocks of pieces could treated as a single set and a single byte-range
+request to the HTTP server.  This would reduce the number of HTTP connections,
+and might work well for a client.</p>
+<p>Pieces could be treated as blocks of 10, 50, or 100. If I had done this way,
+I might have chosen &quot;Pieces Per Block&quot; to be MaxPieces/20.  So requesting
+about 5% of the file at a time.</p>
+</div>
+<div class="section" id="a-not-recommended-client-implementation">
+<h1>A Not Recommended Client Implementation</h1>
+<p>A client could simply use HTTP byte-ranges to request individual pieces.</p>
+<p>Some server administrators would not like this, because there will be 100s
+or 1000s of requests in their logs for a single file.  Some may even think
+it is a denial of service attack on them.</p>
+</div>
+<div class="section" id="more-on-other-protocols">
+<h1>More On Other Protocols</h1>
+<p>HTTP and FTP are listed in this BEP as the seeding protocols,
+but a client could use <strong>any</strong> other protocol that allows downloading
+data.  HTTPS, FTPS, or SFTP are obvious, but not likely supported
+by many clients (GetRight can do HTTPS and FTPS, but not SFTP).</p>
+<p>I am sure RTSP and MMS are possible as well.  Potentially even
+Usenet's NNTP protocol could be used.</p>
+<p>Other protocols may have additional issues, such as not allowing
+a download to start anywhere other than the beginning of the file.</p>
+<p>A client may choose to implement only one of the HTTP or FTP protocols
+but not both.</p>
+</div>
+<div class="section" id="acknowledgements">
+<h1>Acknowledgements</h1>
+<p>Thanks to Arvid Norberg (libtorrent.sf.net author) for helping clarify
+the Multi-File torrent parts.  And of course to Bram Cohen for creating
+this whole BitTorrent protocol.</p>
+</div>
+<div class="section" id="references">
+<h1>References</h1>
+<!-- Original WebSeeding document by Michael Burford
+(http://www.getright.com/seedtorrent.html) -->
+</div>
+<div class="section" id="copyright">
+<h1>Copyright</h1>
+<p>This document has been placed in the public domain.</p>
+<!-- Local Variables:
+mode: indented-text
+indent-tabs-mode: nil
+sentence-end-double-space: t
+fill-column: 70
+coding: utf-8
+End: -->
+</div>
+
+
+</div>
+	<div id="footer">
+<hr/>
+</div>
+
+</div>
+</body>
+</html>

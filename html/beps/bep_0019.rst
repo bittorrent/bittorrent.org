@@ -195,6 +195,7 @@ pick piece 2.
 Pseudo-Code logic:
 
 ::
+
    X = sqrt(Peers) - 1;
    Gap = 0;
    CurGap = 0;
@@ -235,6 +236,7 @@ could use another percent of file completion.
 Pseudo-Code logic:
 
 ::
+
    Gap = 0;
    Piece = -1;
    CurGap = MaxPieces+1;

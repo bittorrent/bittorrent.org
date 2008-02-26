@@ -115,3 +115,15 @@ in entirety that you can locate.  If you have no pieces that
 aren't partially downloaded, skip one retry cycle, then start
 requesting partials.  If you receive a 503 response, set the
 retry time equal to the integer value received in the response.
+
+
+
+..
+   Local Variables:
+   mode: indented-text
+   indent-tabs-mode: nil
+   sentence-end-double-space: t
+   fill-column: 70
+   coding: utf-8
+   End:
+

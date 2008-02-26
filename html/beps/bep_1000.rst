@@ -19,8 +19,6 @@ Num    Title
 11     Peer Exchange
 13     Protocol Encryption
 14     Local Service Discovery
-16     Super-seeding
-19     HTTP Seeding (GetRight Style)
 =====  ========================================= 
 
 

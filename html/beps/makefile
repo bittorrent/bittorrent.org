@@ -17,6 +17,7 @@ BEPS= \
 	bep_0010.html \
 	bep_0012.html \
 	bep_0015.html \
+	bep_0016.html \
 	bep_0017.html \
 	bep_0018.html \
 	bep_0019.html \

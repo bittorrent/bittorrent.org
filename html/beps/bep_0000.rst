@@ -39,6 +39,7 @@ Num        Title
 |10|       :raw-html:`<A HREF="bep_0010.html">Extension Protocol </A>`
 |12|       :raw-html:`<A HREF="bep_0012.html">Multitracker Metadata Extension</A>`
 |15|       :raw-html:`<A HREF="bep_0015.html">UDP Tracker Protocol</A>`
+|16|       :raw-html:`<A HREF="bep_0016.html">Superseeding</A>`
 |17|       :raw-html:`<A HREF="bep_0017.html">HTTP Seeding (Hoffman-style) </A>`
 |18|       :raw-html:`<A HREF="bep_0018.html">Search Engine Specification</A>`
 |19|       :raw-html:`<A HREF="bep_0019.html">HTTP/FTP Seeding (GetRight-style) </A>`
@@ -60,6 +61,7 @@ Num        Title
 .. |10| replace:: :raw-html:`<A HREF="bep_0010.html">10</A>`
 .. |12| replace:: :raw-html:`<A HREF="bep_0012.html">12</A>`
 .. |15| replace:: :raw-html:`<A HREF="bep_0015.html">15</A>`
+.. |16| replace:: :raw-html:`<A HREF="bep_0016.html">16</A>`
 .. |17| replace:: :raw-html:`<A HREF="bep_0017.html">17</A>`
 .. |18| replace:: :raw-html:`<A HREF="bep_0018.html">18</A>`
 .. |19| replace:: :raw-html:`<A HREF="bep_0019.html">19</A>`

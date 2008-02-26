@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.5: http://docutils.sourceforge.net/" />
+<title></title>
+<link rel="stylesheet" href="../css/bep.css" type="text/css" />
+</head>
+<body>
+<div class="document">
+
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="../index.html">BitTorrent<span>.org</span></a></h1>
+</div>
+<div id="nav">
+<ul>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../introduction.html">For Users</a></li>
+<li><a href="bep_0000.html"><span>For Developers</span></a></li>
+<!-- <li><a href="./blog">Blog</a></li> -->
+<li><a href="http://forum.bittorrent.org"> Forums </li>
+<li><a href="../donate.html">Donate!</a></li>
+</ul>
+</div> <!-- nav -->
+<!-- ### Begin Content ### -->
+<div id="second">
+
+
+
+<table class="rfc2822 docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">BEP:</th><td class="field-body">16</td>
+</tr>
+<tr class="field"><th class="field-name">Title:</th><td class="field-body">Superseeding</td>
+</tr>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">11020</td>
+</tr>
+<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="https://svn.bittorrent.org/trac.cgi/browser/dotorg/trunk/html/beps/bep_0016.rst">2008-02-25 22:14:29 -0800 (Mon, 25 Feb 2008)</a></td>
+</tr>
+<tr class="field"><th class="field-name">Author:</th><td class="field-body">John Hoffman &lt;theshadow&#32;&#97;t&#32;degreez.net&gt;</td>
+</tr>
+<tr class="field"><th class="field-name">Status:</th><td class="field-body">Draft</td>
+</tr>
+<tr class="field"><th class="field-name">Type:</th><td class="field-body">Standards Track</td>
+</tr>
+<tr class="field"><th class="field-name">Created:</th><td class="field-body">25-Feb-2008</td>
+</tr>
+<tr class="field"><th class="field-name">Post-History:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p>The super-seed feature in S-5.5 and on is a new seeding algorithm designed to help
+a torrent initiator with limited bandwidth &quot;pump up&quot; a large torrent, reducing the
+amount of data it needs to upload in order to spawn new seeds in the torrent.</p>
+<p>When a seeding client enters &quot;super-seed mode&quot;, it will not act as a standard seed,
+but masquerades as a normal client with no data.  As clients connect, it will then
+inform them that it received a piece -- a piece that was never sent, or if all
+pieces were already sent, is very rare.  This will induce the client to attempt to
+download only that piece.</p>
+<p>When the client has finished downloading the piece, the seed will not inform it of
+any other pieces until it has seen the piece it had sent previously present on at
+least one other client.  Until then, the client will not have access to any of the
+other pieces of the seed, and therefore will not waste the seed's bandwidth.</p>
+<p>This method has resulted in much higher seeding efficiencies, by both inducing
+peers into taking only the rarest data, reducing the amount of redundant data sent,
+and limiting the amount of data sent to peers which do not contribute to the swarm.
+Prior to this, a seed might have to upload 150% to 200% of the total size of a
+torrent before other clients became seeds.  However, a large torrent seeded with a
+single client running in super-seed mode was able to do so after only uploading
+105% of the data.  This is 150-200% more efficient than when using a standard seed.</p>
+<p>Super-seed mode is <em>NOT</em> recommended for general use.  While it does assist in the
+wider distribution of rare data, because it limits the selection of pieces a
+client can downlad, it also limits the ability of those clients to download data
+for pieces they have already partially retrieved.  Therefore, super-seed mode is
+only recommended for initial seeding servers.</p>
+<!-- Local Variables:
+mode: indented-text
+indent-tabs-mode: nil
+sentence-end-double-space: t
+fill-column: 70
+coding: utf-8
+End: -->
+
+
+</div>
+	<div id="footer">
+<hr/>
+</div>
+
+</div>
+</body>
+</html>

@@ -37,7 +37,7 @@ class Headers(Transform):
     # argument.  For now, I don't want to modify restructured text parsing code.  It means we cannot currently
     # disambiguate between peps and beps for specifying the base url.
     bep_url = 'bep-%04d'
-    bep_cvs_url = ('https://svn.bittorrent.com/trac.cgi/browser/dotorg/trunk/html/beps/bep_%04d.rst')
+    bep_cvs_url = ('https://svn.bittorrent.org/trac.cgi/browser/dotorg/trunk/html/beps/bep_%04d.rst')
     #bep_cvs_url = ('http://svn.bittorrent.com/view/*checkout*'
     #               '/peps/trunk/bep-%04d.txt')
     rcs_keyword_substitutions = (

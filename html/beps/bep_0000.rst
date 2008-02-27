@@ -43,6 +43,7 @@ Num        Title
 |17|       :raw-html:`<A HREF="bep_0017.html">HTTP Seeding (Hoffman-style) </A>`
 |18|       :raw-html:`<A HREF="bep_0018.html">Search Engine Specification</A>`
 |19|       :raw-html:`<A HREF="bep_0019.html">HTTP/FTP Seeding (GetRight-style) </A>`
+|20|       :raw-html:`<A HREF="bep_0020.html">Peer ID Conventions</A>`
 |1000|     :raw-html:`<A HREF="bep_1000.html">Pending Standards Track Documents</A>`
 ======     ===================
 

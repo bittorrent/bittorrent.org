@@ -15,16 +15,18 @@ also to identify the client implementation and version.
 The mainline client sets the first character in the peer-id to ``M``
 followed by version number represented by ascii digits with major,
 minor and tiny versions separated by dashes.  Examples include
-`M4-3-6--' or 'M4-20-8-' for versions 4.3.6 and 4.20.8.  The remaining
+``M4-3-6--`` or ``M4-20-8-`` for versions 4.3.6 and 4.20.8.  The remaining
 bytes in the peer id are random.  The following list was originally
-derived from [#theory].
+derived from [#theory]_.
 
 A number of clients begin the peer id with a dash followed by two
 characters to identify the client implementation, four ascii digits to
 denote version number, and a dash.  As with mainline, the remaining
 bytes are random.  An example is ``-AZ2060-``.
 
-Known clients that uses this encoding style are::
+Known clients that use this encoding style are
+
+::
 
      'AG' - Ares
      'A~' - Ares
@@ -86,7 +88,7 @@ Known clients that uses this encoding style are::
      'XX' - Xtorrent
      'ZT' - ZipTorrent 
 
-Clients which have been seen in the wild and need to be identified:
+The following clients have been seen in the wild and need to be identified::
 
      'BD' (example: -BD0300-)
      'NP' (example: -NP0201-)
@@ -104,17 +106,17 @@ characters::
 For example: 'S58B-----'... for Shadow's 5.8.11
 
 As with other peer id formats, the remanining bytes are random.  There
-are significant deviations from this explained here [#shad0w].
+are significant deviations from this explained here [#shad0w]_.
 
-Known clients that uses this encoding style are:
+Known clients that uses this encoding style are::
 
-    * 'A' - ABC
-    * 'O' - Osprey Permaseed
-    * 'Q' - BTQueue
-    * 'R' - Tribler
-    * 'S' - Shadow's client
-    * 'T' - BitTornado
-    * 'U' - UPnP NAT Bit Torrent 
+    'A' - ABC
+    'O' - Osprey Permaseed
+    'Q' - BTQueue
+    'R' - Tribler
+    'S' - Shadow's client
+    'T' - BitTornado
+    'U' - UPnP NAT Bit Torrent 
 
 BitComet produces peer ids that consists of four ASCII characters
 ``exbc``, followed by two bytes *x* and *y*, followed by random
@@ -157,8 +159,8 @@ TorrenTopia version 1.90 pretends to be or is derived from Mainline
 
 BitSpirit has several modes for its peer ID. In one mode it reads the
 ID of its peer and reconnects using the first eight bytes as a basis
-for its own ID. Its real ID appears to use ``\0\3BS`` (C notation) as
-the first four bytes for version 3.x and ``\0\2BS`` for version 2.x. In
+for its own ID. Its real ID appears to use ``\\0\\3BS`` (C notation) as
+the first four bytes for version 3.x and ``\\0\\2BS`` for version 2.x. In
 all modes the ID may end in ``UDP0``.
 
 Rufus uses its version as decimal ASCII values for the first two

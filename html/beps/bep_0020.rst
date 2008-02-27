@@ -1,0 +1,192 @@
+BEP: 20
+Title: Peer ID Conventions
+Version: $Revision$
+Last-Modified: $Date$
+Author:  David Harrison <dave@bittorrent.com>
+Status:  Active
+Type:    Process
+Created: Feb-27-2008
+Post-History:
+
+The 20-byte *peer id* field sent in tracker requests and in the peer
+handshake has traditionally been used not only to identify peers but
+also to identify the client implementation and version.
+
+The mainline client sets the first character in the peer-id to ``M``
+followed by version number represented by ascii digits with major,
+minor and tiny versions separated by dashes.  Examples include
+`M4-3-6--' or 'M4-20-8-' for versions 4.3.6 and 4.20.8.  The remaining
+bytes in the peer id are random.  The following list was originally
+derived from [#theory].
+
+A number of clients begin the peer id with a dash followed by two
+characters to identify the client implementation, four ascii digits to
+denote version number, and a dash.  As with mainline, the remaining
+bytes are random.  An example is ``-AZ2060-``.
+
+Known clients that uses this encoding style are::
+
+     'AG' - Ares
+     'A~' - Ares
+     'AR' - Arctic
+     'AV' - Avicora
+     'AX' - BitPump
+     'AZ' - Azureus
+     'BB' - BitBuddy
+     'BC' - BitComet
+     'BF' - Bitflu
+     'BG' - BTG (uses Rasterbar libtorrent)
+     'BR' - BitRocket
+     'BS' - BTSlave
+     'BX' - ~Bittorrent X
+     'CD' - Enhanced CTorrent
+     'CT' - CTorrent
+     'DE' - DelugeTorrent
+     'DP' - Propagate Data Client
+     'EB' - EBit
+     'ES' - electric sheep
+     'FT' - FoxTorrent
+     'GS' - GSTorrent
+     'HL' - Halite
+     'HN' - Hydranode
+     'KG' - KGet
+     'KT' - KTorrent
+     'LH' - LH-ABC
+     'LP' - Lphant
+     'LT' - libtorrent
+     'lt' - libTorrent
+     'LW' - LimeWire
+     'MO' - MonoTorrent
+     'MP' - MooPolice
+     'MR' - Miro
+     'MT' - MoonlightTorrent
+     'NX' - Net Transport
+     'PD' - Pando
+     'qB' - qBittorrent
+     'QD' - QQDownload
+     'QT' - Qt 4 Torrent example
+     'RT' - Retriever
+     'S~' - Shareaza alpha/beta
+     'SB' - ~Swiftbit
+     'SS' - SwarmScope
+     'ST' - SymTorrent
+     'st' - sharktorrent
+     'SZ' - Shareaza
+     'TN' - TorrentDotNET
+     'TR' - Transmission
+     'TS' - Torrentstorm
+     'TT' - TuoTu
+     'UL' - uLeecher!
+     'UT' - µTorrent
+     'VG' - Vagaa
+     'WT' - BitLet
+     'WY' - FireTorrent
+     'XL' - Xunlei
+     'XT' - XanTorrent
+     'XX' - Xtorrent
+     'ZT' - ZipTorrent 
+
+Clients which have been seen in the wild and need to be identified:
+
+     'BD' (example: -BD0300-)
+     'NP' (example: -NP0201-)
+     'wF' (example: -wF2200-) 
+
+Shad0w with his experimental BitTorrent implementation and BitTornado
+introduced peer ids that begin with a character which is``T`` in the
+case of BitTornado followed by up to five ascii characters for version
+number, padded with dashes if less than 5, followed by ``---``.  The
+ascii characters denoting version are limited to the following
+characters::
+
+  0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.-
+
+For example: 'S58B-----'... for Shadow's 5.8.11
+
+As with other peer id formats, the remanining bytes are random.  There
+are significant deviations from this explained here [#shad0w].
+
+Known clients that uses this encoding style are:
+
+    * 'A' - ABC
+    * 'O' - Osprey Permaseed
+    * 'Q' - BTQueue
+    * 'R' - Tribler
+    * 'S' - Shadow's client
+    * 'T' - BitTornado
+    * 'U' - UPnP NAT Bit Torrent 
+
+BitComet produces peer ids that consists of four ASCII characters
+``exbc``, followed by two bytes *x* and *y*, followed by random
+characters. The version number is *x* in decimal before the decimal
+point and *y* as two decimal digits after the decimal point. BitLord
+uses the same scheme, but adds ``LORD`` after the version bytes. An
+unofficial patch for BitComet once replaced ``exbc`` with ``FUTB``. The
+encoding for BitComet Peer IDs changed to Azureus-style as of BitComet
+version 0.59.
+
+XBT Client has its own style too. Its peer_id consists of the three
+uppercase characters ``XBT`` followed by three ASCII digits representing
+the version number. If the client is a debug build, the seventh byte
+is the lowercase character ``d``, otherwise it is a ``-``. Following that
+is a ``-`` then random digits, uppercase and lowercase letters. Example:
+``XBT054d-`` at the beginning would indicate a debug build of version
+0.5.4.
+
+Opera 8 previews and Opera 9.x releases use the following peer_id
+scheme: The first two characters are ``OP`` and the next four digits
+equal the build number. All following characters are random lowercase
+hexdecimal digits.
+
+MLdonkey use the following peer_id scheme: the first characters are
+``-ML`` followed by a dotted version then a ``-`` followed by
+randomness. e.g. ``-ML2.7.2-kgjjfkd``
+
+Bits on Wheels uses the pattern ``-BOWxxx-yyyyyyyyyyyy``, where y is
+random (uppercase letters) and x depends on the version. Version 1.0.6
+has xxx = A0C.
+
+Queen Bee uses Bram``s new style: ``Q1-0-0--`` or ``Q1-10-0-`` followed by
+random bytes.
+
+BitTyrant is an Azureus fork and simply uses ``AZ2500BT`` + random bytes
+as peer ID in its 1.1 version. Note the missing dashes.
+
+TorrenTopia version 1.90 pretends to be or is derived from Mainline
+3.4.6. Its peer ID starts with ``346------``.
+
+BitSpirit has several modes for its peer ID. In one mode it reads the
+ID of its peer and reconnects using the first eight bytes as a basis
+for its own ID. Its real ID appears to use ``\0\3BS`` (C notation) as
+the first four bytes for version 3.x and ``\0\2BS`` for version 2.x. In
+all modes the ID may end in ``UDP0``.
+
+Rufus uses its version as decimal ASCII values for the first two
+bytes. The third and fourth bytes are ``RS``. What then follows is the
+nickname of the user and some random bytes.
+
+G3 Torrent starts its peer ID with ``-G3`` and appends up to 9
+characters of the nickname of the user.
+
+FlashGet uses Azureus style with ``FG`` but without the trailing
+``-``. Version 1.82.1002 still uses the version digits ``0180``.
+
+AllPeers takes the sha1 hash of a user dependent string and replaces
+the first few characters with "AP" + version string + "-".
+
+References
+==========
+
+.. [#theory] http://wiki.theory.org/BitTorrentSpecification
+
+.. [#shad0w] http://forums.degreez.net/viewtopic.php?t=7070
+
+
+..
+   Local Variables:
+   mode: indented-text
+   indent-tabs-mode: nil
+   sentence-end-double-space: t
+   fill-column: 70
+   coding: utf-8
+   End:

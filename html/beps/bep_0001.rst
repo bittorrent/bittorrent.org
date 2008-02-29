@@ -175,7 +175,8 @@ BEPs that infringes on the intellectual property rights of others.
 
 This policy statement should not be construed as meaning that BEP
 authors are required to assign software implementations of any
-particular idea to the public domain.
+particular idea to the public domain.  BitTorrent implementors may
+retain all rights to their implementations.
 
 
 History

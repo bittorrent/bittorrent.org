@@ -158,6 +158,22 @@ The possible paths of the status of BEPs are as follows:
 .. image :: bep_0001_1.png
 
 
+Intellectual Property and BitTorrent Standards
+==============================================
+
+Any idea submitted in a BEP will not be considered for standardization
+if the idea is not in the public domain.  Before a BEP can be
+considered Final, all people or entities with a claim on the
+intellectual property expressed in a BEP (including the BEP authors)
+must assign in writing all intellectual property expressed in the BEP
+to the public domain.  If the BEP authors lack the power to assign
+intellectual property rights then they must disclose this fact before
+the BEP can be considered Final.
+
+Furthermore BEP authors should not knowingly propose anything in their
+BEPs that infringe on the intellectual property rights of others.
+
+
 History
 =======
 

@@ -74,6 +74,11 @@ Example
  <Url template="http://www.bittorrent.com/search?q={searchTerms}&category=All"/>
  </OpenSearchDescription>
 
+Copyright
+=========
+
+This document has been placed in the public domain.
+
 
 
 ..

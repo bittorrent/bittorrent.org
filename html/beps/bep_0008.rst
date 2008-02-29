@@ -458,6 +458,12 @@ Request handling in a dummy tracker implementing tracker peer obfuscation::
   init()
   print getpeers(20)
 
+
+Copyright
+=========
+
+This document has been placed in the public domain.
+
 
 ..
    Local Variables:

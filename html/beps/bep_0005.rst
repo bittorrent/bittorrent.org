@@ -407,6 +407,11 @@ References
 
 .. [#entropy] Use SHA1 and plenty of entropy to ensure a unique ID.
 
+Copyright
+=========
+
+This document has been placed in the public domain.
+
 
 
 ..

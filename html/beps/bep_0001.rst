@@ -188,6 +188,11 @@ References and Footnotes
 .. [#PEP-1] PEP-001: PEP Purposes and Guidelines, Warsaw, Hylton, Goodger.
    (http://www.python.org/dev/peps/pep-0001)
 
+Copyright
+=========
+
+This document has been placed in the public domain.
+
 
 ..
    Local Variables:

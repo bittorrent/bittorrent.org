@@ -176,12 +176,19 @@ FlashGet uses Azureus style with ``FG`` but without the trailing
 AllPeers takes the sha1 hash of a user dependent string and replaces
 the first few characters with "AP" + version string + "-".
 
+
 References
 ==========
 
 .. [#theory] http://wiki.theory.org/BitTorrentSpecification
 
 .. [#shad0w] http://forums.degreez.net/viewtopic.php?t=7070
+
+
+Copyright
+=========
+
+This document has been placed in the public domain.
 
 
 ..

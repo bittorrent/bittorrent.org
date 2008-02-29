@@ -340,6 +340,12 @@ optimistically unchoked rotates every 30 seconds. To give them a
 decent chance of getting a complete piece to upload, new connections
 are three times as likely to start as the current optimistic unchoke
 as anywhere else in the rotation.
+
+Copyright
+---------
+
+This document has been placed in the public domain.
+
 
 ..
    Local Variables:

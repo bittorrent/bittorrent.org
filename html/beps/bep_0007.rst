@@ -99,6 +99,11 @@ response and to be backwards compatible. It is also a simple addition to the
 current response, using the same encoding.
 
 
+Copyright
+---------
+
+This document has been placed in the public domain.
+
 
 
 ..

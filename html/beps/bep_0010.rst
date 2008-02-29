@@ -206,6 +206,12 @@ protocol more readable for a human, but the BT protocol wasn't designed to
 be a human readable protocol, so why bother.
 
 
+Copyright
+=========
+
+This document has been placed in the public domain.
+
+
 
 ..
    Local Variables:

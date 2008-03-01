@@ -53,7 +53,7 @@ There are three kinds of BEP:
      decision-making process, and changes to the tools or environment
      used in BitTorrent development.
 
-BEP Work FLow
+BEP Work Flow
 =============
 
 The BEP editors assign BEP numbers and change their status. The

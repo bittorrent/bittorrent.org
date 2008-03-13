@@ -35,7 +35,7 @@ Num        Title
 |6|        :raw-html:`<A HREF="bep_0006.html">Fast Extension </A>`
 |7|        :raw-html:`<A HREF="bep_0007.html">IPv6 Tracker Extension   </A>`
 |8|        :raw-html:`<A HREF="bep_0008.html">Tracker Peer Obfuscation </A>`
-|9|        :raw-html:`<A HREF="bep_0009.html">Metadata Extension </A>`
+|9|        :raw-html:`<A HREF="bep_0009.html">Extension for Peers to Send Metadata Files </A>`
 |10|       :raw-html:`<A HREF="bep_0010.html">Extension Protocol </A>`
 |12|       :raw-html:`<A HREF="bep_0012.html">Multitracker Metadata Extension</A>`
 |15|       :raw-html:`<A HREF="bep_0015.html">UDP Tracker Protocol</A>`

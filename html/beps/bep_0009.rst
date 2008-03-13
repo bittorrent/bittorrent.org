@@ -1,5 +1,5 @@
 BEP: 9
-Title: Metadata Extension
+Title: Extension for Peers to Send Metadata Files
 Version: $Revision$
 Last-Modified: $Date$
 Author:  Greg Hazel <greg@bittorrent.com>, Arvid Norberg <arvid@bittorrent.com>

@@ -48,7 +48,7 @@ Num        Title
 ======     ===================
 
 .. [#python] http://www.python.org/dev/peps/
-.. [#svn] http://svn.bittorrent.org
+.. [#svn] http://bittorrent.org/trac
 .. |0| replace:: :raw-html:`<A HREF="bep_0000.html">0</A>`
 .. |1| replace:: :raw-html:`<A HREF="bep_0001.html">1</A>`
 .. |2| replace:: :raw-html:`<A HREF="bep_0002.html">2</A>`

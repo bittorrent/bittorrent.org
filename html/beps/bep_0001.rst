@@ -205,7 +205,7 @@ References and Footnotes
 .. [#svn] This historical record is available by the normal SVN
           commands for retrieving older revisions. For those without direct
           access to the SVN tree, you can browse the current and past BEP
-          revisions here: http://svn.bittorrent.org/beps/trunk/
+          revisions here: http://bittorrent.org/trac/
 
 .. [#PEP-1] PEP-001: PEP Purposes and Guidelines, Warsaw, Hylton, Goodger.
    (http://www.python.org/dev/peps/pep-0001)

@@ -34,7 +34,6 @@ Num        Title
 |5|        :raw-html:`<A HREF="bep_0005.html">DHT Protocol </A>`
 |6|        :raw-html:`<A HREF="bep_0006.html">Fast Extension </A>`
 |7|        :raw-html:`<A HREF="bep_0007.html">IPv6 Tracker Extension   </A>`
-|8|        :raw-html:`<A HREF="bep_0008.html">Tracker Peer Obfuscation </A>`
 |9|        :raw-html:`<A HREF="bep_0009.html">Extension for Peers to Send Metadata Files </A>`
 |10|       :raw-html:`<A HREF="bep_0010.html">Extension Protocol </A>`
 |12|       :raw-html:`<A HREF="bep_0012.html">Multitracker Metadata Extension</A>`
@@ -46,6 +45,28 @@ Num        Title
 |20|       :raw-html:`<A HREF="bep_0020.html">Peer ID Conventions</A>`
 |1000|     :raw-html:`<A HREF="bep_1000.html">Pending Standards Track Documents</A>`
 ======     ===================
+
+
+Deferred BEPs 
+-------------
+
+======     ===================  
+Num        Title              
+======     ===================
+|8|        :raw-html:`<A HREF="bep_0008.html">Tracker Peer Obfuscation </A>`
+======     ===================
+
+
+Withdrawn BEPs
+--------------
+
+At this time, no BEPs have been withdrawn.
+
+
+Rejected BEPs
+-------------
+
+At this time, no BEPs have been rejected.
 
 .. [#python] http://www.python.org/dev/peps/
 .. [#svn] http://bittorrent.org/trac

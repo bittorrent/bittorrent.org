@@ -23,13 +23,19 @@ document is maintained in subversion [#svn]_.
 .. role:: raw-html(raw)
    :format: html
 
-Final BEPs
-----------
+Final and Active Process BEPs
+-----------------------------
 
 ======     ===================  
 Num        Title              
 ======     ===================
+|0|        :raw-html:`<A HREF="bep_0000.html">Index of BitTorrent Enhancement Proporsals </A>`
+|1|        :raw-html:`<A HREF="bep_0001.html">The BEP Process</A>`
+|2|        :raw-html:`<A HREF="bep_0002.html">Sample reStructured Text BEP Template</A>`
 |3|        :raw-html:`<A HREF="bep_0003.html">The BitTorrent Protocol Specification</A>`
+|4|        :raw-html:`<A HREF="bep_0004.html">Known Number Allocations </A>`
+|20|       :raw-html:`<A HREF="bep_0020.html">Peer ID Conventions</A>`
+|1000|     :raw-html:`<A HREF="bep_1000.html">Pending Standards Track Documents</A>`
 ======     ===================
 
 
@@ -41,10 +47,6 @@ The following BEPs are under consideration for standardization.
 ======     ===================  
 Num        Title              
 ======     ===================
-|0|        :raw-html:`<A HREF="bep_0000.html">Index of BitTorrent Enhancement Proporsals </A>`
-|1|        :raw-html:`<A HREF="bep_0001.html">The BEP Process</A>`
-|2|        :raw-html:`<A HREF="bep_0002.html">Sample reStructured Text BEP Template</A>`
-|4|        :raw-html:`<A HREF="bep_0004.html">Known Number Allocations </A>`
 |5|        :raw-html:`<A HREF="bep_0005.html">DHT Protocol </A>`
 |6|        :raw-html:`<A HREF="bep_0006.html">Fast Extension </A>`
 |7|        :raw-html:`<A HREF="bep_0007.html">IPv6 Tracker Extension   </A>`
@@ -56,8 +58,6 @@ Num        Title
 |17|       :raw-html:`<A HREF="bep_0017.html">HTTP Seeding (Hoffman-style) </A>`
 |18|       :raw-html:`<A HREF="bep_0018.html">Search Engine Specification</A>`
 |19|       :raw-html:`<A HREF="bep_0019.html">HTTP/FTP Seeding (GetRight-style) </A>`
-|20|       :raw-html:`<A HREF="bep_0020.html">Peer ID Conventions</A>`
-|1000|     :raw-html:`<A HREF="bep_1000.html">Pending Standards Track Documents</A>`
 ======     ===================
 
 

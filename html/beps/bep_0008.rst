@@ -3,7 +3,7 @@ Title: Tracker Peer Obfuscation
 Version: $Revision$
 Last-Modified: $Date$
 Author:  David Harrison <dave@bittorrent.com>, Anthony Ciani <tony@ciani.phy.uic.edu>, Arvid Norberg <arvid@bittorrent.com>, Greg Hazel <greg@bittorrent.com> 
-Status:  Draft
+Status:  Deferred
 Type:    Standards Track
 Created: 31-Jan-2008
 Post-History:

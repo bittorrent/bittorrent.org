@@ -23,13 +23,27 @@ document is maintained in subversion [#svn]_.
 .. role:: raw-html(raw)
    :format: html
 
+Final BEPs
+----------
+
+======     ===================  
+Num        Title              
+======     ===================
+|3|        :raw-html:`<A HREF="bep_0003.html">The BitTorrent Protocol Specification</A>`
+======     ===================
+
+
+Draft BEPs
+-----------
+
+The following BEPs are under consideration for standardization.
+
 ======     ===================  
 Num        Title              
 ======     ===================
 |0|        :raw-html:`<A HREF="bep_0000.html">Index of BitTorrent Enhancement Proporsals </A>`
 |1|        :raw-html:`<A HREF="bep_0001.html">The BEP Process</A>`
 |2|        :raw-html:`<A HREF="bep_0002.html">Sample reStructured Text BEP Template</A>`
-|3|        :raw-html:`<A HREF="bep_0003.html">The BitTorrent Protocol Specification</A>`
 |4|        :raw-html:`<A HREF="bep_0004.html">Known Number Allocations </A>`
 |5|        :raw-html:`<A HREF="bep_0005.html">DHT Protocol </A>`
 |6|        :raw-html:`<A HREF="bep_0006.html">Fast Extension </A>`
@@ -49,6 +63,9 @@ Num        Title
 
 Deferred BEPs 
 -------------
+
+The editor(s) deem that the following BEPs are not progressing toward standardization, 
+but they have not yet been withdrawn.
 
 ======     ===================  
 Num        Title              

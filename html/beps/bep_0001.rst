@@ -105,12 +105,13 @@ client with publicy available code before it can be considered Final.
 
 BEP champions are responsible for collecting community feedback on a
 BEP before submitting it for review. A BEP that has not been discussed
-on bittorrent-list@bittorrent.org will not be accepted. However, wherever
-possible, long open-ended discussions in the BEP forum should
-be avoided. Strategies to keep the discussions efficient include:
-setting up a separate SIG forum for the topic, having the BEP
-author accept private comments in the early design phases, setting up
-a wiki page, etc. BEP authors should use their discretion here.
+in the BEPs forum on forum.bittorrent.org will not be
+accepted. However, wherever possible, long open-ended discussions in
+the BEP forum should be avoided. Strategies to keep the discussions
+efficient include: setting up a separate SIG forum for the topic,
+having the BEP author accept private comments in the early design
+phases, setting up a wiki page, etc. BEP authors should use their
+discretion here.
 
 Once the authors have completed a BEP, they must inform the BEP editor
 that it is ready for review. BEPs are reviewed by the BDFL and his

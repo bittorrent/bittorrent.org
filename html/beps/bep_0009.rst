@@ -118,7 +118,9 @@ The magnet URI format is::
 	magnet:?xt=urn:btih:<info-hash>&dn=<name>&tr=<tracker-url>
 
 <info-hash>
-	Is the info-hash encoded as `base32`_
+	Is the info-hash hex encoded, for a total of 40 characters. For
+	compatability with existing links in the wild, clients should also
+	support the 32 character `base32`_ encoded info-hash.
 
 ``xt`` is the only mandatory parameter. ``dn`` is the display name that may be
 used by the client to display while waiting for metadata. ``tr`` is a tracker

@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.5: http://docutils.sourceforge.net/" />
+<title></title>
+<link rel="stylesheet" href="../css/bep.css" type="text/css" />
+</head>
+<body>
+<div class="document">
+
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="../index.html">BitTorrent<span>.org</span></a></h1>
+</div>
+<div id="nav">
+<ul>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../introduction.html">For Users</a></li>
+<li><a href="bep_0000.html"><span>For Developers</span></a></li>
+<!-- <li><a href="./blog">Blog</a></li> -->
+<li><a href="http://forum.bittorrent.org"> Forums </li>
+<li><a href="../donate.html">Donate!</a></li>
+</ul>
+</div> <!-- nav -->
+<!-- ### Begin Content ### -->
+<div id="second">
+
+
+
+<table class="rfc2822 docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">BEP:</th><td class="field-body">23</td>
+</tr>
+<tr class="field"><th class="field-name">Title:</th><td class="field-body">Tracker Returns Packed Peer Lists</td>
+</tr>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">11070</td>
+</tr>
+<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0023.rst">2008-05-13 16:54:12 -0700 (Tue, 13 May 2008)</a></td>
+</tr>
+<tr class="field"><th class="field-name">Author:</th><td class="field-body">David Harrison &lt;dave&#32;&#97;t&#32;bittorrent.com&gt;</td>
+</tr>
+<tr class="field"><th class="field-name">Status:</th><td class="field-body">Accepted</td>
+</tr>
+<tr class="field"><th class="field-name">Type:</th><td class="field-body">Standards track</td>
+</tr>
+<tr class="field"><th class="field-name">Content-Type:</th><td class="field-body"><a class="reference external" href="http://www.bittorrent.org/beps/bep-0012">text/x-rst</a></td>
+</tr>
+<tr class="field"><th class="field-name">Created:</th><td class="field-body">12-May-2008</td>
+</tr>
+<tr class="field"><th class="field-name">Post-History:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#abstract" id="id3">Abstract</a></li>
+<li><a class="reference internal" href="#overview" id="id4">Overview</a></li>
+<li><a class="reference internal" href="#references" id="id5">References</a></li>
+<li><a class="reference internal" href="#copyright" id="id6">Copyright</a></li>
+</ul>
+</div>
+<div class="section" id="abstract">
+<h1>Abstract</h1>
+<p>To reduce the size of tracker responses and to reduce memory and
+computational requirements in trackers, trackers may return
+peers as a packed string rather than as a bencoded list.</p>
+</div>
+<div class="section" id="overview">
+<h1>Overview</h1>
+<p>In BitTorrent as described in BEP 3 [#BEP-3], peers wishing to
+transfer a file contact a central tracker.  This tracker returns a
+list of peers that are currently transferring the file.  The list of
+peers is implemented as a list of bencoded dicts.  Each dict in the
+list contains three fields: <em>peer id</em>, <em>ip</em>, and <em>port</em>.  The <em>peer
+id</em> is 20 bytes plus 3 bytes bencoding overhead.  The <em>ip</em> is a string
+containing a domain name or an IP address, and an integer port number.
+The <em>ip</em> is variable length, but since in its longest form it is a
+domain name it cannot exceed 255 bytes (see <a class="reference external" href="RFC-1034.DOMAINNAMES-CONCEPTSANDFACILITIES.Mockapetris,November1987.http://tools.ietf.org/html/rfc1034">RFC 1034</a> <a class="footnote-reference" href="#id1" id="id2">[2]</a>) plus 4 bytes
+bencoding overhead.  Bencoded integers are also variable length but
+since it is a port number, it cannot be more than 7 bytes including
+bencoding overhead.  Thus,</p>
+<blockquote>
+total peer list length in bytes &lt; n * ( 23 + 259 + 7 )</blockquote>
+<p>It is common now to use a packed format where each peer is represented
+using only 6 bytes.  The first 4 bytes contain the 32-bit ipv4 address.
+The remaining two bytes contain the port number.  Both address and port
+use network-byte order.</p>
+<p>The packed format uses the same <em>peers</em> key in the bencoded tracker
+response, but the value is a bencoded string rather than a bencoded
+list.</p>
+<p>The peer id does not appear in the packed format.  The format has been
+in use for years and the lack of a peer id has posed no problems.</p>
+<p>This packed format is supported by BitTorrent mainline, Azureus,
+libtorrent, uTorrent, and probably most other clients.</p>
+</div>
+<div class="section" id="references">
+<h1>References</h1>
+<table class="docutils footnote" frame="void" id="bep-3" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[1]</td><td>BEP_0003. The BitTorrent Protocol Specification, Cohen
+(<a class="reference external" href="http://www.bittorrent.org/beps/bep_0003">http://www.bittorrent.org/beps/bep_0003</a>)</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id1" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td><a class="reference external" href="RFC-1034.DOMAINNAMES-CONCEPTSANDFACILITIES.Mockapetris,November1987.http://tools.ietf.org/html/rfc1034">RFC-1034.DOMAINNAMES-CONCEPTSANDFACILITIES.Mockapetris,November1987.http://tools.ietf.org/html/rfc1034</a></td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="copyright">
+<h1>Copyright</h1>
+<p>This document has been placed in the public domain.</p>
+<!-- Local Variables:
+mode: indented-text
+indent-tabs-mode: nil
+sentence-end-double-space: t
+fill-column: 70
+coding: utf-8
+End: -->
+</div>
+
+
+</div>
+	<div id="footer">
+<hr/>
+</div>
+
+</div>
+</body>
+</html>

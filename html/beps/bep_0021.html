@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.5: http://docutils.sourceforge.net/" />
+<title></title>
+<link rel="stylesheet" href="../css/bep.css" type="text/css" />
+</head>
+<body>
+<div class="document">
+
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="../index.html">BitTorrent<span>.org</span></a></h1>
+</div>
+<div id="nav">
+<ul>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../introduction.html">For Users</a></li>
+<li><a href="bep_0000.html"><span>For Developers</span></a></li>
+<!-- <li><a href="./blog">Blog</a></li> -->
+<li><a href="http://forum.bittorrent.org"> Forums </li>
+<li><a href="../donate.html">Donate!</a></li>
+</ul>
+</div> <!-- nav -->
+<!-- ### Begin Content ### -->
+<div id="second">
+
+
+
+<table class="rfc2822 docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">BEP:</th><td class="field-body">21</td>
+</tr>
+<tr class="field"><th class="field-name">Title:</th><td class="field-body">Extension for partial seeds</td>
+</tr>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">11058</td>
+</tr>
+<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0021.rst">2008-05-13 00:39:52 -0700 (Tue, 13 May 2008)</a></td>
+</tr>
+<tr class="field"><th class="field-name">Author:</th><td class="field-body">Arvid Norberg &lt;arvid&#32;&#97;t&#32;bittorrent.com&gt;, Greg Hazel &lt;greg&#32;&#97;t&#32;bittorrent.com&gt;, Aaron Grunthal</td>
+</tr>
+<tr class="field"><th class="field-name">Status:</th><td class="field-body">Draft</td>
+</tr>
+<tr class="field"><th class="field-name">Type:</th><td class="field-body">Standards Track</td>
+</tr>
+<tr class="field"><th class="field-name">Created:</th><td class="field-body">8-May-2008</td>
+</tr>
+<tr class="field"><th class="field-name">Post-History:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#extension-header" id="id3">Extension Header</a></li>
+<li><a class="reference internal" href="#tracker-scrapes" id="id4">Tracker Scrapes</a></li>
+<li><a class="reference internal" href="#tracker-announce" id="id5">Tracker Announce</a></li>
+<li><a class="reference internal" href="#rationale" id="id6">Rationale</a></li>
+<li><a class="reference internal" href="#references" id="id7">References</a></li>
+<li><a class="reference internal" href="#copyright" id="id8">Copyright</a></li>
+</ul>
+</div>
+<p>The purpose of this extension is to allow further optimizations of
+bittorrent swarms when peers are <em>partial seeds</em>. A partial seed
+is a peer that is incomplete without downloading anything more. This
+happens for multi file torrents where users only download some of
+the files.</p>
+<div class="section" id="extension-header">
+<h1>Extension Header</h1>
+<p>A peer that is a partial seed SHOULD include an extra header in the extension
+handshake (specified in <a class="reference external" href="http://www.bittorrent.org/beps/bep_0010.html">BEP 0010</a> <a class="footnote-reference" href="#id1" id="id2">[1]</a>), 'upload_only'. Setting the value of
+this key to 1 indicates that this peer is not interested in downloading anything.</p>
+<p>Example extension handshake message:</p>
+<pre class="literal-block">
+{'m': {'ut_metadata', 3}, 'upload_only': 1}
+</pre>
+</div>
+<div class="section" id="tracker-scrapes">
+<h1>Tracker Scrapes</h1>
+<p>The tracker scrape conventions defines three values per torrent, 'complete',
+'incomplete' and 'downloaded'. The purpose of this extensions is to let clients
+distinguish between partial seeds and downloaders, both of which currently would
+be classified as <em>incomplete</em>.</p>
+<p>If the tracker supports this extension, it MUST add a fourth field, 'downloaders'.
+This field is the number of active downloaders in the swarm, it does not include
+partial seeds. The number of partial seeds can be calculated by:
+<tt class="docutils literal"><span class="pre">incomplete</span> <span class="pre">-</span> <span class="pre">downloaders</span></tt>.</p>
+</div>
+<div class="section" id="tracker-announce">
+<h1>Tracker Announce</h1>
+<p>In order to tell the tracker that a peer is a partial seed, it MUST send an
+<tt class="docutils literal"><span class="pre">event=paused</span></tt> parameter in every announce while it is a partial seed.</p>
+</div>
+<div class="section" id="rationale">
+<h1>Rationale</h1>
+<p>Allowing peers to scrape a tracker and distinguish between active downloaders
+and partial seeds makes it more efficient to determine what to seed based
+on the downloader/seed ratio.</p>
+<p>The reason why every announce should contain <tt class="docutils literal"><span class="pre">event=paused</span></tt> is to avoid
+relying on the state being stored in the tracker. In case there's a failure
+and a backup tracker is used, it can recover all of the swarm state because
+the clients are announcing that they are partial seeds.</p>
+</div>
+<div class="section" id="references">
+<h1>References</h1>
+<table class="docutils footnote" frame="void" id="id1" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[1]</a></td><td><a class="reference external" href="http://www.bittorrent.org/beps/bep_0010.html">http://www.bittorrent.org/beps/bep_0010.html</a></td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="copyright">
+<h1>Copyright</h1>
+<p>This document has been placed in the public domain.</p>
+<!-- Local Variables:
+mode: indented-text
+indent-tabs-mode: nil
+sentence-end-double-space: t
+fill-column: 70
+coding: utf-8
+End: -->
+</div>
+
+
+</div>
+	<div id="footer">
+<hr/>
+</div>
+
+</div>
+</body>
+</html>

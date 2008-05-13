@@ -607,8 +607,7 @@ was written by David Goodger and Barry Warsaw, they are not
 responsible for its use in the BitTorent Enhancement Process, and
 should not be bothered with technical questions specific to BitTorrent
 or the BEP process.  Please direct all comments to the BitTorrent
-editors <editor@bittorrent.org> or the BitTorrent mailing list
-<bittorrent-list@bittorrent.org>.
+editors <editor@bittorrent.org>.
 
 Acknowledgements
 ================

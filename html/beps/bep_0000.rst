@@ -50,7 +50,7 @@ Num        Title
 ======     ===================
 |9|        :raw-html:`<A HREF="bep_0009.html">Extension for Peers to Send Metadata Files </A>`
 |23|       :raw-html:`<A HREF="bep_0023.html">Tracker Returns Packed Peer Lists</A>`
-|24|       :raw-html:`<A HREF="bep_0023.html">Tracker Returns External IP</A>`
+|24|       :raw-html:`<A HREF="bep_0024.html">Tracker Returns External IP</A>`
 ======     ===================
 
 Draft BEPs
@@ -120,6 +120,6 @@ At this time, no BEPs have been rejected.
 .. |19| replace:: :raw-html:`<A HREF="bep_0019.html">19</A>`
 .. |20| replace:: :raw-html:`<A HREF="bep_0020.html">20</A>`
 .. |21| replace:: :raw-html:`<A HREF="bep_0021.html">21</A>`
-.. |23| replace:: :raw-html:`<A HREF="bep_0023.html">21</A>`
-.. |24| replace:: :raw-html:`<A HREF="bep_0024.html">21</A>`
+.. |23| replace:: :raw-html:`<A HREF="bep_0023.html">23</A>`
+.. |24| replace:: :raw-html:`<A HREF="bep_0024.html">24</A>`
 .. |1000| replace:: :raw-html:`<A HREF="bep_1000.html">1000</A>`

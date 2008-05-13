@@ -1,0 +1,103 @@
+BEP: 22
+Title: Cache Discovery
+Version: $Revision$
+Last-Modified: $Date$
+Author:  David Harrison <dave@bittorrent.com>, Stanislav Shalunov <shalunov@bittorrent.com>
+Status:  Draft
+Type:    Standards track
+Content-Type: text/x-rst
+Created: 12-May-2008
+Post-History: 
+
+
+With this extension, BitTorrent clients are able to discover caches
+nearby on the network.  When a cache is present, the user benefits
+from having a high capacity peer from which the user's client
+downloads and to which it can delegate seeding.  When a cache inside
+the user's Internet Service Provider (ISP) network seeds on behalf of
+the client, it frees upstream capacity in the user's access network
+benefiting the user and those that share the access network.  When
+peers transfer to or from an ISP cache, the ISP experiences less
+transit traffic.
+
+
+The Discovery Mechanism
+=======================
+
+To find the caches for its ISP, a BitTorrent client running on an ipv4
+host performs a DNS lookup for the SRV resource record at
+
+  _bittorrent._tcp.w.x.y.z.in-addr.arpa
+
+where w.x.y.z is replaced with the IPv4 address z.y.x.w of the
+BitTorrent client's host.  The target field in the SRV resource record
+contains the domain name of the cache and the port specifies the
+location on that cache where the BitTorrent implementation listens.
+
+The SRV resource record type is described in `RFC 2782`_.  The
+w.x.y.z.in-addr.arpa portion of the domain name is the same name host
+z.y.x.w would use for host address to host name translation as
+described in `RFC 1034`_.
+
+If the host implements IPv6 then replace w.x.y.z.in-addr.arpa
+according to the convention specified in `RFC 3596`_.
+
+
+Network Address Translators
+===========================
+
+Many hosts on the Internet sit in private networks that connect to the
+Internet via a Network Address Translator (NAT).  Such hosts may have
+an IP address allocated from one of the three private IP address
+ranges defined by IANA, i.e., 10.*.*.*, 172.*.*.*, or 192.*.*.*.  When
+communicating with hosts outside the private network, the NAT
+translates the private IP to an IP address routed by the ISP.  When a
+host sends packets across the public Internet, the packets' source IP
+address is the host's *public IP address*.
+
+When finding a cache, the BitTorrent client must use its host's public
+IP address.  A BitTorrent client can obtain its host's public IP by
+either querying the tracker and looking at the value to the returned
+*external ip* key [#BEP-0024] or from other peers using the *Extension
+Protocol* proposed in [#BEP-0010].  uTorrent and BitTorrent mainline
+implement both methods for determining one's external IP.  libtorrent
+implements the *Extension Protocol*.
+
+
+
+References
+==========
+
+.. _`RFC 1034`: RFC-1034. DOMAIN NAMES - CONCEPTS AND FACILITIES. Mockapetris,
+   November 1987. http://tools.ietf.org/html/rfc1034
+
+
+.. _`RFC 2782`: A DNS RR for specifying the location of services (DNS
+   SRV). Gulbrandsen, Vixie, Esibov. February 2000. 
+   http://tools.ietf.org/html/rfc2782
+
+.. _`RFC 3596`: DNS Extensions to Support IP Version 6, Thomson, Huitema, Ksinant, Souissi. 
+   October 2003. http://www.ietf.org/rfc/rfc3596.txt
+
+.. [#BEP-10] BEP_0010.  Extension Protocol. Norberg, Strigeus, Hazel
+   (http://www.bittorrent.org/beps/bep_0010)
+
+.. [#BEP-24] BEP_0024.  Tracker Returns External IP.  Harrison
+   (http://www.bittorrent.org/beps/bep_0024)
+
+Copyright
+=========
+
+This document has been placed in the public domain.
+
+
+
+..
+   Local Variables:
+   mode: indented-text
+   indent-tabs-mode: nil
+   sentence-end-double-space: t
+   fill-column: 70
+   coding: utf-8
+   End:
+

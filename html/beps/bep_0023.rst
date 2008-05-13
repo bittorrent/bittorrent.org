@@ -1,0 +1,78 @@
+BEP: 23
+Title: Tracker Returns Packed Peer Lists
+Version: $Revision$
+Last-Modified: $Date$
+Author:  David Harrison <dave@bittorrent.com>
+Status:  Draft
+Type:    Standards track
+Content-Type: text/x-rst
+Created: 12-May-2008
+Post-History: 
+
+
+Abstract
+========
+
+To reduce the size of tracker responses and to reduce memory and
+computational requirements in trackers, trackers may return
+peers as a packed string rather than as a bencoded list.
+
+
+Overview
+========
+
+In BitTorrent as described in BEP 3 [#BEP-3], peers wishing to
+transfer a file contact a central tracker.  This tracker returns a
+list of peers that are currently transferring the file.  The list of
+peers is implemented as a list of bencoded dicts.  Each dict in the
+list contains three fields: *peer id*, *ip*, and *port*.  The *peer
+id* is 20 bytes plus 3 bytes bencoding overhead.  The *ip* is a string
+containing a domain name or an IP address, and an integer port number.
+The *ip* is variable length, but since in its longest form it is a
+domain name it cannot exceed 255 bytes (see `RFC 1034`_) plus 4 bytes
+bencoding overhead.  Bencoded integers are also variable length but
+since it is a port number, it cannot be more than 7 bytes including
+bencoding overhead.  Thus,
+
+  total peer list length in bytes < n * ( 23 + 259 + 7 )  
+
+It is common now to use a packed format where each peer is represented
+using only 6 bytes.  The first 4 bytes contain the 32-bit ipv4 address.
+The remaining two bytes contain the port number.  Both address and port
+use network-byte order.
+
+The packed format uses the same *peers* key in the bencoded tracker
+response, but the value is a bencoded string rather than a bencoded
+list.
+
+The peer id does not appear in the packed format.  The format has been
+use for years and the lack of a peer id has posed no problems.
+
+This packed format is supported by BitTorrent mainline, Azureus,
+libtorrent, uTorrent, and probably most other clients.
+
+References
+==========
+
+.. [#BEP-3] BEP_0003. The BitTorrent Protocol Specification, Cohen
+   (http://www.bittorrent.org/beps/bep_0003)
+
+.. _`RFC 1034`: RFC-1034. DOMAIN NAMES - CONCEPTS AND FACILITIES. Mockapetris,
+   November 1987. http://tools.ietf.org/html/rfc1034
+
+Copyright
+=========
+
+This document has been placed in the public domain.
+
+
+
+..
+   Local Variables:
+   mode: indented-text
+   indent-tabs-mode: nil
+   sentence-end-double-space: t
+   fill-column: 70
+   coding: utf-8
+   End:
+

@@ -3,7 +3,7 @@ Title: Tracker Returns External IP
 Version: $Revision$
 Last-Modified: $Date$
 Author:  David Harrison <dave@bittorrent.com>
-Status:  Draft
+Status:  Accepted 
 Type:    Standards track
 Content-Type: text/x-rst
 Created: 12-May-2008

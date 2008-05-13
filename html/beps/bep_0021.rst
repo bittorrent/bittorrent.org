@@ -1,0 +1,78 @@
+BEP: 21
+Title: Extension for partial seeds
+Version: $Revision$
+Last-Modified: $Date$
+Author:  Arvid Norberg <arvid@bittorrent.com>
+Status:  Draft
+Type:    Standards Track
+Created: 8-May-2008
+Post-History:
+
+The purpose of this extension is to allow further optimizations of
+bittorrent swarms when peers are *partial seeds*. A partial seed
+is a peer that is incomplete without downloading anything more. This
+happens for multi file torrents where users only download some of
+the files.
+
+Extension Header
+================
+
+A peer that is a partial seed SHOULD include an extra header in the extension
+handshake (specified in `BEP 0010`_), 'upload_only'. Setting the value of
+this key to 1 indicates that this peer is not interested in downloading anything.
+
+Example extension handshake message::
+
+	{'m': {'ut_metadata', 3}, 'upload_only': 1}
+
+Tracker Scrapes
+===============
+
+The tracker scrape conventions defines three values per torrent, 'complete',
+'incomplete' and 'downloaded'. The purpose of this extensions is to let clients
+distinguish between partial seeds and downloaders, both of which currently would
+be classified as *incomplete*.
+
+If the tracker supports this extension, it MUST add a fourth field, 'downloaders'.
+This field is the number of active downloaders in the swarm, it does not include
+partial seeds. The number of partial seeds can be calculated by:
+``incomplete - downloaders``.
+
+Tracker Announce
+================
+
+In order to tell the tracker that a peer is a partial seed, it MUST send an
+``event=paused`` parameter in every announce while it is a partial seed.
+
+Rationale
+=========
+
+Allowing peers to scrape a tracker and distinguish between active downloaders
+and partial seeds makes it more efficient to determine what to seed based
+on the downloader/seed ratio.
+
+The reason why every announce should contain ``event=paused`` is to avoid
+relying on the state being stored in the tracker. In case there's a failure
+and a backup tracker is used, it can recover all of the swarm state because
+the clients are announcing that they are partial seeds.
+
+References
+==========
+
+.. _`BEP 0010`: http://www.bittorrent.org/beps/bep_0010.html
+
+
+Copyright
+=========
+
+This document has been placed in the public domain.
+
+
+..
+   Local Variables:
+   mode: indented-text
+   indent-tabs-mode: nil
+   sentence-end-double-space: t
+   fill-column: 70
+   coding: utf-8
+   End:

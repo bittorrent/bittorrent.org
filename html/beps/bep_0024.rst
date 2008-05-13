@@ -1,0 +1,86 @@
+BEP: 24
+Title: Tracker Returns External IP
+Version: $Revision$
+Last-Modified: $Date$
+Author:  David Harrison <dave@bittorrent.com>
+Status:  Draft
+Type:    Standards track
+Content-Type: text/x-rst
+Created: 12-May-2008
+Post-History: 
+
+
+So that peers may easily determine their IP address.  A BitTorrent
+tracker may return the requesting peer's public IP address.
+
+
+Overview
+========
+
+A BitTorrent client can easily learn the IP address used when sending,
+but because of intervnening Network Address Translators (NATs) the IP
+address of the client's host seen inside the client's private network
+may differ from the IP address used to route the client's packets
+through the public Internet.
+
+In BitTorrent as described in BEP 3 [#BEP-3], peers wishing to
+transfer a file contact a central tracker.  This tracker returns a
+list of peers that are currently transferring the file.  For all peers
+that reach the tracker across the public Internet, the source address
+in each request seen by the tracker carries the publicly routable IP
+address of the requesting peer.
+
+A tracker implementing this extension returns the key *external ip*
+with a bencoded string value containing the IPv4 address as a 32 bit
+binary or containing the IPv6 address as a 128 bit binary.  
+
+Using a 32 or 128 packed binary is idiosyncratic since the value for
+the *ip* key returned in a dict within the *peers* list is returned as
+a string using ipv4 dotted notation or a domain name.  However the
+packed representation poses no semantic disadvantage and is negligibly
+smaller.
+
+The IPv4 part of this extension has been supported by uTorrent since
+May of 2007.
+
+The tracker is not unique in its ability to see a peer's public IP
+address.  Any peer reached over the public Internet sees the public IP
+address of the peer on the far side of the connection.  The *Extension
+Protocol* proposed in [#BEP-10] provides a mechanism for a client to
+obtains its public IP from any of its peers.  There is no conflict for
+a BitTorrent client to support both tracker and peer methods, and they
+have slightly different advantages.  A peer can learn its external IP
+from a tracker even when there are no peers.  For trackerless swarms,
+a peer can learn its IP from any peer whose reference was obtained from the DHT
+[#BEP-5].
+
+
+References
+==========
+
+.. [#BEP-3] BEP_0003. The BitTorrent Protocol Specification, Cohen.
+   (http://www.bittorrent.org/beps/bep_0003)
+
+.. [#BEP-5] BEP_0005. DHT Protocol. Loewenstern.
+   (http://www.bittorrent.org/beps/bep_0005)
+
+.. [#BEP-10] BEP_0010. Extension Protocol. Norberg, Strigeus, Hazel
+   (http://www.bittorrent.org/beps/bep_0010)
+
+
+Copyright
+=========
+
+This document has been placed in the public domain.
+
+
+
+..
+   Local Variables:
+   mode: indented-text
+   indent-tabs-mode: nil
+   sentence-end-double-space: t
+   fill-column: 70
+   coding: utf-8
+   End:
+

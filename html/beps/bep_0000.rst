@@ -38,6 +38,20 @@ Num        Title
 |1000|     :raw-html:`<A HREF="bep_1000.html">Pending Standards Track Documents</A>`
 ======     ===================
 
+Accepted BEPs
+-------------
+
+These BEPs describe mechanisms that have been deployed in one or more BitTorrent 
+implementations and have proven useful.  They may require minor revisions.
+They await the blessing of the BDFL before they can be considered Final.
+
+======     ===================  
+Num        Title              
+======     ===================
+|9|        :raw-html:`<A HREF="bep_0009.html">Extension for Peers to Send Metadata Files </A>`
+|23|       :raw-html:`<A HREF="bep_0023.html">Tracker Returns Packed Peer Lists</A>`
+|24|       :raw-html:`<A HREF="bep_0023.html">Tracker Returns External IP</A>`
+======     ===================
 
 Draft BEPs
 -----------
@@ -50,7 +64,6 @@ Num        Title
 |5|        :raw-html:`<A HREF="bep_0005.html">DHT Protocol </A>`
 |6|        :raw-html:`<A HREF="bep_0006.html">Fast Extension </A>`
 |7|        :raw-html:`<A HREF="bep_0007.html">IPv6 Tracker Extension   </A>`
-|9|        :raw-html:`<A HREF="bep_0009.html">Extension for Peers to Send Metadata Files </A>`
 |10|       :raw-html:`<A HREF="bep_0010.html">Extension Protocol </A>`
 |12|       :raw-html:`<A HREF="bep_0012.html">Multitracker Metadata Extension</A>`
 |15|       :raw-html:`<A HREF="bep_0015.html">UDP Tracker Protocol</A>`
@@ -58,6 +71,7 @@ Num        Title
 |17|       :raw-html:`<A HREF="bep_0017.html">HTTP Seeding (Hoffman-style) </A>`
 |18|       :raw-html:`<A HREF="bep_0018.html">Search Engine Specification</A>`
 |19|       :raw-html:`<A HREF="bep_0019.html">HTTP/FTP Seeding (GetRight-style) </A>`
+|21|       :raw-html:`<A HREF="bep_0021.html">Extension for Partial Seeds</A>`
 ======     ===================
 
 
@@ -105,4 +119,7 @@ At this time, no BEPs have been rejected.
 .. |18| replace:: :raw-html:`<A HREF="bep_0018.html">18</A>`
 .. |19| replace:: :raw-html:`<A HREF="bep_0019.html">19</A>`
 .. |20| replace:: :raw-html:`<A HREF="bep_0020.html">20</A>`
+.. |21| replace:: :raw-html:`<A HREF="bep_0021.html">21</A>`
+.. |23| replace:: :raw-html:`<A HREF="bep_0023.html">21</A>`
+.. |24| replace:: :raw-html:`<A HREF="bep_0024.html">21</A>`
 .. |1000| replace:: :raw-html:`<A HREF="bep_1000.html">1000</A>`

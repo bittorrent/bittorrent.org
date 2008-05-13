@@ -38,9 +38,9 @@
 </tr>
 <tr class="field"><th class="field-name">Title:</th><td class="field-body">Extension for Peers to Send Metadata Files</td>
 </tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body">11037</td>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">11056</td>
 </tr>
-<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://svn.bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0009.rst">2008-03-13 13:17:50 -0700 (Thu, 13 Mar 2008)</a></td>
+<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0009.rst">2008-05-06 07:29:16 -0700 (Tue, 06 May 2008)</a></td>
 </tr>
 <tr class="field"><th class="field-name">Author:</th><td class="field-body">Greg Hazel &lt;greg&#32;&#97;t&#32;bittorrent.com&gt;, Arvid Norberg &lt;arvid&#32;&#97;t&#32;bittorrent.com&gt;</td>
 </tr>
@@ -166,7 +166,9 @@ magnet:?xt=urn:btih:&lt;info-hash&gt;&amp;dn=&lt;name&gt;&amp;tr=&lt;tracker-url
 </pre>
 <dl class="docutils">
 <dt>&lt;info-hash&gt;</dt>
-<dd>Is the info-hash encoded as <a class="reference external" href="http://www.ietf.org/rfc/rfc3548.txt">base32</a> <a class="footnote-reference" href="#id1" id="id2">[1]</a></dd>
+<dd>Is the info-hash hex encoded, for a total of 40 characters. For
+compatability with existing links in the wild, clients should also
+support the 32 character <a class="reference external" href="http://www.ietf.org/rfc/rfc3548.txt">base32</a> <a class="footnote-reference" href="#id1" id="id2">[1]</a> encoded info-hash.</dd>
 </dl>
 <p><tt class="docutils literal"><span class="pre">xt</span></tt> is the only mandatory parameter. <tt class="docutils literal"><span class="pre">dn</span></tt> is the display name that may be
 used by the client to display while waiting for metadata. <tt class="docutils literal"><span class="pre">tr</span></tt> is a tracker

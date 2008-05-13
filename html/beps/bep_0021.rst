@@ -2,7 +2,7 @@ BEP: 21
 Title: Extension for partial seeds
 Version: $Revision$
 Last-Modified: $Date$
-Author:  Arvid Norberg <arvid@bittorrent.com>
+Author:  Arvid Norberg <arvid@bittorrent.com>, Greg Hazel <greg@bittorrent.com>, Aaron Grunthal
 Status:  Draft
 Type:    Standards Track
 Created: 8-May-2008

@@ -46,10 +46,11 @@ response, but the value is a bencoded string rather than a bencoded
 list.
 
 The peer id does not appear in the packed format.  The format has been
-use for years and the lack of a peer id has posed no problems.
+in use for years and the lack of a peer id has posed no problems.
 
 This packed format is supported by BitTorrent mainline, Azureus,
 libtorrent, uTorrent, and probably most other clients.
+
 
 References
 ==========

@@ -42,8 +42,8 @@ The target field in the SRV resource record contains the domain name
 of the cache and the port specifies the location on that cache where
 the BitTorrent implementation listens.
 
-The SRV resource record type is described in RFC 2782 [#RFC 2782]_.  Reverse DNS
-lookups are described in RFC 1034 [#RFC 1034]_.
+The SRV resource record type is described in RFC 2782 [#RFC-2782]_.  Reverse DNS
+lookups are described in RFC 1034 [#RFC-1034]_.
 
 
 Network Address Translators
@@ -60,24 +60,24 @@ This globally routable address is the host's *public IP address*.
 When finding a cache, the BitTorrent client must use its host's public
 IP address.  A BitTorrent client can obtain its host's public IP by
 either querying the tracker and looking at the value to the returned
-*external ip* key [#BEP 24]_ or from other peers using the *yourip*
-extension defined for the *Extension Protocol* proposed in [#BEP 10]_.
+*external ip* key [#BEP-24]_ or from other peers using the *yourip*
+extension defined for the *Extension Protocol* proposed in [#BEP-10]_.
 
 
 References
 ==========
 
-.. [#RFC 1034] RFC-1034.  DOMAIN NAMES - CONCEPTS AND FACILITIES. Mockapetris,
+.. [#RFC-1034] RFC-1034.  DOMAIN NAMES - CONCEPTS AND FACILITIES. Mockapetris,
    November 1987. http://tools.ietf.org/html/rfc1034
 
-.. [#RFC 2782] RFC-2782.  A DNS RR for specifying the location of services (DNS
+.. [#RFC-2782] RFC-2782.  A DNS RR for specifying the location of services (DNS
    SRV). Gulbrandsen, Vixie, Esibov. February 2000. 
    http://tools.ietf.org/html/rfc2782
 
-.. [#BEP 10] BEP_0010.  Extension Protocol. Norberg, Strigeus, Hazel
+.. [#BEP-10] BEP_0010.  Extension Protocol. Norberg, Strigeus, Hazel
    (http://www.bittorrent.org/beps/bep_0010)
 
-.. [#BEP 24] BEP_0024.  Tracker Returns External IP.  Harrison
+.. [#BEP-24] BEP_0024.  Tracker Returns External IP.  Harrison
    (http://www.bittorrent.org/beps/bep_0024)
 
 Copyright

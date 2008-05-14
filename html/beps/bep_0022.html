@@ -38,9 +38,9 @@
 </tr>
 <tr class="field"><th class="field-name">Title:</th><td class="field-body">Cache Discovery</td>
 </tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body">11059</td>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">11079</td>
 </tr>
-<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0022.rst">2008-05-13 00:40:21 -0700 (Tue, 13 May 2008)</a></td>
+<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0022.rst">2008-05-13 17:24:18 -0700 (Tue, 13 May 2008)</a></td>
 </tr>
 <tr class="field"><th class="field-name">Author:</th><td class="field-body">David Harrison &lt;dave&#32;&#97;t&#32;bittorrent.com&gt;, Stanislav Shalunov &lt;shalunov&#32;&#97;t&#32;bittorrent.com&gt;</td>
 </tr>
@@ -60,10 +60,10 @@
 <div class="contents topic" id="contents">
 <p class="topic-title first">Contents</p>
 <ul class="simple">
-<li><a class="reference internal" href="#the-discovery-mechanism" id="id5">The Discovery Mechanism</a></li>
-<li><a class="reference internal" href="#network-address-translators" id="id6">Network Address Translators</a></li>
-<li><a class="reference internal" href="#references" id="id7">References</a></li>
-<li><a class="reference internal" href="#copyright" id="id8">Copyright</a></li>
+<li><a class="reference internal" href="#the-discovery-mechanism" id="id1">The Discovery Mechanism</a></li>
+<li><a class="reference internal" href="#network-address-translators" id="id2">Network Address Translators</a></li>
+<li><a class="reference internal" href="#references" id="id3">References</a></li>
+<li><a class="reference internal" href="#copyright" id="id4">Copyright</a></li>
 </ul>
 </div>
 <p>With this extension, BitTorrent clients are able to discover caches
@@ -94,8 +94,8 @@ looks up the SRV record at</p>
 <p>The target field in the SRV resource record contains the domain name
 of the cache and the port specifies the location on that cache where
 the BitTorrent implementation listens.</p>
-<p>The SRV resource record type is described in <a class="reference external" href="ADNSRRforspecifyingthelocationofservices(DNSSRV).Gulbrandsen,Vixie,Esibov.February2000.http://tools.ietf.org/html/rfc2782">RFC 2782</a> <a class="footnote-reference" href="#id3" id="id4">[4]</a>.  Reverse DNS
-lookups are described in <a class="reference external" href="RFC-1034.DOMAINNAMES-CONCEPTSANDFACILITIES.Mockapetris,November1987.http://tools.ietf.org/html/rfc1034">RFC 1034</a> <a class="footnote-reference" href="#id1" id="id2">[3]</a>.</p>
+<p>The SRV resource record type is described in <a class="reference external" href="http://www.faqs.org/rfcs/rfc2782.html">RFC 2782</a> [#RFC 2782]_.  Reverse DNS
+lookups are described in <a class="reference external" href="http://www.faqs.org/rfcs/rfc1034.html">RFC 1034</a> [#RFC 1034]_.</p>
 </div>
 <div class="section" id="network-address-translators">
 <h1>Network Address Translators</h1>
@@ -109,37 +109,20 @@ This globally routable address is the host's <em>public IP address</em>.</p>
 <p>When finding a cache, the BitTorrent client must use its host's public
 IP address.  A BitTorrent client can obtain its host's public IP by
 either querying the tracker and looking at the value to the returned
-<em>external ip</em> key [#BEP-0024] or from other peers using the <em>yourip</em>
-extension defined for the <em>Extension Protocol</em> proposed in [#BEP-0010].</p>
+<em>external ip</em> key [#BEP 24]_ or from other peers using the <em>yourip</em>
+extension defined for the <em>Extension Protocol</em> proposed in [#BEP 10]_.</p>
 </div>
 <div class="section" id="references">
 <h1>References</h1>
-<table class="docutils footnote" frame="void" id="bep-10" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label">[1]</td><td>BEP_0010.  Extension Protocol. Norberg, Strigeus, Hazel
-(<a class="reference external" href="http://www.bittorrent.org/beps/bep_0010">http://www.bittorrent.org/beps/bep_0010</a>)</td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="bep-24" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label">[2]</td><td>BEP_0024.  Tracker Returns External IP.  Harrison
-(<a class="reference external" href="http://www.bittorrent.org/beps/bep_0024">http://www.bittorrent.org/beps/bep_0024</a>)</td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="id1" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id2">[3]</a></td><td><a class="reference external" href="RFC-1034.DOMAINNAMES-CONCEPTSANDFACILITIES.Mockapetris,November1987.http://tools.ietf.org/html/rfc1034">RFC-1034.DOMAINNAMES-CONCEPTSANDFACILITIES.Mockapetris,November1987.http://tools.ietf.org/html/rfc1034</a></td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="id3" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id4">[4]</a></td><td><a class="reference external" href="ADNSRRforspecifyingthelocationofservices(DNSSRV).Gulbrandsen,Vixie,Esibov.February2000.http://tools.ietf.org/html/rfc2782">ADNSRRforspecifyingthelocationofservices(DNSSRV).Gulbrandsen,Vixie,Esibov.February2000.http://tools.ietf.org/html/rfc2782</a></td></tr>
-</tbody>
-</table>
+<!-- [#RFC 1034] RFC-1034.  DOMAIN NAMES - CONCEPTS AND FACILITIES. Mockapetris,
+November 1987. http://tools.ietf.org/html/rfc1034 -->
+<!-- [#RFC 2782] RFC-2782.  A DNS RR for specifying the location of services (DNS
+SRV). Gulbrandsen, Vixie, Esibov. February 2000.
+http://tools.ietf.org/html/rfc2782 -->
+<!-- [#BEP 10] BEP_0010.  Extension Protocol. Norberg, Strigeus, Hazel
+(http://www.bittorrent.org/beps/bep_0010) -->
+<!-- [#BEP 24] BEP_0024.  Tracker Returns External IP.  Harrison
+(http://www.bittorrent.org/beps/bep_0024) -->
 </div>
 <div class="section" id="copyright">
 <h1>Copyright</h1>

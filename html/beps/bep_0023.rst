@@ -57,10 +57,10 @@ References
 ==========
 
 .. [#BEP-3] BEP_0003. The BitTorrent Protocol Specification, Cohen
-   (http://www.bittorrent.org/beps/bep_0003)
+   (http://www.bittorrent.org/beps/bep_0003.html)
 
 .. [#RFC-1034] RFC-1034. DOMAIN NAMES - CONCEPTS AND FACILITIES. Mockapetris,
-   November 1987. http://tools.ietf.org/html/rfc1034
+   November 1987. (http://tools.ietf.org/html/rfc1034)
 
 Copyright
 =========

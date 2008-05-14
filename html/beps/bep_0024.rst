@@ -59,13 +59,13 @@ References
 ==========
 
 .. [#BEP-3] BEP_0003. The BitTorrent Protocol Specification, Cohen.
-   (http://www.bittorrent.org/beps/bep_0003)
+   (http://www.bittorrent.org/beps/bep_0003.html)
 
 .. [#BEP-5] BEP_0005. DHT Protocol. Loewenstern.
-   (http://www.bittorrent.org/beps/bep_0005)
+   (http://www.bittorrent.org/beps/bep_0005.html)
 
 .. [#BEP-10] BEP_0010. Extension Protocol. Norberg, Strigeus, Hazel
-   (http://www.bittorrent.org/beps/bep_0010)
+   (http://www.bittorrent.org/beps/bep_0010.html)
 
 
 Copyright

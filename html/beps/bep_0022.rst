@@ -68,17 +68,17 @@ References
 ==========
 
 .. [#RFC-1034] RFC-1034.  DOMAIN NAMES - CONCEPTS AND FACILITIES. Mockapetris,
-   November 1987. http://tools.ietf.org/html/rfc1034
+   November 1987. (http://tools.ietf.org/html/rfc1034)
 
 .. [#RFC-2782] RFC-2782.  A DNS RR for specifying the location of services (DNS
    SRV). Gulbrandsen, Vixie, Esibov. February 2000. 
-   http://tools.ietf.org/html/rfc2782
+   (http://tools.ietf.org/html/rfc2782)
 
 .. [#BEP-10] BEP_0010.  Extension Protocol. Norberg, Strigeus, Hazel
-   (http://www.bittorrent.org/beps/bep_0010)
+   (http://www.bittorrent.org/beps/bep_0010.html)
 
 .. [#BEP-24] BEP_0024.  Tracker Returns External IP.  Harrison
-   (http://www.bittorrent.org/beps/bep_0024)
+   (http://www.bittorrent.org/beps/bep_0024.html)
 
 Copyright
 =========

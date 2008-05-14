@@ -468,7 +468,7 @@ followed by the footnote body.  For example::
     ==========
 
     .. [2] BEP 1, "BEP Purpose and Guidelines", Harrison
-       (http://www.bittorrent.org/beps/bep_0001)
+       (http://www.bittorrent.org/beps/bep_0001.html)
 
 If you decide to provide an explicit URL for a BEP, please use this as
 the URL template::
@@ -619,10 +619,10 @@ References
 ==========
 
 .. [#BEP-1] BEP_0001. BEP Purpose and Guidelines, Harrison
-   (http://www.bittorrent.org/beps/bep_0001)
+   (http://www.bittorrent.org/beps/bep_0001.html)
 
 .. [#PEP-12] PEP-0012. Sample reStructuredText PEP Template, Goodger, Warsaw
-   (http://www.python.org/peps/pep-0012)
+   (http://www.python.org/peps/pep-0012.html)
 
 
 Copyright

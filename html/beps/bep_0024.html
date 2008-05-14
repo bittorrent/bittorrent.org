@@ -38,9 +38,9 @@
 </tr>
 <tr class="field"><th class="field-name">Title:</th><td class="field-body">Tracker Returns External IP</td>
 </tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body">11069</td>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">11075</td>
 </tr>
-<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0024.rst">2008-05-13 16:53:27 -0700 (Tue, 13 May 2008)</a></td>
+<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0024.rst">2008-05-13 17:02:55 -0700 (Tue, 13 May 2008)</a></td>
 </tr>
 <tr class="field"><th class="field-name">Author:</th><td class="field-body">David Harrison &lt;dave&#32;&#97;t&#32;bittorrent.com&gt;</td>
 </tr>
@@ -60,9 +60,9 @@
 <div class="contents topic" id="contents">
 <p class="topic-title first">Contents</p>
 <ul class="simple">
-<li><a class="reference internal" href="#overview" id="id1">Overview</a></li>
-<li><a class="reference internal" href="#references" id="id2">References</a></li>
-<li><a class="reference internal" href="#copyright" id="id3">Copyright</a></li>
+<li><a class="reference internal" href="#overview" id="id4">Overview</a></li>
+<li><a class="reference internal" href="#references" id="id5">References</a></li>
+<li><a class="reference internal" href="#copyright" id="id6">Copyright</a></li>
 </ul>
 </div>
 <p>So that peers may easily determine their IP address.  A BitTorrent
@@ -74,7 +74,7 @@ but because of intervnening Network Address Translators (NATs) the IP
 address of the client's host seen inside the client's private network
 may differ from the IP address used to route the client's packets
 through the public Internet.</p>
-<p>In BitTorrent as described in BEP 3 [#BEP-3], peers wishing to
+<p>In BitTorrent as described in BEP 3 <a class="footnote-reference" href="#bep-3" id="id1">[1]</a>, peers wishing to
 transfer a file contact a central tracker.  This tracker returns a
 list of peers that are currently transferring the file.  For all peers
 that reach the tracker across the public Internet, the source address
@@ -93,34 +93,34 @@ May of 2007.</p>
 <p>The tracker is not unique in its ability to see a peer's public IP
 address.  Any peer reached over the public Internet sees the public IP
 address of the peer on the far side of the connection.  The <em>Extension
-Protocol</em> proposed in [#BEP-10] provides a mechanism for a client to
+Protocol</em> proposed in <a class="footnote-reference" href="#bep-10" id="id2">[3]</a> provides a mechanism for a client to
 obtains its public IP from any of its peers.  There is no conflict for
 a BitTorrent client to support both tracker and peer methods, and they
 have slightly different advantages.  A peer can learn its external IP
 from a tracker even when there are no peers.  For trackerless swarms,
 a peer can learn its IP from any peer whose reference was obtained from the DHT
-[#BEP-5].</p>
+<a class="footnote-reference" href="#bep-5" id="id3">[2]</a>.</p>
 </div>
 <div class="section" id="references">
 <h1>References</h1>
 <table class="docutils footnote" frame="void" id="bep-3" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label">[1]</td><td>BEP_0003. The BitTorrent Protocol Specification, Cohen.
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>BEP_0003. The BitTorrent Protocol Specification, Cohen.
 (<a class="reference external" href="http://www.bittorrent.org/beps/bep_0003">http://www.bittorrent.org/beps/bep_0003</a>)</td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="bep-5" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label">[2]</td><td>BEP_0005. DHT Protocol. Loewenstern.
+<tr><td class="label"><a class="fn-backref" href="#id3">[2]</a></td><td>BEP_0005. DHT Protocol. Loewenstern.
 (<a class="reference external" href="http://www.bittorrent.org/beps/bep_0005">http://www.bittorrent.org/beps/bep_0005</a>)</td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="bep-10" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label">[3]</td><td>BEP_0010. Extension Protocol. Norberg, Strigeus, Hazel
+<tr><td class="label"><a class="fn-backref" href="#id2">[3]</a></td><td>BEP_0010. Extension Protocol. Norberg, Strigeus, Hazel
 (<a class="reference external" href="http://www.bittorrent.org/beps/bep_0010">http://www.bittorrent.org/beps/bep_0010</a>)</td></tr>
 </tbody>
 </table>

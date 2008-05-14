@@ -21,7 +21,7 @@ peers as a packed string rather than as a bencoded list.
 Overview
 ========
 
-In BitTorrent as described in BEP 3 [#BEP-3], peers wishing to
+In BitTorrent as described in BEP 3 [#BEP-3]_, peers wishing to
 transfer a file contact a central tracker.  This tracker returns a
 list of peers that are currently transferring the file.  The list of
 peers is implemented as a list of bencoded dicts.  Each dict in the

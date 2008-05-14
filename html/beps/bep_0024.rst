@@ -23,7 +23,7 @@ address of the client's host seen inside the client's private network
 may differ from the IP address used to route the client's packets
 through the public Internet.
 
-In BitTorrent as described in BEP 3 [#BEP-3], peers wishing to
+In BitTorrent as described in BEP 3 [#BEP-3]_, peers wishing to
 transfer a file contact a central tracker.  This tracker returns a
 list of peers that are currently transferring the file.  For all peers
 that reach the tracker across the public Internet, the source address
@@ -46,13 +46,13 @@ May of 2007.
 The tracker is not unique in its ability to see a peer's public IP
 address.  Any peer reached over the public Internet sees the public IP
 address of the peer on the far side of the connection.  The *Extension
-Protocol* proposed in [#BEP-10] provides a mechanism for a client to
+Protocol* proposed in [#BEP-10]_ provides a mechanism for a client to
 obtains its public IP from any of its peers.  There is no conflict for
 a BitTorrent client to support both tracker and peer methods, and they
 have slightly different advantages.  A peer can learn its external IP
 from a tracker even when there are no peers.  For trackerless swarms,
 a peer can learn its IP from any peer whose reference was obtained from the DHT
-[#BEP-5].
+[#BEP-5]_.
 
 
 References

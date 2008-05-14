@@ -29,7 +29,7 @@ list contains three fields: *peer id*, *ip*, and *port*.  The *peer
 id* is 20 bytes plus 3 bytes bencoding overhead.  The *ip* is a string
 containing a domain name or an IP address, and an integer port number.
 The *ip* is variable length, but since in its longest form it is a
-domain name it cannot exceed 255 bytes (see `RFC 1034`_) plus 4 bytes
+domain name it cannot exceed 255 bytes [#RFC 1034]_ plus 4 bytes
 bencoding overhead.  Bencoded integers are also variable length but
 since it is a port number, it cannot be more than 7 bytes including
 bencoding overhead.  Thus,
@@ -59,7 +59,7 @@ References
 .. [#BEP-3] BEP_0003. The BitTorrent Protocol Specification, Cohen
    (http://www.bittorrent.org/beps/bep_0003)
 
-.. _`RFC 1034`: RFC-1034. DOMAIN NAMES - CONCEPTS AND FACILITIES. Mockapetris,
+.. [#RFC 1034] RFC-1034. DOMAIN NAMES - CONCEPTS AND FACILITIES. Mockapetris,
    November 1987. http://tools.ietf.org/html/rfc1034
 
 Copyright

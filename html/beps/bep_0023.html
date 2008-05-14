@@ -38,9 +38,9 @@
 </tr>
 <tr class="field"><th class="field-name">Title:</th><td class="field-body">Tracker Returns Packed Peer Lists</td>
 </tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body">11075</td>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">11077</td>
 </tr>
-<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0023.rst">2008-05-13 17:02:55 -0700 (Tue, 13 May 2008)</a></td>
+<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0023.rst">2008-05-13 17:11:02 -0700 (Tue, 13 May 2008)</a></td>
 </tr>
 <tr class="field"><th class="field-name">Author:</th><td class="field-body">David Harrison &lt;dave&#32;&#97;t&#32;bittorrent.com&gt;</td>
 </tr>
@@ -86,8 +86,10 @@ domain name it cannot exceed 255 bytes (see <a class="reference external" href="
 bencoding overhead.  Bencoded integers are also variable length but
 since it is a port number, it cannot be more than 7 bytes including
 bencoding overhead.  Thus,</p>
-<blockquote>
-total peer list length in bytes &lt; n * ( 23 + 259 + 7 )</blockquote>
+<dl class="docutils">
+<dt>::</dt>
+<dd>total peer list length in bytes &lt; n * ( 23 + 259 + 7 )</dd>
+</dl>
 <p>It is common now to use a packed format where each peer is represented
 using only 6 bytes.  The first 4 bytes contain the 32-bit ipv4 address.
 The remaining two bytes contain the port number.  Both address and port

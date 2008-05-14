@@ -34,6 +34,7 @@ bencoding overhead.  Bencoded integers are also variable length but
 since it is a port number, it cannot be more than 7 bytes including
 bencoding overhead.  Thus,
 
+::
   total peer list length in bytes < n * ( 23 + 259 + 7 )  
 
 It is common now to use a packed format where each peer is represented

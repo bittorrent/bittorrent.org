@@ -38,9 +38,9 @@
 </tr>
 <tr class="field"><th class="field-name">Title:</th><td class="field-body">Tracker Returns Packed Peer Lists</td>
 </tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body">11079</td>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">11081</td>
 </tr>
-<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0023.rst">2008-05-13 17:24:18 -0700 (Tue, 13 May 2008)</a></td>
+<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0023.rst">2008-05-13 17:29:22 -0700 (Tue, 13 May 2008)</a></td>
 </tr>
 <tr class="field"><th class="field-name">Author:</th><td class="field-body">David Harrison &lt;dave&#32;&#97;t&#32;bittorrent.com&gt;</td>
 </tr>
@@ -60,10 +60,10 @@
 <div class="contents topic" id="contents">
 <p class="topic-title first">Contents</p>
 <ul class="simple">
-<li><a class="reference internal" href="#abstract" id="id2">Abstract</a></li>
-<li><a class="reference internal" href="#overview" id="id3">Overview</a></li>
-<li><a class="reference internal" href="#references" id="id4">References</a></li>
-<li><a class="reference internal" href="#copyright" id="id5">Copyright</a></li>
+<li><a class="reference internal" href="#abstract" id="id3">Abstract</a></li>
+<li><a class="reference internal" href="#overview" id="id4">Overview</a></li>
+<li><a class="reference internal" href="#references" id="id5">References</a></li>
+<li><a class="reference internal" href="#copyright" id="id6">Copyright</a></li>
 </ul>
 </div>
 <div class="section" id="abstract">
@@ -82,7 +82,7 @@ list contains three fields: <em>peer id</em>, <em>ip</em>, and <em>port</em>.  T
 id</em> is 20 bytes plus 3 bytes bencoding overhead.  The <em>ip</em> is a string
 containing a domain name or an IP address, and an integer port number.
 The <em>ip</em> is variable length, but since in its longest form it is a
-domain name it cannot exceed 255 bytes [#RFC 1034]_ plus 4 bytes
+domain name it cannot exceed 255 bytes <a class="footnote-reference" href="#rfc-1034" id="id2">[2]</a> plus 4 bytes
 bencoding overhead.  Bencoded integers are also variable length but
 since it is a port number, it cannot be more than 7 bytes including
 bencoding overhead.  Thus,</p>
@@ -111,8 +111,13 @@ libtorrent, uTorrent, and probably most other clients.</p>
 (<a class="reference external" href="http://www.bittorrent.org/beps/bep_0003">http://www.bittorrent.org/beps/bep_0003</a>)</td></tr>
 </tbody>
 </table>
-<!-- [#RFC 1034] RFC-1034. DOMAIN NAMES - CONCEPTS AND FACILITIES. Mockapetris,
-November 1987. http://tools.ietf.org/html/rfc1034 -->
+<table class="docutils footnote" frame="void" id="rfc-1034" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td><a class="reference external" href="http://www.faqs.org/rfcs/rfc1034.html">RFC-1034</a>. DOMAIN NAMES - CONCEPTS AND FACILITIES. Mockapetris,
+November 1987. <a class="reference external" href="http://tools.ietf.org/html/rfc1034">http://tools.ietf.org/html/rfc1034</a></td></tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="copyright">
 <h1>Copyright</h1>

@@ -50,7 +50,6 @@ Num        Title
 ======     ===================
 |9|        :raw-html:`<A HREF="bep_0009.html">Extension for Peers to Send Metadata Files </A>`
 |23|       :raw-html:`<A HREF="bep_0023.html">Tracker Returns Packed Peer Lists</A>`
-|24|       :raw-html:`<A HREF="bep_0024.html">Tracker Returns External IP</A>`
 ======     ===================
 
 Draft BEPs
@@ -72,6 +71,7 @@ Num        Title
 |18|       :raw-html:`<A HREF="bep_0018.html">Search Engine Specification</A>`
 |19|       :raw-html:`<A HREF="bep_0019.html">HTTP/FTP Seeding (GetRight-style) </A>`
 |21|       :raw-html:`<A HREF="bep_0021.html">Extension for Partial Seeds</A>`
+|24|       :raw-html:`<A HREF="bep_0024.html">Tracker Returns External IP</A>`
 ======     ===================
 
 

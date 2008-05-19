@@ -1,49 +1,164 @@
 BEP: 22
-Title: Cache Discovery
+Title: BitTorrent Cache Discovery Protocol
 Version: $Revision$
 Last-Modified: $Date$
-Author:  David Harrison <dave@bittorrent.com>, Stanislav Shalunov <shalunov@bittorrent.com>
+Author:  David Harrison <dave@bittorrent.com>, Stanislav Shalunov <shalunov@bittorrent.com>, Greg Hazel <greg@bittorrent.com>
 Status:  Draft
 Type:    Standards track
 Content-Type: text/x-rst
 Created: 12-May-2008
 Post-History: 
 
+Motivation
+==========
+
+Some Internet Service Providers (ISPs) may be interested in deploying
+BitTorrent caches to lower transit costs, reduce internal traffic, and
+improve user experience by speeding up downloads.
+
+A cache is simply a fast peer in the middle of the network. It might
+also have substantial disk space. The client communicates with a cache
+using the normal BitTorrent protocol.
 
 With this extension, BitTorrent clients are able to discover caches
 nearby on the network.  When a cache is present, the user benefits
 from having a high capacity peer from which the user's client
 downloads and to which it can delegate seeding.  When a cache inside
-the user's Internet Service Provider (ISP) network seeds on behalf of
-the client, it frees upstream capacity in the user's access network
-benefiting the user and those that share the access network.  When
-subsequent peers transfer from their ISP's cache, the ISP experiences
-less transit traffic.
-
+the user's ISP network seeds on behalf of the client, it frees
+upstream capacity in the user's access network benefiting the user and
+those that share the access network.  When subsequent peers transfer
+from their ISP's cache, the ISP experiences less transit traffic.
+ 
 
 The Discovery Mechanism
 =======================
 
 To find the caches for its ISP, a BitTorrent client performs a reverse
-DNS lookup on its host's IP address and then obtains the SRV resource
-record associated with the host's domain name.  For example, a host with
-IPv4 address w.x.y.z obtains the PTR record at
+DNS lookup on its external IP address and then obtains the BitTorrent
+SRV resource record associated with the host's domain name.  For
+example, a host with address 69.107.0.14 obtains the PTR record at
 
 ::
-  z.y.x.w.in-addr.arpa
 
-Assume the returned PTR record contains example.com.  The client then
-looks up the SRV record at
+  14.0.107.69.in-addr.arpa
 
-:: 
-  _bittorrent._tcp.example.com
+The client's host IP address may not match the host's IP address as
+seen outside the client's private network.  We address this in Section
+`Network Address Translators`_.
 
-The target field in the SRV resource record contains the domain name
-of the cache and the port specifies the location on that cache where
-the BitTorrent implementation listens.
+The PTR resource record returned for this example contains domain name
 
-The SRV resource record type is described in RFC 2782 [#RFC-2782]_.  Reverse DNS
-lookups are described in RFC 1034 [#RFC-1034]_.
+::
+
+  adsl-69-107-0-14.dsl.pltn13.pacbell.net
+
+The client then looks up the SRV records at
+
+::
+ 
+  _bittorrent-tracker._tcp.adsl-69-107-0-14.dsl.pltn13.pacbell.net
+
+If no SRV record is found, one or more subsequent queries take place as
+described in `Iterative Queries`_.
+
+The target field in each returned SRV resource record contains the
+domain name of a tracker and the port on which the tracker runs.  This
+tracker is called a *cache tracker*, but the protocol to talk to this
+tracker is no different from the standard BitTorrent tracker protocol
+described in [#BEP-3]_.
+
+When the BitTorrent client joins a swarm it announces to one or more
+of the trackers referenced in the .torrent file and announces to the
+cache tracker.  The cache tracker returns peers which may be caches or
+other peers that announced the same file to the cache tracker.
+
+A cache is a BitTorrent peer.  A client MAY treat it preferentially.
+ 
+Reverse DNS lookups are described in RFC 1034 [#RFC-1034]_.
+The SRV resource record type is described in RFC 2782 [#RFC-2782]_.  
+
+
+Iterative Queries
+=================
+
+The domain name returned from the reverse DNS lookup is specific to
+the querying host.  In the naive implementation in DNS, there would be
+one SRV resource record for every querying host.  The most obvious
+solution is to use a wildcard of the form::
+
+  *.pacbell.net
+
+However, if wildcards are implemented according to the algorithm in
+section 4.3.2 in [#RFC-1034]_ then all subdomains of pacbell.net that
+do not have an exact label match will match the wildcard.  Thus,
+
+::
+
+  _jabber._tcp.pacbell.net 
+
+and
+
+::
+
+  _bittorrent-tracker._tcp.pacbell.net
+
+both match \*.pacbell.net and all SRV resource records with owner
+\*.pacbell.net would be returned with the name set to the name in the
+query.  Thus it would be impossible to disambiguate Jabber from
+BitTorrent SRV records without further information.  This behavior is
+implemented with BIND 9.4.1.
+
+The natural solution would be to specify domain names of the type
+
+::
+
+  _bittorrent-tracker._tcp.*.pacbell.net
+
+However, section 4.3.3 in [#RFC-1034]_ specifies that wildcards only
+appear as the first label in a domain name.  This restriction was
+lifted in [#RFC-4592]_, but not with semantics applicable to our use
+case.  An asterisk not at the beginning of a domain name is not
+treated like a wildcard.  Only a lookup for the exact domain name
+
+::
+
+  _bittorrent-tracker._tcp.*.pacbell.net
+
+matches.
+
+We propose an alternative that avoids wildcards and has the advantage
+that it allows suborganizations to override the SRV records provided
+by parent organizations: the peer starts by querying using its
+fully-qualified domain name returned from the reverse DNS lookup, and
+if this fails then it queries again after removing the most specific
+(leftmost) label in the domain name.  For example, if no SRV records
+are returned when querying for
+
+::
+
+  _bittorrent-tracker._tcp.adsl-69-107-0-14.dsl.pltn13.pacbell.net
+
+then the client queries for
+
+::
+
+  _bittorrent-tracker.dsl.pltn13.pacbell.net
+
+and then
+
+::
+
+  _bittorrent-tracker.pltn13.pacbell.net
+
+The search removes one domain at a time terminating when one or more
+resource records are found or before querying the root domain or
+top-level domains that are not ccTLDs, e.g., .com, .org, .net. We
+avoid querying the root or global top-level domains given the low
+likelihood that caches would be defined globally, and thus clients
+would unnecessarily burden the root domain name servers with queries
+generating negative results. We considered stopping before querying
+country-level domains, but a country providing public infrastructure
+might choose to provide caches.
 
 
 Network Address Translators
@@ -51,21 +166,102 @@ Network Address Translators
 
 Many hosts on the Internet sit in private networks that connect to the
 Internet via a Network Address Translator (NAT).  Such hosts may have
-an IP address allocated from one of the three private IP address
-ranges defined by IANA, i.e., 10.*.*.*, 172.*.*.*, or 192.*.*.*.  When
-communicating with hosts outside the private network, the NAT
-translates the private IP to an IP address that is globally routable.
-This globally routable address is the host's *public IP address*.
+an IP address allocated from one of the private IP address ranges
+defined by IANA, e.g., ranges with prefixes 10/8, 172.16/12, and
+192.168/16.  When communicating with hosts outside the private
+network, the NAT translates the private IP to a globally-routable IP
+address.  This globally-routable address is the host's *external IP
+address*.
 
-When finding a cache, the BitTorrent client must use its host's public
-IP address.  A BitTorrent client can obtain its host's public IP by
-either querying the tracker and looking at the value to the returned
-*external ip* key [#BEP-24]_ or from other peers using the *yourip*
+When finding a cache, the BitTorrent client must use its host's
+external IP address.  A BitTorrent client can obtain its host's
+external IP either from the *external ip* key returned from a tracker
+implementing BEP 24 [#BEP-24]_ or from peers using the *yourip*
 extension defined for the *Extension Protocol* proposed in [#BEP-10]_.
 
 
+Example
+=======
+
+In our example, we used AT&T's PacBell network.  AT&T could implement
+cache discovery by adding the following lines to the zone file for
+pacbell.net,
+
+::
+
+  ; name                                ttl  cls rr  pri weight port target
+  _bittorrent-tracker._tcp.pacbell.net. 600  IN  SRV 5   0      6969 tracker
+
+Now when a client performs cache discovery, it performs three DNS
+queries removing labels before reaching the domain name pacbell.net,
+at which point the SRV record would be returned and the client would
+then query tracker.pacbell.net to obtain caches.
+
+In Python, the cache tracker's port and domain can be obtained using
+PyDNS using the following code::
+
+  import DNS
+
+  tlds = ["com", "net", "org"]  # add more TLDs here.
+  
+  name = DNS.revlookup( "69.107.0.14" )
+  names = name.split('.')
+  while names and names[0] not in tlds:
+     name = "_bittorrent._tcp." + ".".join(names)
+     req = DNS.Request( name=name, qtype="SRV", protocol="udp")
+     response = req.req()
+     if response.answers:
+        break
+     del names[0]
+
+  print "response=", response.show()
+
+which might generate output like
+
+::
+
+  response= ; <<>> PDG.py 1.0 <<>> _bittorrent._tcp.pacbell.net SRV
+  ;; options: recurs 
+  ;; got answer:
+  ;; ->>HEADER<<- opcode 0, status NOERROR, id 0
+  ;; flags: qr aa rd ra; Ques: 1, Ans: 1, Auth: 2, Addit: 3
+  ;; QUESTIONS:
+  ;;      _bittorrent._tcp.pacbell.net, type = SRV, class = IN
+  
+  ;; ANSWERS:
+  _bittorrent._tcp.pacbell.net    600    SRV     (5, 0, 6969, 'cache.pacbell.net')
+  
+  ;; AUTHORITY RECORDS:
+  pacbell.net             86400   NS      ns1.pbi.net
+  pacbell.net             86400   NS      ns2.pbi.net
+  
+  ;; ADDITIONAL RECORDS:
+  cache.pacbell.net       86400   A       69.107.0.1
+  ns1.pacbell.net         86400   A       206.13.28.11
+  ns2.pacbell.net         86400   A       206.13.29.11
+  
+  ;; Total query time: 0 msec
+  ;; To SERVER: localhost
+  ;; WHEN: Mon May 19 16:00:12 2008
+
+The answer above is fictional since AT&T does not at this time
+implement SRV records for BitTorrent trackers.
+
+In Microsoft Windows, the port and domain name of the server can be
+obtained using WinDNS (Dnsapi.lib) using DnsQuery().  In Unix, the
+relevant call is res_query() from libresolv.
+
 References
 ==========
+
+.. [#BEP-3] BEP_0003. The BitTorrent Protocol Specification, Cohen
+   (http://www.bittorrent.org/beps/bep_0003.html)
+
+.. [#BEP-10] BEP_0010.  Extension Protocol. Norberg, Strigeus, Hazel
+   (http://www.bittorrent.org/beps/bep_0010.html)
+
+.. [#BEP-24] BEP_0024.  Tracker Returns External IP.  Harrison
+   (http://www.bittorrent.org/beps/bep_0024.html)
 
 .. [#RFC-1034] RFC-1034.  DOMAIN NAMES - CONCEPTS AND FACILITIES. Mockapetris,
    November 1987. (http://tools.ietf.org/html/rfc1034)
@@ -74,11 +270,11 @@ References
    SRV). Gulbrandsen, Vixie, Esibov. February 2000. 
    (http://tools.ietf.org/html/rfc2782)
 
-.. [#BEP-10] BEP_0010.  Extension Protocol. Norberg, Strigeus, Hazel
-   (http://www.bittorrent.org/beps/bep_0010.html)
+.. [#RFC-4592] RFC-4592. The Role of Wildcards in the Domain Name System. Lewis
+   (http://www.faqs.org/rfcs/rfc4592.html)
 
-.. [#BEP-24] BEP_0024.  Tracker Returns External IP.  Harrison
-   (http://www.bittorrent.org/beps/bep_0024.html)
+
+
 
 Copyright
 =========

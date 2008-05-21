@@ -36,7 +36,7 @@ Reserved Bit Allocations
  0x04  suggest, haveall, havenone, reject request, and allow fast extensions
  0x08  NAT Traversal
 
-There are known collisions.
+There are known collisions::
 
  reserved[0]
  0xFF  BitComet Extension Protocol

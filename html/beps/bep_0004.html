@@ -87,15 +87,17 @@ reserved[7]
 0x04  suggest, haveall, havenone, reject request, and allow fast extensions
 0x08  NAT Traversal
 </pre>
-<p>There are known collisions.</p>
-<blockquote>
-<p>reserved[0]
-0xFF  BitComet Extension Protocol</p>
-<p>reserved[1]
-0xFF  BitComet Extension Protocol</p>
-<p>reserved[7]
-0x01  XBT Metadata Exchange (implemented only in XBT)</p>
-</blockquote>
+<p>There are known collisions:</p>
+<pre class="literal-block">
+reserved[0]
+0xFF  BitComet Extension Protocol
+
+reserved[1]
+0xFF  BitComet Extension Protocol
+
+reserved[7]
+0x01  XBT Metadata Exchange (implemented only in XBT)
+</pre>
 <p>It is recommended that further extensions use LTEP [#BEP-]_.  With
 LTEP, extension bit collisions become impossible since no new
 extension bits are allocated.  With LTEP, message ID collisions also

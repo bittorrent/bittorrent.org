@@ -49,7 +49,7 @@ They await the blessing of the BDFL before they can be considered Final.
 Num        Title              
 ======     ===================
 |9|        :raw-html:`<A HREF="bep_0009.html">Extension for Peers to Send Metadata Files </A>`
-|23|       :raw-html:`<A HREF="bep_0023.html">Tracker Returns Packed Peer Lists</A>`
+|23|       :raw-html:`<A HREF="bep_0023.html">Tracker Returns Compact Peer Lists</A>`
 ======     ===================
 
 Draft BEPs

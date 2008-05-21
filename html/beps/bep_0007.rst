@@ -8,9 +8,6 @@ Type:    Standards Track
 Created: 31-Jan-2008
 Post-History:
 
-IPv6 tracker extension
-======================
-
 This extension extends the tracker response to better support IPv6 peers as
 well as defines a way for multi homed machines to announce multiple addresses
 at the same time.  This proposal addresses the use case where peers
@@ -25,8 +22,8 @@ be interpreted as described in IETF `RFC 2119`_.
 
 .. _`RFC 2119`: http://tools.ietf.org/html/rfc2119
 
-announce parameter
-------------------
+Announce Parameter
+==================
 
 The client MAY add an ``&ipv6=`` parameter to the HTTP GET request it sends
 to the tracker. The value is either an IPv6 endpoint (address and port) or
@@ -52,20 +49,23 @@ address, the tracker MAY ignore any ``&ipv4=`` address and if the client
 connects to the tracker with an IPv6 source address, the tracker MAY ignore
 any ``&ipv6=`` parameter.
 
-announce response
------------------
+Announce Response
+=================
 
-In case the tracker does not support the ``compact`` response, no change is
-necessary. Since the original ``peers`` response returns peer endpoints in
-their expanded string form, IPv6 addresses can be passed back this way.
+In case the tracker does not support the ``compact`` response as
+described in BEP 23 `BEP-23`_, no change is necessary. Since the
+original ``peers`` response returns peer endpoints in their expanded
+string form, IPv6 addresses can be passed back this way.
 
 In case a compact response is requested, the tracker MAY add another key
 to the response; ``peers6``. This key has the same layout as ``peers`` in
 compact mode, but instead of using 6 bytes per endpoint, 18 bytes are used.
 peers6 contains address-port pairs where the addresses are all IPv6.
 
-examples
---------
+.. _`BEP-23`: http://www.bittorrent.org/beps/bep_0023.html
+
+Examples
+========
 
 Example announce string with ``2001::53aa:64c:0:7f83:bc43:dec9`` as IPv6
 address::
@@ -91,8 +91,8 @@ Example response::
 
 	d8:intervali1800e5:peers6:iiiipp6:peers618:iiiiiiiiiiiiiiiippe
 
-rationale
----------
+Rationale
+=========
 
 The naming of ``peers6`` is chosen not to collide with the current ``peers``
 response and to be backwards compatible. It is also a simple addition to the
@@ -100,7 +100,7 @@ current response, using the same encoding.
 
 
 Copyright
----------
+=========
 
 This document has been placed in the public domain.
 

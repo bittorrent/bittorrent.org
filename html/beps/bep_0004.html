@@ -40,7 +40,7 @@
 </tr>
 <tr class="field"><th class="field-name">Version:</th><td class="field-body">11031</td>
 </tr>
-<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://svn.bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0004.rst">2008-02-28 16:43:58 -0800 (Thu, 28 Feb 2008)</a></td>
+<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0004.rst">2008-02-28 16:43:58 -0800 (Thu, 28 Feb 2008)</a></td>
 </tr>
 <tr class="field"><th class="field-name">Author:</th><td class="field-body">David Harrison &lt;dave&#32;&#97;t&#32;bittorrent.com&gt;</td>
 </tr>
@@ -73,13 +73,35 @@ any omissions.</p>
 reserved[0]
 0x80  Azureus Messaging Protocol
 
+reserved[2]
+0x08  BitTorrent Location-aware Protocol (no known implementations)
+
 reserved[5]
 0x10  LTEP (Libtorrent Extension Protocol)
+0x02  Extension Negotiation Protocol
+0x01  Extension Negotiation Protocol
 
 reserved[7]
 0x01  BitTorrent DHT
+0x02  XBT Peer Exchange
 0x04  suggest, haveall, havenone, reject request, and allow fast extensions
+0x08  NAT Traversal
 </pre>
+<p>There are known collisions.</p>
+<blockquote>
+<p>reserved[0]
+0xFF  BitComet Extension Protocol</p>
+<p>reserved[1]
+0xFF  BitComet Extension Protocol</p>
+<p>reserved[7]
+0x01  XBT Metadata Exchange (implemented only in XBT)</p>
+</blockquote>
+<p>It is recommended that further extensions use LTEP [#BEP-]_.  With
+LTEP, extension bit collisions become impossible since no new
+extension bits are allocated.  With LTEP, message ID collisions also
+become impossible because message IDs are allocated on demand at the
+beginning of the connection.  Extension <em>name</em> collisions become
+possible, but the probability is much less likely.</p>
 </div>
 <div class="section" id="reserved-message-ids">
 <h1>Reserved Message IDs</h1>

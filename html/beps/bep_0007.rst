@@ -53,7 +53,7 @@ Announce Response
 =================
 
 In case the tracker does not support the ``compact`` response as
-described in BEP 23 `BEP-23`_, no change is necessary. Since the
+described in `BEP-23`_, no change is necessary. Since the
 original ``peers`` response returns peer endpoints in their expanded
 string form, IPv6 addresses can be passed back this way.
 

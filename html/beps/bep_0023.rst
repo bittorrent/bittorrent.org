@@ -1,5 +1,5 @@
 BEP: 23
-Title: Tracker Returns Packed Peer Lists
+Title: Tracker Returns Compact Peer Lists
 Version: $Revision$
 Last-Modified: $Date$
 Author:  David Harrison <dave@bittorrent.com>
@@ -16,6 +16,11 @@ Abstract
 To reduce the size of tracker responses and to reduce memory and
 computational requirements in trackers, trackers may return
 peers as a packed string rather than as a bencoded list.
+
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
+NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and
+"OPTIONAL" in this document are to be interpreted as described in
+IETF RFC 2119 [#RFC-2119]_.
 
 
 Overview
@@ -35,21 +40,32 @@ since it is a port number, it cannot be more than 7 bytes including
 bencoding overhead.  Thus,
 
 ::
+
   total peer list length in bytes < n * ( 23 + 259 + 7 )  
 
-It is common now to use a packed format where each peer is represented
+It is common now to use a compact format where each peer is represented
 using only 6 bytes.  The first 4 bytes contain the 32-bit ipv4 address.
 The remaining two bytes contain the port number.  Both address and port
 use network-byte order.
 
-The packed format uses the same *peers* key in the bencoded tracker
+When the client's announce URL contains *compact=1* the tracker MAY
+return the peers using compact format.  When *compact=0* or it is not
+specified then the tracker MUST return using the original format
+described in [#BEP-3]_.  For example, 
+
+::
+
+  GET /announce?peer_id=aaaaaaaaaaaaaaaaaaaa&info_hash=aaaaaaaaaaaaaaaaaaaa
+  &port=6881&left=0&downloaded=100&uploaded=0&compact=1
+
+The compact format uses the same *peers* key in the bencoded tracker
 response, but the value is a bencoded string rather than a bencoded
 list.
 
-The peer id does not appear in the packed format.  The format has been
+The peer id does not appear in the compact format.  The format has been
 in use for years and the lack of a peer id has posed no problems.
 
-This packed format is supported by BitTorrent mainline, Azureus,
+This compact format is supported by BitTorrent mainline, Azureus,
 libtorrent, uTorrent, and probably most other clients.
 
 
@@ -61,6 +77,9 @@ References
 
 .. [#RFC-1034] RFC-1034. DOMAIN NAMES - CONCEPTS AND FACILITIES. Mockapetris,
    November 1987. (http://tools.ietf.org/html/rfc1034)
+
+.. [#RFC-2119] RFC-2119. (http://www.ietf.org/rfc/rfc2119.txt)
+
 
 Copyright
 =========

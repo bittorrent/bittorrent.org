@@ -36,7 +36,7 @@
 <tbody valign="top">
 <tr class="field"><th class="field-name">BEP:</th><td class="field-body">23</td>
 </tr>
-<tr class="field"><th class="field-name">Title:</th><td class="field-body">Tracker Returns Packed Peer Lists</td>
+<tr class="field"><th class="field-name">Title:</th><td class="field-body">Tracker Returns Compact Peer Lists</td>
 </tr>
 <tr class="field"><th class="field-name">Version:</th><td class="field-body">11083</td>
 </tr>
@@ -60,10 +60,10 @@
 <div class="contents topic" id="contents">
 <p class="topic-title first">Contents</p>
 <ul class="simple">
-<li><a class="reference internal" href="#abstract" id="id3">Abstract</a></li>
-<li><a class="reference internal" href="#overview" id="id4">Overview</a></li>
-<li><a class="reference internal" href="#references" id="id5">References</a></li>
-<li><a class="reference internal" href="#copyright" id="id6">Copyright</a></li>
+<li><a class="reference internal" href="#abstract" id="id5">Abstract</a></li>
+<li><a class="reference internal" href="#overview" id="id6">Overview</a></li>
+<li><a class="reference internal" href="#references" id="id7">References</a></li>
+<li><a class="reference internal" href="#copyright" id="id8">Copyright</a></li>
 </ul>
 </div>
 <div class="section" id="abstract">
@@ -71,10 +71,14 @@
 <p>To reduce the size of tracker responses and to reduce memory and
 computational requirements in trackers, trackers may return
 peers as a packed string rather than as a bencoded list.</p>
+<p>The key words &quot;MUST&quot;, &quot;MUST NOT&quot;, &quot;REQUIRED&quot;, &quot;SHALL&quot;, &quot;SHALL
+NOT&quot;, &quot;SHOULD&quot;, &quot;SHOULD NOT&quot;, &quot;RECOMMENDED&quot;,  &quot;MAY&quot;, and
+&quot;OPTIONAL&quot; in this document are to be interpreted as described in
+IETF <a class="reference external" href="http://www.faqs.org/rfcs/rfc2119.html">RFC 2119</a> <a class="footnote-reference" href="#rfc-2119" id="id1">[3]</a>.</p>
 </div>
 <div class="section" id="overview">
 <h1>Overview</h1>
-<p>In BitTorrent as described in BEP 3 <a class="footnote-reference" href="#bep-3" id="id1">[1]</a>, peers wishing to
+<p>In BitTorrent as described in BEP 3 <a class="footnote-reference" href="#bep-3" id="id2">[1]</a>, peers wishing to
 transfer a file contact a central tracker.  This tracker returns a
 list of peers that are currently transferring the file.  The list of
 peers is implemented as a list of bencoded dicts.  Each dict in the
@@ -82,24 +86,31 @@ list contains three fields: <em>peer id</em>, <em>ip</em>, and <em>port</em>.  T
 id</em> is 20 bytes plus 3 bytes bencoding overhead.  The <em>ip</em> is a string
 containing a domain name or an IP address, and an integer port number.
 The <em>ip</em> is variable length, but since in its longest form it is a
-domain name it cannot exceed 255 bytes <a class="footnote-reference" href="#rfc-1034" id="id2">[2]</a> plus 4 bytes
+domain name it cannot exceed 255 bytes <a class="footnote-reference" href="#rfc-1034" id="id3">[2]</a> plus 4 bytes
 bencoding overhead.  Bencoded integers are also variable length but
 since it is a port number, it cannot be more than 7 bytes including
 bencoding overhead.  Thus,</p>
-<dl class="docutils">
-<dt>::</dt>
-<dd>total peer list length in bytes &lt; n * ( 23 + 259 + 7 )</dd>
-</dl>
-<p>It is common now to use a packed format where each peer is represented
+<pre class="literal-block">
+total peer list length in bytes &lt; n * ( 23 + 259 + 7 )
+</pre>
+<p>It is common now to use a compact format where each peer is represented
 using only 6 bytes.  The first 4 bytes contain the 32-bit ipv4 address.
 The remaining two bytes contain the port number.  Both address and port
 use network-byte order.</p>
-<p>The packed format uses the same <em>peers</em> key in the bencoded tracker
+<p>When the client's announce URL contains <em>compact=1</em> the tracker MAY
+return the peers using compact format.  When <em>compact=0</em> or it is not
+specified then the tracker MUST return using the original format
+described in <a class="footnote-reference" href="#bep-3" id="id4">[1]</a>.  For example,</p>
+<pre class="literal-block">
+GET /announce?peer_id=aaaaaaaaaaaaaaaaaaaa&amp;info_hash=aaaaaaaaaaaaaaaaaaaa
+&amp;port=6881&amp;left=0&amp;downloaded=100&amp;uploaded=0&amp;compact=1
+</pre>
+<p>The compact format uses the same <em>peers</em> key in the bencoded tracker
 response, but the value is a bencoded string rather than a bencoded
 list.</p>
-<p>The peer id does not appear in the packed format.  The format has been
+<p>The peer id does not appear in the compact format.  The format has been
 in use for years and the lack of a peer id has posed no problems.</p>
-<p>This packed format is supported by BitTorrent mainline, Azureus,
+<p>This compact format is supported by BitTorrent mainline, Azureus,
 libtorrent, uTorrent, and probably most other clients.</p>
 </div>
 <div class="section" id="references">
@@ -107,15 +118,21 @@ libtorrent, uTorrent, and probably most other clients.</p>
 <table class="docutils footnote" frame="void" id="bep-3" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>BEP_0003. The BitTorrent Protocol Specification, Cohen
+<tr><td class="label">[1]</td><td><em>(<a class="fn-backref" href="#id2">1</a>, <a class="fn-backref" href="#id4">2</a>)</em> BEP_0003. The BitTorrent Protocol Specification, Cohen
 (<a class="reference external" href="http://www.bittorrent.org/beps/bep_0003.html">http://www.bittorrent.org/beps/bep_0003.html</a>)</td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="rfc-1034" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td><a class="reference external" href="http://www.faqs.org/rfcs/rfc1034.html">RFC-1034</a>. DOMAIN NAMES - CONCEPTS AND FACILITIES. Mockapetris,
+<tr><td class="label"><a class="fn-backref" href="#id3">[2]</a></td><td><a class="reference external" href="http://www.faqs.org/rfcs/rfc1034.html">RFC-1034</a>. DOMAIN NAMES - CONCEPTS AND FACILITIES. Mockapetris,
 November 1987. (<a class="reference external" href="http://tools.ietf.org/html/rfc1034">http://tools.ietf.org/html/rfc1034</a>)</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="rfc-2119" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[3]</a></td><td><a class="reference external" href="http://www.faqs.org/rfcs/rfc2119.html">RFC-2119</a>. (<a class="reference external" href="http://www.ietf.org/rfc/rfc2119.txt">http://www.ietf.org/rfc/rfc2119.txt</a>)</td></tr>
 </tbody>
 </table>
 </div>

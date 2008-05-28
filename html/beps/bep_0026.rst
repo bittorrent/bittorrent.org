@@ -1,0 +1,125 @@
+BEP: 26
+Title: Zeroconf Peer Advertising and Discovery
+Version: $Revision$
+Last-Modified: $Date$
+Author:  Robin Perkins <robin DOT perkins AT internode DOT on DOT net>
+Status:  Draft
+Type:    Standards Track
+Content-Type: text/x-rst
+Created: 10-May-2008
+Post-History: 
+
+
+Abstract
+========
+
+`Zeroconf`_ is a collection of protocols including ipv4 link local networking, `mDNS`_, and `DNS service-discovery`_. This document aims to outline an extension for BitTorrent clients to allow them to find peers on a local-link network using the zeroconf `DNS service-discovery`_ system. It was written in the hope that clients could standardise the way in which they found peers on the local-link in order to maximize the functionality of the BitTorrent protocol. 
+
+
+Rationale
+=========
+
+Many networks today consist of computers that have a fast network connection (tens or hundreds of megabits/s) to a local area network, in addition to a relatively slower (hundreds of kilobits/s or a few megabits/s) connection to the wider internet. Such networks exist in places such as university colleges, defence barracks and community wifi networks.  If two hosts on the same (fast) local-link network wish to download the same torrent at the moment they only share packets across their slow internet connection. The BitTorrent Zeroconf Peer Advertising and Discovery Extension will allow automatic discovery of these peers to each other so that packets can be quickly transfered across the fast local network as opposed to across their slow internet connections. Effectively the effort of downloading the torrent can now be distributed between the hosts on a local-link network.
+
+
+Requirements
+============
+
+In order to facilitate the BitTorrent Zeroconf Peer Advertising and Discovery Extension each host is going to be required to run a zeroconf service discovery daemon. This is relatively trivial as there are many available for free but two particularly good zeroconf implementations are:
+
+1. Apple's `Bonjour`_ for Mac OS X (included by default), Windows and POSIX systems
+
+2. `Avahi`_ recommended for Linux and BSD clients and already available in many Linux and BSD distributions.
+
+Note that you can only run one zeroconf instance per host due to it binding to specific ports on your network interfaces, so it is **not** recommended to build the whole zeroconf daemon/server into your client. It is much better plug into a system wide service using the API's: it cuts down your code and allows other services e.g. http, ftp to advertise themselves using the same daemon. 
+
+Method
+======
+
+Each host will be required to publish (via zeroconf) the service type _bittorrent._tcp. with the instance name as the torrent peer-id (in hex).
+
+``<peer-id>._bittorrent._tcp.``
+
+Then clients need publish a subservice that is the torrent info hash (in hex). The result will be something in the form of:
+
+``<peer-id>._<info-hash>._sub._bittorrent._tcp.``
+e.g.
+``4d336d342d312d2d343834616435313564343437._32f17bbf96bdc77de85bb91ff8d56f124e817c0a._sub._bittorrent._tcp.``
+
+The above-mentioned zeroconf implementations provide good documentation for developers on how to do this. If the client uses the same peer-id for all torrents it has loaded, then for each additional torrent file, only the subservice needs to be added. If the client uses a different peer-id for each torrent then a _bittorrent._tcp. service will have to be  added for each torrent file with the respective subservice. This is also true if each torrent uses a different port.
+
+In simple terms you can publish subtypes using the Apple Bonjour API by passing them as a comma separated list after the service type (you don't need to pass in the "_sub" label, since mDNSResponder will automatically add it for you).
+
+``"_bittorrent._tcp,_info-hash1,_info-hash2,_info-hash3"``
+
+For the Avahi C API use the function  ``avahi_entry_group_add_service()`` to establish the parent _bittorrent._tcp service and ``avahi_entry_group_add_service_subtype()`` with ``_<info-hash>._sub._bittorrent._tcp.`` as the 'type' parameter to establish the subservices. For both functions the <peer-id> should be used for the 'name' parameter.
+
+Clients will need to browse for _<info-hash>._sub._bittorrent._tcp in order to discover peers participating in the same torrent. Once again good documentation is provided on how to browse for zeroconf services in  the above implementations. The replies will be in the form of <peer-id>._bittorrent._tcp. Note: Some Macintosh official bittorrent clients have a zeroconf implementation built in that publishes its services in the form of: 
+
+``_bittorrent-<info-hash>._tcp.`` 
+i.e.
+``_bittorrent-32f17bbf96bdc77de85bb91ff8d56f124e817c0a._tcp.``
+
+However this does not comply with RFC 2782 as the service name needs to be 14 characters or less in addition to the fact that it is not a service type but in fact a service instance it is advertising. Clients may choose to also browse for these services for backwards compatibility purposes (minimal effect - only one client is known to do this) however they should not publish in this format.
+
+
+Considerations
+==============
+
+Clients should consider a couple of options when implementing the BitTorrent Zeroconf Peer Advertising and Discovery Extension specifically:
+
+* an option to not advertise torrents via zeroconf
+
+* an option not to upload limit local-link peers (or possibly have a separate rule).
+
+
+Thoughts
+========
+
+* I suspect the published peer-id need not be the hexed string as I have it now. A simple unique string may be all that is required (i.e. a hostname or a human readable computer name) with any uniqueness conflicts handled by zeroconf automatically. We ultimately only need to know what is on offer (as denoted by the info-hash) and where to get it (the resolved IP address).
+
+* The mainline client and others may like to examine `pybonjour`_. pybonjour provides a pure-Python interface to  Apple `Bonjour`_ and compatible  DNS-SD libraries (such as  `Avahi`_). 
+
+* Newer zeroconf implementations such as Bonjour include support for wide area service discovery. (Avahi can browse but not publish these yet). This may be another consideration in support of this BEP. 
+
+* May make a nice companion to BEP 9.
+
+
+References
+==========
+
+.. Zeroconf: Zero Configuration Networking (Zeroconf)
+   (http://www.zeroconf.org)
+
+.. mDNS: Multicast Domain Name System (mDNS)
+   (http://www.multicastdns.org)
+
+.. DNS service-discovery: DNS service-discovery (DNS-SD)
+   (http://www.dns-sd.org)
+
+.. Avahi: Avahi
+   (http://www.avahi.org)
+
+.. Bonjour: Apple's Bonjour
+   (http://developer.apple.com/networking/bonjour/)
+
+.. pybonjour: pybonjour
+   (http://o2s.csail.mit.edu/o2s-wiki/pybonjour)
+
+
+Copyright
+=========
+
+This document has been placed in the public domain.
+
+
+
+..
+   Local Variables:
+   mode: indented-text
+   indent-tabs-mode: nil
+   sentence-end-double-space: t
+   fill-column: 70
+   coding: utf-8
+   End:
+

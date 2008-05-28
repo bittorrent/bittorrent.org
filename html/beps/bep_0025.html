@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.5: http://docutils.sourceforge.net/" />
+<title></title>
+<link rel="stylesheet" href="../css/bep.css" type="text/css" />
+</head>
+<body>
+<div class="document">
+
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="../index.html">BitTorrent<span>.org</span></a></h1>
+</div>
+<div id="nav">
+<ul>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../introduction.html">For Users</a></li>
+<li><a href="bep_0000.html"><span>For Developers</span></a></li>
+<!-- <li><a href="./blog">Blog</a></li> -->
+<li><a href="http://forum.bittorrent.org"> Forums </li>
+<li><a href="../donate.html">Donate!</a></li>
+</ul>
+</div> <!-- nav -->
+<!-- ### Begin Content ### -->
+<div id="second">
+
+
+
+<table class="rfc2822 docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">BEP:</th><td class="field-body">25</td>
+</tr>
+<tr class="field"><th class="field-name">Title:</th><td class="field-body">An Alternate BitTorrent Cache Discovery Protocol</td>
+</tr>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">11104</td>
+</tr>
+<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0025.rst">2008-05-27 20:56:26 -0700 (Tue, 27 May 2008)</a></td>
+</tr>
+<tr class="field"><th class="field-name">Author:</th><td class="field-body">David Harrison &lt;dave&#32;&#97;t&#32;bittorrent.com&gt;, Greg Hazel &lt;greg&#32;&#97;t&#32;bittorrent.com&gt;, Stanislav Shalunov &lt;shalunov&#32;&#97;t&#32;bittorrent.com&gt;</td>
+</tr>
+<tr class="field"><th class="field-name">Status:</th><td class="field-body">Draft</td>
+</tr>
+<tr class="field"><th class="field-name">Type:</th><td class="field-body">Standards track</td>
+</tr>
+<tr class="field"><th class="field-name">Content-Type:</th><td class="field-body"><a class="reference external" href="http://www.bittorrent.org/beps/bep-0012">text/x-rst</a></td>
+</tr>
+<tr class="field"><th class="field-name">Created:</th><td class="field-body">20-May-2008</td>
+</tr>
+<tr class="field"><th class="field-name">Post-History:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#motivation" id="id8">Motivation</a></li>
+<li><a class="reference internal" href="#the-discovery-mechanism" id="id9">The Discovery Mechanism</a></li>
+<li><a class="reference internal" href="#iterative-queries" id="id10">Iterative Queries</a></li>
+<li><a class="reference internal" href="#network-address-translators" id="id11">Network Address Translators</a></li>
+<li><a class="reference internal" href="#example" id="id12">Example</a></li>
+<li><a class="reference internal" href="#references" id="id13">References</a></li>
+<li><a class="reference internal" href="#copyright" id="id14">Copyright</a></li>
+</ul>
+</div>
+<div class="section" id="motivation">
+<h1>Motivation</h1>
+<p>Some Internet Service Providers (ISPs) may be interested in deploying
+BitTorrent caches to lower transit costs, reduce internal traffic, and
+improve user experience by speeding up downloads.</p>
+<p>A cache is simply a fast peer in the middle of the network. It might
+also have substantial disk space. The client communicates with a cache
+using the normal BitTorrent protocol.</p>
+<p>With this extension, BitTorrent clients are able to discover caches
+nearby on the network.  When a cache is present, the user benefits
+from having a high capacity peer from which the user's client
+downloads and to which it can delegate seeding.  When a cache inside
+the user's ISP network seeds on behalf of the client, it frees
+upstream capacity in the user's access network benefiting the user and
+those that share the access network.  When subsequent peers transfer
+from their ISP's cache, the ISP experiences less transit traffic.</p>
+<p>This is meant as a simpler alternative than presented in BEP-22
+<a class="footnote-reference" href="#bep-22" id="id1">[3]</a> though further from the intended usage of the Domain Name
+System (DNS) and existing standards.</p>
+</div>
+<div class="section" id="the-discovery-mechanism">
+<h1>The Discovery Mechanism</h1>
+<p>To find the caches for its ISP, a BitTorrent client performs a reverse
+DNS lookup on its external IP address, prepends &quot;bittorrent-tracker&quot;
+and resolves the resulting domain name to find the tracker.
+For example, a host with address 69.107.0.14 obtains the PTR record at</p>
+<pre class="literal-block">
+14.0.107.69.in-addr.arpa
+</pre>
+<p>The client's host IP address may not match the host's IP address as
+seen outside the client's private network.  We address this in Section
+<a class="reference internal" href="#network-address-translators">Network Address Translators</a>.</p>
+<p>The PTR resource record returned for this example contains domain name</p>
+<pre class="literal-block">
+adsl-69-107-0-14.dsl.pltn13.pacbell.net
+</pre>
+<p>The client then resolves the domain name</p>
+<pre class="literal-block">
+bittorrent-tracker.adsl-69-107-0-14.dsl.pltn13.pacbell.net
+</pre>
+<p>If no IP address(es) are found, one or more subsequent queries take place as
+described in <a class="reference internal" href="#iterative-queries">Iterative Queries</a>.</p>
+<p>The returned tracker(s) are called <em>cache trackers</em>, but the protocol
+to talk to these trackers is no different from the standard BitTorrent tracker
+protocol described in <a class="footnote-reference" href="#bep-3" id="id2">[1]</a>.</p>
+<p>When the BitTorrent client joins a swarm it announces to one or more
+of the trackers referenced in the .torrent file and announces to the
+cache tracker.  The cache tracker returns peers which may be caches or
+other peers that announced the same file to the cache tracker.</p>
+<p>A cache is a BitTorrent peer.  A client MAY treat it preferentially.</p>
+<p>Reverse DNS lookups are described in <a class="reference external" href="http://www.faqs.org/rfcs/rfc1034.html">RFC 1034</a> <a class="footnote-reference" href="#rfc-1034" id="id3">[5]</a>.</p>
+</div>
+<div class="section" id="iterative-queries">
+<h1>Iterative Queries</h1>
+<p>The domain name returned from the reverse DNS lookup is specific to
+the querying host.  In the naive implementation in DNS, there would be
+one bittorrent-tracker A or AAAA resource record for every querying host.
+The most obvious solution is to use a wildcard of the form:</p>
+<pre class="literal-block">
+bittorrent-tracker.*.pacbell.net
+</pre>
+<p>However, section 4.3.3 in <a class="footnote-reference" href="#rfc-1034" id="id4">[5]</a> specifies that wildcards only
+appear as the first label in a domain name.  This restriction was
+lifted in <a class="footnote-reference" href="#rfc-4592" id="id5">[7]</a>, but not with semantics applicable to our use
+case.  An asterisk not at the beginning of a domain name is not
+treated like a wildcard.  Only a lookup for the exact domain name</p>
+<pre class="literal-block">
+bittorrent-tracker.*.pacbell.net
+</pre>
+<p>matches.</p>
+<p>We propose an alternative that avoids wildcards and allows
+suborganizations to override mappings provided by parent
+organizations: the peer starts by querying using its fully-qualified
+domain name returned from the reverse DNS lookup, and if this fails
+then it queries again after removing the most specific (leftmost)
+label in the domain name.  For example, if no A/AAAA records are returned
+when querying for</p>
+<pre class="literal-block">
+bittorrent-tracker.adsl-69-107-0-14.dsl.pltn13.pacbell.net
+</pre>
+<p>then the client queries for</p>
+<pre class="literal-block">
+bittorrent-tracker.dsl.pltn13.pacbell.net
+</pre>
+<p>and then</p>
+<pre class="literal-block">
+bittorrent-tracker.pltn13.pacbell.net
+</pre>
+<p>The search removes one label at a time terminating when one or more
+resource records are found or before querying the root domain or
+top-level domains that are not ccTLDs, e.g., .com, .org, .net. We
+avoid querying the root or top-level domains given the low likelihood
+that caches would be defined globally, and thus clients would
+unnecessarily burden the root domain name servers with queries
+generating negative results. We considered stopping before querying
+country-level domains, but a country providing public infrastructure
+might choose to provide caches.</p>
+</div>
+<div class="section" id="network-address-translators">
+<h1>Network Address Translators</h1>
+<p>Many hosts on the Internet sit in private networks that connect to the
+Internet via a Network Address Translator (NAT).  Such hosts may have
+an IP address allocated from one of the private IP address ranges
+defined by IANA, e.g., ranges with prefixes 10/8, 172.16/12, and
+192.168/16.  When communicating with hosts outside the private
+network, the NAT translates the private IP to a globally-routable IP
+address.  This globally-routable address is the host's <em>external IP
+address</em>.</p>
+<p>When finding a cache, the BitTorrent client must use its host's
+external IP address.  A BitTorrent client can obtain its host's
+external IP either from the <em>external ip</em> key returned from a tracker
+implementing BEP 24 <a class="footnote-reference" href="#bep-24" id="id6">[4]</a> or from peers using the <em>yourip</em>
+extension defined for the <em>Extension Protocol</em> proposed in <a class="footnote-reference" href="#bep-10" id="id7">[2]</a>.</p>
+</div>
+<div class="section" id="example">
+<h1>Example</h1>
+<p>In our example, we use AT&amp;T's PacBell network.  AT&amp;T could implement
+cache discovery by adding the following lines to the zone file for
+pacbell.net,</p>
+<pre class="literal-block">
+bittorrent-tracker.pacbell.net.      IN  A   206.13.28.15
+</pre>
+<p>Now when a client performs cache discovery, it performs three DNS
+queries removing labels before reaching the domain name pacbell.net,
+at which point the SRV record is returned and the client queries
+tracker.pacbell.net to obtain the domain names of caches.</p>
+<p>In Python, the cache tracker's address can be obtained using the following:</p>
+<pre class="literal-block">
+import socket
+
+tlds = [&quot;com&quot;, &quot;net&quot;, &quot;org&quot;]  # add more here.
+
+name, aliases, ipaddrs = socket.gethostbyaddr(&quot;69.107.0.14&quot;)
+names = name.split('.')
+while names and names[0] not in tlds:
+   name = &quot;bittorrent-tracker.&quot; + &quot;.&quot;.join(names)
+   try:
+     ip = socket.gethostbyname(name)
+     break
+   except:
+     del names[0]
+
+print &quot;response=&quot;, ip
+</pre>
+<p>which might generate output like</p>
+<pre class="literal-block">
+response='151.164.129.4'
+</pre>
+<p>The answer above is fictional since AT&amp;T does not at this time
+implement SRV records for BitTorrent trackers.</p>
+</div>
+<div class="section" id="references">
+<h1>References</h1>
+<table class="docutils footnote" frame="void" id="bep-3" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[1]</a></td><td>BEP_0003. The BitTorrent Protocol Specification, Cohen
+<a class="reference external" href="http://www.bittorrent.org/beps/bep_0003.html">http://www.bittorrent.org/beps/bep_0003.html</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="bep-10" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id7">[2]</a></td><td>BEP_0010.  Extension Protocol. Norberg, Strigeus, Hazel
+<a class="reference external" href="http://www.bittorrent.org/beps/bep_0010.html">http://www.bittorrent.org/beps/bep_0010.html</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="bep-22" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[3]</a></td><td>BEP_0022.  BitTorrent Cache Discovery Protocol.  Harrison,
+Shalunov, Hazel. ://www.bittorrent.org/beps/bep_0010.html</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="bep-24" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id6">[4]</a></td><td>BEP_0024.  Tracker Returns External IP.  Harrison
+<a class="reference external" href="http://www.bittorrent.org/beps/bep_0024.html">http://www.bittorrent.org/beps/bep_0024.html</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="rfc-1034" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[5]</td><td><em>(<a class="fn-backref" href="#id3">1</a>, <a class="fn-backref" href="#id4">2</a>)</em> <a class="reference external" href="http://www.faqs.org/rfcs/rfc1034.html">RFC-1034</a>.  DOMAIN NAMES - CONCEPTS AND FACILITIES. Mockapetris,
+November 1987. <a class="reference external" href="http://tools.ietf.org/html/rfc1034">http://tools.ietf.org/html/rfc1034</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="rfc-2782" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[6]</td><td><a class="reference external" href="http://www.faqs.org/rfcs/rfc2782.html">RFC-2782</a>.  A DNS RR for specifying the location of services (DNS
+SRV). Gulbrandsen, Vixie, Esibov. February 2000.
+<a class="reference external" href="http://tools.ietf.org/html/rfc2782">http://tools.ietf.org/html/rfc2782</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="rfc-4592" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id5">[7]</a></td><td><a class="reference external" href="http://www.faqs.org/rfcs/rfc4592.html">RFC-4592</a>. The Role of Wildcards in the Domain Name System. Lewis
+<a class="reference external" href="http://www.faqs.org/rfcs/rfc4592.html">http://www.faqs.org/rfcs/rfc4592.html</a></td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="copyright">
+<h1>Copyright</h1>
+<p>This document has been placed in the public domain.</p>
+<!-- Local Variables:
+mode: indented-text
+indent-tabs-mode: nil
+sentence-end-double-space: t
+fill-column: 70
+coding: utf-8
+End: -->
+</div>
+
+
+</div>
+	<div id="footer">
+<hr/>
+</div>
+
+</div>
+</body>
+</html>

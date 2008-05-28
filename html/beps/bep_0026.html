@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.5: http://docutils.sourceforge.net/" />
+<title></title>
+<link rel="stylesheet" href="../css/bep.css" type="text/css" />
+</head>
+<body>
+<div class="document">
+
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="../index.html">BitTorrent<span>.org</span></a></h1>
+</div>
+<div id="nav">
+<ul>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../introduction.html">For Users</a></li>
+<li><a href="bep_0000.html"><span>For Developers</span></a></li>
+<!-- <li><a href="./blog">Blog</a></li> -->
+<li><a href="http://forum.bittorrent.org"> Forums </li>
+<li><a href="../donate.html">Donate!</a></li>
+</ul>
+</div> <!-- nav -->
+<!-- ### Begin Content ### -->
+<div id="second">
+
+
+
+<table class="rfc2822 docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">BEP:</th><td class="field-body">26</td>
+</tr>
+<tr class="field"><th class="field-name">Title:</th><td class="field-body">Zeroconf Peer Advertising and Discovery</td>
+</tr>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">11105</td>
+</tr>
+<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0026.rst">2008-05-27 20:57:09 -0700 (Tue, 27 May 2008)</a></td>
+</tr>
+<tr class="field"><th class="field-name">Author:</th><td class="field-body">Robin Perkins &lt;robin DOT perkins AT internode DOT on DOT net&gt;</td>
+</tr>
+<tr class="field"><th class="field-name">Status:</th><td class="field-body">Draft</td>
+</tr>
+<tr class="field"><th class="field-name">Type:</th><td class="field-body">Standards Track</td>
+</tr>
+<tr class="field"><th class="field-name">Content-Type:</th><td class="field-body"><a class="reference external" href="http://www.bittorrent.org/beps/bep-0012">text/x-rst</a></td>
+</tr>
+<tr class="field"><th class="field-name">Created:</th><td class="field-body">10-May-2008</td>
+</tr>
+<tr class="field"><th class="field-name">Post-History:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#abstract" id="id16">Abstract</a></li>
+<li><a class="reference internal" href="#rationale" id="id17">Rationale</a></li>
+<li><a class="reference internal" href="#requirements" id="id18">Requirements</a></li>
+<li><a class="reference internal" href="#method" id="id19">Method</a></li>
+<li><a class="reference internal" href="#considerations" id="id20">Considerations</a></li>
+<li><a class="reference internal" href="#thoughts" id="id21">Thoughts</a></li>
+<li><a class="reference internal" href="#references" id="id22">References</a></li>
+<li><a class="reference internal" href="#copyright" id="id23">Copyright</a></li>
+</ul>
+</div>
+<div class="section" id="abstract">
+<h1>Abstract</h1>
+<p><a class="reference external" href="ZeroConfigurationNetworking(Zeroconf)http://www.zeroconf.org">Zeroconf</a> <a class="footnote-reference" href="#id1" id="id2">[1]</a> is a collection of protocols including ipv4 link local
+networking, <a class="reference external" href="MulticastDomainNameSystem(mDNS)http://www.multicastdns.org">mDNS</a> <a class="footnote-reference" href="#id3" id="id4">[2]</a>, and <a class="reference external" href="DNSservice-discovery(DNS-SD)http://www.dns-sd.org">DNS service-discovery</a> <a class="footnote-reference" href="#id5" id="id6">[3]</a>. This document aims
+to outline an extension for BitTorrent clients to allow them to find
+peers on a local-link network using the zeroconf <a class="reference external" href="DNSservice-discovery(DNS-SD)http://www.dns-sd.org">DNS
+service-discovery</a> <a class="footnote-reference" href="#id5" id="id7">[3]</a> system. It was written in the hope that clients
+could standardise the way in which they found peers on the local-link
+in order to maximize the functionality of the BitTorrent protocol.</p>
+</div>
+<div class="section" id="rationale">
+<h1>Rationale</h1>
+<p>Many networks today consist of computers that have a fast network
+connection (tens or hundreds of megabits/s) to a local area network,
+in addition to a relatively slower (hundreds of kilobits/s or a few
+megabits/s) connection to the wider internet. Such networks exist in
+places such as university colleges, defence barracks and community
+wifi networks.  If two hosts on the same (fast) local-link network
+wish to download the same torrent at the moment they only share
+packets across their slow internet connection. The BitTorrent Zeroconf
+Peer Advertising and Discovery Extension will allow automatic
+discovery of these peers to each other so that packets can be quickly
+transfered across the fast local network as opposed to across their
+slow internet connections. Effectively the effort of downloading the
+torrent can now be distributed between the hosts on a local-link
+network.</p>
+</div>
+<div class="section" id="requirements">
+<h1>Requirements</h1>
+<p>In order to facilitate the BitTorrent Zeroconf Peer Advertising and
+Discovery Extension each host is going to be required to run a
+zeroconf service discovery daemon. This is relatively trivial as there
+are many available for free but two particularly good zeroconf
+implementations are:</p>
+<ol class="arabic simple">
+<li>Apple's <a class="reference external" href="Apple'sBonjourhttp://developer.apple.com/networking/bonjour/">Bonjour</a> <a class="footnote-reference" href="#id11" id="id12">[5]</a> for Mac OS X (included by default), Windows and POSIX systems</li>
+<li><a class="reference external" href="Avahihttp://www.avahi.org">Avahi</a> <a class="footnote-reference" href="#id8" id="id9">[4]</a> recommended for Linux and BSD clients and already available in many Linux and BSD distributions.</li>
+</ol>
+<p>Note that you can only run one zeroconf instance per host due to it
+binding to specific ports on your network interfaces, so it is <strong>not</strong>
+recommended to build the whole zeroconf daemon/server into your
+client. It is much better plug into a system wide service using the
+API's: it cuts down your code and allows other services e.g. http, ftp
+to advertise themselves using the same daemon.</p>
+</div>
+<div class="section" id="method">
+<h1>Method</h1>
+<p>Each host will be required to publish (via zeroconf) the service type
+_bittorrent._tcp. with the instance name as the torrent peer-id (in
+hex).</p>
+<p><tt class="docutils literal"><span class="pre">&lt;peer-id&gt;._bittorrent._tcp.</span></tt></p>
+<p>Then clients need publish a subservice that is the torrent info hash (in hex). The result will be something in the form of:</p>
+<p><tt class="docutils literal"><span class="pre">&lt;peer-id&gt;._&lt;info-hash&gt;._sub._bittorrent._tcp.</span></tt>
+e.g.
+<tt class="docutils literal"><span class="pre">4d336d342d312d2d343834616435313564343437._32f17bbf96bdc77de85bb91ff8d56f124e817c0a._sub._bittorrent._tcp.</span></tt></p>
+<p>The above-mentioned zeroconf implementations provide good
+documentation for developers on how to do this. If the client uses the
+same peer-id for all torrents it has loaded, then for each additional
+torrent file, only the subservice needs to be added. If the client
+uses a different peer-id for each torrent then a
+_bittorrent._tcp. service will have to be added for each torrent file
+with the respective subservice. This is also true if each torrent uses
+a different port.</p>
+<p>In simple terms you can publish subtypes using the Apple Bonjour API
+by passing them as a comma separated list after the service type (you
+don't need to pass in the &quot;_sub&quot; label, since mDNSResponder will
+automatically add it for you).</p>
+<p><tt class="docutils literal"><span class="pre">&quot;_bittorrent._tcp,_info-hash1,_info-hash2,_info-hash3&quot;</span></tt></p>
+<p>For the Avahi C API use the function
+<tt class="docutils literal"><span class="pre">avahi_entry_group_add_service()</span></tt> to establish the parent
+_bittorrent._tcp service and
+<tt class="docutils literal"><span class="pre">avahi_entry_group_add_service_subtype()</span></tt> with
+<tt class="docutils literal"><span class="pre">_&lt;info-hash&gt;._sub._bittorrent._tcp.</span></tt> as the 'type' parameter to
+establish the subservices. For both functions the &lt;peer-id&gt; should be
+used for the 'name' parameter.</p>
+<p>Clients will need to browse for _&lt;info-hash&gt;._sub._bittorrent._tcp in
+order to discover peers participating in the same torrent. Once again
+good documentation is provided on how to browse for zeroconf services
+in the above implementations. The replies will be in the form of
+&lt;peer-id&gt;._bittorrent._tcp. Note: Some Macintosh official bittorrent
+clients have a zeroconf implementation built in that publishes its
+services in the form of:</p>
+<p><tt class="docutils literal"><span class="pre">_bittorrent-&lt;info-hash&gt;._tcp.</span></tt>
+i.e.
+<tt class="docutils literal"><span class="pre">_bittorrent-32f17bbf96bdc77de85bb91ff8d56f124e817c0a._tcp.</span></tt></p>
+<p>However this does not comply with <a class="reference external" href="http://www.faqs.org/rfcs/rfc2782.html">RFC 2782</a> as the service name needs
+to be 14 characters or less in addition to the fact that it is not a
+service type but in fact a service instance it is advertising. Clients
+may choose to also browse for these services for backwards
+compatibility purposes (minimal effect - only one client is known to
+do this) however they should not publish in this format.</p>
+</div>
+<div class="section" id="considerations">
+<h1>Considerations</h1>
+<p>Clients should consider a couple of options when implementing the
+BitTorrent Zeroconf Peer Advertising and Discovery Extension
+specifically:</p>
+<ul class="simple">
+<li>an option to not advertise torrents via zeroconf</li>
+<li>an option not to upload limit local-link peers (or possibly have a separate rule).</li>
+</ul>
+</div>
+<div class="section" id="thoughts">
+<h1>Thoughts</h1>
+<ul class="simple">
+<li>I suspect the published peer-id need not be the hexed string as I
+have it now. A simple unique string may be all that is required
+(i.e. a hostname or a human readable computer name) with any
+uniqueness conflicts handled by zeroconf automatically. We
+ultimately only need to know what is on offer (as denoted by the
+info-hash) and where to get it (the resolved IP address).</li>
+<li>The mainline client and others may like to examine
+<a class="reference external" href="pybonjourhttp://o2s.csail.mit.edu/o2s-wiki/pybonjour">pybonjour</a> <a class="footnote-reference" href="#id14" id="id15">[6]</a>. pybonjour provides a pure-Python interface to Apple
+<a class="reference external" href="Apple'sBonjourhttp://developer.apple.com/networking/bonjour/">Bonjour</a> <a class="footnote-reference" href="#id11" id="id13">[5]</a> and compatible DNS-SD libraries (such as <a class="reference external" href="Avahihttp://www.avahi.org">Avahi</a> <a class="footnote-reference" href="#id8" id="id10">[4]</a>).</li>
+<li>Newer zeroconf implementations such as Bonjour include support for
+wide area service discovery. (Avahi can browse but not publish these
+yet). This may be another consideration in support of this BEP.</li>
+<li>May make a nice companion to BEP 9.</li>
+</ul>
+</div>
+<div class="section" id="references">
+<h1>References</h1>
+<table class="docutils footnote" frame="void" id="id1" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[1]</a></td><td><a class="reference external" href="ZeroConfigurationNetworking(Zeroconf)http://www.zeroconf.org">ZeroConfigurationNetworking(Zeroconf)http://www.zeroconf.org</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id3" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id4">[2]</a></td><td><a class="reference external" href="MulticastDomainNameSystem(mDNS)http://www.multicastdns.org">MulticastDomainNameSystem(mDNS)http://www.multicastdns.org</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id5" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[3]</td><td><em>(<a class="fn-backref" href="#id6">1</a>, <a class="fn-backref" href="#id7">2</a>)</em> <a class="reference external" href="DNSservice-discovery(DNS-SD)http://www.dns-sd.org">DNSservice-discovery(DNS-SD)http://www.dns-sd.org</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id8" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[4]</td><td><em>(<a class="fn-backref" href="#id9">1</a>, <a class="fn-backref" href="#id10">2</a>)</em> <a class="reference external" href="Avahihttp://www.avahi.org">Avahihttp://www.avahi.org</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id11" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[5]</td><td><em>(<a class="fn-backref" href="#id12">1</a>, <a class="fn-backref" href="#id13">2</a>)</em> <a class="reference external" href="Apple'sBonjourhttp://developer.apple.com/networking/bonjour/">Apple'sBonjourhttp://developer.apple.com/networking/bonjour/</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id14" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id15">[6]</a></td><td><a class="reference external" href="pybonjourhttp://o2s.csail.mit.edu/o2s-wiki/pybonjour">pybonjourhttp://o2s.csail.mit.edu/o2s-wiki/pybonjour</a></td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="copyright">
+<h1>Copyright</h1>
+<p>This document has been placed in the public domain.</p>
+<!-- Local Variables:
+mode: indented-text
+indent-tabs-mode: nil
+sentence-end-double-space: t
+fill-column: 70
+coding: utf-8
+End: -->
+</div>
+
+
+</div>
+	<div id="footer">
+<hr/>
+</div>
+
+</div>
+</body>
+</html>

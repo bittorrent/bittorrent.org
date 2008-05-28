@@ -9,7 +9,7 @@ import DNS
 
 tlds = ["com", "net", "org"]  # add more here.
 
-name = DNS.revlookup( "69.107.0.14" )
+name = DNS.revlookup( "77.46.197.147" )
 names = name.split('.')
 while names and names[0] not in tlds:
    name = "_bittorrent._tcp." + ".".join(names)

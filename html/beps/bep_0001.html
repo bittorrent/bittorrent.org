@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.5: http://docutils.sourceforge.net/" />
+<title></title>
+<link rel="stylesheet" href="../css/bep.css" type="text/css" />
+</head>
+<body>
+<div class="document">
+
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="../index.html">BitTorrent<span>.org</span></a></h1>
+</div>
+<div id="nav">
+<ul>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../introduction.html">For Users</a></li>
+<li><a href="bep_0000.html"><span>For Developers</span></a></li>
+<!-- <li><a href="./blog">Blog</a></li> -->
+<li><a href="http://forum.bittorrent.org"> Forums </li>
+<li><a href="../donate.html">Donate!</a></li>
+</ul>
+</div> <!-- nav -->
+<!-- ### Begin Content ### -->
+<div id="second">
+
+
+
+<table class="rfc2822 docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">BEP:</th><td class="field-body">1</td>
+</tr>
+<tr class="field"><th class="field-name">Title:</th><td class="field-body">The BitTorrent Enhancement Proposal Process</td>
+</tr>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">11054</td>
+</tr>
+<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0001.rst">2008-05-02 20:19:03 -0700 (Fri, 02 May 2008)</a></td>
+</tr>
+<tr class="field"><th class="field-name">Author:</th><td class="field-body">David Harrison &lt;dave&#32;&#97;t&#32;bittorrent.com&gt;</td>
+</tr>
+<tr class="field"><th class="field-name">Status:</th><td class="field-body">Active</td>
+</tr>
+<tr class="field"><th class="field-name">Type:</th><td class="field-body">Process</td>
+</tr>
+<tr class="field"><th class="field-name">Created:</th><td class="field-body">10-Jan-2008</td>
+</tr>
+<tr class="field"><th class="field-name">Post-History:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#what-is-a-bep" id="id3">What is a BEP</a></li>
+<li><a class="reference internal" href="#bep-types" id="id4">BEP Types</a></li>
+<li><a class="reference internal" href="#bep-work-flow" id="id5">BEP Work Flow</a></li>
+<li><a class="reference internal" href="#intellectual-property-and-bittorrent-standards" id="id6">Intellectual Property and BitTorrent Standards</a></li>
+<li><a class="reference internal" href="#history" id="id7">History</a></li>
+<li><a class="reference internal" href="#acknowledgements" id="id8">Acknowledgements</a></li>
+<li><a class="reference internal" href="#references-and-footnotes" id="id9">References and Footnotes</a></li>
+<li><a class="reference internal" href="#copyright" id="id10">Copyright</a></li>
+</ul>
+</div>
+<div class="section" id="what-is-a-bep">
+<h1>What is a BEP</h1>
+<p>BEP stands for BitTorrent Enhancement Proposal.  A BEP is a design
+document providing information to the BitTorrent community, or
+describing a new feature for the BitTorrent protocols. The BEP should
+provide a concise technical specification of the feature and a
+rationale for the feature.</p>
+<p>We intend BEPs to be the primary mechanisms for proposing new
+features, for collecting community input on an issue, and for
+documenting the design decisions that have gone into BitTorrent. The BEP
+author is responsible for building consensus within the community and
+documenting dissenting opinions.</p>
+<p>Because the BEPs are maintained as reStructured text files in a versioned
+repository, their revision history is the historical record of the
+feature proposal <a class="footnote-reference" href="#svn" id="id1">[1]</a>.</p>
+</div>
+<div class="section" id="bep-types">
+<h1>BEP Types</h1>
+<p>There are three kinds of BEP:</p>
+<blockquote>
+<ol class="arabic simple">
+<li>A Standards Track BEP describes an extension to one of the BitTorrent
+protocols or a change in the behavior of one of the actors in these
+protocols, where the actors are currently clients, trackers, and web
+servers.</li>
+<li>An Informational BEP describes a BitTorrent design issue, or
+provides general guidelines or information to the BitTorrent
+community, but does not propose an extension. Informational BEPs
+do not necessarily represent a BitTorrent community consensus or
+recommendation, so users and implementors are free to ignore
+Informational BEPs or follow their advice.</li>
+<li>A Process BEP describes a process surrounding BitTorrent, or
+proposes a change to (or an event in) a process. Process BEPs are
+like Standards Track BEPs but apply to areas other than the
+BitTorrent protocols.  They are more than recommendations, and
+users are typically not free to ignore them. Examples include
+release schedules, procedures, guidelines, changes to the
+decision-making process, and changes to the tools or environment
+used in BitTorrent development.</li>
+</ol>
+</blockquote>
+</div>
+<div class="section" id="bep-work-flow">
+<h1>BEP Work Flow</h1>
+<p>The BEP editors assign BEP numbers and change their status. The
+current BEP editors are David Harrison and Arvid Norberg. Please send
+all BEP-related email to &lt;<a class="reference external" href="mailto:editor&#37;&#52;&#48;bittorrent&#46;org">editor<span>&#64;</span>bittorrent<span>&#46;</span>org</a>&gt;.  Also see BEP Editor
+Responsibilities &amp; Workflow below.</p>
+<p>The BEP process begins with a new idea for the BitTorrent
+protocols. It is highly recommended that a single BEP contain a single
+key proposal. The BEP editor reserves the right to reject BEP
+proposals if they appear unfocussed or overly broad. If in doubt,
+split your BEP into muliple BEPs.</p>
+<p>Each BEP must have a champion -- someone who writes the BEP using the
+style and format described below, shepherds the discussions in the
+appropriate forums, and attempts to build community consensus around
+the idea. The BEP champion should first post a description of the idea
+to the BEPs forum at forum.bittorrent.org.</p>
+<p>If the champion believes the idea warrants a BEP then the champion
+emails the BEP editor &lt;<a class="reference external" href="mailto:editor&#37;&#52;&#48;bittorrent&#46;org">editor<span>&#64;</span>bittorrent<span>&#46;</span>org</a>&gt; with a proposed title
+and a draft of the BEP. This draft must be written in BEP style as
+described below.</p>
+<p>If the BEP editor approves, he assigns the BEP a number, labels it as
+Standards Track, Informational, or Process, gives it status &quot;Draft&quot;,
+and creates and checks-in the initial draft of the BEP to the
+subversion repository. The BEP editor will not unreasonably
+deny a BEP. Reasons for denying BEP status include duplication of
+effort, being technically unsound, not providing proper motivation or
+not addressing backwards compatibility. The BDFL (Benevolent Dictator
+for Life, Bram Cohen) can be consulted during the approval phase, and
+is the final arbiter of the draft's BEP-ability.</p>
+<p>If a pre-BEP is rejected, the author may elect to take the pre-BEP to
+the BEP forum seeking feedback and consesnsus from the community at large.
+A proposal may be re-submitted after it has been revised.</p>
+<p>The champion is then responsible for marshaling community support for
+it. As updates are necessary, the BEP author can check in new versions
+if they have SVN commit permissions, or can email new BEP versions to
+the BEP editor for committing.</p>
+<p>Standards Track BEPs consist of two parts, a design document and a
+reference implementation. The reference implementation need not be
+complete when a BEP is submitted to the editors.  However Standards
+Track BEPs must include an implementation in at least one BitTorrent
+client with publicy available code before it can be considered Final.</p>
+<p>BEP champions are responsible for collecting community feedback on a
+BEP before submitting it for review. A BEP that has not been discussed
+in the BEPs forum on forum.bittorrent.org will not be
+accepted. However, wherever possible, long open-ended discussions in
+the BEP forum should be avoided. Strategies to keep the discussions
+efficient include: setting up a separate SIG forum for the topic,
+having the BEP author accept private comments in the early design
+phases, setting up a wiki page, etc. BEP authors should use their
+discretion here.</p>
+<p>Once the authors have completed a BEP, they must inform the BEP editor
+that it is ready for review. BEPs are reviewed by the BDFL and his
+chosen consultants, who may accept or reject a BEP or send it back to
+the author(s) for revision. For a BEP that is pre-determined to be
+acceptable (e.g., it is an obvious win as-is and/or its implementation
+already exists in one or more popular BitTorrent clients) the BDFL may
+also initiate a BEP review, first notifying the BEP author(s) and
+giving them a chance to make revisions.</p>
+<p>For a BEP to be accepted it must meet certain minimum criteria. It
+must be a clear and complete description of the proposed
+enhancement. The enhancement must represent a net improvement. The
+proposed implementation, if applicable, must be functional and have
+been tested in live BitTorrent swarms.  Supporting results from
+analyses, testbed experiments and event-based simulations are also
+recommended where appropriate.  A Standards Track document should
+include the rationale behind a proposal and may briefly summarize
+analytical, simulation, or experimental results where necessary to
+illustrate or motivate the enhancement.  However, detailed analytical,
+simulation, and experiment results, especially comparing different
+approaches to the same problem should be omitted from Standards Track
+BEPs and instead cited from a published paper or a separate
+Informational BEP.</p>
+<p>Once a BEP has been accepted, the reference implementation must be
+completed. When the reference implementation is complete and accepted
+by the BDFL, the status will be changed to &quot;Final&quot;.</p>
+<p>A BEP can also be assigned status &quot;Deferred&quot;. The BEP author or editor
+can assign the BEP this status when no progress is being made on the
+BEP. Once a BEP is deferred, the BEP editor can re-assign it to draft
+status.</p>
+<p>A BEP can also be &quot;Rejected&quot;. Perhaps after all is said and done it
+was not a good idea. It is still important to have a record of this
+fact.</p>
+<p>BEPs can also be replaced by a different BEP, rendering the original
+obsolete. This is intended for Informational BEPs, where version 2 of
+an API can replace version 1.</p>
+<p>The possible paths of the status of BEPs are as follows:</p>
+<img alt="bep_0001_1.png" src="bep_0001_1.png" />
+</div>
+<div class="section" id="intellectual-property-and-bittorrent-standards">
+<h1>Intellectual Property and BitTorrent Standards</h1>
+<p>Any idea submitted in a BEP will not be considered for standardization
+if the idea is not in the public domain.  Before a BEP can be
+considered Final, all people (including the BEP authors) or entities
+with a claim on the intellectual property expressed in a BEP must
+assign in writing all intellectual property expressed in the BEP to
+the public domain.  If the BEP authors lack the power to assign
+intellectual property rights then they must disclose this fact before
+the BEP can be considered Final.</p>
+<p>Furthermore BEP authors should not knowingly propose anything in their
+BEPs that infringes on the intellectual property rights of others.</p>
+<p>This policy statement should not be construed as meaning that BEP
+authors are required to assign software implementations of any
+particular idea to the public domain.  BitTorrent implementors may
+retain all rights to their implementations.</p>
+</div>
+<div class="section" id="history">
+<h1>History</h1>
+<p>This document was derived heavily from PEP-0001 <a class="footnote-reference" href="#pep-1" id="id2">[2]</a>.  In many places
+text was simply copied and modified.  Although the PEP-0001 text
+was written by Barry Warsaw, Jeremy Hylton, and David Goodger, they
+are not responsible for its use in the BitTorent Enhancement Process,
+and should not be bothered with technical questions specific to
+BitTorrent or the BEP process.  Please direct all comments to the
+BitTorrent editors &lt;<a class="reference external" href="mailto:editor&#37;&#52;&#48;bittorrent&#46;org">editor<span>&#64;</span>bittorrent<span>&#46;</span>org</a>&gt; or the forums at
+forum.bittorrent.org.</p>
+</div>
+<div class="section" id="acknowledgements">
+<h1>Acknowledgements</h1>
+<p>Thanks to Barry Warsaw, David Goodger, and Guido van Rossum for their
+guidance.</p>
+</div>
+<div class="section" id="references-and-footnotes">
+<h1>References and Footnotes</h1>
+<table class="docutils footnote" frame="void" id="svn" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>This historical record is available by the normal SVN
+commands for retrieving older revisions. For those without direct
+access to the SVN tree, you can browse the current and past BEP
+revisions here: <a class="reference external" href="http://bittorrent.org/trac/">http://bittorrent.org/trac/</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="pep-1" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td>PEP-001: PEP Purposes and Guidelines, Warsaw, Hylton, Goodger.
+(<a class="reference external" href="http://www.python.org/dev/peps/pep-0001">http://www.python.org/dev/peps/pep-0001</a>)</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="copyright">
+<h1>Copyright</h1>
+<p>This document has been placed in the public domain.</p>
+<!-- Local Variables:
+mode: indented-text
+indent-tabs-mode: nil
+sentence-end-double-space: t
+fill-column: 70
+coding: utf-8
+End: -->
+</div>
+
+
+</div>
+	<div id="footer">
+<hr/>
+</div>
+
+</div>
+</body>
+</html>

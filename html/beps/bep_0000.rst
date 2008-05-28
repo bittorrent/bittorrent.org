@@ -73,6 +73,7 @@ Num        Title
 |21|       :raw-html:`<A HREF="bep_0021.html">Extension for Partial Seeds</A>`
 |22|       :raw-html:`<A HREF="bep_0022.html">BitTorrent Cache Discovery Protocol</A>`
 |24|       :raw-html:`<A HREF="bep_0024.html">Tracker Returns External IP</A>`
+|26|       :raw-html:`<A HREF="bep_0026.html">Zeroconf Peer Advertising and Discovery</A>`
 ======     ===================
 
 
@@ -124,4 +125,5 @@ At this time, no BEPs have been rejected.
 .. |22| replace:: :raw-html:`<A HREF="bep_0022.html">22</A>`
 .. |23| replace:: :raw-html:`<A HREF="bep_0023.html">23</A>`
 .. |24| replace:: :raw-html:`<A HREF="bep_0024.html">24</A>`
+.. |26| replace:: :raw-html:`<A HREF="bep_0026.html">26</A>`
 .. |1000| replace:: :raw-html:`<A HREF="bep_1000.html">1000</A>`

@@ -28,6 +28,11 @@ the user's ISP network seeds on behalf of the client, it frees
 upstream capacity in the user's access network benefiting the user and
 those that share the access network.  When subsequent peers transfer
 from their ISP's cache, the ISP experiences less transit traffic.
+
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
+NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and
+"OPTIONAL" in this document are to be interpreted as described in
+IETF RFC 2119 [#RFC-2119]_.
  
 
 The Discovery Mechanism
@@ -126,13 +131,13 @@ treated like a wildcard.  Only a lookup for the exact domain name
 
 matches.
 
-We propose an alternative that avoids wildcards and has the advantage
-that it allows suborganizations to override the SRV records provided
-by parent organizations: the peer starts by querying using its
-fully-qualified domain name returned from the reverse DNS lookup, and
-if this fails then it queries again after removing the most specific
-(leftmost) label in the domain name.  For example, if no SRV records
-are returned when querying for
+We propose an alternative that avoids wildcards and allows
+suborganizations to override SRV records provided by parent
+organizations: the peer starts by querying using its fully-qualified
+domain name returned from the reverse DNS lookup, and if this fails
+then it queries again after removing the most specific (leftmost)
+label in the domain name.  For example, if no SRV records are returned
+when querying for
 
 ::
 
@@ -150,12 +155,12 @@ and then
 
   _bittorrent-tracker.pltn13.pacbell.net
 
-The search removes one domain at a time terminating when one or more
+The search removes one label at a time terminating when one or more
 resource records are found or before querying the root domain or
 top-level domains that are not ccTLDs, e.g., .com, .org, .net. We
-avoid querying the root or global top-level domains given the low
-likelihood that caches would be defined globally, and thus clients
-would unnecessarily burden the root domain name servers with queries
+avoid querying the root or top-level domains given the low likelihood
+that caches would be defined globally, and thus clients would
+unnecessarily burden the root domain name servers with queries
 generating negative results. We considered stopping before querying
 country-level domains, but a country providing public infrastructure
 might choose to provide caches.
@@ -173,17 +178,16 @@ network, the NAT translates the private IP to a globally-routable IP
 address.  This globally-routable address is the host's *external IP
 address*.
 
-When finding a cache, the BitTorrent client must use its host's
-external IP address.  A BitTorrent client can obtain its host's
-external IP either from the *external ip* key returned from a tracker
-implementing BEP 24 [#BEP-24]_ or from peers using the *yourip*
-extension defined for the *Extension Protocol* proposed in [#BEP-10]_.
-
+The BitTorrent client must use its host's external IP address.  A
+BitTorrent client MAY obtain its host's external IP either from the
+*external ip* key returned from a tracker implementing BEP 24
+[#BEP-24]_ or from peers implementing the *yourip* extension defined
+for the *Extension Protocol* proposed in [#BEP-10]_.
 
 Example
 =======
 
-In our example, we used AT&T's PacBell network.  AT&T could implement
+In our example, we use AT&T's PacBell network.  AT&T could implement
 cache discovery by adding the following lines to the zone file for
 pacbell.net,
 
@@ -194,8 +198,8 @@ pacbell.net,
 
 Now when a client performs cache discovery, it performs three DNS
 queries removing labels before reaching the domain name pacbell.net,
-at which point the SRV record would be returned and the client would
-then query tracker.pacbell.net to obtain caches.
+at which point the SRV record is returned and the client queries
+tracker.pacbell.net to obtain the domain names of caches.
 
 In Python, the cache tracker's port and domain can be obtained using
 PyDNS using the following code::
@@ -207,7 +211,7 @@ PyDNS using the following code::
   name = DNS.revlookup( "69.107.0.14" )
   names = name.split('.')
   while names and names[0] not in tlds:
-     name = "_bittorrent._tcp." + ".".join(names)
+     name = "_bittorrent-tracker._tcp." + ".".join(names)
      req = DNS.Request( name=name, qtype="SRV", protocol="udp")
      response = req.req()
      if response.answers:
@@ -226,10 +230,10 @@ which might generate output like
   ;; ->>HEADER<<- opcode 0, status NOERROR, id 0
   ;; flags: qr aa rd ra; Ques: 1, Ans: 1, Auth: 2, Addit: 3
   ;; QUESTIONS:
-  ;;      _bittorrent._tcp.pacbell.net, type = SRV, class = IN
+  ;;      _bittorrent-tracker._tcp.pacbell.net, type = SRV, class = IN
   
   ;; ANSWERS:
-  _bittorrent._tcp.pacbell.net    600    SRV     (5, 0, 6969, 'cache.pacbell.net')
+  _bittorrent-tracker._tcp.pacbell.net    600    SRV     (5, 0, 6969, 'cache.pacbell.net')
   
   ;; AUTHORITY RECORDS:
   pacbell.net             86400   NS      ns1.pbi.net
@@ -254,24 +258,26 @@ relevant call is res_query() from libresolv.
 References
 ==========
 
-.. [#BEP-3] BEP_0003. The BitTorrent Protocol Specification, Cohen
-   (http://www.bittorrent.org/beps/bep_0003.html)
+.. [#BEP-3] BEP_0003. The BitTorrent Protocol Specification, Cohen.
+   http://www.bittorrent.org/beps/bep_0003.html
 
-.. [#BEP-10] BEP_0010.  Extension Protocol. Norberg, Strigeus, Hazel
-   (http://www.bittorrent.org/beps/bep_0010.html)
+.. [#BEP-10] BEP_0010.  Extension Protocol. Norberg, Strigeus, Hazel.
+   http://www.bittorrent.org/beps/bep_0010.html
 
-.. [#BEP-24] BEP_0024.  Tracker Returns External IP.  Harrison
-   (http://www.bittorrent.org/beps/bep_0024.html)
+.. [#BEP-24] BEP_0024.  Tracker Returns External IP.  Harrison.
+   http://www.bittorrent.org/beps/bep_0024.html
 
 .. [#RFC-1034] RFC-1034.  DOMAIN NAMES - CONCEPTS AND FACILITIES. Mockapetris,
-   November 1987. (http://tools.ietf.org/html/rfc1034)
+   November 1987. http://tools.ietf.org/html/rfc1034
+
+.. [#RFC-2119] RFC-2119. http://www.ietf.org/rfc/rfc2119.txt
 
 .. [#RFC-2782] RFC-2782.  A DNS RR for specifying the location of services (DNS
    SRV). Gulbrandsen, Vixie, Esibov. February 2000. 
-   (http://tools.ietf.org/html/rfc2782)
+   http://tools.ietf.org/html/rfc2782
 
-.. [#RFC-4592] RFC-4592. The Role of Wildcards in the Domain Name System. Lewis
-   (http://www.faqs.org/rfcs/rfc4592.html)
+.. [#RFC-4592] RFC-4592. The Role of Wildcards in the Domain Name
+   System. Lewis.  http://www.faqs.org/rfcs/rfc4592.html
 
 
 

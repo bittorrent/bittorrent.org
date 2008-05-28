@@ -172,8 +172,6 @@ tracker.pacbell.net to obtain the domain names of caches.
 
 In Python, the cache tracker's address can be obtained using the following::
 
-::
-
   import socket
   
   tlds = ["com", "net", "org"]  # add more here.
@@ -183,7 +181,6 @@ In Python, the cache tracker's address can be obtained using the following::
   while names and names[0] not in tlds:
      name = "bittorrent-tracker." + ".".join(names)
      try:
-       print "looking up name ", name
        ip = socket.gethostbyname(name)
        break
      except:
@@ -195,7 +192,7 @@ which might generate output like
 
 ::
 
-  '151.164.129.4'
+  response='151.164.129.4'
 
 The answer above is fictional since AT&T does not at this time
 implement SRV records for BitTorrent trackers.

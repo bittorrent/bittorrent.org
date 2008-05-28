@@ -1,0 +1,246 @@
+BEP: 25
+Title: An Alternate BitTorrent Cache Discovery Protocol
+Version: $Revision$
+Last-Modified: $Date$
+Author:  David Harrison <dave@bittorrent.com>, Greg Hazel <greg@bittorrent.com>, Stanislav Shalunov <shalunov@bittorrent.com>
+Status:  Draft
+Type:    Standards track
+Content-Type: text/x-rst
+Created: 20-May-2008
+Post-History: 
+
+Motivation
+==========
+
+Some Internet Service Providers (ISPs) may be interested in deploying
+BitTorrent caches to lower transit costs, reduce internal traffic, and
+improve user experience by speeding up downloads.
+
+A cache is simply a fast peer in the middle of the network. It might
+also have substantial disk space. The client communicates with a cache
+using the normal BitTorrent protocol.
+
+With this extension, BitTorrent clients are able to discover caches
+nearby on the network.  When a cache is present, the user benefits
+from having a high capacity peer from which the user's client
+downloads and to which it can delegate seeding.  When a cache inside
+the user's ISP network seeds on behalf of the client, it frees
+upstream capacity in the user's access network benefiting the user and
+those that share the access network.  When subsequent peers transfer
+from their ISP's cache, the ISP experiences less transit traffic.
+
+This is meant as a simpler alternative than presented in BEP-22
+[#BEP-22]_ though further from the intended usage of the Domain Name
+System (DNS) and existing standards.
+
+The Discovery Mechanism
+=======================
+
+To find the caches for its ISP, a BitTorrent client performs a reverse
+DNS lookup on its external IP address, prepends "bittorrent-tracker"
+and resolves the resulting domain name to find the tracker.
+For example, a host with address 69.107.0.14 obtains the PTR record at
+
+::
+
+  14.0.107.69.in-addr.arpa
+
+The client's host IP address may not match the host's IP address as
+seen outside the client's private network.  We address this in Section
+`Network Address Translators`_.
+
+The PTR resource record returned for this example contains domain name
+
+::
+
+  adsl-69-107-0-14.dsl.pltn13.pacbell.net
+
+The client then resolves the domain name
+
+::
+ 
+  bittorrent-tracker.adsl-69-107-0-14.dsl.pltn13.pacbell.net
+
+If no IP address(es) are found, one or more subsequent queries take place as
+described in `Iterative Queries`_.
+
+The returned tracker(s) are called *cache trackers*, but the protocol 
+to talk to these trackers is no different from the standard BitTorrent tracker 
+protocol described in [#BEP-3]_.
+
+When the BitTorrent client joins a swarm it announces to one or more
+of the trackers referenced in the .torrent file and announces to the
+cache tracker.  The cache tracker returns peers which may be caches or
+other peers that announced the same file to the cache tracker.
+
+A cache is a BitTorrent peer.  A client MAY treat it preferentially.
+ 
+Reverse DNS lookups are described in RFC 1034 [#RFC-1034]_.
+
+
+Iterative Queries
+=================
+
+The domain name returned from the reverse DNS lookup is specific to
+the querying host.  In the naive implementation in DNS, there would be
+one bittorrent-tracker A or AAAA resource record for every querying host.  
+The most obvious solution is to use a wildcard of the form::
+
+  bittorrent-tracker.*.pacbell.net
+
+However, section 4.3.3 in [#RFC-1034]_ specifies that wildcards only
+appear as the first label in a domain name.  This restriction was
+lifted in [#RFC-4592]_, but not with semantics applicable to our use
+case.  An asterisk not at the beginning of a domain name is not
+treated like a wildcard.  Only a lookup for the exact domain name
+
+::
+
+  bittorrent-tracker.*.pacbell.net
+
+matches.
+
+We propose an alternative that avoids wildcards and allows
+suborganizations to override mappings provided by parent
+organizations: the peer starts by querying using its fully-qualified
+domain name returned from the reverse DNS lookup, and if this fails
+then it queries again after removing the most specific (leftmost)
+label in the domain name.  For example, if no A/AAAA records are returned
+when querying for
+
+::
+
+  bittorrent-tracker.adsl-69-107-0-14.dsl.pltn13.pacbell.net
+
+then the client queries for
+
+::
+
+  bittorrent-tracker.dsl.pltn13.pacbell.net
+
+and then
+
+::
+
+  bittorrent-tracker.pltn13.pacbell.net
+
+The search removes one label at a time terminating when one or more
+resource records are found or before querying the root domain or
+top-level domains that are not ccTLDs, e.g., .com, .org, .net. We
+avoid querying the root or top-level domains given the low likelihood
+that caches would be defined globally, and thus clients would
+unnecessarily burden the root domain name servers with queries
+generating negative results. We considered stopping before querying
+country-level domains, but a country providing public infrastructure
+might choose to provide caches.
+
+
+Network Address Translators
+===========================
+
+Many hosts on the Internet sit in private networks that connect to the
+Internet via a Network Address Translator (NAT).  Such hosts may have
+an IP address allocated from one of the private IP address ranges
+defined by IANA, e.g., ranges with prefixes 10/8, 172.16/12, and
+192.168/16.  When communicating with hosts outside the private
+network, the NAT translates the private IP to a globally-routable IP
+address.  This globally-routable address is the host's *external IP
+address*.
+
+When finding a cache, the BitTorrent client must use its host's
+external IP address.  A BitTorrent client can obtain its host's
+external IP either from the *external ip* key returned from a tracker
+implementing BEP 24 [#BEP-24]_ or from peers using the *yourip*
+extension defined for the *Extension Protocol* proposed in [#BEP-10]_.
+
+
+Example
+=======
+
+In our example, we use AT&T's PacBell network.  AT&T could implement
+cache discovery by adding the following lines to the zone file for
+pacbell.net,
+
+::
+
+  bittorrent-tracker.pacbell.net.      IN  A   206.13.28.15
+
+Now when a client performs cache discovery, it performs three DNS
+queries removing labels before reaching the domain name pacbell.net,
+at which point the SRV record is returned and the client queries
+tracker.pacbell.net to obtain the domain names of caches.
+
+In Python, the cache tracker's address can be obtained using the following::
+
+::
+
+  import socket
+  
+  tlds = ["com", "net", "org"]  # add more here.
+  
+  name, aliases, ipaddrs = socket.gethostbyaddr("69.107.0.14")
+  names = name.split('.')
+  while names and names[0] not in tlds:
+     name = "bittorrent-tracker." + ".".join(names)
+     try:
+       print "looking up name ", name
+       ip = socket.gethostbyname(name)
+       break
+     except:
+       del names[0]
+  
+  print "response=", ip
+
+which might generate output like
+
+::
+
+  '151.164.129.4'
+
+The answer above is fictional since AT&T does not at this time
+implement SRV records for BitTorrent trackers.
+
+References
+==========
+
+.. [#BEP-3] BEP_0003. The BitTorrent Protocol Specification, Cohen
+   http://www.bittorrent.org/beps/bep_0003.html
+
+.. [#BEP-10] BEP_0010.  Extension Protocol. Norberg, Strigeus, Hazel
+   http://www.bittorrent.org/beps/bep_0010.html
+
+.. [#BEP-22] BEP_0022.  BitTorrent Cache Discovery Protocol.  Harrison,
+   Shalunov, Hazel. ://www.bittorrent.org/beps/bep_0010.html
+
+.. [#BEP-24] BEP_0024.  Tracker Returns External IP.  Harrison
+   http://www.bittorrent.org/beps/bep_0024.html
+
+.. [#RFC-1034] RFC-1034.  DOMAIN NAMES - CONCEPTS AND FACILITIES. Mockapetris,
+   November 1987. http://tools.ietf.org/html/rfc1034
+
+.. [#RFC-2782] RFC-2782.  A DNS RR for specifying the location of services (DNS
+   SRV). Gulbrandsen, Vixie, Esibov. February 2000. 
+   http://tools.ietf.org/html/rfc2782
+
+.. [#RFC-4592] RFC-4592. The Role of Wildcards in the Domain Name System. Lewis
+   http://www.faqs.org/rfcs/rfc4592.html
+
+
+
+
+Copyright
+=========
+
+This document has been placed in the public domain.
+
+
+
+..
+   Local Variables:
+   mode: indented-text
+   indent-tabs-mode: nil
+   sentence-end-double-space: t
+   fill-column: 70
+   coding: utf-8
+   End:
+

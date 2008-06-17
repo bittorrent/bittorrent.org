@@ -36,11 +36,11 @@
 <tbody valign="top">
 <tr class="field"><th class="field-name">BEP:</th><td class="field-body">22</td>
 </tr>
-<tr class="field"><th class="field-name">Title:</th><td class="field-body">BitTorrent Cache Discovery Protocol</td>
+<tr class="field"><th class="field-name">Title:</th><td class="field-body">BitTorrent Tracker Discovery Protocol</td>
 </tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body">11101</td>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">11109</td>
 </tr>
-<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0022.rst">2008-05-27 19:02:55 -0700 (Tue, 27 May 2008)</a></td>
+<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0022.rst">2008-06-16 17:33:22 -0700 (Mon, 16 Jun 2008)</a></td>
 </tr>
 <tr class="field"><th class="field-name">Author:</th><td class="field-body">David Harrison &lt;dave&#32;&#97;t&#32;bittorrent.com&gt;, Stanislav Shalunov &lt;shalunov&#32;&#97;t&#32;bittorrent.com&gt;, Greg Hazel &lt;greg&#32;&#97;t&#32;bittorrent.com&gt;</td>
 </tr>
@@ -71,20 +71,21 @@
 </div>
 <div class="section" id="motivation">
 <h1>Motivation</h1>
-<p>Some Internet Service Providers (ISPs) may be interested in deploying
-BitTorrent caches to lower transit costs, reduce internal traffic, and
-improve user experience by speeding up downloads.</p>
-<p>A cache is simply a fast peer in the middle of the network. It might
-also have substantial disk space. The client communicates with a cache
-using the normal BitTorrent protocol.</p>
-<p>With this extension, BitTorrent clients are able to discover caches
-nearby on the network.  When a cache is present, the user benefits
-from having a high capacity peer from which the user's client
-downloads and to which it can delegate seeding.  When a cache inside
-the user's ISP network seeds on behalf of the client, it frees
-upstream capacity in the user's access network benefiting the user and
-those that share the access network.  When subsequent peers transfer
-from their ISP's cache, the ISP experiences less transit traffic.</p>
+<p>Some Internet Service Providers (ISPs) may wish to localize traffic
+to reduce transit costs, reduce internal traffic, and improve user
+experience by speeding up downloads.</p>
+<p>With this extension, BitTorrent clients are able to discover a tracker
+nearby on the network, and via this tracker discover nearby caches or
+peers.  A cache is simply a fast peer in the middle of the network. It
+might also have substantial disk space. The client communicates with a
+cache using the normal BitTorrent protocol.</p>
+<p>When a cache is present, the user benefits from having a high capacity
+peer from which the user's client downloads and to which it can
+delegate seeding.  When a cache inside the user's ISP network seeds on
+behalf of the client, it frees upstream capacity in the user's access
+network benefiting the user and those that share the access network.
+When subsequent peers transfer from their ISP's cache, the ISP
+experiences less transit traffic.</p>
 <p>The key words &quot;MUST&quot;, &quot;MUST NOT&quot;, &quot;REQUIRED&quot;, &quot;SHALL&quot;, &quot;SHALL
 NOT&quot;, &quot;SHOULD&quot;, &quot;SHOULD NOT&quot;, &quot;RECOMMENDED&quot;,  &quot;MAY&quot;, and
 &quot;OPTIONAL&quot; in this document are to be interpreted as described in
@@ -92,7 +93,7 @@ IETF <a class="reference external" href="http://www.faqs.org/rfcs/rfc2119.html">
 </div>
 <div class="section" id="the-discovery-mechanism">
 <h1>The Discovery Mechanism</h1>
-<p>To find the caches for its ISP, a BitTorrent client performs a reverse
+<p>To find the tracker for its ISP, a BitTorrent client performs a reverse
 DNS lookup on its external IP address and then obtains the BitTorrent
 SRV resource record associated with the host's domain name.  For
 example, a host with address 69.107.0.14 obtains the PTR record at</p>
@@ -114,14 +115,14 @@ _bittorrent-tracker._tcp.adsl-69-107-0-14.dsl.pltn13.pacbell.net
 described in <a class="reference internal" href="#iterative-queries">Iterative Queries</a>.</p>
 <p>The target field in each returned SRV resource record contains the
 domain name of a tracker and the port on which the tracker runs.  This
-tracker is called a <em>cache tracker</em>, but the protocol to talk to this
+tracker is called a <em>local tracker</em>, but the protocol to talk to this
 tracker is no different from the standard BitTorrent tracker protocol
 described in <a class="footnote-reference" href="#bep-3" id="id2">[1]</a>.</p>
 <p>When the BitTorrent client joins a swarm it announces to one or more
 of the trackers referenced in the .torrent file and announces to the
-cache tracker.  The cache tracker returns peers which may be caches or
-other peers that announced the same file to the cache tracker.</p>
-<p>A cache is a BitTorrent peer.  A client MAY treat it preferentially.</p>
+local tracker.  The local tracker returns peers which may be caches or
+other peers that announced the same file to the local tracker.</p>
+<p>A client MAY treat nearby peers or caches preferentially.</p>
 <p>Reverse DNS lookups are described in <a class="reference external" href="http://www.faqs.org/rfcs/rfc1034.html">RFC 1034</a> <a class="footnote-reference" href="#rfc-1034" id="id3">[4]</a>.
 The SRV resource record type is described in <a class="reference external" href="http://www.faqs.org/rfcs/rfc2782.html">RFC 2782</a> <a class="footnote-reference" href="#rfc-2782" id="id4">[6]</a>.</p>
 </div>
@@ -209,17 +210,17 @@ for the <em>Extension Protocol</em> proposed in <a class="footnote-reference" hr
 <div class="section" id="example">
 <h1>Example</h1>
 <p>In our example, we use AT&amp;T's PacBell network.  AT&amp;T could implement
-cache discovery by adding the following lines to the zone file for
+tracker discovery by adding the following lines to the zone file for
 pacbell.net,</p>
 <pre class="literal-block">
 ; name                                ttl  cls rr  pri weight port target
 _bittorrent-tracker._tcp.pacbell.net. 600  IN  SRV 5   0      6969 tracker
 </pre>
-<p>Now when a client performs cache discovery, it performs three DNS
+<p>Now when a client performs tracker discovery, it performs three DNS
 queries removing labels before reaching the domain name pacbell.net,
 at which point the SRV record is returned and the client queries
 tracker.pacbell.net to obtain the domain names of caches.</p>
-<p>In Python, the cache tracker's port and domain can be obtained using
+<p>In Python, the local tracker's port and domain can be obtained using
 PyDNS using the following code:</p>
 <pre class="literal-block">
 import DNS

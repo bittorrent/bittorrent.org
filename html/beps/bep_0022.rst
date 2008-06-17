@@ -1,5 +1,5 @@
 BEP: 22
-Title: BitTorrent Tracker Discovery Protocol
+Title: BitTorrent Local Tracker Discovery Protocol
 Version: $Revision$
 Last-Modified: $Date$
 Author:  David Harrison <dave@bittorrent.com>, Stanislav Shalunov <shalunov@bittorrent.com>, Greg Hazel <greg@bittorrent.com>

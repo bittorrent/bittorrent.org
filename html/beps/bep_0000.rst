@@ -71,7 +71,7 @@ Num        Title
 |18|       :raw-html:`<A HREF="bep_0018.html">Search Engine Specification</A>`
 |19|       :raw-html:`<A HREF="bep_0019.html">HTTP/FTP Seeding (GetRight-style) </A>`
 |21|       :raw-html:`<A HREF="bep_0021.html">Extension for Partial Seeds</A>`
-|22|       :raw-html:`<A HREF="bep_0022.html">BitTorrent Cache Discovery Protocol</A>`
+|22|       :raw-html:`<A HREF="bep_0022.html">BitTorrent Local Tracker Discovery Protocol</A>`
 |24|       :raw-html:`<A HREF="bep_0024.html">Tracker Returns External IP</A>`
 |26|       :raw-html:`<A HREF="bep_0026.html">Zeroconf Peer Advertising and Discovery</A>`
 ======     ===================

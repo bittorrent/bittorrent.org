@@ -35,6 +35,13 @@ NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and
 "OPTIONAL" in this document are to be interpreted as described in
 IETF RFC 2119 [#RFC-2119]_.
  
+Client implementation of local tracker discovery is OPTIONAL.  It is
+RECOMMENDED that clients provide a user option for turning off local
+tracker discovery.  Local tracker discovery MAY be off by default.
+Clients MAY automatically turn off caching if the performance benefit
+is not obvious.  How to determine whether the performance benefit is
+obvious is beyond the scope of this BEP.
+
 
 The Discovery Mechanism
 =======================

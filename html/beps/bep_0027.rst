@@ -1,0 +1,95 @@
+BEP: 27
+Title: Private Torrents
+Version: $Revision$
+Last-Modified: $Date$
+Author:  David Harrison <dave@bittorrent.com>
+Status:  Draft
+Type:    Standards Track
+Content-Type: text/x-rst
+Created: 3-Aug-2008
+Post-History: 
+
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
+NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and
+"OPTIONAL" in this document are to be interpreted as described in
+IETF RFC 2119 [#RFC-2119]_.
+
+A *private tracker* restricts access to the torrents it tracks.  A 
+torrent with restricted access is called a *private torrent*.  To
+promote sharing, private trackers often maintain statistics about
+registered users and restrict access to certain or all torrents for
+users that do not adequately upload.
+
+When generating a metainfo file, users denote a torrent as private by
+including the key-value pair "private=1" in the "info" dict of the
+torrent's metainfo file [BEP-3]_.
+
+When a BitTorrent client obtains a metainfo file containing the
+"private=1" key-value pair, it MUST ONLY announce itself to the
+private tracker, and MUST ONLY initiate connections to peers returned
+from the private tracker.
+
+Rationale
+=========
+
+Private trackers deny admission to private torrents by refusing to
+return peer lists.  Once an intruder peer has obtained the IP address
+and port of a peer, regardless of the source, the intruder can
+initiate a connection to that peer and trade pieces with the peer.
+Once in the swarm, the intruder is granted equal treatment as all
+other peers.
+
+BitTorrent has currently four ways that a peer can learn of other
+peers in a swarm:
+
+* Trackers [#BEP-3]_,
+
+* Distribute Hash Table (DHT) [#BEP-5]_,
+
+* Peer EXchange (PEX) [#BEP-11]_,
+
+* Local Service Discovery (LSD) [#BEP-14]_.
+
+Announcing or exchanging peer information via any of these mechanisms
+other than the private tracker subverts the tracker's access control.
+
+Even though PEX only provides peer information to other peers already
+in the swarm, if an intruder obtained or guessed the IP and port of a
+peer already in a private torrent then exchanging peer information
+with the intruder would provide the intruder with a full complement of
+peers.
+
+
+References
+==========
+
+.. [#BEP-3] BEP_0003.  The BitTorrent Protocol Specification, Cohen.
+   http://www.bittorrent.org/beps/bep_0003.html
+
+.. [#BEP-5] BEP_0005.  The DHT Protocol, Loewenstern.
+   http://www.bittorrent.org/beps/bep_0005.html
+
+.. [#BEP-11] BEP_0011.  Peer EXchange.  , .
+   http://www.bittorrent.org/beps/bep_0011.html
+
+.. [#BEP-14] BEP_0014.  Local Service Discovery. Harrison, Hazel.
+   http://www.bittorrent.org/beps/bep_0014.html
+
+.. [#RFC-2119] RFC-2119. http://www.ietf.org/rfc/rfc2119.txt
+
+Copyright
+=========
+
+This document has been placed in the public domain.
+
+
+
+..
+   Local Variables:
+   mode: indented-text
+   indent-tabs-mode: nil
+   sentence-end-double-space: t
+   fill-column: 70
+   coding: utf-8
+   End:
+

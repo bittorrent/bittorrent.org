@@ -60,6 +60,11 @@ with the intruder would provide the intruder with a full complement of
 peers.
 
 
+History
+=======
+
+Private torrents were first introduced in Azureus.
+
 References
 ==========
 

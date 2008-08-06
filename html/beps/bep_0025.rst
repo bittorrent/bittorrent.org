@@ -207,7 +207,7 @@ References
    http://www.bittorrent.org/beps/bep_0010.html
 
 .. [#BEP-22] BEP_0022.  BitTorrent Cache Discovery Protocol.  Harrison,
-   Shalunov, Hazel. ://www.bittorrent.org/beps/bep_0010.html
+   Shalunov, Hazel. http://www.bittorrent.org/beps/bep_0010.html
 
 .. [#BEP-24] BEP_0024.  Tracker Returns External IP.  Harrison
    http://www.bittorrent.org/beps/bep_0024.html

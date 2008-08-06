@@ -72,7 +72,7 @@ libtorrent, uTorrent, and probably most other clients.
 References
 ==========
 
-.. [#BEP-3] BEP_0003. The BitTorrent Protocol Specification, Cohen
+.. [#BEP-3] BEP_0003. The BitTorrent Protocol Specification. Cohen. 
    (http://www.bittorrent.org/beps/bep_0003.html)
 
 .. [#RFC-1034] RFC-1034. DOMAIN NAMES - CONCEPTS AND FACILITIES. Mockapetris,

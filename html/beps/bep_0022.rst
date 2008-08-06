@@ -36,7 +36,7 @@ NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and
 IETF RFC 2119 [#RFC-2119]_.
  
 Client implementation of local tracker discovery is OPTIONAL.  Clients
-MUST NOT not announce private torrents to a local tracker.  It is
+MUST NOT announce private torrents to a local tracker.  It is
 RECOMMENDED that clients provide a user option for turning off local
 tracker discovery.  Local tracker discovery MAY be off by default.
 Clients MAY automatically turn off caching if the performance benefit

@@ -127,5 +127,5 @@ At this time, no BEPs have been rejected.
 .. |23| replace:: :raw-html:`<A HREF="bep_0023.html">23</A>`
 .. |24| replace:: :raw-html:`<A HREF="bep_0024.html">24</A>`
 .. |26| replace:: :raw-html:`<A HREF="bep_0026.html">26</A>`
-.. |27| replace:: :raw-html:`<A HREF="bep_0027.html">26</A>`
+.. |27| replace:: :raw-html:`<A HREF="bep_0027.html">27</A>`
 .. |1000| replace:: :raw-html:`<A HREF="bep_1000.html">1000</A>`

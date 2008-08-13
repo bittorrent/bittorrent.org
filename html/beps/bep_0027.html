@@ -38,9 +38,9 @@
 </tr>
 <tr class="field"><th class="field-name">Title:</th><td class="field-body">Private Torrents</td>
 </tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body">11116</td>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">11128</td>
 </tr>
-<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0027.rst">2008-08-05 18:53:48 -0700 (Tue, 05 Aug 2008)</a></td>
+<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0027.rst">2008-08-12 18:07:27 -0700 (Tue, 12 Aug 2008)</a></td>
 </tr>
 <tr class="field"><th class="field-name">Author:</th><td class="field-body">David Harrison &lt;dave&#32;&#97;t&#32;bittorrent.com&gt;</td>
 </tr>
@@ -77,7 +77,7 @@ registered users and restrict access to certain or all torrents for
 users that do not adequately upload.</p>
 <p>When generating a metainfo file, users denote a torrent as private by
 including the key-value pair &quot;private=1&quot; in the &quot;info&quot; dict of the
-torrent's metainfo file <a class="citation-reference" href="#bep-3" id="id2">[BEP-3]</a>.</p>
+torrent's metainfo file <a class="footnote-reference" href="#bep-3" id="id2">[1]</a>.</p>
 <p>When a BitTorrent client obtains a metainfo file containing the
 &quot;private=1&quot; key-value pair, it MUST ONLY announce itself to the
 private tracker, and MUST ONLY initiate connections to peers returned
@@ -115,7 +115,7 @@ peers.</p>
 <table class="docutils footnote" frame="void" id="bep-3" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id3">[1]</a></td><td>BEP_0003.  The BitTorrent Protocol Specification, Cohen.
+<tr><td class="label">[1]</td><td><em>(<a class="fn-backref" href="#id2">1</a>, <a class="fn-backref" href="#id3">2</a>)</em> BEP_0003.  The BitTorrent Protocol Specification, Cohen.
 <a class="reference external" href="http://www.bittorrent.org/beps/bep_0003.html">http://www.bittorrent.org/beps/bep_0003.html</a></td></tr>
 </tbody>
 </table>

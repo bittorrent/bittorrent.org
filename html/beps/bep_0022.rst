@@ -18,7 +18,7 @@ experience by speeding up downloads.
 
 With this extension, BitTorrent clients are able to discover a tracker
 nearby on the network, and via this tracker discover nearby caches or
-peers.  A cache is simply a fast peer in the middle of the network. It
+peers.  A cache may simply be a fast peer in the middle of the network. It
 might also have substantial disk space. The client communicates with a
 cache using the normal BitTorrent protocol.
 
@@ -43,6 +43,8 @@ Clients MAY automatically turn off caching if the performance benefit
 is not obvious.  Determining obviousness is beyond the scope of this
 BEP.
 
+Extensions to the BitTorrent wireline protocol to delegate seeding
+or improve cache performance are beyond the scope of this BEP. 
 
 The Discovery Mechanism
 =======================
@@ -97,14 +99,14 @@ Iterative Queries
 
 The domain name returned from the reverse DNS lookup is specific to
 the querying host.  In the naive implementation in DNS, there would be
-one SRV resource record for every querying host.  The most obvious
-solution is to use a wildcard of the form::
+one SRV resource record for every querying host.  A natural but
+incorrect solution is to use a wildcard of the form::
 
   *.pacbell.net
 
-However, if wildcards are implemented according to the algorithm in
-section 4.3.2 in [#RFC-1034]_ then all subdomains of pacbell.net that
-do not have an exact label match will match the wildcard.  Thus,
+If wildcards are implemented according to the algorithm in section
+4.3.2 in [#RFC-1034]_ then all subdomains of pacbell.net that do not
+have an exact label match will match the wildcard.  Thus,
 
 ::
 
@@ -122,7 +124,8 @@ query.  Thus it would be impossible to disambiguate Jabber from
 BitTorrent SRV records without further information.  This behavior is
 implemented with BIND 9.4.1.
 
-The natural solution would be to specify domain names of the type
+Another natural but incorrect solution is to specify domain names of
+the type
 
 ::
 
@@ -156,13 +159,13 @@ then the client queries for
 
 ::
 
-  _bittorrent-tracker.dsl.pltn13.pacbell.net
+  _bittorrent-tracker._tcp.dsl.pltn13.pacbell.net
 
 and then
 
 ::
 
-  _bittorrent-tracker.pltn13.pacbell.net
+  _bittorrent-tracker._tcp.pltn13.pacbell.net
 
 The search removes one label at a time terminating when one or more
 resource records are found or before querying the root domain or

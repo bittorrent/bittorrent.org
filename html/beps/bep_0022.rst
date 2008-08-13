@@ -99,24 +99,26 @@ Iterative Queries
 
 The domain name returned from the reverse DNS lookup is specific to
 the querying host.  In the naive implementation in DNS, there would be
-one SRV resource record for every querying host.  A natural but
-incorrect solution is to use a wildcard of the form::
+one SRV resource record for every querying host.  This would work but
+is burdensome.  A natural, seemingly less burdensome, but incorrect
+solution is to use a wildcard of the form::
 
   *.pacbell.net
 
 If wildcards are implemented according to the algorithm in section
 4.3.2 in [#RFC-1034]_ then all subdomains of pacbell.net that do not
-have an exact label match will match the wildcard.  Thus,
+have an exact label match will match the wildcard.  Thus unless there
+is an exact match then queries for
 
 ::
-
-  _jabber._tcp.pacbell.net 
+ 
+  _bittorrent-tracker._tcp.adsl-69-107-0-14.dsl.pltn13.pacbell.net
 
 and
 
 ::
 
-  _bittorrent-tracker._tcp.pacbell.net
+  _jabber._tcp.pacbell.net 
 
 both match \*.pacbell.net and all SRV resource records with owner
 \*.pacbell.net would be returned with the name set to the name in the
@@ -131,11 +133,11 @@ the type
 
   _bittorrent-tracker._tcp.*.pacbell.net
 
-However, section 4.3.3 in [#RFC-1034]_ specifies that wildcards only
-appear as the first label in a domain name.  This restriction was
-lifted in [#RFC-4592]_, but not with semantics applicable to our use
-case.  An asterisk not at the beginning of a domain name is not
-treated like a wildcard.  Only a lookup for the exact domain name
+Section 4.3.3 in [#RFC-1034]_ specifies that wildcards only appear as
+the first label in a domain name.  This restriction was lifted in
+[#RFC-4592]_, but not with semantics applicable to our use case.  An
+asterisk not at the beginning of a domain name is not treated like a
+wildcard.  Only a lookup for the exact domain name
 
 ::
 

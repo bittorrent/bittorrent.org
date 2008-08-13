@@ -38,9 +38,9 @@
 </tr>
 <tr class="field"><th class="field-name">Title:</th><td class="field-body">BitTorrent Local Tracker Discovery Protocol</td>
 </tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body">11122</td>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">11129</td>
 </tr>
-<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0022.rst">2008-08-05 19:00:59 -0700 (Tue, 05 Aug 2008)</a></td>
+<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0022.rst">2008-08-12 21:23:42 -0700 (Tue, 12 Aug 2008)</a></td>
 </tr>
 <tr class="field"><th class="field-name">Author:</th><td class="field-body">David Harrison &lt;dave&#32;&#97;t&#32;bittorrent.com&gt;, Stanislav Shalunov &lt;shalunov&#32;&#97;t&#32;bittorrent.com&gt;, Greg Hazel &lt;greg&#32;&#97;t&#32;bittorrent.com&gt;</td>
 </tr>
@@ -76,7 +76,7 @@ to reduce transit costs, reduce internal traffic, and improve user
 experience by speeding up downloads.</p>
 <p>With this extension, BitTorrent clients are able to discover a tracker
 nearby on the network, and via this tracker discover nearby caches or
-peers.  A cache is simply a fast peer in the middle of the network. It
+peers.  A cache may simply be a fast peer in the middle of the network. It
 might also have substantial disk space. The client communicates with a
 cache using the normal BitTorrent protocol.</p>
 <p>When a cache is present, the user benefits from having a high capacity
@@ -97,6 +97,8 @@ tracker discovery.  Local tracker discovery MAY be off by default.
 Clients MAY automatically turn off caching if the performance benefit
 is not obvious.  Determining obviousness is beyond the scope of this
 BEP.</p>
+<p>Extensions to the BitTorrent wireline protocol to delegate seeding
+or improve cache performance are beyond the scope of this BEP.</p>
 </div>
 <div class="section" id="the-discovery-mechanism">
 <h1>The Discovery Mechanism</h1>
@@ -137,14 +139,14 @@ The SRV resource record type is described in <a class="reference external" href=
 <h1>Iterative Queries</h1>
 <p>The domain name returned from the reverse DNS lookup is specific to
 the querying host.  In the naive implementation in DNS, there would be
-one SRV resource record for every querying host.  The most obvious
-solution is to use a wildcard of the form:</p>
+one SRV resource record for every querying host.  A natural but
+incorrect solution is to use a wildcard of the form:</p>
 <pre class="literal-block">
 *.pacbell.net
 </pre>
-<p>However, if wildcards are implemented according to the algorithm in
-section 4.3.2 in <a class="footnote-reference" href="#rfc-1034" id="id5">[4]</a> then all subdomains of pacbell.net that
-do not have an exact label match will match the wildcard.  Thus,</p>
+<p>If wildcards are implemented according to the algorithm in section
+4.3.2 in <a class="footnote-reference" href="#rfc-1034" id="id5">[4]</a> then all subdomains of pacbell.net that do not
+have an exact label match will match the wildcard.  Thus,</p>
 <pre class="literal-block">
 _jabber._tcp.pacbell.net
 </pre>
@@ -157,7 +159,8 @@ _bittorrent-tracker._tcp.pacbell.net
 query.  Thus it would be impossible to disambiguate Jabber from
 BitTorrent SRV records without further information.  This behavior is
 implemented with BIND 9.4.1.</p>
-<p>The natural solution would be to specify domain names of the type</p>
+<p>Another natural but incorrect solution is to specify domain names of
+the type</p>
 <pre class="literal-block">
 _bittorrent-tracker._tcp.*.pacbell.net
 </pre>
@@ -182,11 +185,11 @@ _bittorrent-tracker._tcp.adsl-69-107-0-14.dsl.pltn13.pacbell.net
 </pre>
 <p>then the client queries for</p>
 <pre class="literal-block">
-_bittorrent-tracker.dsl.pltn13.pacbell.net
+_bittorrent-tracker._tcp.dsl.pltn13.pacbell.net
 </pre>
 <p>and then</p>
 <pre class="literal-block">
-_bittorrent-tracker.pltn13.pacbell.net
+_bittorrent-tracker._tcp.pltn13.pacbell.net
 </pre>
 <p>The search removes one label at a time terminating when one or more
 resource records are found or before querying the root domain or

@@ -22,7 +22,7 @@ users that do not adequately upload.
 
 When generating a metainfo file, users denote a torrent as private by
 including the key-value pair "private=1" in the "info" dict of the
-torrent's metainfo file [BEP-3]_.
+torrent's metainfo file [#BEP-3]_.
 
 When a BitTorrent client obtains a metainfo file containing the
 "private=1" key-value pair, it MUST ONLY announce itself to the

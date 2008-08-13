@@ -30,6 +30,9 @@ network benefiting the user and those that share the access network.
 When subsequent peers transfer from their ISP's cache, the ISP
 experiences less transit traffic.
 
+Extensions to the BitTorrent protocol suite to delegate seeding or
+improve cache performance are beyond the scope of this BEP.
+
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
 NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and
 "OPTIONAL" in this document are to be interpreted as described in
@@ -42,9 +45,6 @@ tracker discovery.  Local tracker discovery MAY be off by default.
 Clients MAY automatically turn off caching if the performance benefit
 is not obvious.  Determining obviousness is beyond the scope of this
 BEP.
-
-Extensions to the BitTorrent wireline protocol to delegate seeding
-or improve cache performance are beyond the scope of this BEP. 
 
 The Discovery Mechanism
 =======================

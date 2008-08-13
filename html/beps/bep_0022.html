@@ -38,9 +38,9 @@
 </tr>
 <tr class="field"><th class="field-name">Title:</th><td class="field-body">BitTorrent Local Tracker Discovery Protocol</td>
 </tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body">11129</td>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">11132</td>
 </tr>
-<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0022.rst">2008-08-12 21:23:42 -0700 (Tue, 12 Aug 2008)</a></td>
+<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0022.rst">2008-08-12 22:03:39 -0700 (Tue, 12 Aug 2008)</a></td>
 </tr>
 <tr class="field"><th class="field-name">Author:</th><td class="field-body">David Harrison &lt;dave&#32;&#97;t&#32;bittorrent.com&gt;, Stanislav Shalunov &lt;shalunov&#32;&#97;t&#32;bittorrent.com&gt;, Greg Hazel &lt;greg&#32;&#97;t&#32;bittorrent.com&gt;</td>
 </tr>
@@ -139,20 +139,22 @@ The SRV resource record type is described in <a class="reference external" href=
 <h1>Iterative Queries</h1>
 <p>The domain name returned from the reverse DNS lookup is specific to
 the querying host.  In the naive implementation in DNS, there would be
-one SRV resource record for every querying host.  A natural but
-incorrect solution is to use a wildcard of the form:</p>
+one SRV resource record for every querying host.  This would work but
+is burdensome.  A natural, seemingly less burdensome, but incorrect
+solution is to use a wildcard of the form:</p>
 <pre class="literal-block">
 *.pacbell.net
 </pre>
 <p>If wildcards are implemented according to the algorithm in section
 4.3.2 in <a class="footnote-reference" href="#rfc-1034" id="id5">[4]</a> then all subdomains of pacbell.net that do not
-have an exact label match will match the wildcard.  Thus,</p>
+have an exact label match will match the wildcard.  Thus unless there
+is an exact match then queries for</p>
 <pre class="literal-block">
-_jabber._tcp.pacbell.net
+_bittorrent-tracker._tcp.adsl-69-107-0-14.dsl.pltn13.pacbell.net
 </pre>
 <p>and</p>
 <pre class="literal-block">
-_bittorrent-tracker._tcp.pacbell.net
+_jabber._tcp.pacbell.net
 </pre>
 <p>both match *.pacbell.net and all SRV resource records with owner
 *.pacbell.net would be returned with the name set to the name in the
@@ -164,11 +166,11 @@ the type</p>
 <pre class="literal-block">
 _bittorrent-tracker._tcp.*.pacbell.net
 </pre>
-<p>However, section 4.3.3 in <a class="footnote-reference" href="#rfc-1034" id="id6">[4]</a> specifies that wildcards only
-appear as the first label in a domain name.  This restriction was
-lifted in <a class="footnote-reference" href="#rfc-4592" id="id7">[7]</a>, but not with semantics applicable to our use
-case.  An asterisk not at the beginning of a domain name is not
-treated like a wildcard.  Only a lookup for the exact domain name</p>
+<p>Section 4.3.3 in <a class="footnote-reference" href="#rfc-1034" id="id6">[4]</a> specifies that wildcards only appear as
+the first label in a domain name.  This restriction was lifted in
+<a class="footnote-reference" href="#rfc-4592" id="id7">[7]</a>, but not with semantics applicable to our use case.  An
+asterisk not at the beginning of a domain name is not treated like a
+wildcard.  Only a lookup for the exact domain name</p>
 <pre class="literal-block">
 _bittorrent-tracker._tcp.*.pacbell.net
 </pre>

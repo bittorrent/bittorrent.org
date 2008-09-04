@@ -71,8 +71,8 @@ When a peer switches between trackers, the peer drops connections so
 that it cannot become an ongoing bridge between peers granted access
 from a private tracker and peers announcing to a public tracker.  This
 partially mitigates the effect of an attacker modifying a metainfo
-file's *announce-list* and redistributing the file, e.g., via a public
-tracker web site.
+file's *announce-list* and redistributing the metainfo file, e.g., via
+a public tracker web site.
 
 
 History

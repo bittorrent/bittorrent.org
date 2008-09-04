@@ -83,14 +83,16 @@ Private torrents were first introduced in Azureus.
 References
 ==========
 
-.. [#BEP-3] BEP_0003.  The BitTorrent Protocol Specification, Cohen.
+.. [#BEP-3] BEP_0003.  The BitTorrent Protocol Specification. Cohen.
    http://www.bittorrent.org/beps/bep_0003.html
 
-.. [#BEP-5] BEP_0005.  The DHT Protocol, Loewenstern.
+.. [#BEP-5] BEP_0005.  The DHT Protocol. Loewenstern.
    http://www.bittorrent.org/beps/bep_0005.html
 
-.. [#BEP-11] BEP_0011.  Peer EXchange.  , .
-   http://www.bittorrent.org/beps/bep_0011.html
+.. [#BEP-11] BEP_0011.  Peer EXchange (pending)
+
+.. [#BEP-12] BEP_0012.  Multitracker Metadata Extension. Hoffman.
+   http://www.bittorrent.org/beps/bep_0012.html
 
 .. [#BEP-14] BEP_0014.  Local Service Discovery. Harrison, Hazel.
    http://www.bittorrent.org/beps/bep_0014.html

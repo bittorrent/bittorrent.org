@@ -35,7 +35,7 @@ file of a private torrent (see multitracker extension in [#BEP-12]_),
 each peer MUST use only one tracker at a time and only switch between
 trackers when the current tracker fails.  When switching between
 trackers, the peer MUST disconnect from all current peers and
-reconnect only to those provided from the new tracker.
+connect only to those provided from the new tracker.
 
 Rationale
 =========

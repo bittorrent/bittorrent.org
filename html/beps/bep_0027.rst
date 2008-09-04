@@ -14,11 +14,12 @@ NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and
 "OPTIONAL" in this document are to be interpreted as described in
 IETF RFC 2119 [#RFC-2119]_.
 
-A *private tracker* restricts access to the torrents it tracks.  A 
-torrent with restricted access is called a *private torrent*.  To
-promote sharing, private trackers often maintain statistics about
-registered users and restrict access to certain or all torrents for
-users that do not adequately upload.
+A *private tracker* restricts access to the torrents it tracks.  A
+torrent with restricted access is called a *private torrent*.  All
+other torrents are *public torrents*.  To promote sharing, private
+trackers often maintain statistics about registered users and restrict
+access to certain or all torrents for users that do not adequately
+upload.
 
 When generating a metainfo file, users denote a torrent as private by
 including the key-value pair "private=1" in the "info" dict of the
@@ -28,6 +29,13 @@ When a BitTorrent client obtains a metainfo file containing the
 "private=1" key-value pair, it MUST ONLY announce itself to the
 private tracker, and MUST ONLY initiate connections to peers returned
 from the private tracker.
+
+When multiple trackers appear in the *announce-list* in the metainfo
+file of a private torrent (see multitracker extension in [#BEP-12]_),
+each peer MUST use only one tracker at a time and only switch between
+trackers when the current tracker fails.  When switching between
+trackers, the peer MUST disconnect from all current peers and
+reconnect only to those provided from the new tracker.
 
 Rationale
 =========
@@ -58,6 +66,13 @@ in the swarm, if an intruder obtained or guessed the IP and port of a
 peer already in a private torrent then exchanging peer information
 with the intruder would provide the intruder with a full complement of
 peers.
+
+When a peer switches between trackers, the peer drops connections so
+that it cannot become an ongoing bridge between peers granted access
+from a private tracker and peers announcing to a public tracker.  This
+partially mitigates the effect of an attacker modifying a metainfo
+file's *announce-list* and redistributing the file, e.g., via a public
+tracker web site.
 
 
 History

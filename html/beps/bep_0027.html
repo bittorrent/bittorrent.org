@@ -38,9 +38,9 @@
 </tr>
 <tr class="field"><th class="field-name">Title:</th><td class="field-body">Private Torrents</td>
 </tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body">11128</td>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">11139</td>
 </tr>
-<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0027.rst">2008-08-12 18:07:27 -0700 (Tue, 12 Aug 2008)</a></td>
+<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0027.rst">2008-09-04 16:16:57 -0700 (Thu, 04 Sep 2008)</a></td>
 </tr>
 <tr class="field"><th class="field-name">Author:</th><td class="field-body">David Harrison &lt;dave&#32;&#97;t&#32;bittorrent.com&gt;</td>
 </tr>
@@ -60,21 +60,22 @@
 <div class="contents topic" id="contents">
 <p class="topic-title first">Contents</p>
 <ul class="simple">
-<li><a class="reference internal" href="#rationale" id="id7">Rationale</a></li>
-<li><a class="reference internal" href="#history" id="id8">History</a></li>
-<li><a class="reference internal" href="#references" id="id9">References</a></li>
-<li><a class="reference internal" href="#copyright" id="id10">Copyright</a></li>
+<li><a class="reference internal" href="#rationale" id="id8">Rationale</a></li>
+<li><a class="reference internal" href="#history" id="id9">History</a></li>
+<li><a class="reference internal" href="#references" id="id10">References</a></li>
+<li><a class="reference internal" href="#copyright" id="id11">Copyright</a></li>
 </ul>
 </div>
 <p>The key words &quot;MUST&quot;, &quot;MUST NOT&quot;, &quot;REQUIRED&quot;, &quot;SHALL&quot;, &quot;SHALL
 NOT&quot;, &quot;SHOULD&quot;, &quot;SHOULD NOT&quot;, &quot;RECOMMENDED&quot;,  &quot;MAY&quot;, and
 &quot;OPTIONAL&quot; in this document are to be interpreted as described in
-IETF <a class="reference external" href="http://www.faqs.org/rfcs/rfc2119.html">RFC 2119</a> <a class="footnote-reference" href="#rfc-2119" id="id1">[5]</a>.</p>
+IETF <a class="reference external" href="http://www.faqs.org/rfcs/rfc2119.html">RFC 2119</a> <a class="footnote-reference" href="#rfc-2119" id="id1">[6]</a>.</p>
 <p>A <em>private tracker</em> restricts access to the torrents it tracks.  A
-torrent with restricted access is called a <em>private torrent</em>.  To
-promote sharing, private trackers often maintain statistics about
-registered users and restrict access to certain or all torrents for
-users that do not adequately upload.</p>
+torrent with restricted access is called a <em>private torrent</em>.  All
+other torrents are <em>public torrents</em>.  To promote sharing, private
+trackers often maintain statistics about registered users and restrict
+access to certain or all torrents for users that do not adequately
+upload.</p>
 <p>When generating a metainfo file, users denote a torrent as private by
 including the key-value pair &quot;private=1&quot; in the &quot;info&quot; dict of the
 torrent's metainfo file <a class="footnote-reference" href="#bep-3" id="id2">[1]</a>.</p>
@@ -82,6 +83,12 @@ torrent's metainfo file <a class="footnote-reference" href="#bep-3" id="id2">[1]
 &quot;private=1&quot; key-value pair, it MUST ONLY announce itself to the
 private tracker, and MUST ONLY initiate connections to peers returned
 from the private tracker.</p>
+<p>When multiple trackers appear in the <em>announce-list</em> in the metainfo
+file of a private torrent (see multitracker extension in <a class="footnote-reference" href="#bep-12" id="id3">[4]</a>),
+each peer MUST use only one tracker at a time and only switch between
+trackers when the current tracker fails.  When switching between
+trackers, the peer MUST disconnect from all current peers and
+reconnect only to those provided from the new tracker.</p>
 <div class="section" id="rationale">
 <h1>Rationale</h1>
 <p>Private trackers deny admission to private torrents by refusing to
@@ -93,10 +100,10 @@ other peers.</p>
 <p>BitTorrent has currently four ways that a peer can learn of other
 peers in a swarm:</p>
 <ul class="simple">
-<li>Trackers <a class="footnote-reference" href="#bep-3" id="id3">[1]</a>,</li>
-<li>Distribute Hash Table (DHT) <a class="footnote-reference" href="#bep-5" id="id4">[2]</a>,</li>
-<li>Peer EXchange (PEX) <a class="footnote-reference" href="#bep-11" id="id5">[3]</a>,</li>
-<li>Local Service Discovery (LSD) <a class="footnote-reference" href="#bep-14" id="id6">[4]</a>.</li>
+<li>Trackers <a class="footnote-reference" href="#bep-3" id="id4">[1]</a>,</li>
+<li>Distribute Hash Table (DHT) <a class="footnote-reference" href="#bep-5" id="id5">[2]</a>,</li>
+<li>Peer EXchange (PEX) <a class="footnote-reference" href="#bep-11" id="id6">[3]</a>,</li>
+<li>Local Service Discovery (LSD) <a class="footnote-reference" href="#bep-14" id="id7">[5]</a>.</li>
 </ul>
 <p>Announcing or exchanging peer information via any of these mechanisms
 other than the private tracker subverts the tracker's access control.</p>
@@ -105,6 +112,12 @@ in the swarm, if an intruder obtained or guessed the IP and port of a
 peer already in a private torrent then exchanging peer information
 with the intruder would provide the intruder with a full complement of
 peers.</p>
+<p>When a peer switches between trackers, the peer drops connections so
+that it cannot become an ongoing bridge between peers granted access
+from a private tracker and peers announcing to a public tracker.  This
+partially mitigates the effect of an attacker modifying a metainfo
+file's <em>announce-list</em> and redistributing the file, e.g., via a public
+tracker web site.</p>
 </div>
 <div class="section" id="history">
 <h1>History</h1>
@@ -115,35 +128,41 @@ peers.</p>
 <table class="docutils footnote" frame="void" id="bep-3" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label">[1]</td><td><em>(<a class="fn-backref" href="#id2">1</a>, <a class="fn-backref" href="#id3">2</a>)</em> BEP_0003.  The BitTorrent Protocol Specification, Cohen.
+<tr><td class="label">[1]</td><td><em>(<a class="fn-backref" href="#id2">1</a>, <a class="fn-backref" href="#id4">2</a>)</em> BEP_0003.  The BitTorrent Protocol Specification. Cohen.
 <a class="reference external" href="http://www.bittorrent.org/beps/bep_0003.html">http://www.bittorrent.org/beps/bep_0003.html</a></td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="bep-5" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id4">[2]</a></td><td>BEP_0005.  The DHT Protocol, Loewenstern.
+<tr><td class="label"><a class="fn-backref" href="#id5">[2]</a></td><td>BEP_0005.  The DHT Protocol. Loewenstern.
 <a class="reference external" href="http://www.bittorrent.org/beps/bep_0005.html">http://www.bittorrent.org/beps/bep_0005.html</a></td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="bep-11" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id5">[3]</a></td><td>BEP_0011.  Peer EXchange.  , .
-<a class="reference external" href="http://www.bittorrent.org/beps/bep_0011.html">http://www.bittorrent.org/beps/bep_0011.html</a></td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id6">[3]</a></td><td>BEP_0011.  Peer EXchange (pending)</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="bep-12" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[4]</a></td><td>BEP_0012.  Multitracker Metadata Extension. Hoffman.
+<a class="reference external" href="http://www.bittorrent.org/beps/bep_0012.html">http://www.bittorrent.org/beps/bep_0012.html</a></td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="bep-14" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id6">[4]</a></td><td>BEP_0014.  Local Service Discovery. Harrison, Hazel.
+<tr><td class="label"><a class="fn-backref" href="#id7">[5]</a></td><td>BEP_0014.  Local Service Discovery. Harrison, Hazel.
 <a class="reference external" href="http://www.bittorrent.org/beps/bep_0014.html">http://www.bittorrent.org/beps/bep_0014.html</a></td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="rfc-2119" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id1">[5]</a></td><td><a class="reference external" href="http://www.faqs.org/rfcs/rfc2119.html">RFC-2119</a>. <a class="reference external" href="http://www.ietf.org/rfc/rfc2119.txt">http://www.ietf.org/rfc/rfc2119.txt</a></td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id1">[6]</a></td><td><a class="reference external" href="http://www.faqs.org/rfcs/rfc2119.html">RFC-2119</a>. <a class="reference external" href="http://www.ietf.org/rfc/rfc2119.txt">http://www.ietf.org/rfc/rfc2119.txt</a></td></tr>
 </tbody>
 </table>
 </div>

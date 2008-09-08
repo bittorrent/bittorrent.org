@@ -47,10 +47,11 @@ There are known collisions::
  reserved[7]
  0x01  XBT Metadata Exchange (implemented only in XBT)
 
-It is recommended that further extensions use LTEP [#BEP-]_.  With
-LTEP, extension bit collisions become impossible since no new
-extension bits are allocated.  With LTEP, message ID collisions also
-become impossible because message IDs are allocated on demand at the
+It is recommended that further extensions use the Extension Protocol
+[#BEP-10]_, a.k.a., LibTorrent Extension Protocol (LTEP).  With LTEP,
+extension bit collisions become impossible since no new extension bits
+are allocated.  With LTEP, message ID collisions also become
+impossible because message IDs are allocated on demand at the
 beginning of the connection.  Extension *name* collisions become
 possible, but the probability is much less likely.
 
@@ -82,6 +83,12 @@ Reserved Message IDs
 
  Additional IDs used in deployed clients:
  0x14   LTEP Handshake (implemented in libtorrent, uTorrent,...)
+
+References
+==========
+
+.. [#BEP-10] BEP_0010.  Extension Protocol. Norberg, Strigeus, Hazel.
+   http://www.bittorrent.org/beps/bep_0010.html
 
 Copyright
 =========

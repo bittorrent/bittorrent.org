@@ -38,9 +38,9 @@
 </tr>
 <tr class="field"><th class="field-name">Title:</th><td class="field-body">Assigned Numbers</td>
 </tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body">11093</td>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">11145</td>
 </tr>
-<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0004.rst">2008-05-20 19:01:53 -0700 (Tue, 20 May 2008)</a></td>
+<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0004.rst">2008-09-08 15:31:26 -0700 (Mon, 08 Sep 2008)</a></td>
 </tr>
 <tr class="field"><th class="field-name">Author:</th><td class="field-body">David Harrison &lt;dave&#32;&#97;t&#32;bittorrent.com&gt;</td>
 </tr>
@@ -60,7 +60,8 @@
 <ul class="simple">
 <li><a class="reference internal" href="#reserved-bit-allocations" id="id2">Reserved Bit Allocations</a></li>
 <li><a class="reference internal" href="#reserved-message-ids" id="id3">Reserved Message IDs</a></li>
-<li><a class="reference internal" href="#copyright" id="id4">Copyright</a></li>
+<li><a class="reference internal" href="#references" id="id4">References</a></li>
+<li><a class="reference internal" href="#copyright" id="id5">Copyright</a></li>
 </ul>
 </div>
 <p>This document describes the known bit allocations and message IDs for
@@ -98,10 +99,11 @@ reserved[1]
 reserved[7]
 0x01  XBT Metadata Exchange (implemented only in XBT)
 </pre>
-<p>It is recommended that further extensions use LTEP [#BEP-]_.  With
-LTEP, extension bit collisions become impossible since no new
-extension bits are allocated.  With LTEP, message ID collisions also
-become impossible because message IDs are allocated on demand at the
+<p>It is recommended that further extensions use the Extension Protocol
+<a class="footnote-reference" href="#bep-10" id="id1">[1]</a>, a.k.a., LibTorrent Extension Protocol (LTEP).  With LTEP,
+extension bit collisions become impossible since no new extension bits
+are allocated.  With LTEP, message ID collisions also become
+impossible because message IDs are allocated on demand at the
 beginning of the connection.  Extension <em>name</em> collisions become
 possible, but the probability is much less likely.</p>
 </div>
@@ -132,6 +134,16 @@ Fast Extensions:
 Additional IDs used in deployed clients:
 0x14   LTEP Handshake (implemented in libtorrent, uTorrent,...)
 </pre>
+</div>
+<div class="section" id="references">
+<h1>References</h1>
+<table class="docutils footnote" frame="void" id="bep-10" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>BEP_0010.  Extension Protocol. Norberg, Strigeus, Hazel.
+<a class="reference external" href="http://www.bittorrent.org/beps/bep_0010.html">http://www.bittorrent.org/beps/bep_0010.html</a></td></tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="copyright">
 <h1>Copyright</h1>

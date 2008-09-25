@@ -50,7 +50,7 @@ use network-byte order.
 
 It is SUGGESTED that trackers return compact format by default.
 By including *compact=0* in the announce URL, the client advises the
-tracker that is prefers original format described in [#BEP-3]_, and 
+tracker that is prefers the original format described in [#BEP-3]_, and 
 analogously *compact=1* advises the tracker that the client prefers
 compact format.  However the *compact* key-value pair is only 
 advisory: the tracker MAY return using either format.  *compact* is

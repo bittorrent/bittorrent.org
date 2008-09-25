@@ -38,9 +38,9 @@
 </tr>
 <tr class="field"><th class="field-name">Title:</th><td class="field-body">Tracker Returns Compact Peer Lists</td>
 </tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body">11147</td>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">11149</td>
 </tr>
-<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0023.rst">2008-09-25 13:17:25 -0700 (Thu, 25 Sep 2008)</a></td>
+<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0023.rst">2008-09-25 13:32:25 -0700 (Thu, 25 Sep 2008)</a></td>
 </tr>
 <tr class="field"><th class="field-name">Author:</th><td class="field-body">David Harrison &lt;dave&#32;&#97;t&#32;bittorrent.com&gt;</td>
 </tr>
@@ -98,8 +98,13 @@ using only 6 bytes.  The first 4 bytes contain the 32-bit ipv4 address.
 The remaining two bytes contain the port number.  Both address and port
 use network-byte order.</p>
 <p>It is SUGGESTED that trackers return compact format by default.
-When the client's announce URL contains <em>compact=0</em> the tracker MAY
-return the peers using the original format described in <a class="footnote-reference" href="#bep-3" id="id4">[1]</a>.</p>
+By including <em>compact=0</em> in the announce URL, the client advises the
+tracker that is prefers original format described in <a class="footnote-reference" href="#bep-3" id="id4">[1]</a>, and
+analogously <em>compact=1</em> advises the tracker that the client prefers
+compact format.  However the <em>compact</em> key-value pair is only
+advisory: the tracker MAY return using either format.  <em>compact</em> is
+advisory so that trackers may support only the compact format.
+However, clients MUST continue to support both.</p>
 <p>For example,</p>
 <pre class="literal-block">
 GET /announce?peer_id=aaaaaaaaaaaaaaaaaaaa&amp;info_hash=aaaaaaaaaaaaaaaaaaaa

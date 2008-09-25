@@ -48,10 +48,11 @@ using only 6 bytes.  The first 4 bytes contain the 32-bit ipv4 address.
 The remaining two bytes contain the port number.  Both address and port
 use network-byte order.
 
-When the client's announce URL contains *compact=1* the tracker MAY
-return the peers using compact format.  When *compact=0* or it is not
-specified then the tracker MUST return using the original format
-described in [#BEP-3]_.  For example, 
+It is SUGGESTED that trackers return compact format by default.
+When the client's announce URL contains *compact=0* the tracker MAY
+return the peers using the original format described in [#BEP-3]_.  
+
+For example, 
 
 ::
 

@@ -49,8 +49,13 @@ The remaining two bytes contain the port number.  Both address and port
 use network-byte order.
 
 It is SUGGESTED that trackers return compact format by default.
-When the client's announce URL contains *compact=0* the tracker MAY
-return the peers using the original format described in [#BEP-3]_.  
+By including *compact=0* in the announce URL, the client advises the
+tracker that is prefers original format described in [#BEP-3]_, and 
+analogously *compact=1* advises the tracker that the client prefers
+compact format.  However the *compact* key-value pair is only 
+advisory: the tracker MAY return using either format.  *compact* is
+advisory so that trackers may support only the compact format.
+However, clients MUST continue to support both.
 
 For example, 
 

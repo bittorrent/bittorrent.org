@@ -136,7 +136,7 @@ Allowed Fast
 
 * Allowed Fast: <len=0x0005><op=0x11><index>*
 
-With the BitTorrent protocol specified in `BEP 0002`_, new peers take
+With the BitTorrent protocol specified in `BEP 0003`_, new peers take
 several minutes to ramp up before they can effectively engage in
 BitTorrent's tit-for-tat. The reason is simple: starting peers have
 few pieces to trade.
@@ -277,7 +277,7 @@ References
 ==========
 
 .. _`RFC 2119`: http://www.ietf.org/rfc/rfc2119.txt
-.. _`BEP 0002`: http://www.bittorrent.org/beps/bep_0002.html
+.. _`BEP 0003`: http://www.bittorrent.org/beps/bep_0003.html
 
 
 Copyright

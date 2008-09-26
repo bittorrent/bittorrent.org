@@ -101,7 +101,7 @@ Reject Request
 
 ::
 
-  *Reject Request*: <len=0x000D><op=0x10><index><begin><offset>
+  *Reject Request*: <len=0x000D><op=0x10><index><begin><length>
 
 *Reject Request* notifies a requesting peer that its request will not be satisfied.
 

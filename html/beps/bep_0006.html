@@ -38,9 +38,9 @@
 </tr>
 <tr class="field"><th class="field-name">Title:</th><td class="field-body">Fast Extension</td>
 </tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body">11031</td>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">11152</td>
 </tr>
-<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0006.rst">2008-02-28 16:43:58 -0800 (Thu, 28 Feb 2008)</a></td>
+<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0006.rst">2008-09-25 17:33:56 -0700 (Thu, 25 Sep 2008)</a></td>
 </tr>
 <tr class="field"><th class="field-name">Author:</th><td class="field-body">David Harrison &lt;dave&#32;&#97;t&#32;bittorrent.com&gt;, Bram Cohen &lt;bram&#32;&#97;t&#32;bittorrent.com&gt;</td>
 </tr>
@@ -142,7 +142,7 @@ are equally appropriate.</p>
 <div class="section" id="reject-request">
 <h1>Reject Request</h1>
 <pre class="literal-block">
-*Reject Request*: &lt;len=0x000D&gt;&lt;op=0x10&gt;&lt;index&gt;&lt;begin&gt;&lt;offset&gt;
+*Reject Request*: &lt;len=0x000D&gt;&lt;op=0x10&gt;&lt;index&gt;&lt;begin&gt;&lt;length&gt;
 </pre>
 <p><em>Reject Request</em> notifies a requesting peer that its request will not be satisfied.</p>
 <p>If the fast extension is disabled and a peer receives a reject

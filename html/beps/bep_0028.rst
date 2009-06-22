@@ -5,6 +5,7 @@ Last-Modified: $Date$
 Author:  Arvid Norberg <arvid@bittorrent.com>
 Status:  Draft
 Type:    Standards Track
+Content-Type: text/x-rst
 Created: 26-Nov-2008
 Post-History:
 

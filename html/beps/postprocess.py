@@ -17,7 +17,6 @@ for x in os.popen( "svn info %s" % sys.argv[1] ):
 
     key = tup[0].strip()
     val = ":".join(tup[1:]).strip()
-    print val
     if key == "Last Changed Rev":
         revision = val
     elif key == "Last Changed Date":

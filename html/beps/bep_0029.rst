@@ -1,0 +1,303 @@
+BEP: 29
+Title: uTorrent transport protocol
+Version: $Revision$
+Last-Modified: $Date$
+Author:  Arvid Norberg <arvid@bittorrent.com>
+Status:  Draft
+Type:    Standards Track
+Content-Type: text/x-rst
+Created: 22-Jun-2009
+Post-History:
+
+uTorrent Transport Protocol
+===========================
+
+credits
+-------
+
+rationale
+---------
+
+overview
+--------
+
+connection setup
+----------------
+
+header format
+-------------
+
+version 1 header:
+
+::
+
+	0       4       8               16              24              32
+	+-------+-------+---------------+---------------+---------------+
+	| ver   | type  | extension     | connection_id                 |
+	+-------+-------+---------------+---------------+---------------+
+	| timestamp_microseconds                                        |
+	+---------------+---------------+---------------+---------------+
+	| timestamp_difference_microseconds                             |
+	+---------------+---------------+---------------+---------------+
+	| wnd_size                                                      |
+	+---------------+---------------+---------------+---------------+
+	| seq_nr                        | ack_nr                        |
+	+---------------+---------------+---------------+---------------+
+
+All fields are in network byte order (big endian).
+
+version
+.......
+
+This is the protcol version. The protocol is detected by inspecting the first
+two bytes. If the first byte is 1 and the second is 0, the packet is version
+1. Otherwise it's version 0.
+
+connection_id
+.............
+
+This is a random, unique, number identifying all the packets that belong to
+the same connection. Each socket has one connection ID for sending packets and
+a different connection ID for receiving packets. The endpoint initiating the
+connection decides which ID to use, and the return path has the same ID + 1.
+
+timestamp_seconds, timestamp_microseconds
+.........................................
+
+This is the 'seconds' and 'microseconds' parts of the timestamp of when this
+packet was sent. This is set using gettimeofday() on posix and QueryPerformanceTimer()
+on windows. The higher resultion this timstamp has, the better.
+
+timestamp_difference_microseconds
+.................................
+
+This is the difference between the local time and the timestamp in the last
+received packet, at the time the last packet was received. This is the latest
+one-way delay measurement of the link from the remote peer to the local machine.
+
+wnd_size
+........
+
+Advertised receive window. In v1, this is specified in the number of segments
+(packets) of 300 bytes. In v2 it is 16 bits wide and specified in bytes.
+
+The window size is the number of bytes currently in-flight, i.e. sent but not
+acked. This is not the same as the next sequence number minus the last acked
+sequence number. Packets can be acked in the middle of the send window using
+the Selective ACK extension. Any acked packet is deducted from the current
+window size, and allows the sender to send more packets to fill up the window.
+
+extension
+.........
+
+The type of the first extension in a linked list of extension headers. 0 means
+no extension.
+
+There are two extensions:
+
+1. Selective acks
+2. Extension bits
+
+Extensions are linked, just like TCP options. If the extension field is non-zero,
+immediately following the uTP header are two bytes::
+
+	0               8               16
+	+---------------+---------------+
+	| extension     | len           |
+	+---------------+---------------+
+
+where ``extension`` specifies the type of the next extension in the linked list,
+0 terminates the list. And ``len`` specifies the number of bytes of this extension.
+Unknown extensions can be skipped by simply advancing ``len bytes``.
+
+Selective ACK
+,,,,,,,,,,,,,
+
+Selective ack is an extension that can selectively ACK packets non-sequentially.
+Its payload is a bitmask of 32 bits, representing the first 32 packets in the
+send window. A set bit specifies that packet has been received, a cleared bit
+specifies that the packet has not been received. The header looks like this::
+
+	0               8               16
+	+---------------+---------------+---------------+---------------+
+	| extension     | len           | bitmask
+	+---------------+---------------+---------------+---------------+
+	                                |
+	+---------------+---------------+
+
+The selective ack is only sent when at least one sequence number was skipped in
+the received stream. The first bit in the mask therefore represents ack_nr + 2.
+ack_nr +1 is assumed to have been dropped or be missing when this packet was sent.
+A set bit represents a packet that has been received, a cleared bit represents
+a packet that has not yet been received.
+
+The bitmask has reverse byteorder. The first byte represents packets [ack_nr + 2,
+ack_nr + 2 + 7] in reverse order. The least significant bit in the byte represents
+ack_nr + 2, the most significant bit in the byte represents ack_nr + 2 + 7. The
+next byte in the mask represents [ack_nr + 2 + 8, ack_nr + 2 + 15] in reverse order,
+and so on. The bitmask is not limited to 32 bits but can be of any size.
+
+Extension bits
+,,,,,,,,,,,,,,
+
+The extension bits are intended to communicate support for extensions. Currently
+it's always set to 0. It is an 8 byte bitmask where each bit specifies support
+for a specific feature::
+
+	0               8               16
+	+---------------+---------------+---------------+---------------+
+	| extension     | len           | extension bitmask
+	+---------------+---------------+---------------+---------------+
+	
+	+---------------+---------------+---------------+---------------+
+	                                |
+	+---------------+---------------+
+
+type
+....
+
+The type field describes the type of packet.
+
+It can be one of:
+
+ST_DATA = 0
+	regular data packet. Socket is in connected state and has data
+	to send. An ST_DATA packet always has a data payload.
+
+ST_FIN = 1
+	Finalize the connection. This is the last packet. It closes
+	the connection, similar to TCP FIN flag.
+	This connection will never have a sequence number greater than
+	the sequence number in this packet. The socket records this sequence
+	number as ``eof_pkt``. This lets the socket wait for packets that
+	might still be missing and arrive out of order even after receiving
+	the ST_FIN packet.
+
+ST_STATE = 2
+	State packet. Used to transmit an ACK with no data.
+
+ST_RESET = 3
+	Terminate connection forcefully. Similar to TCP RST flag. The remote
+	host does not have any state for this connection. It is stale and should
+	be terminated.
+
+ST_SYN = 4
+	Connect SYN. Similar to TCP SYN flag, this packet initiates a connection.
+	The sequence number is initialized to 1. The connection ID is initialized
+	to a random number. The syn packet is special, all subsequent packets sent
+	on this connection (except for resends of the ST_SYN) are sent with the
+	connection ID + 1. The connection ID is what the other end is expected to
+	use in its responses.
+
+	When receiving an ST_SYN, the new socket should be initialized with the
+	ID in the packet header. The send ID for the socket should be initialized
+	to the ID + 1. The sequence number for the return channel is initialized
+	to a random number. The other end expects an ST_STATE packet (only an ack)
+	in response.
+
+seq_nr
+......
+
+This is the sequence number of this packet. As opposed to TCP, uTP sequence
+numbers are not referring to bytes, but packets. The sequence number tells the
+other end in which order packets should be served back to the application layer.
+
+ack_nr
+......
+
+This is the sequence number the sender of the packet last received in the other
+direction.
+
+timeouts
+--------
+
+Every packet that is ACKed, either by falling in the range (last_ack_nr, ack_nr]
+or by explicitly being acked by an Selective ACK message, should be used to update
+an ``rtt`` (round trip time) and ``rtt_var`` (rtt variance) measurement.
+last_ack_nr here is the last ack_nr received on the socket before the current packet,
+and ack_nr is the field in the currently received packet.
+
+The ``rtt`` and ``rtt_var`` is only updated for packets that where sent only once.
+This avoids problems with figuring out which packet was acked, the first or the
+second one.
+
+``rtt`` and ``rtt_var`` are calculated by the following formula, every time a packet
+is ACKed::
+
+	delta = rtt - packet_rtt
+	rtt_var += (abs(delta) - rtt_var) / 4;
+	rtt += (packet_rtt - rtt) / 8;
+
+The default timeout for packets associated with the socket is also updated every time
+``rtt`` and ``rtt_var`` is updated. It is set to::
+
+	timeout = max(rtt + rtt_var * 4, 500);
+
+Where timeout is specified in milliseconds. i.e. the minimum timeout for a packet is
+1/2 second.
+
+congestion control
+------------------
+
+The overall goal of the uTP congestion control is to use one way buffer delay as the
+main congestion measurement, as well as packet loss, like TCP. The point is to avoid
+running at full send buffers whenever data is being sent. This is specifically a
+problem for DSL/Cable modems, where the send buffer in the modem often has room for
+multiple seconds worth of data. The ideal buffer utilization for uTP (or any background
+traffic protocol) is to run at 0 bytes buffer utilization. i.e. any other traffic
+can at any time send without being obstructed by background traffic clogging up the
+send buffer. In practice, the uTP target delay is set to 100 ms. Each socket aims to
+never see more than 100 ms delay on the send link. If it does, it will throttle back.
+
+This effectively makes uTP yield to any TCP traffic.
+
+This is achieved by including a high resolution timestamp in every packet that's sent
+over uTP, and the receiving end calculates the difference between its own high resolution
+timer and the timestamp in the packet it received. This difference is then fed back to the
+original sender of the packet (timestamp_difference_microseconds). This value is meaningful
+as an absolute value. The clocks in the machines are most likely not synchronized,
+especially not down to micorsecond resolution, and the time the packet is in transit is
+also included in the difference of these timestamps. However, the value is useful in
+comparison to previous values.
+
+Each socket keeps a sliding minimum of the lowest value for the last two minutes. This value
+is called *base_delay*, and is used as a baseline, the minumum delay between the hosts.
+When subtracting the base_delay from the timestamp difference in each packet you get a
+measurement of the current buffering delay on the socket. This measurement is called *our_delay*.
+It has a lot of noise it it, but is used as the driver to determine whether to increase or
+decrease the send window (which controls the send rate).
+
+The *CCONTROL_TARGET* is the buffering delay that the uTP accepts on the uplink. Currently the
+delay target is set to 100 ms. *off_target* is how far the actual measured delay is from the
+target delay (calculated from CCONTROL_TARGET - our_delay).
+
+The window size in the socket structure specifies the number of bytes we may have in flight
+(not acked) in total, on the connection. The send rate is directly correlated to this window
+size. The more bytes in flight, the faster send rate. In the code, the window size is called
+``max_window``. Its size is controlled, roughly, by the following expression::
+
+	scaled_gain = (off_target / CCONTROL_TARGET)
+		* (outstanding_packet * MAX_CWND_INCREASE_PACKETS_PER_RTT / max_window);
+
+Where the first factor scales the *off_target* to units of target delays.
+
+The scaled_gain is then added to the max_window::
+
+	max_window += scaled_gain;
+
+This will make the window smaller if off_target is greater than 0 and grow the window if
+off target is less than 0.
+
+The uTP congestion control is implemented in the ``UTP_ApplyPlictoCControl`` function.
+This function is called for a socket every time a packet is received on the socket.
+
+
+..
+   Local Variables:
+   mode: indented-text
+   indent-tabs-mode: nil
+   sentence-end-double-space: t
+   fill-column: 70
+   coding: utf-8
+   End:
+

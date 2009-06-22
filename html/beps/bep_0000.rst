@@ -75,6 +75,8 @@ Num        Title
 |24|       :raw-html:`<A HREF="bep_0024.html">Tracker Returns External IP</A>`
 |26|       :raw-html:`<A HREF="bep_0026.html">Zeroconf Peer Advertising and Discovery</A>`
 |27|       :raw-html:`<A HREF="bep_0027.html">Private Torrents</A>`
+|28|       :raw-html:`<A HREF="bep_0028.html">Tracker exchange</A>`
+|29|       :raw-html:`<A HREF="bep_0029.html">uTorrent transport protocol</A>`
 ======     ===================
 
 
@@ -128,4 +130,6 @@ At this time, no BEPs have been rejected.
 .. |24| replace:: :raw-html:`<A HREF="bep_0024.html">24</A>`
 .. |26| replace:: :raw-html:`<A HREF="bep_0026.html">26</A>`
 .. |27| replace:: :raw-html:`<A HREF="bep_0027.html">27</A>`
+.. |28| replace:: :raw-html:`<A HREF="bep_0028.html">27</A>`
+.. |29| replace:: :raw-html:`<A HREF="bep_0029.html">27</A>`
 .. |1000| replace:: :raw-html:`<A HREF="bep_1000.html">1000</A>`

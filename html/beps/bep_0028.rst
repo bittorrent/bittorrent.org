@@ -1,0 +1,136 @@
+BEP: 28
+Title: Tracker exchange extension
+Version: $Revision$
+Last-Modified: $Date$
+Author:  Arvid Norberg <arvid@bittorrent.com>
+Status:  Draft
+Type:    Standards Track
+Created: 26-Nov-2008
+Post-History:
+
+Tracker exchange extension
+==========================
+
+This extension makes it possible for BitTorrent peers to learn about new
+trackers for a swarm they have joined. Ideally ending up with every peer
+knowing about every tracker used for the torrent.
+
+rationale
+---------
+
+There are mainly two scenarios where it's desirable for a peer to learn
+about trackers that other peers are using:
+
+1. If the peer joined the swarm via a magnet link (`BEP 9`_), bootstrapping
+   by joining peers from the DHT. The number of peers that's accessable might
+   not be sufficient. Announcing with a tracker could make a significant
+   difference for the peer, receiving more peers.
+
+2. If the tracker the peer joined only know of a small number of peers, but
+   there are other peers (acquired from DHT for instance) that are using
+   a much more popular tracker, the peer might want to announce with that
+   other tracker in order to receive enough peers.
+
+This extension is designed to have minimal impact on the common case of every
+peer knowing of the exact same trackers. This case is recognized as
+the dominant case, and is important to not add any penalty in terms of
+bandwidth, since that might deter implementors from adopting this extension.
+
+.. _`BEP 9`: http://www.bittorrent.org/beps/bep_0009.html
+
+definitions
+===========
+
+In this extension, every peer has a list of trackers. In this list are only
+*verified trackers*. A verified tracker is a tracker that either was in the
+.torrent file that was loaded (just like without this extension, they are
+assumed to be good) or a tracker that we have received over the TEX protocol
+*and* received a successful response from.
+
+The tracker list used by this extension is hence different from the tracker
+list used by the client itself, since it does not include some trackers that
+we have never successfully announced with. This list of trackers is the only
+list of verified trackers referred to in this extension, unless explicitly
+stated otherwise.
+
+The extension message is used to send *changes* to the tracker list to other
+peers. If the peers have different tracker lists on handshake, the first
+message MUST contain the full list of trackers. Any subsequent message SHOULD
+only contain added trackers. If the peers have the same tracker list when
+connecting, the first extension message SHOULD only contain added trackers.
+
+
+extension header
+================
+
+The tracker exchange extension (TEX for short) uses the extension protocol
+(specified in `BEP 10`_) to advertize support. It adds the "lt_tex" entry
+to the "m" dictionary in the extension header hand-shake message. This identifies
+the message code used for this message. It also adds "tr" to the handshake message
+specifying a hash of the current tracker list this peer has for this torrent.
+
+.. _`BEP 10`: http://www.bittorrent.org/beps/bep_0010.html
+
+Example extension handshake message::
+
+{'m': {'lt_tex', 3}, 'tr': '426c8fe69d59ce85626177749d66e864cc39a82d'}
+
+Note that the string under the 'tr' key is *binary*. It is printed as a hex encoded
+string here for clarity. It is always supposed to be 20 bytes.
+
+The tracker list hash is computed as follows:
+
+1. All tracker urls are put in a list
+2. All urls SHOULD be normalized
+
+   1. the protocol part (before the '://') is made lower case
+   2. the hostname is made lower case
+   3. the path and argument components are quote-normalized. Any %-encoding
+      that decodes into an ``unreserved`` character (as defined by `RFC 2396`_)
+      should be decoded. Any remaining encoded characters should use lower case
+      hex encoding. i.e. ``%ff`` instead of ``%FF``
+
+3. The list of urls is sorted in ascending lexicographical order. Where each byte
+   is interpreted as its ascii value, and sorted by it.
+4. The SHA-1 hash is constructed of the concatenation of all urls in the order in
+   the list.
+
+.. _`RFC 2396`: http://www.ietf.org/rfc/rfc2396.txt
+
+The wording "SHOULD" in point 2 means that an implementation that skips this step
+is assumed to work efficiently in the vast majority of cases, but might be slightly
+more susceptible to attacks.
+
+The tracker list hash in the handshake is used to compare with ones own tracker list.
+In most cases it is assumed that this hash will be the same for both peers. If this is
+the case, the client SHOULD assume that the peers have the same list, and not send a
+full tracker list message.
+
+
+extension message
+=================
+
+The extension message is sent on a regular interval. It is recommended not to be sent
+more often than every 2 minutes.
+
+Any message that does not contain any new trackers SHOULD be omitted (i.e. not sent
+at all).
+
+The extension message is bencoded and contains a single key: ``added`` which is a list
+of strings. Each string is the url of a tracker that was added since the last update.
+
+example message::
+
+	{ 'added': ['http://tracker.bittorrent.com/announce', 'http://tracker2.bittorrent.com'] }
+
+
+
+..
+   Local Variables:
+   mode: indented-text
+   indent-tabs-mode: nil
+   sentence-end-double-space: t
+   fill-column: 70
+   coding: utf-8
+   End:
+

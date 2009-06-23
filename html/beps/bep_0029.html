@@ -1,0 +1,452 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.5: http://docutils.sourceforge.net/" />
+<title></title>
+<link rel="stylesheet" href="../css/bep.css" type="text/css" />
+</head>
+<body>
+<div class="document">
+
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="../index.html">BitTorrent<span>.org</span></a></h1>
+</div>
+<div id="nav">
+<ul>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../introduction.html">For Users</a></li>
+<li><a href="bep_0000.html"><span>For Developers</span></a></li>
+<!-- <li><a href="./blog">Blog</a></li> -->
+<li><a href="http://forum.bittorrent.org"> Forums </li>
+<li><a href="../donate.html">Donate!</a></li>
+</ul>
+</div> <!-- nav -->
+<!-- ### Begin Content ### -->
+<div id="second">
+
+
+
+<table class="rfc2822 docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">BEP:</th><td class="field-body">29</td>
+</tr>
+<tr class="field"><th class="field-name">Title:</th><td class="field-body">uTorrent transport protocol</td>
+</tr>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">11159</td>
+</tr>
+<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0029.rst">2009-06-23 13:45:47 -0700 (Tue, 23 Jun 2009)</a></td>
+</tr>
+<tr class="field"><th class="field-name">Author:</th><td class="field-body">Arvid Norberg &lt;arvid&#32;&#97;t&#32;bittorrent.com&gt;</td>
+</tr>
+<tr class="field"><th class="field-name">Status:</th><td class="field-body">Draft</td>
+</tr>
+<tr class="field"><th class="field-name">Type:</th><td class="field-body">Standards Track</td>
+</tr>
+<tr class="field"><th class="field-name">Content-Type:</th><td class="field-body"><a class="reference" href="http://www.bittorrent.org/beps/bep-0012">text/x-rst</a></td>
+</tr>
+<tr class="field"><th class="field-name">Created:</th><td class="field-body">22-Jun-2009</td>
+</tr>
+<tr class="field"><th class="field-name">Post-History:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference" href="#utorrent-transport-protocol" id="id2">uTorrent Transport Protocol</a><ul>
+<li><a class="reference" href="#credits" id="id3">credits</a></li>
+<li><a class="reference" href="#rationale" id="id4">rationale</a></li>
+<li><a class="reference" href="#overview" id="id5">overview</a></li>
+<li><a class="reference" href="#header-format" id="id6">header format</a><ul>
+<li><a class="reference" href="#version" id="id7">version</a></li>
+<li><a class="reference" href="#connection-id" id="id8">connection_id</a></li>
+<li><a class="reference" href="#timestamp-seconds-timestamp-microseconds" id="id9">timestamp_seconds, timestamp_microseconds</a></li>
+<li><a class="reference" href="#timestamp-difference-microseconds" id="id10">timestamp_difference_microseconds</a></li>
+<li><a class="reference" href="#wnd-size" id="id11">wnd_size</a></li>
+<li><a class="reference" href="#extension" id="id12">extension</a><ul>
+<li><a class="reference" href="#selective-ack" id="id13">Selective ACK</a></li>
+<li><a class="reference" href="#extension-bits" id="id14">Extension bits</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#type" id="id15">type</a></li>
+<li><a class="reference" href="#seq-nr" id="id16">seq_nr</a></li>
+<li><a class="reference" href="#ack-nr" id="id17">ack_nr</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#connection-setup" id="id18">connection setup</a></li>
+<li><a class="reference" href="#packet-loss" id="id19">packet loss</a></li>
+<li><a class="reference" href="#timeouts" id="id20">timeouts</a></li>
+<li><a class="reference" href="#packet-sizes" id="id21">packet sizes</a></li>
+<li><a class="reference" href="#congestion-control" id="id22">congestion control</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="utorrent-transport-protocol">
+<h1>uTorrent Transport Protocol</h1>
+<div class="section" id="credits">
+<h2>credits</h2>
+<p>The uTorrent transport protocol was designed by Ludvig Strigeus,
+Greg Hazel, Stanislav Shalunov and Arvid Norberg</p>
+</div>
+<div class="section" id="rationale">
+<h2>rationale</h2>
+<p>The motivation for uTP is for BitTorrent clients to not disrupt
+internet connections, while still utilizing the unused bandwidth
+fully.</p>
+<p>The problem is that DSL and cable modems typically have a send
+buffer disproportional to their max send rate, which can hold several
+seconds worth of packets. BitTorrent traffic is typically background
+transfers, and should have lower priority than checking email,
+phone calls and browsing the web, but when using regular TCP
+connections BitTorrent quickly fills up the send buffer, adding
+multiple seconds delay to all interactive traffic.</p>
+<p>The fact that BitTorrent uses multiple TCP connections gives it an
+unfair advantage when competing with other services for bandwidth,
+which exaggerates the effect of BitTorrent filling the upload pipe.</p>
+<p>The traditional solution to this problem is to cap the upload rate
+of the bittorrent client to 80% of the uplink capacity. 80% leaves
+some head room for interactive traffic.</p>
+<p>The main drawbacks with this solution are:</p>
+<ol class="arabic simple">
+<li>The user needs to configure his/her bittorrent client, it won't
+work out-of-the-box.</li>
+<li>The user needs to know his/her internet connection's upload
+capacity. This capacity may change, especially on laptops that
+may connect to a large number of different networks.</li>
+<li>The headroom of 20% is arbitrary and wastes bandwidth. Whenever
+there is no interactive traffic competing with bittorrent, the
+extra 20% are wasted. Whenever there is competing interactive
+traffic, it cannot use more than 20% of the capacity.</li>
+</ol>
+<p>uTP solves this problem by using the modem queue size as a controller
+for its send rate. When the queue grows too large, it throttles back.</p>
+<p>This lets it utilize the full upload capacity when there is no
+competition for it, and it lets it throttle back to virtually nothing
+when there is a lot of interactive traffic.</p>
+</div>
+<div class="section" id="overview">
+<h2>overview</h2>
+<p>This document assumes some knowledge of how TCP and window based
+congestion control works.</p>
+<p>The main addition compared to TCP is the delay based congestion
+control. See the <a class="reference" href="#congestion-control">congestion control</a> section.</p>
+<p>Like TCP, uTP uses window based congestion control. Each socket
+has a <tt class="docutils literal"><span class="pre">max_window</span></tt> which determines the maximum number of bytes
+the socket may have <em>in-flight</em> at any given time. Any packet that
+has been sent, but not yet acked, is considered to be in-flight.</p>
+<p>The number of bytes in-flight is <tt class="docutils literal"><span class="pre">cur_window</span></tt>.</p>
+<p>A socket may only send a packet if <tt class="docutils literal"><span class="pre">cur_window</span></tt> + <tt class="docutils literal"><span class="pre">packet_size</span></tt>
+is less than or equal to min(<tt class="docutils literal"><span class="pre">max_window</span></tt>, <tt class="docutils literal"><span class="pre">wnd_size</span></tt>).
+The packet size may vary, see the <a class="reference" href="#packet-sizes">packet sizes</a> section.</p>
+<p><tt class="docutils literal"><span class="pre">wnd_size</span></tt> is the advertised window from the other end. It sets
+an upper limit on the number of packets in-flight.</p>
+<p>An implementation MAY violate the above rule if the <tt class="docutils literal"><span class="pre">max_window</span></tt>
+is smaller than the packet size, and it paces the packets so that
+the average <tt class="docutils literal"><span class="pre">cur_window</span></tt> is less than or equal to <tt class="docutils literal"><span class="pre">max_window</span></tt>.</p>
+<p>Each socket keeps a state for the last delay measurement from the
+other endpoint (<tt class="docutils literal"><span class="pre">reply_micro</span></tt>). Whenever a packet is received,
+this state is updated by subtracting <tt class="docutils literal"><span class="pre">timestamp_microseconds</span></tt>
+from the hosts current time, in microseconds (see <a class="reference" href="#header-format">header format</a>).</p>
+<p>Every time a packet is sent, the sockets <tt class="docutils literal"><span class="pre">reply_micro</span></tt> value is
+put in the <tt class="docutils literal"><span class="pre">timestamp_difference_microseconds</span></tt> field of the packet
+header.</p>
+<p>Unlike TCP, sequence numbers and ACKs in uTP refers to packets, not
+bytes. This means uTP cannot <em>repackage</em> data when resending it.</p>
+<p>Each socket keeps a state of the next sequence number to use when
+sending a packet, <tt class="docutils literal"><span class="pre">seq_nr</span></tt>. It also keeps a state of the sequence
+number that was last received, <tt class="docutils literal"><span class="pre">ack_nr</span></tt>. The oldest unacked packet
+is <tt class="docutils literal"><span class="pre">seq_nr</span></tt> - <tt class="docutils literal"><span class="pre">cur_window</span></tt>.</p>
+</div>
+<div class="section" id="header-format">
+<h2>header format</h2>
+<p>version 1 header:</p>
+<pre class="literal-block">
+0       4       8               16              24              32
++-------+-------+---------------+---------------+---------------+
+| ver   | type  | extension     | connection_id                 |
++-------+-------+---------------+---------------+---------------+
+| timestamp_microseconds                                        |
++---------------+---------------+---------------+---------------+
+| timestamp_difference_microseconds                             |
++---------------+---------------+---------------+---------------+
+| wnd_size                                                      |
++---------------+---------------+---------------+---------------+
+| seq_nr                        | ack_nr                        |
++---------------+---------------+---------------+---------------+
+</pre>
+<p>All fields are in network byte order (big endian).</p>
+<div class="section" id="version">
+<h3>version</h3>
+<p>This is the protcol version. The current version is 1.</p>
+</div>
+<div class="section" id="connection-id">
+<h3>connection_id</h3>
+<p>This is a random, unique, number identifying all the packets that belong to
+the same connection. Each socket has one connection ID for sending packets and
+a different connection ID for receiving packets. The endpoint initiating the
+connection decides which ID to use, and the return path has the same ID + 1.</p>
+</div>
+<div class="section" id="timestamp-seconds-timestamp-microseconds">
+<h3>timestamp_seconds, timestamp_microseconds</h3>
+<p>This is the 'seconds' and 'microseconds' parts of the timestamp of when this
+packet was sent. This is set using gettimeofday() on posix and QueryPerformanceTimer()
+on windows. The higher resultion this timstamp has, the better.</p>
+</div>
+<div class="section" id="timestamp-difference-microseconds">
+<h3>timestamp_difference_microseconds</h3>
+<p>This is the difference between the local time and the timestamp in the last
+received packet, at the time the last packet was received. This is the latest
+one-way delay measurement of the link from the remote peer to the local machine.</p>
+</div>
+<div class="section" id="wnd-size">
+<h3>wnd_size</h3>
+<p>Advertised receive window. This is 32 bits wide and specified in bytes.</p>
+<p>The window size is the number of bytes currently in-flight, i.e. sent but not
+acked. The advertised receive window lets the other end cap the window size
+if it cannot receive any faster, if its receive buffer is filling up.</p>
+<p>When sending packets, this should be set to the number of bytes left in the
+socket's receive buffer.</p>
+</div>
+<div class="section" id="extension">
+<h3>extension</h3>
+<p>The type of the first extension in a linked list of extension headers. 0 means
+no extension.</p>
+<p>There are two extensions:</p>
+<ol class="arabic simple">
+<li>Selective acks</li>
+<li>Extension bits</li>
+</ol>
+<p>Extensions are linked, just like TCP options. If the extension field is non-zero,
+immediately following the uTP header are two bytes:</p>
+<pre class="literal-block">
+0               8               16
++---------------+---------------+
+| extension     | len           |
++---------------+---------------+
+</pre>
+<p>where <tt class="docutils literal"><span class="pre">extension</span></tt> specifies the type of the next extension in the linked list,
+0 terminates the list. And <tt class="docutils literal"><span class="pre">len</span></tt> specifies the number of bytes of this extension.
+Unknown extensions can be skipped by simply advancing <tt class="docutils literal"><span class="pre">len</span> <span class="pre">bytes</span></tt>.</p>
+<div class="section" id="selective-ack">
+<h4>Selective ACK</h4>
+<p>Selective ack is an extension that can selectively ACK packets non-sequentially.
+Its payload is a bitmask of 32 bits, representing the first 32 packets in the
+send window. A set bit specifies that packet has been received, a cleared bit
+specifies that the packet has not been received. The header looks like this:</p>
+<pre class="literal-block">
+0               8               16
++---------------+---------------+---------------+---------------+
+| extension     | len           | bitmask
++---------------+---------------+---------------+---------------+
+                                |
++---------------+---------------+
+</pre>
+<p>The selective ack is only sent when at least one sequence number was skipped in
+the received stream. The first bit in the mask therefore represents ack_nr + 2.
+ack_nr +1 is assumed to have been dropped or be missing when this packet was sent.
+A set bit represents a packet that has been received, a cleared bit represents
+a packet that has not yet been received.</p>
+<p>The bitmask has reverse byteorder. The first byte represents packets [ack_nr + 2,
+ack_nr + 2 + 7] in reverse order. The least significant bit in the byte represents
+ack_nr + 2, the most significant bit in the byte represents ack_nr + 2 + 7. The
+next byte in the mask represents [ack_nr + 2 + 8, ack_nr + 2 + 15] in reverse order,
+and so on. The bitmask is not limited to 32 bits but can be of any size.</p>
+</div>
+<div class="section" id="extension-bits">
+<h4>Extension bits</h4>
+<p>The extension bits are intended to communicate support for extensions. Currently
+it's always set to 0. It is an 8 byte bitmask where each bit specifies support
+for a specific feature:</p>
+<pre class="literal-block">
+0               8               16
++---------------+---------------+---------------+---------------+
+| extension     | len           | extension bitmask
++---------------+---------------+---------------+---------------+
+
++---------------+---------------+---------------+---------------+
+                                |
++---------------+---------------+
+</pre>
+</div>
+</div>
+<div class="section" id="type">
+<h3>type</h3>
+<p>The type field describes the type of packet.</p>
+<p>It can be one of:</p>
+<dl class="docutils">
+<dt>ST_DATA = 0</dt>
+<dd>regular data packet. Socket is in connected state and has data
+to send. An ST_DATA packet always has a data payload.</dd>
+<dt>ST_FIN = 1</dt>
+<dd>Finalize the connection. This is the last packet. It closes
+the connection, similar to TCP FIN flag.
+This connection will never have a sequence number greater than
+the sequence number in this packet. The socket records this sequence
+number as <tt class="docutils literal"><span class="pre">eof_pkt</span></tt>. This lets the socket wait for packets that
+might still be missing and arrive out of order even after receiving
+the ST_FIN packet.</dd>
+<dt>ST_STATE = 2</dt>
+<dd>State packet. Used to transmit an ACK with no data.</dd>
+<dt>ST_RESET = 3</dt>
+<dd>Terminate connection forcefully. Similar to TCP RST flag. The remote
+host does not have any state for this connection. It is stale and should
+be terminated.</dd>
+<dt>ST_SYN = 4</dt>
+<dd><p class="first">Connect SYN. Similar to TCP SYN flag, this packet initiates a connection.
+The sequence number is initialized to 1. The connection ID is initialized
+to a random number. The syn packet is special, all subsequent packets sent
+on this connection (except for resends of the ST_SYN) are sent with the
+connection ID + 1. The connection ID is what the other end is expected to
+use in its responses.</p>
+<p class="last">When receiving an ST_SYN, the new socket should be initialized with the
+ID in the packet header. The send ID for the socket should be initialized
+to the ID + 1. The sequence number for the return channel is initialized
+to a random number. The other end expects an ST_STATE packet (only an ack)
+in response.</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="seq-nr">
+<h3>seq_nr</h3>
+<p>This is the sequence number of this packet. As opposed to TCP, uTP sequence
+numbers are not referring to bytes, but packets. The sequence number tells the
+other end in which order packets should be served back to the application layer.</p>
+</div>
+<div class="section" id="ack-nr">
+<h3>ack_nr</h3>
+<p>This is the sequence number the sender of the packet last received in the other
+direction.</p>
+</div>
+</div>
+<div class="section" id="connection-setup">
+<h2>connection setup</h2>
+<p><em>describe the initial connection setup sequence</em></p>
+</div>
+<div class="section" id="packet-loss">
+<h2>packet loss</h2>
+<p>If the packet with sequence number (<tt class="docutils literal"><span class="pre">seq_nr</span></tt> - <tt class="docutils literal"><span class="pre">cur_window</span></tt>) has not been acked
+(this is the oldest packet in the send buffer, and the next one expected to be acked)
+has not been acked, but 3 or more packets have been acked passed it (through Selective
+ACK), the packet is assumed to have been lost. Similarly, when receiving 3 duplicate
+acks, <tt class="docutils literal"><span class="pre">ack_nr</span></tt> + 1 is assumed to have been lost (if a packet with that sequence number
+has been sent).</p>
+<p>When a packet is lost, the <tt class="docutils literal"><span class="pre">max_window</span></tt> is multiplied by 0.78.</p>
+</div>
+<div class="section" id="timeouts">
+<h2>timeouts</h2>
+<p>Every packet that is ACKed, either by falling in the range (last_ack_nr, ack_nr]
+or by explicitly being acked by a Selective ACK message, should be used to update
+an <tt class="docutils literal"><span class="pre">rtt</span></tt> (round trip time) and <tt class="docutils literal"><span class="pre">rtt_var</span></tt> (rtt variance) measurement.
+last_ack_nr here is the last ack_nr received on the socket before the current packet,
+and ack_nr is the field in the currently received packet.</p>
+<p>The <tt class="docutils literal"><span class="pre">rtt</span></tt> and <tt class="docutils literal"><span class="pre">rtt_var</span></tt> is only updated for packets that where sent only once.
+This avoids problems with figuring out which packet was acked, the first or the
+second one.</p>
+<p><tt class="docutils literal"><span class="pre">rtt</span></tt> and <tt class="docutils literal"><span class="pre">rtt_var</span></tt> are calculated by the following formula, every time a packet
+is ACKed:</p>
+<pre class="literal-block">
+delta = rtt - packet_rtt
+rtt_var += (abs(delta) - rtt_var) / 4;
+rtt += (packet_rtt - rtt) / 8;
+</pre>
+<p>The default timeout for packets associated with the socket is also updated every time
+<tt class="docutils literal"><span class="pre">rtt</span></tt> and <tt class="docutils literal"><span class="pre">rtt_var</span></tt> is updated. It is set to:</p>
+<pre class="literal-block">
+timeout = max(rtt + rtt_var * 4, 500);
+</pre>
+<p>Where timeout is specified in milliseconds. i.e. the minimum timeout for a packet is
+1/2 second.</p>
+<p>Every time a socket sends or receives a packet, it updates its timeout counter. If
+no packet has arrived within <tt class="docutils literal"><span class="pre">timeout</span></tt> number of milliseconds from the last
+timeout counter reset, the socket triggers a timeout. It will set its <tt class="docutils literal"><span class="pre">packet_size</span></tt>
+and <tt class="docutils literal"><span class="pre">max_window</span></tt> to the smallest packet size (150 bytes). This allows it to send
+one more packet, and this is how the socket gets started again if the window size
+goes down to zero.</p>
+<p>The initial timeout is set to 1000 milliseconds, and later updated according to
+the formula above. For each packet that times out in a row, the timeout is
+doubled.</p>
+</div>
+<div class="section" id="packet-sizes">
+<h2>packet sizes</h2>
+<p>In order to have as little impact as possible on slow congested links, uTP adjusts
+its packet size down to as small as 150 bytes per packet. Using packets that small
+has the benefit of not clogging up a slow uplink, with long serialization delay.
+The cost of using packets that small is that the overhead from the packet headers
+become significant. At high rates, large packet sizes are used, at slow rates,
+small packet sizes are used.</p>
+</div>
+<div class="section" id="congestion-control">
+<h2>congestion control</h2>
+<p>The overall goal of the uTP congestion control is to use one way buffer delay as the
+main congestion measurement, as well as packet loss, like TCP. The point is to avoid
+running at full send buffers whenever data is being sent. This is specifically a
+problem for DSL/Cable modems, where the send buffer in the modem often has room for
+multiple seconds worth of data. The ideal buffer utilization for uTP (or any background
+traffic protocol) is to run at 0 bytes buffer utilization. i.e. any other traffic
+can at any time send without being obstructed by background traffic clogging up the
+send buffer. In practice, the uTP target delay is set to 100 ms. Each socket aims to
+never see more than 100 ms delay on the send link. If it does, it will throttle back.</p>
+<p>This effectively makes uTP yield to any TCP traffic.</p>
+<p>This is achieved by including a high resolution timestamp in every packet that's sent
+over uTP, and the receiving end calculates the difference between its own high resolution
+timer and the timestamp in the packet it received. This difference is then fed back to the
+original sender of the packet (timestamp_difference_microseconds). This value is not meaningful
+as an absolute value. The clocks in the machines are most likely not synchronized,
+especially not down to micorsecond resolution, and the time the packet is in transit is
+also included in the difference of these timestamps. However, the value is useful in
+comparison to previous values.</p>
+<p>Each socket keeps a sliding minimum of the lowest value for the last two minutes. This value
+is called <em>base_delay</em>, and is used as a baseline, the minumum delay between the hosts.
+When subtracting the base_delay from the timestamp difference in each packet you get a
+measurement of the current buffering delay on the socket. This measurement is called <em>our_delay</em>.
+It has a lot of noise it it, but is used as the driver to determine whether to increase or
+decrease the send window (which controls the send rate).</p>
+<p>The <em>CCONTROL_TARGET</em> is the buffering delay that the uTP accepts on the uplink. Currently the
+delay target is set to 100 ms. <em>off_target</em> is how far the actual measured delay is from the
+target delay (calculated from CCONTROL_TARGET - our_delay).</p>
+<p>The window size in the socket structure specifies the number of bytes we may have in flight
+(not acked) in total, on the connection. The send rate is directly correlated to this window
+size. The more bytes in flight, the faster send rate. In the code, the window size is called
+<tt class="docutils literal"><span class="pre">max_window</span></tt>. Its size is controlled, roughly, by the following expression:</p>
+<pre class="literal-block">
+scaled_gain = (off_target / CCONTROL_TARGET)
+        * (outstanding_packet * MAX_CWND_INCREASE_PACKETS_PER_RTT / max_window);
+</pre>
+<p>Where the first factor scales the <em>off_target</em> to units of target delays.</p>
+<p>The scaled_gain is then added to the max_window:</p>
+<pre class="literal-block">
+max_window += scaled_gain;
+</pre>
+<p>This will make the window smaller if off_target is greater than 0 and grow the window if
+off target is less than 0.</p>
+<p>If max_window becomes less than 0, it is set to 0. A window size of zero means that the
+socket may not send any packets. In this state, the socket will trigger a timeout and
+force the window size to one packet size, and send one packet. See the section on timeouts
+for more information.</p>
+<!-- Local Variables:
+mode: indented-text
+indent-tabs-mode: nil
+sentence-end-double-space: t
+fill-column: 70
+coding: utf-8
+End: -->
+</div>
+</div>
+
+
+</div>
+	<div id="footer">
+<hr/>
+</div>
+
+</div>
+</body>
+</html>

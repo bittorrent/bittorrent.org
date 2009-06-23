@@ -15,14 +15,94 @@ uTorrent Transport Protocol
 credits
 -------
 
+The uTorrent transport protocol was designed by Ludvig Strigeus,
+Greg Hazel, Stanislav Shalunov and Arvid Norberg
+
 rationale
 ---------
+
+The motivation for uTP is for BitTorrent clients to not disrupt
+internet connections, while still utilizing the unused bandwidth
+fully.
+
+The problem is that DSL and cable modems typically have a send
+buffer disproportional to their max send rate, which can hold several
+seconds worth of packets. BitTorrent traffic is typically background
+transfers, and should have lower priority than checking email,
+phone calls and browsing the web, but when using regular TCP
+connections BitTorrent quickly fills up the send buffer, adding
+multiple seconds delay to all interactive traffic.
+
+The fact that BitTorrent uses multiple TCP connections gives it an
+unfair advantage when competing with other services for bandwidth,
+which exaggerates the effect of BitTorrent filling the upload pipe.
+
+The traditional solution to this problem is to cap the upload rate
+of the bittorrent client to 80% of the uplink capacity. 80% leaves
+some head room for interactive traffic.
+
+The main drawbacks with this solution are:
+
+1. The user needs to configure his/her bittorrent client, it won't
+   work out-of-the-box.
+2. The user needs to know his/her internet connection's upload
+   capacity. This capacity may change, especially on laptops that
+   may connect to a large number of different networks.
+3. The headroom of 20% is arbitrary and wastes bandwidth. Whenever
+   there is no interactive traffic competing with bittorrent, the
+   extra 20% are wasted. Whenever there is competing interactive
+   traffic, it cannot use more than 20% of the capacity.
+
+uTP solves this problem by using the modem queue size as a controller
+for its send rate. When the queue grows too large, it throttles back.
+
+This lets it utilize the full upload capacity when there is no
+competition for it, and it lets it throttle back to virtually nothing
+when there is a lot of interactive traffic.
 
 overview
 --------
 
-connection setup
-----------------
+This document assumes some knowledge of how TCP and window based
+congestion control works.
+
+The main addition compared to TCP is the delay based congestion
+control. See the `congestion control`_ section.
+
+Like TCP, uTP uses window based congestion control. Each socket
+has a ``max_window`` which determines the maximum number of bytes
+the socket may have *in-flight* at any given time. Any packet that
+has been sent, but not yet acked, is considered to be in-flight.
+
+The number of bytes in-flight is ``cur_window``.
+
+A socket may only send a packet if ``cur_window`` + ``packet_size``
+is less than or equal to min(``max_window``, ``wnd_size``).
+The packet size may vary, see the `packet sizes`_ section.
+
+``wnd_size`` is the advertised window from the other end. It sets
+an upper limit on the number of packets in-flight.
+
+An implementation MAY violate the above rule if the ``max_window``
+is smaller than the packet size, and it paces the packets so that
+the average ``cur_window`` is less than or equal to ``max_window``.
+
+Each socket keeps a state for the last delay measurement from the
+other endpoint (``reply_micro``). Whenever a packet is received,
+this state is updated by subtracting ``timestamp_microseconds``
+from the hosts current time, in microseconds (see `header format`_).
+
+Every time a packet is sent, the sockets ``reply_micro`` value is
+put in the ``timestamp_difference_microseconds`` field of the packet
+header.
+
+Unlike TCP, sequence numbers and ACKs in uTP refers to packets, not
+bytes. This means uTP cannot *repackage* data when resending it.
+
+Each socket keeps a state of the next sequence number to use when
+sending a packet, ``seq_nr``. It also keeps a state of the sequence
+number that was last received, ``ack_nr``. The oldest unacked packet
+is ``seq_nr`` - ``cur_window``.
 
 header format
 -------------
@@ -49,9 +129,7 @@ All fields are in network byte order (big endian).
 version
 .......
 
-This is the protcol version. The protocol is detected by inspecting the first
-two bytes. If the first byte is 1 and the second is 0, the packet is version
-1. Otherwise it's version 0.
+This is the protcol version. The current version is 1.
 
 connection_id
 .............
@@ -78,14 +156,14 @@ one-way delay measurement of the link from the remote peer to the local machine.
 wnd_size
 ........
 
-Advertised receive window. In v1, this is specified in the number of segments
-(packets) of 300 bytes. In v2 it is 16 bits wide and specified in bytes.
+Advertised receive window. This is 32 bits wide and specified in bytes.
 
 The window size is the number of bytes currently in-flight, i.e. sent but not
-acked. This is not the same as the next sequence number minus the last acked
-sequence number. Packets can be acked in the middle of the send window using
-the Selective ACK extension. Any acked packet is deducted from the current
-window size, and allows the sender to send more packets to fill up the window.
+acked. The advertised receive window lets the other end cap the window size
+if it cannot receive any faster, if its receive buffer is filling up.
+
+When sending packets, this should be set to the number of bytes left in the
+socket's receive buffer.
 
 extension
 .........
@@ -208,11 +286,28 @@ ack_nr
 This is the sequence number the sender of the packet last received in the other
 direction.
 
+connection setup
+----------------
+
+*describe the initial connection setup sequence*
+
+packet loss
+-----------
+
+If the packet with sequence number (``seq_nr`` - ``cur_window``) has not been acked
+(this is the oldest packet in the send buffer, and the next one expected to be acked)
+has not been acked, but 3 or more packets have been acked passed it (through Selective
+ACK), the packet is assumed to have been lost. Similarly, when receiving 3 duplicate
+acks, ``ack_nr`` + 1 is assumed to have been lost (if a packet with that sequence number
+has been sent).
+
+When a packet is lost, the ``max_window`` is multiplied by 0.78.
+
 timeouts
 --------
 
 Every packet that is ACKed, either by falling in the range (last_ack_nr, ack_nr]
-or by explicitly being acked by an Selective ACK message, should be used to update
+or by explicitly being acked by a Selective ACK message, should be used to update
 an ``rtt`` (round trip time) and ``rtt_var`` (rtt variance) measurement.
 last_ack_nr here is the last ack_nr received on the socket before the current packet,
 and ack_nr is the field in the currently received packet.
@@ -236,6 +331,27 @@ The default timeout for packets associated with the socket is also updated every
 Where timeout is specified in milliseconds. i.e. the minimum timeout for a packet is
 1/2 second.
 
+Every time a socket sends or receives a packet, it updates its timeout counter. If
+no packet has arrived within ``timeout`` number of milliseconds from the last
+timeout counter reset, the socket triggers a timeout. It will set its ``packet_size``
+and ``max_window`` to the smallest packet size (150 bytes). This allows it to send
+one more packet, and this is how the socket gets started again if the window size
+goes down to zero.
+
+The initial timeout is set to 1000 milliseconds, and later updated according to
+the formula above. For each packet that times out in a row, the timeout is
+doubled.
+
+packet sizes
+------------
+
+In order to have as little impact as possible on slow congested links, uTP adjusts
+its packet size down to as small as 150 bytes per packet. Using packets that small
+has the benefit of not clogging up a slow uplink, with long serialization delay.
+The cost of using packets that small is that the overhead from the packet headers
+become significant. At high rates, large packet sizes are used, at slow rates,
+small packet sizes are used.
+
 congestion control
 ------------------
 
@@ -254,7 +370,7 @@ This effectively makes uTP yield to any TCP traffic.
 This is achieved by including a high resolution timestamp in every packet that's sent
 over uTP, and the receiving end calculates the difference between its own high resolution
 timer and the timestamp in the packet it received. This difference is then fed back to the
-original sender of the packet (timestamp_difference_microseconds). This value is meaningful
+original sender of the packet (timestamp_difference_microseconds). This value is not meaningful
 as an absolute value. The clocks in the machines are most likely not synchronized,
 especially not down to micorsecond resolution, and the time the packet is in transit is
 also included in the difference of these timestamps. However, the value is useful in
@@ -288,8 +404,10 @@ The scaled_gain is then added to the max_window::
 This will make the window smaller if off_target is greater than 0 and grow the window if
 off target is less than 0.
 
-The uTP congestion control is implemented in the ``UTP_ApplyPlictoCControl`` function.
-This function is called for a socket every time a packet is received on the socket.
+If max_window becomes less than 0, it is set to 0. A window size of zero means that the
+socket may not send any packets. In this state, the socket will trigger a timeout and
+force the window size to one packet size, and send one packet. See the section on timeouts
+for more information.
 
 
 ..

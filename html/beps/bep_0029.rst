@@ -38,18 +38,18 @@ unfair advantage when competing with other services for bandwidth,
 which exaggerates the effect of BitTorrent filling the upload pipe.
 
 The traditional solution to this problem is to cap the upload rate
-of the bittorrent client to 80% of the uplink capacity. 80% leaves
+of the BitTorrent client to 80% of the up-link capacity. 80% leaves
 some head room for interactive traffic.
 
 The main drawbacks with this solution are:
 
-1. The user needs to configure his/her bittorrent client, it won't
+1. The user needs to configure his/her BitTorrent client, it won't
    work out-of-the-box.
 2. The user needs to know his/her internet connection's upload
    capacity. This capacity may change, especially on laptops that
    may connect to a large number of different networks.
 3. The headroom of 20% is arbitrary and wastes bandwidth. Whenever
-   there is no interactive traffic competing with bittorrent, the
+   there is no interactive traffic competing with BitTorrent, the
    extra 20% are wasted. Whenever there is competing interactive
    traffic, it cannot use more than 20% of the capacity.
 
@@ -129,7 +129,7 @@ All fields are in network byte order (big endian).
 version
 .......
 
-This is the protcol version. The current version is 1.
+This is the protocol version. The current version is 1.
 
 connection_id
 .............
@@ -144,7 +144,7 @@ timestamp_seconds, timestamp_microseconds
 
 This is the 'seconds' and 'microseconds' parts of the timestamp of when this
 packet was sent. This is set using gettimeofday() on posix and QueryPerformanceTimer()
-on windows. The higher resultion this timstamp has, the better.
+on windows. The higher resolution this timestamp has, the better.
 
 timestamp_difference_microseconds
 .................................
@@ -209,7 +209,7 @@ ack_nr +1 is assumed to have been dropped or be missing when this packet was sen
 A set bit represents a packet that has been received, a cleared bit represents
 a packet that has not yet been received.
 
-The bitmask has reverse byteorder. The first byte represents packets [ack_nr + 2,
+The bitmask has reverse byte order. The first byte represents packets [ack_nr + 2,
 ack_nr + 2 + 7] in reverse order. The least significant bit in the byte represents
 ack_nr + 2, the most significant bit in the byte represents ack_nr + 2 + 7. The
 next byte in the mask represents [ack_nr + 2 + 8, ack_nr + 2 + 15] in reverse order,
@@ -263,7 +263,7 @@ ST_SYN = 4
 	Connect SYN. Similar to TCP SYN flag, this packet initiates a connection.
 	The sequence number is initialized to 1. The connection ID is initialized
 	to a random number. The syn packet is special, all subsequent packets sent
-	on this connection (except for resends of the ST_SYN) are sent with the
+	on this connection (except for re-sends of the ST_SYN) are sent with the
 	connection ID + 1. The connection ID is what the other end is expected to
 	use in its responses.
 
@@ -347,7 +347,7 @@ packet sizes
 
 In order to have as little impact as possible on slow congested links, uTP adjusts
 its packet size down to as small as 150 bytes per packet. Using packets that small
-has the benefit of not clogging up a slow uplink, with long serialization delay.
+has the benefit of not clogging up a slow up-link, with long serialization delay.
 The cost of using packets that small is that the overhead from the packet headers
 become significant. At high rates, large packet sizes are used, at slow rates,
 small packet sizes are used.
@@ -372,18 +372,18 @@ over uTP, and the receiving end calculates the difference between its own high r
 timer and the timestamp in the packet it received. This difference is then fed back to the
 original sender of the packet (timestamp_difference_microseconds). This value is not meaningful
 as an absolute value. The clocks in the machines are most likely not synchronized,
-especially not down to micorsecond resolution, and the time the packet is in transit is
+especially not down to microsecond resolution, and the time the packet is in transit is
 also included in the difference of these timestamps. However, the value is useful in
 comparison to previous values.
 
 Each socket keeps a sliding minimum of the lowest value for the last two minutes. This value
-is called *base_delay*, and is used as a baseline, the minumum delay between the hosts.
+is called *base_delay*, and is used as a baseline, the minimum delay between the hosts.
 When subtracting the base_delay from the timestamp difference in each packet you get a
 measurement of the current buffering delay on the socket. This measurement is called *our_delay*.
 It has a lot of noise it it, but is used as the driver to determine whether to increase or
 decrease the send window (which controls the send rate).
 
-The *CCONTROL_TARGET* is the buffering delay that the uTP accepts on the uplink. Currently the
+The *CCONTROL_TARGET* is the buffering delay that the uTP accepts on the up-link. Currently the
 delay target is set to 100 ms. *off_target* is how far the actual measured delay is from the
 target delay (calculated from CCONTROL_TARGET - our_delay).
 

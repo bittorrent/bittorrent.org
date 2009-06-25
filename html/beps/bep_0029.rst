@@ -43,12 +43,12 @@ some head room for interactive traffic.
 
 The main drawbacks with this solution are:
 
-1. The user needs to configure his/her BitTorrent client, it won't
+#. The user needs to configure his/her BitTorrent client, it won't
    work out-of-the-box.
-2. The user needs to know his/her internet connection's upload
+#. The user needs to know his/her internet connection's upload
    capacity. This capacity may change, especially on laptops that
    may connect to a large number of different networks.
-3. The headroom of 20% is arbitrary and wastes bandwidth. Whenever
+#. The headroom of 20% is arbitrary and wastes bandwidth. Whenever
    there is no interactive traffic competing with BitTorrent, the
    extra 20% are wasted. Whenever there is competing interactive
    traffic, it cannot use more than 20% of the capacity.
@@ -252,7 +252,8 @@ ST_FIN = 1
 	the ST_FIN packet.
 
 ST_STATE = 2
-	State packet. Used to transmit an ACK with no data.
+	State packet. Used to transmit an ACK with no data. Packets that don't
+	include any payload do not increase the ``seq_nr``.
 
 ST_RESET = 3
 	Terminate connection forcefully. Similar to TCP RST flag. The remote
@@ -289,7 +290,65 @@ direction.
 connection setup
 ----------------
 
-*describe the initial connection setup sequence*
+Here is a diagram illustrating the exchanges and states to initiate
+a connection. The c.* refers to a state in the socket itself, pkt.*
+refers to a field in the packet header.
+
+::
+
+   initiating endpoint                           accepting endpoint	
+
+	     | c.state = CS_SYN_SENT                         |
+	     | c.seq_nr = 1                                  |
+	     | c.conn_id_recv = rand()                       |
+	     | c.conn_id_send = c.conn_id_recv + 1           |
+	     |                                               |
+	     |                                               |
+	     | ST_SYN                                        |
+	     |   seq_nr=c.seq_nr++                           |
+	     |   ack_nr=*                                    |
+	     |   conn_id=c.rcv_conn_id                       |
+	     | >-------------------------------------------> | 
+	     |             c.receive_conn_id = pkt.conn_id+1 | 
+	     |             c.send_conn_id = pkt.conn_id      | 
+	     |             c.seq_nr = rand()                 | 
+	     |             c.ack_nr = pkt.seq_nr             |
+	     |             c.state = CS_CONNECTED            |
+	     |                                               |
+	     |                                               |
+	     |                                               |
+	     |                                               |
+	     |                     ST_STATE                  |
+	     |                       seq_nr=c.seq_nr++       |
+	     |                       ack_nr=c.ack_nr         |
+	     |                       conn_id=c.send_conn_id  |
+	     | <------------------------------------------<  |
+	     | c.state = CS_CONNECTED                        |
+	     | c.ack_nr = pkt.seq_nr                         |
+	     |                                               |
+	     |                                               | connection established
+	.. ..|.. .. .. .. .. .. .. .. .. .. .. .. .. .. .. ..|.. ..
+	     |                                               |
+	     |                                               |
+	     | ST_DATA                                       |
+	     |   seq_nr=c.seq_nr++                           |
+	     |   ack_nr=c.ack_nr                             |
+	     |   conn_id=c.conn_id_send                      |
+	     | >-------------------------------------------> | 
+	     |                         c.ack_nr = pkt.seq_nr |
+	     |                                               |
+	     |                                               |
+	     |                                               |
+	     |                     ST_DATA                   |
+	     |                       seq_nr=c.seq_nr++       |
+	     |                       ack_nr=c.ack_nr         |
+	     |                       conn_id=c.send_conn_id  |
+	     | <------------------------------------------<  |
+	     | c.ack_nr = pkt.seq_nr                         |
+	     |                                               |
+	     |                                               |
+	     V                                               V
+
 
 packet loss
 -----------

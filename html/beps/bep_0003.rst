@@ -6,7 +6,7 @@ Author:  Bram Cohen <bram@bittorrent.com>
 Status:  Final
 Type:    Standard
 Created: 10-Jan-2008
-Post-History:
+Post-History: 24-Jun-2009, clarified the encoding of strings in torrent files
 
 BitTorrent is a protocol for distributing files. It identifies content
 by URL and is designed to integrate seamlessly with the web. Its
@@ -16,7 +16,7 @@ it possible for the file source to support very large numbers of
 downloaders with only a modest increase in its load.
 
 A BitTorrent file distribution consists of these entities:
-------------------------------------------------------------
+----------------------------------------------------------
 
 - An ordinary web server
 - A static 'metainfo' file
@@ -81,8 +81,8 @@ announce
 info
   This maps to a dictionary, with keys described below.
 
-  The ``name`` key maps to a string which is the suggested name 
-  to save the file (or directory) as. It is purely advisory.
+  The ``name`` key maps to a UTF-8 encoded string which is the
+  suggested name to save the file (or directory) as. It is purely advisory.
 
   ``piece length`` maps to the number of bytes in each piece
   the file is split into. For the purposes of transfer, files are
@@ -112,12 +112,16 @@ info
   
   ``length`` - The length of the file, in bytes.
 
-  ``path`` - A list of strings corresponding to subdirectory
+  ``path`` - A list of UTF-8 encoded strings corresponding to subdirectory
   names, the last of which is the actual file name (a zero length list
   is an error case).
 
   In the single file case, the name key is the name of a file, in the 
   muliple file case, it's the name of a directory.
+
+  All strings in a .torrent file that contains text must be UTF-8
+  encoded.
+
 
 Tracker GET requests have the following keys:
 ---------------------------------------------

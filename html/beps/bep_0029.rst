@@ -36,6 +36,9 @@ multiple seconds delay to all interactive traffic.
 The fact that BitTorrent uses multiple TCP connections gives it an
 unfair advantage when competing with other services for bandwidth,
 which exaggerates the effect of BitTorrent filling the upload pipe.
+The reason for this is because TCP distributes the available bandwidth
+evenly across connections, and the more connections one application
+uses, the larger share of the bandwidth it gets.
 
 The traditional solution to this problem is to cap the upload rate
 of the BitTorrent client to 80% of the up-link capacity. 80% leaves
@@ -66,7 +69,10 @@ overview
 This document assumes some knowledge of how TCP and window based
 congestion control works.
 
-The main addition compared to TCP is the delay based congestion
+uTP is a transport protocol layered on top of UDP. As such, it must
+(and has the ability to) implement its own congestion control.
+
+The main difference compared to TCP is the delay based congestion
 control. See the `congestion control`_ section.
 
 Like TCP, uTP uses window based congestion control. Each socket
@@ -139,12 +145,13 @@ the same connection. Each socket has one connection ID for sending packets and
 a different connection ID for receiving packets. The endpoint initiating the
 connection decides which ID to use, and the return path has the same ID + 1.
 
-timestamp_seconds, timestamp_microseconds
-.........................................
+timestamp_microseconds
+......................
 
-This is the 'seconds' and 'microseconds' parts of the timestamp of when this
-packet was sent. This is set using gettimeofday() on posix and QueryPerformanceTimer()
-on windows. The higher resolution this timestamp has, the better.
+This is the 'microseconds' parts of the timestamp of when this packet was sent.
+This is set using gettimeofday() on posix and QueryPerformanceTimer()
+on windows. The higher resolution this timestamp has, the better. The closer
+to the actual transmit time it is set, the better.
 
 timestamp_difference_microseconds
 .................................
@@ -191,9 +198,10 @@ Unknown extensions can be skipped by simply advancing ``len bytes``.
 Selective ACK
 ,,,,,,,,,,,,,
 
-Selective ack is an extension that can selectively ACK packets non-sequentially.
-Its payload is a bitmask of 32 bits, representing the first 32 packets in the
-send window. A set bit specifies that packet has been received, a cleared bit
+Selective ACK is an extension that can selectively ACK packets non-sequentially.
+Its payload is a bitmask of at least 32 bits, in multiples of 32 bits. Each bit
+represents one packet in the send window. Bits that are outside of the send window
+are ignored. A set bit specifies that packet has been received, a cleared bit
 specifies that the packet has not been received. The header looks like this::
 
 	0               8               16
@@ -203,9 +211,12 @@ specifies that the packet has not been received. The header looks like this::
 	                                |
 	+---------------+---------------+
 
-The selective ack is only sent when at least one sequence number was skipped in
+Note that the len field of extensions refer to bytes, which in this extension
+must be at least 4, and in multiples of 4.
+
+The selective ACK is only sent when at least one sequence number was skipped in
 the received stream. The first bit in the mask therefore represents ack_nr + 2.
-ack_nr +1 is assumed to have been dropped or be missing when this packet was sent.
+ack_nr + 1 is assumed to have been dropped or be missing when this packet was sent.
 A set bit represents a packet that has been received, a cleared bit represents
 a packet that has not yet been received.
 
@@ -214,6 +225,17 @@ ack_nr + 2 + 7] in reverse order. The least significant bit in the byte represen
 ack_nr + 2, the most significant bit in the byte represents ack_nr + 2 + 7. The
 next byte in the mask represents [ack_nr + 2 + 8, ack_nr + 2 + 15] in reverse order,
 and so on. The bitmask is not limited to 32 bits but can be of any size.
+
+Here is the layout of a bitmask representing the first 32 packet acks
+represented in a selective ACK bitfield::
+
+	0               8               16
+	+---------------+---------------+---------------+---------------+
+	| 9 8 ...   3 2 | 17   ...   10 | 25   ...   18 | 33   ...   26 |
+	+---------------+---------------+---------------+---------------+
+
+The number in the diagram maps the bit in the bitmask to the offset to add to
+``ack_nr`` in order to calculate the sequence number that the bit is ACKing.
 
 Extension bits
 ,,,,,,,,,,,,,,
@@ -271,7 +293,7 @@ ST_SYN = 4
 	When receiving an ST_SYN, the new socket should be initialized with the
 	ID in the packet header. The send ID for the socket should be initialized
 	to the ID + 1. The sequence number for the return channel is initialized
-	to a random number. The other end expects an ST_STATE packet (only an ack)
+	to a random number. The other end expects an ST_STATE packet (only an ACK)
 	in response.
 
 seq_nr
@@ -349,18 +371,23 @@ refers to a field in the packet header.
 	     |                                               |
 	     V                                               V
 
+Connections are identified by their ``conn_id`` header. If the connection ID of a new
+connection collides with an existing connection, the connection attempt will fails, since
+the ST_SYN packet will be unexpected in the existing stream, and ignored.
 
 packet loss
 -----------
 
 If the packet with sequence number (``seq_nr`` - ``cur_window``) has not been acked
 (this is the oldest packet in the send buffer, and the next one expected to be acked)
-has not been acked, but 3 or more packets have been acked passed it (through Selective
+has not been acked, but 3 or more packets have been acked past it (through Selective
 ACK), the packet is assumed to have been lost. Similarly, when receiving 3 duplicate
 acks, ``ack_nr`` + 1 is assumed to have been lost (if a packet with that sequence number
 has been sent).
 
-When a packet is lost, the ``max_window`` is multiplied by 0.78.
+When a packet is lost, the ``max_window`` is multiplied by 0.78. TCP multiplies by
+0.5, but since this is a much less likely event in uTP, and since the uTP ramp-up
+is slower than TCP, this is a reasonable optimization.
 
 timeouts
 --------
@@ -371,7 +398,7 @@ an ``rtt`` (round trip time) and ``rtt_var`` (rtt variance) measurement.
 last_ack_nr here is the last ack_nr received on the socket before the current packet,
 and ack_nr is the field in the currently received packet.
 
-The ``rtt`` and ``rtt_var`` is only updated for packets that where sent only once.
+The ``rtt`` and ``rtt_var`` is only updated for packets that were sent only once.
 This avoids problems with figuring out which packet was acked, the first or the
 second one.
 
@@ -398,15 +425,15 @@ one more packet, and this is how the socket gets started again if the window siz
 goes down to zero.
 
 The initial timeout is set to 1000 milliseconds, and later updated according to
-the formula above. For each packet that times out in a row, the timeout is
-doubled.
+the formula above. For every packet consecutive subsequent packet that times out,
+the timeout is doubled.
 
 packet sizes
 ------------
 
 In order to have as little impact as possible on slow congested links, uTP adjusts
 its packet size down to as small as 150 bytes per packet. Using packets that small
-has the benefit of not clogging up a slow up-link, with long serialization delay.
+has the benefit of not clogging a slow up-link, with long serialization delay.
 The cost of using packets that small is that the overhead from the packet headers
 become significant. At high rates, large packet sizes are used, at slow rates,
 small packet sizes are used.
@@ -416,7 +443,7 @@ congestion control
 
 The overall goal of the uTP congestion control is to use one way buffer delay as the
 main congestion measurement, as well as packet loss, like TCP. The point is to avoid
-running at full send buffers whenever data is being sent. This is specifically a
+running with full send buffers whenever data is being sent. This is specifically a
 problem for DSL/Cable modems, where the send buffer in the modem often has room for
 multiple seconds worth of data. The ideal buffer utilization for uTP (or any background
 traffic protocol) is to run at 0 bytes buffer utilization. i.e. any other traffic
@@ -451,8 +478,9 @@ The window size in the socket structure specifies the number of bytes we may hav
 size. The more bytes in flight, the faster send rate. In the code, the window size is called
 ``max_window``. Its size is controlled, roughly, by the following expression::
 
-	scaled_gain = (off_target / CCONTROL_TARGET)
-		* (outstanding_packet * MAX_CWND_INCREASE_PACKETS_PER_RTT / max_window);
+	delay_factor = off_target / CCONTROL_TARGET;
+	window_factor = outstanding_packet / max_window;
+	scaled_gain = MAX_CWND_INCREASE_PACKETS_PER_RTT * delay_factor * window_factor;
 
 Where the first factor scales the *off_target* to units of target delays.
 

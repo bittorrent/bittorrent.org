@@ -40,7 +40,7 @@
 </tr>
 <tr class="field"><th class="field-name">Version:</th><td class="field-body">11031</td>
 </tr>
-<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0003.rst">2008-02-28 16:43:58 -0800 (Thu, 28 Feb 2008)</a></td>
+<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0003.rst">2008-02-28 16:43:58 -0800 (Thu, 28 Feb 2008)</a></td>
 </tr>
 <tr class="field"><th class="field-name">Author:</th><td class="field-body">Bram Cohen &lt;bram&#32;&#97;t&#32;bittorrent.com&gt;</td>
 </tr>
@@ -50,7 +50,7 @@
 </tr>
 <tr class="field"><th class="field-name">Created:</th><td class="field-body">10-Jan-2008</td>
 </tr>
-<tr class="field"><th class="field-name">Post-History:</th><td class="field-body"></td>
+<tr class="field"><th class="field-name">Post-History:</th><td class="field-body">24-Jun-2009, clarified the encoding of strings in torrent files</td>
 </tr>
 </tbody>
 </table>
@@ -58,15 +58,15 @@
 <div class="contents topic" id="contents">
 <p class="topic-title first">Contents</p>
 <ul class="simple">
-<li><a class="reference internal" href="#a-bittorrent-file-distribution-consists-of-these-entities" id="id2">A BitTorrent file distribution consists of these entities:</a></li>
-<li><a class="reference internal" href="#to-start-serving-a-host-goes-through-the-following-steps" id="id3">To start serving, a host goes through the following steps:</a></li>
-<li><a class="reference internal" href="#to-start-downloading-a-user-does-the-following" id="id4">To start downloading, a user does the following:</a></li>
-<li><a class="reference internal" href="#the-connectivity-is-as-follows" id="id5">The connectivity is as follows:</a></li>
-<li><a class="reference internal" href="#metainfo-files-are-bencoded-dictionaries-with-the-following-keys" id="id6">Metainfo files are bencoded dictionaries with the following keys:</a></li>
-<li><a class="reference internal" href="#tracker-get-requests-have-the-following-keys" id="id7">Tracker GET requests have the following keys:</a></li>
-<li><a class="reference internal" href="#all-non-keepalive-messages-start-with-a-single-byte-which-gives-their-type" id="id8">All non-keepalive messages start with a single byte which gives their type.</a></li>
-<li><a class="reference internal" href="#the-possible-values-are" id="id9">The possible values are:</a></li>
-<li><a class="reference internal" href="#copyright" id="id10">Copyright</a></li>
+<li><a class="reference" href="#a-bittorrent-file-distribution-consists-of-these-entities" id="id2">A BitTorrent file distribution consists of these entities:</a></li>
+<li><a class="reference" href="#to-start-serving-a-host-goes-through-the-following-steps" id="id3">To start serving, a host goes through the following steps:</a></li>
+<li><a class="reference" href="#to-start-downloading-a-user-does-the-following" id="id4">To start downloading, a user does the following:</a></li>
+<li><a class="reference" href="#the-connectivity-is-as-follows" id="id5">The connectivity is as follows:</a></li>
+<li><a class="reference" href="#metainfo-files-are-bencoded-dictionaries-with-the-following-keys" id="id6">Metainfo files are bencoded dictionaries with the following keys:</a></li>
+<li><a class="reference" href="#tracker-get-requests-have-the-following-keys" id="id7">Tracker GET requests have the following keys:</a></li>
+<li><a class="reference" href="#all-non-keepalive-messages-start-with-a-single-byte-which-gives-their-type" id="id8">All non-keepalive messages start with a single byte which gives their type.</a></li>
+<li><a class="reference" href="#the-possible-values-are" id="id9">The possible values are:</a></li>
+<li><a class="reference" href="#copyright" id="id10">Copyright</a></li>
 </ul>
 </div>
 <p>BitTorrent is a protocol for distributing files. It identifies content
@@ -138,8 +138,8 @@ keys and their corresponding values followed by an 'e'. For example,
 <dd>The URL of the tracker.</dd>
 <dt>info</dt>
 <dd><p class="first">This maps to a dictionary, with keys described below.</p>
-<p>The <tt class="docutils literal"><span class="pre">name</span></tt> key maps to a string which is the suggested name
-to save the file (or directory) as. It is purely advisory.</p>
+<p>The <tt class="docutils literal"><span class="pre">name</span></tt> key maps to a UTF-8 encoded string which is the
+suggested name to save the file (or directory) as. It is purely advisory.</p>
 <p><tt class="docutils literal"><span class="pre">piece</span> <span class="pre">length</span></tt> maps to the number of bytes in each piece
 the file is split into. For the purposes of transfer, files are
 split into fixed-size pieces which are all the same length except for
@@ -162,11 +162,13 @@ appear in the files list. The files list is the value
 <tt class="docutils literal"><span class="pre">files</span></tt> maps to, and is a list of dictionaries containing
 the following keys:</p>
 <p><tt class="docutils literal"><span class="pre">length</span></tt> - The length of the file, in bytes.</p>
-<p><tt class="docutils literal"><span class="pre">path</span></tt> - A list of strings corresponding to subdirectory
+<p><tt class="docutils literal"><span class="pre">path</span></tt> - A list of UTF-8 encoded strings corresponding to subdirectory
 names, the last of which is the actual file name (a zero length list
 is an error case).</p>
-<p class="last">In the single file case, the name key is the name of a file, in the
+<p>In the single file case, the name key is the name of a file, in the
 muliple file case, it's the name of a directory.</p>
+<p class="last">All strings in a .torrent file that contains text must be UTF-8
+encoded.</p>
 </dd>
 </dl>
 </div>

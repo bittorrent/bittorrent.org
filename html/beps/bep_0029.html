@@ -38,9 +38,9 @@
 </tr>
 <tr class="field"><th class="field-name">Title:</th><td class="field-body">uTorrent transport protocol</td>
 </tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body">11164</td>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">11166</td>
 </tr>
-<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0029.rst">2009-06-25 11:53:53 -0700 (Thu, 25 Jun 2009)</a></td>
+<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0029.rst">2009-07-15 12:42:16 -0700 (Wed, 15 Jul 2009)</a></td>
 </tr>
 <tr class="field"><th class="field-name">Author:</th><td class="field-body">Arvid Norberg &lt;arvid&#32;&#97;t&#32;bittorrent.com&gt;</td>
 </tr>
@@ -94,7 +94,7 @@
 <div class="section" id="credits">
 <h2>credits</h2>
 <p>The uTorrent transport protocol was designed by Ludvig Strigeus,
-Greg Hazel, Stanislav Shalunov and Arvid Norberg</p>
+Greg Hazel, Stanislav Shalunov, Arvid Norberg and Bram Cohen.</p>
 </div>
 <div class="section" id="rationale">
 <h2>rationale</h2>
@@ -412,11 +412,14 @@ the ST_SYN packet will be unexpected in the existing stream, and ignored.</p>
 <div class="section" id="packet-loss">
 <h2>packet loss</h2>
 <p>If the packet with sequence number (<tt class="docutils literal"><span class="pre">seq_nr</span></tt> - <tt class="docutils literal"><span class="pre">cur_window</span></tt>) has not been acked
-(this is the oldest packet in the send buffer, and the next one expected to be acked)
-has not been acked, but 3 or more packets have been acked past it (through Selective
+(this is the oldest packet in the send buffer, and the next one expected to be acked),
+but 3 or more packets have been acked past it (through Selective
 ACK), the packet is assumed to have been lost. Similarly, when receiving 3 duplicate
 acks, <tt class="docutils literal"><span class="pre">ack_nr</span></tt> + 1 is assumed to have been lost (if a packet with that sequence number
 has been sent).</p>
+<p>This is applied to selective acks as well. Each packet that is acked in the selective
+ack message counts as one duplicate ack, which, if it 3 or more, should trigger a
+re-send of packets that had at least 3 packets acked after them.</p>
 <p>When a packet is lost, the <tt class="docutils literal"><span class="pre">max_window</span></tt> is multiplied by 0.78. TCP multiplies by
 0.5, but since this is a much less likely event in uTP, and since the uTP ramp-up
 is slower than TCP, this is a reasonable optimization.</p>

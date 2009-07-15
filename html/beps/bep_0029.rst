@@ -16,7 +16,7 @@ credits
 -------
 
 The uTorrent transport protocol was designed by Ludvig Strigeus,
-Greg Hazel, Stanislav Shalunov and Arvid Norberg
+Greg Hazel, Stanislav Shalunov, Arvid Norberg and Bram Cohen.
 
 rationale
 ---------
@@ -379,11 +379,15 @@ packet loss
 -----------
 
 If the packet with sequence number (``seq_nr`` - ``cur_window``) has not been acked
-(this is the oldest packet in the send buffer, and the next one expected to be acked)
-has not been acked, but 3 or more packets have been acked past it (through Selective
+(this is the oldest packet in the send buffer, and the next one expected to be acked),
+but 3 or more packets have been acked past it (through Selective
 ACK), the packet is assumed to have been lost. Similarly, when receiving 3 duplicate
 acks, ``ack_nr`` + 1 is assumed to have been lost (if a packet with that sequence number
 has been sent).
+
+This is applied to selective acks as well. Each packet that is acked in the selective
+ack message counts as one duplicate ack, which, if it 3 or more, should trigger a
+re-send of packets that had at least 3 packets acked after them.
 
 When a packet is lost, the ``max_window`` is multiplied by 0.78. TCP multiplies by
 0.5, but since this is a much less likely event in uTP, and since the uTP ramp-up

@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.5: http://docutils.sourceforge.net/" />
+<title></title>
+<link rel="stylesheet" href="../css/bep.css" type="text/css" />
+</head>
+<body>
+<div class="document">
+
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="../index.html">BitTorrent<span>.org</span></a></h1>
+</div>
+<div id="nav">
+<ul>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../introduction.html">For Users</a></li>
+<li><a href="bep_0000.html"><span>For Developers</span></a></li>
+<!-- <li><a href="./blog">Blog</a></li> -->
+<li><a href="http://forum.bittorrent.org"> Forums </li>
+<li><a href="../donate.html">Donate!</a></li>
+</ul>
+</div> <!-- nav -->
+<!-- ### Begin Content ### -->
+<div id="second">
+
+
+
+<table class="rfc2822 docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">BEP:</th><td class="field-body">30</td>
+</tr>
+<tr class="field"><th class="field-name">Title:</th><td class="field-body">Merkle hash torrent extension</td>
+</tr>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">11170</td>
+</tr>
+<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0030.rst">2009-08-26 17:22:08 -0700 (Wed, 26 Aug 2009)</a></td>
+</tr>
+<tr class="field"><th class="field-name">Author:</th><td class="field-body">Arno Bakker &lt;arno&#32;&#97;t&#32;cs.vu.nl&gt;</td>
+</tr>
+<tr class="field"><th class="field-name">Status:</th><td class="field-body">Draft</td>
+</tr>
+<tr class="field"><th class="field-name">Type:</th><td class="field-body">Standards Track</td>
+</tr>
+<tr class="field"><th class="field-name">Requires:</th><td class="field-body"><a class="reference" href="http://www.bittorrent.org/beps/bep-0010">10</a></td>
+</tr>
+<tr class="field"><th class="field-name">Content-Type:</th><td class="field-body"><a class="reference" href="http://www.bittorrent.org/beps/bep-0012">text/x-rst</a></td>
+</tr>
+<tr class="field"><th class="field-name">Created:</th><td class="field-body">11-Mar-2009</td>
+</tr>
+<tr class="field"><th class="field-name">Post-History:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference" href="#abstract" id="id7">Abstract</a></li>
+<li><a class="reference" href="#simple-merkle-hashes" id="id8">Simple Merkle Hashes</a></li>
+<li><a class="reference" href="#inclusion-in-bittorrent" id="id9">Inclusion in BitTorrent</a></li>
+<li><a class="reference" href="#discussion" id="id10">Discussion</a></li>
+<li><a class="reference" href="#acknowledgements" id="id11">Acknowledgements</a></li>
+<li><a class="reference" href="#references" id="id12">References</a></li>
+<li><a class="reference" href="#copyright" id="id13">Copyright</a></li>
+</ul>
+</div>
+<div class="section" id="abstract">
+<h1>Abstract</h1>
+<p>BitTorrent requires a torrent file containing a cryptographic digest of
+every piece of the content to allow the verification of pieces during the
+download. Large torrent files put a strain on the Web servers distributing
+them, and cannot be directly included in RSS feeds or gossiped around.</p>
+<p>A related problem is the use of large piece sizes. To keep the size of a
+torrent file small (as to not overload the Web servers) the number of hashes
+for a content file is being kept small. For large files this implies that the
+piece size over which digests are calculated must go up (up to 2MB pieces are
+used). The large piece sizes affect the ability of peers to barter pieces.
+Only when a piece has been completely received and verified using the digest
+may it be traded with other peers. This means that it may be some time
+before a node starts bartering with others.</p>
+<p>Our solution to these two problems is to replace the list of digests with a
+single Merkle hash <a class="footnote-reference" href="#id6" id="id1">[1]</a>.  A Merkle hash can be used to verify the integrity
+of the total content file as well as the individual blocks via a hierarchical
+scheme. It works by constructing a hash tree of the content and using just
+the root hash as data integrity protection. The simple root hash value also
+allows for smaller piece sizes to be used. A common form of hash trees is the
+Merkle hash tree, hence the name.</p>
+</div>
+<div class="section" id="simple-merkle-hashes">
+<h1>Simple Merkle Hashes</h1>
+<p>We propose a minimalistic design that does not affect the existing BitTorrent
+protocol and clients very much. The design is backwards compatible in the
+sense that clients supporting the Simple Merkle Hash extension can still be
+made to process regular torrent files easily.</p>
+<p>&gt;From the content we construct as hash tree as follows. Given a piece size,
+we calculate the hashes of all the pieces in the set of content files. Next,
+we create a binary tree of sufficient height. Sufficient height means that the
+lowest level in the tree has enough nodes to hold all piece hashes in the set.
+We place all piece hashes in the tree, starting at the left-most leaf, see
+figure. The remaining leaves in the tree are assigned a <em>filler hash value</em> of
+0 (see Discussion). Finally, we calculate the hash values of the higher levels
+in the tree, by concatenating the hash values of the two children (again left
+to right) and computing the hash of that aggregate. This process ends in a
+hash value for the root node, which we call the <em>root hash</em>. The hashing
+algorithm used is SHA1, as in normal torrents.</p>
+<p>The root hash along with the total size of the content-file set and the piece
+size are now the only information in the system that needs to come from a
+trusted source. A client that has only the root hash of a file set can check
+any piece as follows (see figure). It first calculates the hash of the piece
+it received. Along with this piece it should have received the hashes of the
+piece's sibling and of its <em>uncles</em>, that is the sibling Y of its parent X,
+and the uncle of that Y until the root is reached (uncles are marked with *
+in the figure). Using this information the client recalculates the root hash
+of the tree, and compares it to the root hash it received from the trusted
+source.</p>
+<pre class="literal-block">
+                                       0* = root hash
+                                    /     \
+                                /            \
+                            /                   \
+                        /                          \
+                    /                                 \
+                  1*                                     2
+                 / \                                    / \
+               /     \                                /     \
+             /         \                            /         \
+           /             \                        /             \
+         /                 \                    /                 \
+        3                   4                  5                   6* = uncle
+       / \                 / \                / \                 / \
+      /   \               /   \              /   \               /   \
+     /     \             /     \            /     \             /     \
+   7         8         9        10        11        12*       13        14
+  / \       / \       / \       / \       / \       / \       / \       / \
+15   16   17   18   19   20   21   22   23   24   25   26   27   28   29   30
+
+P0   P1   P2   P3   P4   P5   P6   P7   P8*  P9*  P10  P11  P12   X    X    X
+= piece index                            =    =                   = filler hash
+                                         p    s
+                                         i    i
+                                         e    b
+                                         c    l
+                                         e    i
+                                              n
+                                              g
+</pre>
+</div>
+<div class="section" id="inclusion-in-bittorrent">
+<h1>Inclusion in BitTorrent</h1>
+<p>The original publisher of the content-file set creates a so-called <em>Merkle
+torrent</em> which is a torrent file that contains a <tt class="docutils literal"><span class="pre">root</span> <span class="pre">hash</span></tt> key in its
+<tt class="docutils literal"><span class="pre">info</span></tt> part instead of a <tt class="docutils literal"><span class="pre">pieces</span></tt> key, see BEP 3 <a class="footnote-reference" href="#bep-3" id="id2">[2]</a>.</p>
+<p>When a seeder starts it uses the information in the Merkle torrent and the
+file set to reconstruct the hash tree and registers itself with the tracker
+using the hash value of the <tt class="docutils literal"><span class="pre">info</span></tt> part of the Merkle torrent, as usual
+(see Discussion).</p>
+<p>A BitTorrent client that supports the Simple Merkle Hash extension must also
+support the Extension protocol (BEP 10) <a class="footnote-reference" href="#bep-10" id="id3">[3]</a>. In particular, it must add
+a  <tt class="docutils literal"><span class="pre">Tr_hashpiece</span></tt> message name in the <tt class="docutils literal"><span class="pre">m</span></tt> field of the Extension
+protocol's handshake message. Such a client must not send <tt class="docutils literal"><span class="pre">piece</span></tt> messages
+but must use Extension protocol messages with type {tt Tr_hashpiece} to send
+pieces.</p>
+<p>A <tt class="docutils literal"><span class="pre">Tr_hashpiece</span></tt> message consists of an index, begin, hashlist and piece.
+The hashlist consists of the piece's own hash, the piece's sibling hash, and
+the uncles of the piece up until and including the root hash (see above and
+Discussion). In particular, the hashlist is a list of 2-element lists. The
+first element denotes the node offset in the tree, the second element is the
+hash value. The node offset is the number of the node when numbered in a
+breadth-first fashion (i.e., going left to right starting at the top).</p>
+<p>Only the <tt class="docutils literal"><span class="pre">Tr_hashpiece</span></tt> message with begin field equal to 0 must contain a
+filled hashlist, for all other begin values the hashlist must be empty. In
+other words, the message containing the first subpiece should have a filled
+hashlist, subsequent subpieces should not.</p>
+<p>Formally, a <tt class="docutils literal"><span class="pre">Tr_hashpiece</span></tt> message has the following payload:</p>
+<ol class="arabic simple">
+<li>4-byte index</li>
+<li>4-byte begin</li>
+<li>4-byte length of bencoded hashlist</li>
+<li>the bencoded hashlist</li>
+<li>the subpiece data</li>
+</ol>
+<p>Upon receipt of a <tt class="docutils literal"><span class="pre">Tr_hashpiece</span></tt> message, the receiver recomputes the root
+hash using the hashlist and compares it to the root hash in the Merkle
+torrent. If they match, all the hash values are saved in the receiver's own
+hash tree, such that they can be passed on to others when the piece is
+downloaded from this receiver. When all subpieces have come in, the piece is
+checked using the hash from the hash tree.</p>
+</div>
+<div class="section" id="discussion">
+<h1>Discussion</h1>
+<p>We chose a binary tree for simplicity. Trees with larger degrees are also
+possible. However, the number of hashes that need to be sent with each
+piece is already small at about 2log of the file-set size.</p>
+<p>Using the hash of the <tt class="docutils literal"><span class="pre">info</span></tt> part for registering at the tracker means
+that for a given content-file set, the swarm that use a conventional torrent
+file and the swarm that uses a Merkle torrent will be disjunct. The infohash
+value is different, hence the swarms are known under different identifiers at
+the trackers.</p>
+<p>In theory we can create one swarm. In that swarm, new clients could serve
+pieces to old clients. For the new clients to benefit from the old clients,
+however, we need to add some way for the new to obtain the hashes required to
+check a piece. Designing a fool proof solution for this problem is not
+trivial.</p>
+<p>Because we let the initial seeders recalculate the hash tree, this
+extension is incompatible with the proposed HTTP Seeding extensions in
+BEP 17 <a class="footnote-reference" href="#bep-17" id="id4">[4]</a> and 19 <a class="footnote-reference" href="#bep-19" id="id5">[5]</a> .</p>
+<p>Including the root hash in a <tt class="docutils literal"><span class="pre">Tr_hashpiece</span></tt> message allows a quick sanity
+check.</p>
+<p>This extension paves the way for BitTorrent URLs. The only information
+required for a client to commence sharing are the root hash, the total size,
+the piece size, and a source of peer addresses (tracker, DHT).</p>
+</div>
+<div class="section" id="acknowledgements">
+<h1>Acknowledgements</h1>
+<p>Development of this extension was supported by funding from:</p>
+<blockquote>
+<ul class="simple">
+<li>BSIK Freeband Communication I-Share project (Dutch Ministry of Economic
+Affairs)</li>
+<li>The European Community's Seventh Framework Programme in the P2P-Next
+project under grant agreement no 216217.</li>
+</ul>
+</blockquote>
+<p>Thanks to Olaf van der Spek and Johan Pouwelse for ideas and suggestions.</p>
+</div>
+<div class="section" id="references">
+<h1>References</h1>
+<table class="docutils footnote" frame="void" id="id6" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>MERKLE, R. A Digital Signature Based on a Conventional Encryption
+Function. In Proceedings CRYPTOâ87 (Santa Barbara, CA, USA, Aug. 1987),
+C. Pomerance, Ed., no. 293 in Lecture Notes in Computer Science,
+Springer-Verlag, pp. 369â378.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="bep-3" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td>BEP_0003. The BitTorrent Protocol Specification, Cohen
+(<a class="reference" href="http://www.bittorrent.org/beps/bep_0003.html">http://www.bittorrent.org/beps/bep_0003.html</a>)</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="bep-10" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[3]</a></td><td>BEP_0010. Extension Protocol, Norberg, Strigeus, Hazel
+(<a class="reference" href="http://www.bittorrent.org/beps/bep_0010.html">http://www.bittorrent.org/beps/bep_0010.html</a>)</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="bep-17" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id4">[4]</a></td><td>BEP_0017. HTTP Seeding, Hoffman
+(<a class="reference" href="http://www.bittorrent.org/beps/bep_0017.html">http://www.bittorrent.org/beps/bep_0017.html</a>)</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="bep-19" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id5">[5]</a></td><td>BEP_0019. WebSeed - HTTP/FTP Seeding (GetRight style), Burford
+(<a class="reference" href="http://www.bittorrent.org/beps/bep_0019.html">http://www.bittorrent.org/beps/bep_0019.html</a>)</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="copyright">
+<h1>Copyright</h1>
+<p>This document has been placed in the public domain.</p>
+<!-- Local Variables:
+mode: indented-text
+indent-tabs-mode: nil
+sentence-end-double-space: t
+fill-column: 70
+coding: utf-8
+End: -->
+</div>
+
+
+</div>
+	<div id="footer">
+<hr/>
+</div>
+
+</div>
+</body>
+</html>

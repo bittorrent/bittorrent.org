@@ -1,13 +1,14 @@
-on: $Revision$
+BEP: 30
+Title: Merkle hash torrent extension
+Version: $Revision$
 Last-Modified: $Date$
 Author:  Arno Bakker <arno@cs.vu.nl>
 Status:  Draft
 Type:    Standards Track
-Requires: BEP 10
+Requires: 10
 Content-Type: text/x-rst
 Created: 11-Mar-2009
 Post-History: 
-
 
 Abstract
 ========
@@ -168,7 +169,7 @@ trivial.
 
 Because we let the initial seeders recalculate the hash tree, this
 extension is incompatible with the proposed HTTP Seeding extensions in
-BEP 17 and 19 [#BEP-17]_,[#BEP-19]_.
+BEP 17 [#BEP-17]_ and 19 [#BEP-19]_ .
 
 Including the root hash in a ``Tr_hashpiece`` message allows a quick sanity
 check.
@@ -182,10 +183,12 @@ Acknowledgements
 ================
 
 Development of this extension was supported by funding from:
- - BSIK Freeband Communication I-Share project (Dutch Ministry of Economic 
+
+ * BSIK Freeband Communication I-Share project (Dutch Ministry of Economic 
    Affairs)
- - The European Community's Seventh Framework Programme in the P2P-Next 
+ * The European Community's Seventh Framework Programme in the P2P-Next 
    project under grant agreement no 216217.
+
 Thanks to Olaf van der Spek and Johan Pouwelse for ideas and suggestions.
 
 

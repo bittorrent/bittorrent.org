@@ -38,9 +38,9 @@
 </tr>
 <tr class="field"><th class="field-name">Title:</th><td class="field-body">Merkle hash torrent extension</td>
 </tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body">11170</td>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">11173</td>
 </tr>
-<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0030.rst">2009-08-26 17:22:08 -0700 (Wed, 26 Aug 2009)</a></td>
+<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0030.rst">2009-08-28 11:30:47 -0700 (Fri, 28 Aug 2009)</a></td>
 </tr>
 <tr class="field"><th class="field-name">Author:</th><td class="field-body">Arno Bakker &lt;arno&#32;&#97;t&#32;cs.vu.nl&gt;</td>
 </tr>
@@ -99,7 +99,7 @@ Merkle hash tree, hence the name.</p>
 protocol and clients very much. The design is backwards compatible in the
 sense that clients supporting the Simple Merkle Hash extension can still be
 made to process regular torrent files easily.</p>
-<p>&gt;From the content we construct as hash tree as follows. Given a piece size,
+<p>&gt;From the content we construct a hash tree as follows. Given a piece size,
 we calculate the hashes of all the pieces in the set of content files. Next,
 we create a binary tree of sufficient height. Sufficient height means that the
 lowest level in the tree has enough nodes to hold all piece hashes in the set.
@@ -165,7 +165,7 @@ using the hash value of the <tt class="docutils literal"><span class="pre">info<
 support the Extension protocol (BEP 10) <a class="footnote-reference" href="#bep-10" id="id3">[3]</a>. In particular, it must add
 a  <tt class="docutils literal"><span class="pre">Tr_hashpiece</span></tt> message name in the <tt class="docutils literal"><span class="pre">m</span></tt> field of the Extension
 protocol's handshake message. Such a client must not send <tt class="docutils literal"><span class="pre">piece</span></tt> messages
-but must use Extension protocol messages with type {tt Tr_hashpiece} to send
+but must use Extension protocol messages with type <tt class="docutils literal"><span class="pre">Tr_hashpiece</span></tt> to send
 pieces.</p>
 <p>A <tt class="docutils literal"><span class="pre">Tr_hashpiece</span></tt> message consists of an index, begin, hashlist and piece.
 The hashlist consists of the piece's own hash, the piece's sibling hash, and

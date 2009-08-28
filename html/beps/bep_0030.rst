@@ -44,7 +44,7 @@ protocol and clients very much. The design is backwards compatible in the
 sense that clients supporting the Simple Merkle Hash extension can still be
 made to process regular torrent files easily. 
 
->From the content we construct as hash tree as follows. Given a piece size,
+>From the content we construct a hash tree as follows. Given a piece size,
 we calculate the hashes of all the pieces in the set of content files. Next,
 we create a binary tree of sufficient height. Sufficient height means that the
 lowest level in the tree has enough nodes to hold all piece hashes in the set.
@@ -116,7 +116,7 @@ A BitTorrent client that supports the Simple Merkle Hash extension must also
 support the Extension protocol (BEP 10) [#BEP-10]_. In particular, it must add
 a  ``Tr_hashpiece`` message name in the ``m`` field of the Extension 
 protocol's handshake message. Such a client must not send ``piece`` messages 
-but must use Extension protocol messages with type {\tt Tr_hashpiece} to send
+but must use Extension protocol messages with type ``Tr_hashpiece`` to send
 pieces.
 
 A ``Tr_hashpiece`` message consists of an index, begin, hashlist and piece. 

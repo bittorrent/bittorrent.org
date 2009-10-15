@@ -7,7 +7,7 @@ Status:  Draft
 Type:    Standards Track
 Content-Type: text/x-rst
 Created: 26-Nov-2008
-Post-History:
+Post-History: 15-Oct-2009: Add a section on not hammering bad trackers
 
 Tracker exchange extension
 ==========================
@@ -123,6 +123,16 @@ of strings. Each string is the url of a tracker that was added since the last up
 example message::
 
 	{ 'added': ['http://tracker.bittorrent.com/announce', 'http://tracker2.bittorrent.com'] }
+
+trackers
+========
+
+Trackers discovered through this protocol SHOULD be treated with a certain amount of
+suspicion. Since the source of a tracker exchange message cannot be trusted, an
+implementation SHOULD have a lower number of retries before giving up entirely.
+
+Also, as specified under the definitions_ section, a tracker that has not worked
+should never be propagated to other peers over the tracker exchange protocol.
 
 
 

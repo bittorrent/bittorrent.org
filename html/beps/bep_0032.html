@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.5: http://docutils.sourceforge.net/" />
+<title></title>
+<link rel="stylesheet" href="../css/bep.css" type="text/css" />
+</head>
+<body>
+<div class="document">
+
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="../index.html">BitTorrent<span>.org</span></a></h1>
+</div>
+<div id="nav">
+<ul>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../introduction.html">For Users</a></li>
+<li><a href="bep_0000.html"><span>For Developers</span></a></li>
+<!-- <li><a href="./blog">Blog</a></li> -->
+<li><a href="http://forum.bittorrent.org"> Forums </li>
+<li><a href="../donate.html">Donate!</a></li>
+</ul>
+</div> <!-- nav -->
+<!-- ### Begin Content ### -->
+<div id="second">
+
+
+
+<table class="rfc2822 docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">BEP:</th><td class="field-body">32</td>
+</tr>
+<tr class="field"><th class="field-name">Title:</th><td class="field-body">BitTorrent DHT Extensions for IPv6</td>
+</tr>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">11178</td>
+</tr>
+<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0032.rst">2009-10-15 21:57:32 +0000 (Thu, 15 Oct 2009)</a></td>
+</tr>
+<tr class="field"><th class="field-name">Author:</th><td class="field-body">Juliusz Chroboczek &lt;jch&#32;&#97;t&#32;pps.jussieu.fr&gt;</td>
+</tr>
+<tr class="field"><th class="field-name">Status:</th><td class="field-body">Draft</td>
+</tr>
+<tr class="field"><th class="field-name">Type:</th><td class="field-body">Standards Track</td>
+</tr>
+<tr class="field"><th class="field-name">Requires:</th><td class="field-body"><a class="reference external" href="http://www.bittorrent.org/beps/bep-0005">5</a></td>
+</tr>
+<tr class="field"><th class="field-name">Content-Type:</th><td class="field-body"><a class="reference external" href="http://www.bittorrent.org/beps/bep-0012">text/x-rst</a></td>
+</tr>
+<tr class="field"><th class="field-name">Created:</th><td class="field-body">14-Oct-2009</td>
+</tr>
+<tr class="field"><th class="field-name">Post-History:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#abstract" id="id2">Abstract</a></li>
+<li><a class="reference internal" href="#introduction" id="id3">Introduction</a></li>
+<li><a class="reference internal" href="#operation" id="id4">Operation</a><ul>
+<li><a class="reference internal" href="#single-protocol-nodes" id="id5">Single-protocol nodes</a></li>
+<li><a class="reference internal" href="#double-stack-nodes" id="id6">Double-stack nodes</a><ul>
+<li><a class="reference internal" href="#bootstrapping" id="id7">Bootstrapping</a></li>
+<li><a class="reference internal" href="#stationary-operation" id="id8">Stationary operation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#changes-and-extensions-to-existing-messages" id="id9">Changes and extensions to existing messages</a><ul>
+<li><a class="reference internal" href="#new-parameters" id="id10">New parameters</a><ul>
+<li><a class="reference internal" href="#nodes6" id="id11">nodes6</a></li>
+<li><a class="reference internal" href="#values6" id="id12">values6</a></li>
+<li><a class="reference internal" href="#want" id="id13">want</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#changes-to-message-semantics" id="id14">Changes to message semantics</a><ul>
+<li><a class="reference internal" href="#find-nodes-and-get-peers" id="id15">find_nodes and get_peers</a></li>
+<li><a class="reference internal" href="#announce-peers" id="id16">announce_peers</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#acknowledgements" id="id17">Acknowledgements</a></li>
+<li><a class="reference internal" href="#references" id="id18">References</a></li>
+<li><a class="reference internal" href="#copyright" id="id19">Copyright</a></li>
+</ul>
+</div>
+<div class="section" id="abstract">
+<h1>Abstract</h1>
+<p>This proposal describes a set of extensions to the BitTorrent DHT <a class="footnote-reference" href="#bep-5" id="id1">[1]</a>
+to allow operation over IPv6.</p>
+<p><strong>This is a very early draft</strong>, and not suitable for implementation.  Yet.</p>
+</div>
+<div class="section" id="introduction">
+<h1>Introduction</h1>
+<p>The address exhaustion of the IPv4 Internet, and the coincident deployment
+of Network Address Translation (NAT) devices, severely limits the
+performance of the BitTorrent protocol by making an increasing number of
+peers unreachable.  The simple and efficient solution to this problem is to
+deploy BitTorrent over the IPv6 protocol, which does not suffer from
+address exhaustion.</p>
+<p>A number of extensions (mostly undocumented) to the BitTorrent protocol
+have been defined in order to allow it to operate over IPv6.
+Unfortunately, these extensions only allow locating IPv6 peers by using
+trackers or through peer exchange -- but not from the DHT.  This document
+describes the procedures and message formats needed to deploy an IPv6
+version of the BitTorrent DHT.</p>
+<p>The extension described in this document also solves a long-standing issue
+with the protocol defined in BEP-5, and does so without endangering
+compatibility.  When a get_peers request is sent with an explicit request
+for an address family, the presence of contact information in the reply is
+no longer governed by the presence of a &quot;values&quot; key; this avoids the
+well-known problem of contact information being masked by peer information.</p>
+</div>
+<div class="section" id="operation">
+<h1>Operation</h1>
+<p>There are two distinct DHTs: the existing IPv4 DHT, and the new IPv6 DHT.</p>
+<p>The two DHTs are independent, meaning that no IPv6 data is stored in the
+IPv4 DHT, and, conversely, no IPv4 data is stored in the IPv6 DHT.  A node
+wishing to participate in both DHTs must maintain two distinct routing
+tables, one for IPv4 and one for IPv6.  A node may choose to use the same
+node id in both tables, or distinct node ids.</p>
+<p>Most KRPC messages have the same semantics when carried over IPv4 and IPv6.
+In particular, no IPv6 addresses are ever carried in the existing &quot;nodes&quot;
+and &quot;peers&quot; keys of KRPC messages -- instead, new keys &quot;nodes6&quot; and
+&quot;peers6&quot; are defined.</p>
+<p>By default, messages only carry data in the address family implied by the
+network layer protocol.  In the case of the &quot;nodes&quot; and &quot;nodes6&quot; arguments
+in replies to the find_nodes and get_peers requests, however, the requestor
+may request that the reply contain &quot;nodes&quot;, &quot;nodes6&quot; or both fields.</p>
+<div class="section" id="single-protocol-nodes">
+<h2>Single-protocol nodes</h2>
+<p>A single-protocol node (IPv4 or IPv6) only participates in one DHT.  Such
+a node does not need to explicitly request data in a given family -- the
+data provided by default is sufficient.</p>
+</div>
+<div class="section" id="double-stack-nodes">
+<h2>Double-stack nodes</h2>
+<p>While conceptually equivalent to a pair of single-protocol nodes,
+a double-stack (IPv4 and IPv6) node can make use of a number of features of
+the protocol to make its operation more efficient and to generally improve
+the reliability of the DHT.</p>
+<div class="section" id="bootstrapping">
+<h3>Bootstrapping</h3>
+<p>A double-stack node that is bootstrapping its DHT will send find_nodes
+requests in order to populate its routing tables.  In order to accelerate
+this process, it should request both &quot;nodes&quot; and &quot;nodes6&quot; fields.</p>
+</div>
+<div class="section" id="stationary-operation">
+<h3>Stationary operation</h3>
+<p>Once bootstrap is successful, a node should not request data in both
+address families; it should only request &quot;nodes&quot; replies from IPv4 nodes,
+and &quot;nodes6&quot; replies from IPv6 nodes.  Requesting both address families is
+unlikely to provide any useful information, and unnecessarily increases
+network traffic.</p>
+<p>In order to increase the reliability of the DHT after a single-protocol
+network outage, a node may <em>ocasionally</em> send a request for &quot;nodes&quot; to an
+IPv6 node, or a request for &quot;nodes6&quot; to an IPv4 node.</p>
+</div>
+</div>
+</div>
+<div class="section" id="changes-and-extensions-to-existing-messages">
+<h1>Changes and extensions to existing messages</h1>
+<div class="section" id="new-parameters">
+<h2>New parameters</h2>
+<div class="section" id="nodes6">
+<h3>nodes6</h3>
+<p>The &quot;nodes6&quot; parameter is allowed in replies to the find_nodes and
+get_peers messages.  When present, it carries a string containing the
+compact IPv6 node info for the 8 closest good nodes in the sending node's
+IPv6 routing table.</p>
+</div>
+<div class="section" id="values6">
+<h3>values6</h3>
+<p>The &quot;values6&quot; parameter is allowed in replies to the get_peers message
+being sent over IPv6.  Its value is a list of strings, each of which
+contains compact format IPv6 contact information for a single peer.</p>
+</div>
+<div class="section" id="want">
+<h3>want</h3>
+<p>The &quot;want&quot; parameter is allowed in the find_nodes and get_peers requests,
+and governs the presence or absence of the &quot;nodes&quot; and &quot;nodes6&quot; parameters
+in the requested reply.  Its value is a string of one or more characters,
+which may include</p>
+<blockquote>
+<ul class="simple">
+<li>&quot;4&quot;: the node requests the presence of a &quot;nodes&quot; key;</li>
+<li>&quot;6&quot;: the node requests the presence of a &quot;nodes6&quot; key.</li>
+</ul>
+</blockquote>
+<p>For future extensibility, other characters may be present in the string,
+and must be silently ignored on reception.</p>
+</div>
+</div>
+<div class="section" id="changes-to-message-semantics">
+<h2>Changes to message semantics</h2>
+<div class="section" id="find-nodes-and-get-peers">
+<h3>find_nodes and get_peers</h3>
+<p>A node sending a find_nodes or get_peers request should include a &quot;want&quot;
+parameter containing one or both of the characters &quot;4&quot; or &quot;6&quot;.  A node
+replying to a find_nodes or get_peers request must include a &quot;nodes&quot;
+parameter if the request's &quot;want&quot; parameter included a &quot;4&quot;, and a &quot;nodes6&quot;
+parameter if the request's &quot;want&quot; parameter included a &quot;6&quot;.</p>
+<p>In the absence of a &quot;want&quot; parameter, the behaviour of the replying node is
+more involved.  For a reply to a find_nodes request, the node should
+include &quot;nodes&quot; if the request was sent over IPv4, and include &quot;nodes6&quot; if
+the request was sent over IPv6.</p>
+<p>For a get_peers request with no &quot;want&quot; parameter, value should only be
+included if there is no &quot;values&quot; or &quot;values6&quot; parameter.  If no &quot;values&quot; or
+&quot;values6&quot; parameter is being sent, the presence of &quot;nodes&quot; or &quot;nodes6&quot; is
+governed by the network-layer protocol of the request, as above.</p>
+<blockquote>
+<strong>Rationale</strong>: it has been suggested that the reply to a get_peers
+request should always include a &quot;nodes&quot; or &quot;nodes6&quot; parameter,
+independently of the presence of a &quot;values&quot; or &quot;values6&quot; parameter.
+While this is clearly a better semantics, it is not backward-compatible,
+and it is not known whether it breaks any deployed implementations.</blockquote>
+<p>When a node receives a get_peers request and it has contact information for
+the matching address family and info-hash, it should include either
+a &quot;values&quot; parameter (if the request was sent over IPv4) or a &quot;values6&quot;
+parameter in the reply.</p>
+<p>A reply sent over IPv4 must not contain a &quot;values6&quot; parameter, and a reply
+sent over IPv6 must not contain a &quot;values&quot; parameter.  In other words, the
+&quot;want&quot; parameter only governs the presence of the &quot;nodes&quot; and &quot;nodes6&quot;
+parameters.</p>
+</div>
+<div class="section" id="announce-peers">
+<h3>announce_peers</h3>
+<p>The syntax of the announce_peers request and reply are unchanged.  This
+implies that an announce_peers request sent over IPv4 may only advertise an
+IPv4 address, and an announce_peers request sent over IPv6 may only
+advertise an IPv6 address.</p>
+</div>
+</div>
+</div>
+<div class="section" id="acknowledgements">
+<h1>Acknowledgements</h1>
+<p>I gratefully acknowledge the influence of <em>The 8472</em> over this work.</p>
+</div>
+<div class="section" id="references">
+<h1>References</h1>
+<table class="docutils footnote" frame="void" id="bep-5" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>BEP_0005.  DHT Protocol.
+(<a class="reference external" href="http://www.bittorrent.org/beps/bep_0005.html">http://www.bittorrent.org/beps/bep_0005.html</a>)</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="copyright">
+<h1>Copyright</h1>
+<p>This document has been placed in the public domain.</p>
+<!-- Local Variables:
+mode: indented-text
+indent-tabs-mode: nil
+sentence-end-double-space: t
+fill-column: 70
+coding: utf-8
+End: -->
+</div>
+
+
+</div>
+	<div id="footer">
+<hr/>
+</div>
+
+</div>
+</body>
+</html>

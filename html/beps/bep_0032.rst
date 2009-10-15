@@ -1,0 +1,224 @@
+BEP: 32
+Title: BitTorrent DHT Extensions for IPv6
+Version: $Revision$
+Last-Modified: $Date$
+Author:  Juliusz Chroboczek <jch@pps.jussieu.fr>
+Status:  Draft
+Type:    Standards Track
+Requires: 5
+Content-Type: text/x-rst
+Created: 14-Oct-2009
+Post-History: 
+
+
+Abstract
+========
+
+This proposal describes a set of extensions to the BitTorrent DHT [#BEP-5]_
+to allow operation over IPv6.
+
+**This is a very early draft**, and not suitable for implementation.  Yet.
+
+
+Introduction
+============
+
+The address exhaustion of the IPv4 Internet, and the coincident deployment
+of Network Address Translation (NAT) devices, severely limits the
+performance of the BitTorrent protocol by making an increasing number of
+peers unreachable.  The simple and efficient solution to this problem is to
+deploy BitTorrent over the IPv6 protocol, which does not suffer from
+address exhaustion.
+
+A number of extensions (mostly undocumented) to the BitTorrent protocol
+have been defined in order to allow it to operate over IPv6.
+Unfortunately, these extensions only allow locating IPv6 peers by using
+trackers or through peer exchange -- but not from the DHT.  This document
+describes the procedures and message formats needed to deploy an IPv6
+version of the BitTorrent DHT.
+
+The extension described in this document also solves a long-standing issue
+with the protocol defined in BEP-5, and does so without endangering
+compatibility.  When a get_peers request is sent with an explicit request
+for an address family, the presence of contact information in the reply is
+no longer governed by the presence of a "values" key; this avoids the
+well-known problem of contact information being masked by peer information.
+
+
+Operation
+=========
+
+There are two distinct DHTs: the existing IPv4 DHT, and the new IPv6 DHT.
+
+The two DHTs are independent, meaning that no IPv6 data is stored in the
+IPv4 DHT, and, conversely, no IPv4 data is stored in the IPv6 DHT.  A node
+wishing to participate in both DHTs must maintain two distinct routing
+tables, one for IPv4 and one for IPv6.  A node may choose to use the same
+node id in both tables, or distinct node ids.
+
+Most KRPC messages have the same semantics when carried over IPv4 and IPv6.
+In particular, no IPv6 addresses are ever carried in the existing "nodes"
+and "peers" keys of KRPC messages -- instead, new keys "nodes6" and
+"peers6" are defined.
+
+By default, messages only carry data in the address family implied by the
+network layer protocol.  In the case of the "nodes" and "nodes6" arguments
+in replies to the find_nodes and get_peers requests, however, the requestor
+may request that the reply contain "nodes", "nodes6" or both fields.
+
+
+Single-protocol nodes
+---------------------
+
+A single-protocol node (IPv4 or IPv6) only participates in one DHT.  Such
+a node does not need to explicitly request data in a given family -- the
+data provided by default is sufficient.
+
+
+Double-stack nodes
+------------------
+
+While conceptually equivalent to a pair of single-protocol nodes,
+a double-stack (IPv4 and IPv6) node can make use of a number of features of
+the protocol to make its operation more efficient and to generally improve
+the reliability of the DHT.
+
+
+Bootstrapping
+'''''''''''''
+
+A double-stack node that is bootstrapping its DHT will send find_nodes
+requests in order to populate its routing tables.  In order to accelerate
+this process, it should request both "nodes" and "nodes6" fields.
+
+
+Stationary operation
+''''''''''''''''''''
+
+Once bootstrap is successful, a node should not request data in both
+address families; it should only request "nodes" replies from IPv4 nodes,
+and "nodes6" replies from IPv6 nodes.  Requesting both address families is
+unlikely to provide any useful information, and unnecessarily increases
+network traffic.
+
+In order to increase the reliability of the DHT after a single-protocol
+network outage, a node may *ocasionally* send a request for "nodes" to an
+IPv6 node, or a request for "nodes6" to an IPv4 node.
+
+
+Changes and extensions to existing messages
+===========================================
+
+New parameters
+--------------
+
+nodes6
+''''''
+
+The "nodes6" parameter is allowed in replies to the find_nodes and
+get_peers messages.  When present, it carries a string containing the
+compact IPv6 node info for the 8 closest good nodes in the sending node's
+IPv6 routing table.
+
+
+values6
+'''''''
+
+The "values6" parameter is allowed in replies to the get_peers message
+being sent over IPv6.  Its value is a list of strings, each of which
+contains compact format IPv6 contact information for a single peer.
+
+
+want
+''''
+
+The "want" parameter is allowed in the find_nodes and get_peers requests,
+and governs the presence or absence of the "nodes" and "nodes6" parameters
+in the requested reply.  Its value is a string of one or more characters,
+which may include
+
+  * "4": the node requests the presence of a "nodes" key;
+
+  * "6": the node requests the presence of a "nodes6" key.
+
+For future extensibility, other characters may be present in the string,
+and must be silently ignored on reception.
+
+
+Changes to message semantics
+----------------------------
+
+find_nodes and get_peers
+''''''''''''''''''''''''
+
+A node sending a find_nodes or get_peers request should include a "want"
+parameter containing one or both of the characters "4" or "6".  A node
+replying to a find_nodes or get_peers request must include a "nodes"
+parameter if the request's "want" parameter included a "4", and a "nodes6"
+parameter if the request's "want" parameter included a "6".
+
+In the absence of a "want" parameter, the behaviour of the replying node is
+more involved.  For a reply to a find_nodes request, the node should
+include "nodes" if the request was sent over IPv4, and include "nodes6" if
+the request was sent over IPv6.
+
+For a get_peers request with no "want" parameter, value should only be
+included if there is no "values" or "values6" parameter.  If no "values" or
+"values6" parameter is being sent, the presence of "nodes" or "nodes6" is
+governed by the network-layer protocol of the request, as above.
+
+   **Rationale**: it has been suggested that the reply to a get_peers
+   request should always include a "nodes" or "nodes6" parameter,
+   independently of the presence of a "values" or "values6" parameter.
+   While this is clearly a better semantics, it is not backward-compatible,
+   and it is not known whether it breaks any deployed implementations.
+
+When a node receives a get_peers request and it has contact information for
+the matching address family and info-hash, it should include either
+a "values" parameter (if the request was sent over IPv4) or a "values6"
+parameter in the reply.
+
+A reply sent over IPv4 must not contain a "values6" parameter, and a reply
+sent over IPv6 must not contain a "values" parameter.  In other words, the
+"want" parameter only governs the presence of the "nodes" and "nodes6"
+parameters.
+
+
+announce_peers
+''''''''''''''
+
+The syntax of the announce_peers request and reply are unchanged.  This
+implies that an announce_peers request sent over IPv4 may only advertise an
+IPv4 address, and an announce_peers request sent over IPv6 may only
+advertise an IPv6 address.
+
+
+Acknowledgements
+================
+
+I gratefully acknowledge the influence of *The 8472* over this work.
+
+
+References
+==========
+
+.. [#BEP-5] BEP_0005.  DHT Protocol.
+   (http://www.bittorrent.org/beps/bep_0005.html)
+
+
+
+Copyright
+=========
+
+This document has been placed in the public domain.
+
+
+..
+   Local Variables:
+   mode: indented-text
+   indent-tabs-mode: nil
+   sentence-end-double-space: t
+   fill-column: 70
+   coding: utf-8
+   End:
+

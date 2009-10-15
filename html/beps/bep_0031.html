@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.5: http://docutils.sourceforge.net/" />
+<title></title>
+<link rel="stylesheet" href="../css/bep.css" type="text/css" />
+</head>
+<body>
+<div class="document">
+
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="../index.html">BitTorrent<span>.org</span></a></h1>
+</div>
+<div id="nav">
+<ul>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../introduction.html">For Users</a></li>
+<li><a href="bep_0000.html"><span>For Developers</span></a></li>
+<!-- <li><a href="./blog">Blog</a></li> -->
+<li><a href="http://forum.bittorrent.org"> Forums </li>
+<li><a href="../donate.html">Donate!</a></li>
+</ul>
+</div> <!-- nav -->
+<!-- ### Begin Content ### -->
+<div id="second">
+
+
+
+<table class="rfc2822 docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">BEP:</th><td class="field-body">31</td>
+</tr>
+<tr class="field"><th class="field-name">Title:</th><td class="field-body">Failure Retry Extension</td>
+</tr>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">11176</td>
+</tr>
+<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0031.rst">2009-10-15 19:34:11 +0000 (Thu, 15 Oct 2009)</a></td>
+</tr>
+<tr class="field"><th class="field-name">Author:</th><td class="field-body">Jeroen Massar &lt;jeroen&#32;&#97;t&#32;unfix.org&gt;</td>
+</tr>
+<tr class="field"><th class="field-name">Status:</th><td class="field-body">Draft</td>
+</tr>
+<tr class="field"><th class="field-name">Type:</th><td class="field-body">Standards Track</td>
+</tr>
+<tr class="field"><th class="field-name">Content-Type:</th><td class="field-body"><a class="reference external" href="http://www.bittorrent.org/beps/bep-0012">text/x-rst</a></td>
+</tr>
+<tr class="field"><th class="field-name">Created:</th><td class="field-body">15-Oct-2009</td>
+</tr>
+<tr class="field"><th class="field-name">Post-History:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#abstract" id="id3">Abstract</a></li>
+<li><a class="reference internal" href="#rationale" id="id4">Rationale</a></li>
+<li><a class="reference internal" href="#retry-in-extension-to-failure-reason" id="id5">&quot;retry in&quot; extension to &quot;failure reason&quot;</a></li>
+<li><a class="reference internal" href="#examples" id="id6">Examples</a></li>
+<li><a class="reference internal" href="#references" id="id7">References</a></li>
+<li><a class="reference internal" href="#copyright" id="id8">Copyright</a></li>
+</ul>
+</div>
+<div class="section" id="abstract">
+<h1>Abstract</h1>
+<p>This BEP provides a simple backward compatible extension for the
+BitTorrent Tracker Protocol (<a class="reference external" href="http://www.bittorrent.org/beps/bep_0003.html">BEP 0003</a> <a class="footnote-reference" href="#id1" id="id2">[1]</a>) to provide a client with
+more details on a failure, specifying if a failure is permanent or
+temporary and when the request can be repeated.</p>
+</div>
+<div class="section" id="rationale">
+<h1>Rationale</h1>
+<p>There have been resported cases where (un)intentionally the tracker
+locations (hostnames and their resolved IP addresses, or IP addresses)
+where actually not BitTorrent Trackers. When this happens the HTTP
+server that is living at those addresses will receive a large amount
+of /announce and /scrape requests which it cannot fulfull as there
+is no BitTorrent Tracker present at that webserver. Most BitTorrent
+clients do not check the HTTP errorcodes provided by the server and
+this thus makes them ignore 404 (File Not Found), which is the general
+case when the server is not supposed to be used as a tracker. Clients
+then keep on retrying forever till the user finally gives up.</p>
+<p>With a large enough number of clients this might overwhelm the
+webserver from serving the content that it is really supposed to
+perform.</p>
+<p>Clients though might not want to parse the 404 or any other error
+code as the developers of which claim that the 404 might be temporary
+and that keeping retrying is more important.</p>
+<p>This proposal addresses this problem by defining a BitTorrent Tracker
+response &quot;retry in&quot; which allows site owners to return a static
+response for /announce and /scrape telling the client that this server
+is permanently not acting as a tracker, thus making the client never
+return. The user/client can then also inform the source of the
+.torrent specifying the faulty tracker that the tracker is not a
+tracker.</p>
+<p>This error message can also be used to specify to a client that it
+should retry its request after a certain amount of time. This allows
+a overwhelmed tracker to distribute load a little bit.</p>
+</div>
+<div class="section" id="retry-in-extension-to-failure-reason">
+<h1>&quot;retry in&quot; extension to &quot;failure reason&quot;</h1>
+<p>The permanent failure error consists of a bencoded &quot;failure reason&quot;,
+which contains the reason and is backward compatible to clients
+which don't support this extension.</p>
+<p>The new field &quot;retry in&quot; specifies the number of minutes in which
+a retry can be done for this tracker. This field is either a positive
+integer or the value &quot;never&quot;. The latter specifies that the client
+should never send this query again.</p>
+</div>
+<div class="section" id="examples">
+<h1>Examples</h1>
+<p>(PHP style)</p>
+<p>Return that the server is overloaded:</p>
+<pre class="literal-block">
+&lt;?php
+bencode(array(
+        &quot;failure reason&quot;        =&gt; &quot;Overloaded&quot;,
+        &quot;retry in&quot;              =&gt; &quot;5&quot;
+        ));
+?&gt;
+</pre>
+<p>Return that the server is not a tracker:</p>
+<pre class="literal-block">
+&lt;?php
+bencode(array(
+        &quot;failure reason&quot;        =&gt; &quot;Not a tracker&quot;,
+        &quot;retry in&quot;              =&gt; &quot;never&quot;
+        ));
+?&gt;
+</pre>
+<p>The result of both can be stored in static files and 'cheaply'
+served by webservers, firewalls or loadbalancers.</p>
+</div>
+<div class="section" id="references">
+<h1>References</h1>
+<table class="docutils footnote" frame="void" id="id1" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[1]</a></td><td><a class="reference external" href="http://www.bittorrent.org/beps/bep_0003.html">http://www.bittorrent.org/beps/bep_0003.html</a></td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="copyright">
+<h1>Copyright</h1>
+<p>This document has been placed in the public domain.</p>
+<!-- Local Variables:
+mode: indented-text
+indent-tabs-mode: nil
+sentence-end-double-space: t
+fill-column: 70
+coding: utf-8
+End: -->
+</div>
+
+
+</div>
+	<div id="footer">
+<hr/>
+</div>
+
+</div>
+</body>
+</html>

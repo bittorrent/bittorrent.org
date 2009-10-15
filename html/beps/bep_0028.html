@@ -38,9 +38,9 @@
 </tr>
 <tr class="field"><th class="field-name">Title:</th><td class="field-body">Tracker exchange extension</td>
 </tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body">11156</td>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">11180</td>
 </tr>
-<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0028.rst">2009-06-22 14:33:09 -0700 (Mon, 22 Jun 2009)</a></td>
+<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0028.rst">2009-10-15 23:29:02 +0000 (Thu, 15 Oct 2009)</a></td>
 </tr>
 <tr class="field"><th class="field-name">Author:</th><td class="field-body">Arvid Norberg &lt;arvid&#32;&#97;t&#32;bittorrent.com&gt;</td>
 </tr>
@@ -48,11 +48,11 @@
 </tr>
 <tr class="field"><th class="field-name">Type:</th><td class="field-body">Standards Track</td>
 </tr>
-<tr class="field"><th class="field-name">Content-Type:</th><td class="field-body"><a class="reference" href="http://www.bittorrent.org/beps/bep-0012">text/x-rst</a></td>
+<tr class="field"><th class="field-name">Content-Type:</th><td class="field-body"><a class="reference external" href="http://www.bittorrent.org/beps/bep-0012">text/x-rst</a></td>
 </tr>
 <tr class="field"><th class="field-name">Created:</th><td class="field-body">26-Nov-2008</td>
 </tr>
-<tr class="field"><th class="field-name">Post-History:</th><td class="field-body"></td>
+<tr class="field"><th class="field-name">Post-History:</th><td class="field-body">15-Oct-2009: Add a section on not hammering bad trackers</td>
 </tr>
 </tbody>
 </table>
@@ -60,14 +60,15 @@
 <div class="contents topic" id="contents">
 <p class="topic-title first">Contents</p>
 <ul class="simple">
-<li><a class="reference" href="#tracker-exchange-extension" id="id8">Tracker exchange extension</a><ul>
-<li><a class="reference" href="#rationale" id="id9">rationale</a></li>
+<li><a class="reference internal" href="#tracker-exchange-extension" id="id8">Tracker exchange extension</a><ul>
+<li><a class="reference internal" href="#rationale" id="id9">rationale</a></li>
 </ul>
 </li>
-<li><a class="reference" href="#definitions" id="id10">definitions</a></li>
-<li><a class="reference" href="#extension-header" id="id11">extension header</a></li>
-<li><a class="reference" href="#extension-message" id="id12">extension message</a></li>
-<li><a class="reference" href="#id1" id="id13">References</a></li>
+<li><a class="reference internal" href="#definitions" id="id10">definitions</a></li>
+<li><a class="reference internal" href="#extension-header" id="id11">extension header</a></li>
+<li><a class="reference internal" href="#extension-message" id="id12">extension message</a></li>
+<li><a class="reference internal" href="#trackers" id="id13">trackers</a></li>
+<li><a class="reference internal" href="#id1" id="id14">References</a></li>
 </ul>
 </div>
 <div class="section" id="tracker-exchange-extension">
@@ -80,7 +81,7 @@ knowing about every tracker used for the torrent.</p>
 <p>There are mainly two scenarios where it's desirable for a peer to learn
 about trackers that other peers are using:</p>
 <ol class="arabic simple">
-<li>If the peer joined the swarm via a magnet link (<a class="reference" href="http://www.bittorrent.org/beps/bep_0009.html">BEP 9</a> <a class="footnote-reference" href="#id2" id="id3">[1]</a>), bootstrapping
+<li>If the peer joined the swarm via a magnet link (<a class="reference external" href="http://www.bittorrent.org/beps/bep_0009.html">BEP 9</a> <a class="footnote-reference" href="#id2" id="id3">[1]</a>), bootstrapping
 by joining peers from the DHT. The number of peers that's accessable might
 not be sufficient. Announcing with a tracker could make a significant
 difference for the peer, receiving more peers.</li>
@@ -116,7 +117,7 @@ connecting, the first extension message SHOULD only contain added trackers.</p>
 <div class="section" id="extension-header">
 <h1>extension header</h1>
 <p>The tracker exchange extension (TEX for short) uses the extension protocol
-(specified in <a class="reference" href="http://www.bittorrent.org/beps/bep_0010.html">BEP 10</a> <a class="footnote-reference" href="#id4" id="id5">[2]</a>) to advertize support. It adds the &quot;lt_tex&quot; entry
+(specified in <a class="reference external" href="http://www.bittorrent.org/beps/bep_0010.html">BEP 10</a> <a class="footnote-reference" href="#id4" id="id5">[2]</a>) to advertize support. It adds the &quot;lt_tex&quot; entry
 to the &quot;m&quot; dictionary in the extension header hand-shake message. This identifies
 the message code used for this message. It also adds &quot;tr&quot; to the handshake message
 specifying a hash of the current tracker list this peer has for this torrent.</p>
@@ -133,7 +134,7 @@ string here for clarity. It is always supposed to be 20 bytes.</p>
 <li>the protocol part (before the '://') is made lower case</li>
 <li>the hostname is made lower case</li>
 <li>the path and argument components are quote-normalized. Any %-encoding
-that decodes into an <tt class="docutils literal"><span class="pre">unreserved</span></tt> character (as defined by <a class="reference" href="http://www.ietf.org/rfc/rfc2396.txt">RFC 2396</a> <a class="footnote-reference" href="#id6" id="id7">[3]</a>)
+that decodes into an <tt class="docutils literal"><span class="pre">unreserved</span></tt> character (as defined by <a class="reference external" href="http://www.ietf.org/rfc/rfc2396.txt">RFC 2396</a> <a class="footnote-reference" href="#id6" id="id7">[3]</a>)
 should be decoded. Any remaining encoded characters should use lower case
 hex encoding. i.e. <tt class="docutils literal"><span class="pre">%ff</span></tt> instead of <tt class="docutils literal"><span class="pre">%FF</span></tt></li>
 </ol>
@@ -163,6 +164,14 @@ of strings. Each string is the url of a tracker that was added since the last up
 <pre class="literal-block">
 { 'added': ['http://tracker.bittorrent.com/announce', 'http://tracker2.bittorrent.com'] }
 </pre>
+</div>
+<div class="section" id="trackers">
+<h1>trackers</h1>
+<p>Trackers discovered through this protocol SHOULD be treated with a certain amount of
+suspicion. Since the source of a tracker exchange message cannot be trusted, an
+implementation SHOULD have a lower number of retries before giving up entirely.</p>
+<p>Also, as specified under the <a class="reference internal" href="#definitions">definitions</a> section, a tracker that has not worked
+should never be propagated to other peers over the tracker exchange protocol.</p>
 <!-- Local Variables:
 mode: indented-text
 indent-tabs-mode: nil
@@ -176,19 +185,19 @@ End: -->
 <table class="docutils footnote" frame="void" id="id2" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id3">[1]</a></td><td><a class="reference" href="http://www.bittorrent.org/beps/bep_0009.html">http://www.bittorrent.org/beps/bep_0009.html</a></td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id3">[1]</a></td><td><a class="reference external" href="http://www.bittorrent.org/beps/bep_0009.html">http://www.bittorrent.org/beps/bep_0009.html</a></td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="id4" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id5">[2]</a></td><td><a class="reference" href="http://www.bittorrent.org/beps/bep_0010.html">http://www.bittorrent.org/beps/bep_0010.html</a></td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id5">[2]</a></td><td><a class="reference external" href="http://www.bittorrent.org/beps/bep_0010.html">http://www.bittorrent.org/beps/bep_0010.html</a></td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="id6" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id7">[3]</a></td><td><a class="reference" href="http://www.ietf.org/rfc/rfc2396.txt">http://www.ietf.org/rfc/rfc2396.txt</a></td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id7">[3]</a></td><td><a class="reference external" href="http://www.ietf.org/rfc/rfc2396.txt">http://www.ietf.org/rfc/rfc2396.txt</a></td></tr>
 </tbody>
 </table>
 </div>

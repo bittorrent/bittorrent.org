@@ -32,7 +32,7 @@ this thus makes them ignore 404 (File Not Found), which is the general
 case when the server is not supposed to be used as a tracker. Clients
 then keep on retrying forever till the user finally gives up.
 
-With a large enough amount of clients this might overwhelm the
+With a large enough number of clients this might overwhelm the
 webserver from serving the content that it is really supposed to
 perform.
 
@@ -59,7 +59,7 @@ The permanent failure error consists of a bencoded "failure reason",
 which contains the reason and is backward compatible to clients
 which don't support this extension.
 
-The new field "retry in" specifies the amount of minutes in which
+The new field "retry in" specifies the number of minutes in which
 a retry can be done for this tracker. This field is either a positive
 integer or the value "never". The latter specifies that the client
 should never send this query again.
@@ -68,21 +68,23 @@ Examples
 ========
 (PHP style)
 
-Return that the server is overloaded:
-<?php
-bencode(array(
-	"failure reason"	=> "Overloaded",
-	"retry in"		=> "5"
-	));
-?>
+Return that the server is overloaded::
 
-Return that the server is not a tracker
-<?php
-bencode(array(
-	"failure reason"	=> "Not a tracker",
-	"retry in"		=> "never"
-	));
-?>
+	<?php
+	bencode(array(
+		"failure reason"	=> "Overloaded",
+		"retry in"		=> "5"
+		));
+	?>
+
+Return that the server is not a tracker::
+
+	<?php
+	bencode(array(
+		"failure reason"	=> "Not a tracker",
+		"retry in"		=> "never"
+		));
+	?>
 
 The result of both can be stored in static files and 'cheaply'
 served by webservers, firewalls or loadbalancers.

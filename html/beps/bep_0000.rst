@@ -78,6 +78,7 @@ Num        Title
 |28|       :raw-html:`<A HREF="bep_0028.html">Tracker exchange</A>`
 |29|       :raw-html:`<A HREF="bep_0029.html">uTorrent transport protocol</A>`
 |30|       :raw-html:`<A HREF="bep_0030.html">Merkle tree torrent extension</A>`
+|31|       :raw-html:`<A HREF="bep_0031.html">Tracker Failure Retry Extension</A>`
 ======     ===================
 
 
@@ -134,4 +135,5 @@ At this time, no BEPs have been rejected.
 .. |28| replace:: :raw-html:`<A HREF="bep_0028.html">28</A>`
 .. |29| replace:: :raw-html:`<A HREF="bep_0029.html">29</A>`
 .. |30| replace:: :raw-html:`<A HREF="bep_0030.html">30</A>`
+.. |31| replace:: :raw-html:`<A HREF="bep_0031.html">31</A>`
 .. |1000| replace:: :raw-html:`<A HREF="bep_1000.html">1000</A>`

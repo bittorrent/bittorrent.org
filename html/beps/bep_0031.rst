@@ -1,0 +1,110 @@
+BEP: 31
+Title: Failure Retry Extension
+Version: $Revision$
+Last-Modified: $Date$
+Author:  Jeroen Massar <jeroen@unfix.org>
+Status:  Draft
+Type:    Standards Track
+Content-Type: text/x-rst
+Created: 15-Oct-2009
+Post-History: 
+
+
+Abstract
+========
+
+This BEP provides a simple backward compatible extension for the
+BitTorrent Tracker Protocol (`BEP 0003`_) to provide a client with
+more details on a failure, specifying if a failure is permanent or
+temporary and when the request can be repeated.
+
+Rationale
+=========
+
+There have been resported cases where (un)intentionally the tracker
+locations (hostnames and their resolved IP addresses, or IP addresses)
+where actually not BitTorrent Trackers. When this happens the HTTP
+server that is living at those addresses will receive a large amount
+of /announce and /scrape requests which it cannot fulfull as there
+is no BitTorrent Tracker present at that webserver. Most BitTorrent
+clients do not check the HTTP errorcodes provided by the server and
+this thus makes them ignore 404 (File Not Found), which is the general
+case when the server is not supposed to be used as a tracker. Clients
+then keep on retrying forever till the user finally gives up.
+
+With a large enough amount of clients this might overwhelm the
+webserver from serving the content that it is really supposed to
+perform.
+
+Clients though might not want to parse the 404 or any other error
+code as the developers of which claim that the 404 might be temporary
+and that keeping retrying is more important.
+
+This proposal addresses this problem by defining a BitTorrent Tracker
+response "retry in" which allows site owners to return a static
+response for /announce and /scrape telling the client that this server
+is permanently not acting as a tracker, thus making the client never
+return. The user/client can then also inform the source of the
+.torrent specifying the faulty tracker that the tracker is not a
+tracker.
+
+This error message can also be used to specify to a client that it
+should retry its request after a certain amount of time. This allows
+a overwhelmed tracker to distribute load a little bit.
+
+"retry in" extension to "failure reason"
+========================================
+
+The permanent failure error consists of a bencoded "failure reason",
+which contains the reason and is backward compatible to clients
+which don't support this extension.
+
+The new field "retry in" specifies the amount of minutes in which
+a retry can be done for this tracker. This field is either a positive
+integer or the value "never". The latter specifies that the client
+should never send this query again.
+
+Examples
+========
+(PHP style)
+
+Return that the server is overloaded:
+<?php
+bencode(array(
+	"failure reason"	=> "Overloaded",
+	"retry in"		=> "5"
+	));
+?>
+
+Return that the server is not a tracker
+<?php
+bencode(array(
+	"failure reason"	=> "Not a tracker",
+	"retry in"		=> "never"
+	));
+?>
+
+The result of both can be stored in static files and 'cheaply'
+served by webservers, firewalls or loadbalancers.
+
+References
+==========
+
+.. _`BEP 0003`: http://www.bittorrent.org/beps/bep_0003.html
+
+Copyright
+=========
+
+This document has been placed in the public domain.
+
+
+
+..
+   Local Variables:
+   mode: indented-text
+   indent-tabs-mode: nil
+   sentence-end-double-space: t
+   fill-column: 70
+   coding: utf-8
+   End:
+

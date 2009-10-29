@@ -38,9 +38,9 @@
 </tr>
 <tr class="field"><th class="field-name">Title:</th><td class="field-body">BitTorrent DHT Extensions for IPv6</td>
 </tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body">11182</td>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">11185</td>
 </tr>
-<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0032.rst">2009-10-16 02:42:16 +0000 (Fri, 16 Oct 2009)</a></td>
+<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0032.rst">2009-10-29 23:46:53 +0000 (Thu, 29 Oct 2009)</a></td>
 </tr>
 <tr class="field"><th class="field-name">Author:</th><td class="field-body">Juliusz Chroboczek &lt;jch&#32;&#97;t&#32;pps.jussieu.fr&gt;</td>
 </tr>
@@ -54,7 +54,7 @@
 </tr>
 <tr class="field"><th class="field-name">Created:</th><td class="field-body">14-Oct-2009</td>
 </tr>
-<tr class="field"><th class="field-name">Post-History:</th><td class="field-body">15-Oct-2009: Promote same ID in IPv6 and IPv4 nodes. Drop values6. Added some rationales</td>
+<tr class="field"><th class="field-name">Post-History:</th><td class="field-body"></td>
 </tr>
 </tbody>
 </table>
@@ -62,44 +62,46 @@
 <div class="contents topic" id="contents">
 <p class="topic-title first">Contents</p>
 <ul class="simple">
-<li><a class="reference internal" href="#abstract" id="id3">Abstract</a></li>
-<li><a class="reference internal" href="#introduction" id="id4">Introduction</a></li>
-<li><a class="reference internal" href="#operation" id="id5">Operation</a><ul>
-<li><a class="reference internal" href="#single-protocol-nodes" id="id6">Single-protocol nodes</a></li>
-<li><a class="reference internal" href="#double-stack-nodes" id="id7">Double-stack nodes</a><ul>
-<li><a class="reference internal" href="#bootstrapping" id="id8">Bootstrapping</a></li>
-<li><a class="reference internal" href="#steady-state-operation" id="id9">Steady-state operation</a></li>
+<li><a class="reference internal" href="#abstract" id="id5">Abstract</a></li>
+<li><a class="reference internal" href="#introduction" id="id6">Introduction</a></li>
+<li><a class="reference internal" href="#operation" id="id7">Operation</a><ul>
+<li><a class="reference internal" href="#single-protocol-nodes" id="id8">Single-protocol nodes</a></li>
+<li><a class="reference internal" href="#dual-stack-nodes" id="id9">Dual-stack nodes</a><ul>
+<li><a class="reference internal" href="#bootstrapping" id="id10">Bootstrapping</a></li>
+<li><a class="reference internal" href="#steady-state-operation" id="id11">Steady-state operation</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#maximum-packet-size" id="id12">Maximum packet size</a></li>
+<li><a class="reference internal" href="#source-address-selection" id="id13">Source address selection</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#changes-to-the-bittorrent-protocol" id="id14">Changes to the BitTorrent protocol</a></li>
+<li><a class="reference internal" href="#changes-and-extensions-to-existing-messages" id="id15">Changes and extensions to existing messages</a><ul>
+<li><a class="reference internal" href="#changes-to-existing-parameters" id="id16">Changes to existing parameters</a><ul>
+<li><a class="reference internal" href="#values" id="id17">values</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#new-parameters" id="id18">New parameters</a><ul>
+<li><a class="reference internal" href="#nodes6" id="id19">nodes6</a></li>
+<li><a class="reference internal" href="#want" id="id20">want</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#changes-to-message-semantics" id="id21">Changes to message semantics</a><ul>
+<li><a class="reference internal" href="#find-nodes-and-get-peers" id="id22">find_nodes and get_peers</a></li>
+<li><a class="reference internal" href="#announce-peers" id="id23">announce_peers</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a class="reference internal" href="#changes-and-extensions-to-existing-messages" id="id10">Changes and extensions to existing messages</a><ul>
-<li><a class="reference internal" href="#changes-to-existing-parameters" id="id11">Changes to existing parameters</a><ul>
-<li><a class="reference internal" href="#values" id="id12">values</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#new-parameters" id="id13">New parameters</a><ul>
-<li><a class="reference internal" href="#nodes6" id="id14">nodes6</a></li>
-<li><a class="reference internal" href="#want" id="id15">want</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#changes-to-message-semantics" id="id16">Changes to message semantics</a><ul>
-<li><a class="reference internal" href="#find-nodes-and-get-peers" id="id17">find_nodes and get_peers</a></li>
-<li><a class="reference internal" href="#announce-peers" id="id18">announce_peers</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a class="reference internal" href="#acknowledgements" id="id19">Acknowledgements</a></li>
-<li><a class="reference internal" href="#references" id="id20">References</a></li>
-<li><a class="reference internal" href="#copyright" id="id21">Copyright</a></li>
+<li><a class="reference internal" href="#acknowledgements" id="id24">Acknowledgements</a></li>
+<li><a class="reference internal" href="#references" id="id25">References</a></li>
+<li><a class="reference internal" href="#copyright" id="id26">Copyright</a></li>
 </ul>
 </div>
 <div class="section" id="abstract">
 <h1>Abstract</h1>
 <p>This proposal describes a set of extensions to the BitTorrent DHT <a class="footnote-reference" href="#bep-5" id="id1">[1]</a>
 to allow operation over IPv6.</p>
-<p><strong>This is a very early draft</strong>, and <strong>not suitable for implementation</strong>.  Yet.</p>
 </div>
 <div class="section" id="introduction">
 <h1>Introduction</h1>
@@ -144,15 +146,15 @@ may request that the reply contain &quot;nodes&quot;, &quot;nodes6&quot; or both
 a node does not need to explicitly request data in a given family -- the
 data provided by default is exactly what it needs.</p>
 </div>
-<div class="section" id="double-stack-nodes">
-<h2>Double-stack nodes</h2>
+<div class="section" id="dual-stack-nodes">
+<h2>Dual-stack nodes</h2>
 <p>While conceptually equivalent to a pair of single-protocol nodes,
-a double-stack (IPv4 and IPv6) node can make bootstrap faster and
+a dual-stack (IPv4 and IPv6) node can make bootstrap faster and
 improve the reliability of the protocol by &quot;leaking&quot; data between the
 two DHTs, as described in the following paragraphs.</p>
 <div class="section" id="bootstrapping">
 <h3>Bootstrapping</h3>
-<p>A double-stack node that is bootstrapping its DHT will send find_nodes
+<p>A dual-stack node that is bootstrapping its DHT will send find_nodes
 requests in order to populate its routing tables.  In order to accelerate
 this process, it should request both &quot;nodes&quot; and &quot;nodes6&quot; fields.</p>
 </div>
@@ -168,6 +170,63 @@ network outage, however, a node may <em>ocasionally</em> send a request for
 &quot;nodes&quot; to an IPv6 node, or a request for &quot;nodes6&quot; to an IPv4 node.</p>
 </div>
 </div>
+<div class="section" id="maximum-packet-size">
+<h2>Maximum packet size</h2>
+<p>A node obeying this specification must not send UDP datagrams with
+a payload larger than 1024 octets, and must be able to receive UDP
+datagrams with a payload of 1024 octets or less.  (In the interest of
+robustness, a node should be able to receive datagrams with larger
+payloads.)</p>
+<blockquote>
+<p><strong>Rationale</strong>: a UDP datagram with a payload of 1024 octets easily
+fits within the IPv6 minimum maximum packet size, which is 1280
+octets <a class="footnote-reference" href="#ipv6" id="id2">[3]</a>.  In particular, such a packet will cross a Teredo
+tunnel with no fragmentation.</p>
+<p>In principle, IPv4 nodes might be unable to reassemble packets
+larger than 576 octets <a class="footnote-reference" href="#ipv4" id="id3">[4]</a>; in practice, however, due to the
+predominance of Ethernet networks, all IPv4 nodes are able to
+reassemble packets up to 1500 octets.</p>
+</blockquote>
+</div>
+<div class="section" id="source-address-selection">
+<h2>Source address selection</h2>
+<p>The IPv6 DHT should use a socket bound to one of the host's global
+unicast IPv6 addresses rather than the &quot;unspecified address&quot; (::/128).
+When selecting to which address to bind, Teredo addresses (addresses
+in 2001:0000::/32) should be avoided if other global unicast addresses
+are available.</p>
+<blockquote>
+<p><strong>Rationale</strong>: The DHT relies on the publicly visible IP address of
+each node to remain constant.  Since multi-homing is common in IPv6,
+it is particularly important to bind the IPv6 socket to a well-defined
+address.</p>
+<p>While Teredo traffic can, in principle, be more efficient than
+native traffic, especially when speaking to other Teredo hosts,
+experience shows that Teredo routing tends to be brittle; hence,
+Teredo addresses should be avoided whenever possible.</p>
+<p>The same issues apply to multi-homed IPv4 hosts.  However, in IPv4
+multi-homing is not as common in IPv6, and in the presence of NAT
+the issues are somewhat more complicated, so this specification
+refrains from making any recommendations about binding of IPv4
+sockets.</p>
+</blockquote>
+</div>
+</div>
+<div class="section" id="changes-to-the-bittorrent-protocol">
+<h1>Changes to the BitTorrent protocol</h1>
+<p>The PORT message, as defined in BEP-5, is extended to work over both
+IPv4 and IPv6.  The information provided by the PORT message only
+applies to the address family it is carried over: a PORT message sent
+over IPv4 only advertises participation in the IPv4 DHT, and a PORT
+message sent over IPv6 only advertises participation in the IPv6 DHT.</p>
+<blockquote>
+<strong>Rationale</strong>: in the presence of the LTEP extension negotiation
+protocol <a class="footnote-reference" href="#bep-10" id="id4">[2]</a>, which advertises a peer's addresses across
+address families, it might be possible to use the PORT message for
+both address families.  However, since an implementation need not
+participate in both DHTs, nor use the same port in both DHTs, this
+specification leaves the role of bridging the two DHTs to the
+'find_nodes' message (see below).</blockquote>
 </div>
 <div class="section" id="changes-and-extensions-to-existing-messages">
 <h1>Changes and extensions to existing messages</h1>
@@ -207,21 +266,21 @@ get_peers messages (see below).</p>
 <h3>want</h3>
 <p>The &quot;want&quot; parameter is allowed in the find_nodes and get_peers requests,
 and governs the presence or absence of the &quot;nodes&quot; and &quot;nodes6&quot; parameters
-in the requested reply.  Its value is a string of one or more characters,
-which may include</p>
+in the requested reply.  Its value is a list of one or more strings, which
+may include</p>
 <blockquote>
 <ul class="simple">
-<li>&quot;4&quot;: the node requests the presence of a &quot;nodes&quot; key;</li>
-<li>&quot;6&quot;: the node requests the presence of a &quot;nodes6&quot; key.</li>
+<li>&quot;n4&quot;: the node requests the presence of a &quot;nodes&quot; key;</li>
+<li>&quot;n6&quot;: the node requests the presence of a &quot;nodes6&quot; key.</li>
 </ul>
 </blockquote>
-<p>For future extensibility, other characters may be present in the string,
+<p>For future extensibility, other strings may be present in the list,
 and must be silently ignored on reception.</p>
 <blockquote>
-<strong>Note</strong>: the &quot;want&quot; parameter is currently under discussion.  It
-has been suggested that it should be renamed to &quot;flags&quot;, and that
-it should be a list of flags rather than a string.  This author
-is not convinced yet.</blockquote>
+<strong>Rationale</strong>: the &quot;want&quot; parameter is not intended to carry random
+sundry flags, which can simply be included in the top-level
+dictionary of the message.  Extending the &quot;want&quot; parameter without
+good reason is discouraged.</blockquote>
 </div>
 </div>
 <div class="section" id="changes-to-message-semantics">
@@ -239,10 +298,10 @@ if the request was sent over IPv4, and should include &quot;nodes6&quot; if the
 request was sent over IPv6.</p>
 <blockquote>
 <strong>Rationale</strong>: this is an incompatible change to the protocol
-defined in BEP-5 <a class="footnote-reference" href="#bep-5" id="id2">[1]</a>, which specifies that &quot;nodes&quot; and
-&quot;values&quot; are mutually exclusive.  However, this change makes the DHT
-more reliable, and has been deployed by most implementations for
-over a year with no negative effects.</blockquote>
+defined in BEP-5, which specifies that &quot;nodes&quot; and &quot;values&quot; are
+mutually exclusive.  However, this change makes the DHT more
+reliable, and has been deployed by most implementations for over
+a year with no negative effects.</blockquote>
 <p>When a node receives a get_peers request and it has contact
 information for the matching address family and info-hash, it should
 additionally include a &quot;values&quot; parameter containing a list of 6-octet
@@ -256,7 +315,7 @@ interpretation of &quot;values&quot;.</p>
 <blockquote>
 <strong>Rationale</strong>: if the requesting node is a single-stack node, it has
 no interest in values of the other address family.  If the
-requesting node is a double-stack node, then it must perform the two
+requesting node is a dual-stack node, then it must perform the two
 announces in parallel; providing both sets of data in both sets of
 replies merely increases the amount of traffic without giving any
 extra information.</blockquote>
@@ -280,14 +339,34 @@ this work.</p>
 <table class="docutils footnote" frame="void" id="bep-5" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label">[1]</td><td><em>(<a class="fn-backref" href="#id1">1</a>, <a class="fn-backref" href="#id2">2</a>)</em> BEP_0005.  DHT Protocol.
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>BEP_0005.  DHT Protocol.
 (<a class="reference external" href="http://www.bittorrent.org/beps/bep_0005.html">http://www.bittorrent.org/beps/bep_0005.html</a>)</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="bep-10" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id4">[2]</a></td><td>BEP_0010.  Extension Protocol.
+(<a class="reference external" href="http://www.bittorrent.org/beps/bep_0010.html">http://www.bittorrent.org/beps/bep_0010.html</a>)</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="ipv6" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[3]</a></td><td><a class="reference external" href="http://www.faqs.org/rfcs/rfc2460.html">RFC 2460</a>.  Internet Protocol, Version 6 (IPv6) Specification.
+S. Deering, R. Hinden. December 1998.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="ipv4" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[4]</a></td><td><a class="reference external" href="http://www.faqs.org/rfcs/rfc791.html">RFC 791</a>.  Internet Protocol.  J. Postel.  September 1981.</td></tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="copyright">
 <h1>Copyright</h1>
-<p>This document has been placed in the public domain.</p>
+<p>This document is in the public domain.</p>
 <!-- Local Variables:
 mode: indented-text
 indent-tabs-mode: nil

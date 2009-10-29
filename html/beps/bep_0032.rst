@@ -1,4 +1,4 @@
-BEP: XXX
+BEP: 32
 Title: BitTorrent DHT Extensions for IPv6
 Version: $Revision$
 Last-Modified: $Date$

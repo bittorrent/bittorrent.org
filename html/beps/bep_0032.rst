@@ -1,4 +1,4 @@
-BEP: 32
+BEP: XXX
 Title: BitTorrent DHT Extensions for IPv6
 Version: $Revision$
 Last-Modified: $Date$
@@ -8,7 +8,7 @@ Type:    Standards Track
 Requires: 5
 Content-Type: text/x-rst
 Created: 14-Oct-2009
-Post-History: 15-Oct-2009: Promote same ID in IPv6 and IPv4 nodes. Drop values6. Added some rationales
+Post-History: 
 
 
 Abstract
@@ -16,8 +16,6 @@ Abstract
 
 This proposal describes a set of extensions to the BitTorrent DHT [#BEP-5]_
 to allow operation over IPv6.
-
-**This is a very early draft**, and **not suitable for implementation**.  Yet.
 
 
 Introduction
@@ -75,11 +73,11 @@ a node does not need to explicitly request data in a given family -- the
 data provided by default is exactly what it needs.
 
 
-Double-stack nodes
-------------------
+Dual-stack nodes
+----------------
 
 While conceptually equivalent to a pair of single-protocol nodes,
-a double-stack (IPv4 and IPv6) node can make bootstrap faster and
+a dual-stack (IPv4 and IPv6) node can make bootstrap faster and
 improve the reliability of the protocol by "leaking" data between the
 two DHTs, as described in the following paragraphs.
 
@@ -87,7 +85,7 @@ two DHTs, as described in the following paragraphs.
 Bootstrapping
 '''''''''''''
 
-A double-stack node that is bootstrapping its DHT will send find_nodes
+A dual-stack node that is bootstrapping its DHT will send find_nodes
 requests in order to populate its routing tables.  In order to accelerate
 this process, it should request both "nodes" and "nodes6" fields.
 
@@ -104,6 +102,71 @@ traffic.
 In order to increase the reliability of the DHT after a single-protocol
 network outage, however, a node may *ocasionally* send a request for
 "nodes" to an IPv6 node, or a request for "nodes6" to an IPv4 node.
+
+
+Maximum packet size
+-------------------
+
+A node obeying this specification must not send UDP datagrams with
+a payload larger than 1024 octets, and must be able to receive UDP
+datagrams with a payload of 1024 octets or less.  (In the interest of
+robustness, a node should be able to receive datagrams with larger
+payloads.)
+
+  **Rationale**: a UDP datagram with a payload of 1024 octets easily
+  fits within the IPv6 minimum maximum packet size, which is 1280
+  octets [#IPv6]_.  In particular, such a packet will cross a Teredo
+  tunnel with no fragmentation.
+
+  In principle, IPv4 nodes might be unable to reassemble packets
+  larger than 576 octets [#IPv4]_; in practice, however, due to the
+  predominance of Ethernet networks, all IPv4 nodes are able to
+  reassemble packets up to 1500 octets.
+
+
+Source address selection
+------------------------
+
+The IPv6 DHT should use a socket bound to one of the host's global
+unicast IPv6 addresses rather than the "unspecified address" (::/128).
+When selecting to which address to bind, Teredo addresses (addresses
+in 2001:0000::/32) should be avoided if other global unicast addresses
+are available.
+
+  **Rationale**: The DHT relies on the publicly visible IP address of
+  each node to remain constant.  Since multi-homing is common in IPv6,
+  it is particularly important to bind the IPv6 socket to a well-defined
+  address.
+
+  While Teredo traffic can, in principle, be more efficient than
+  native traffic, especially when speaking to other Teredo hosts,
+  experience shows that Teredo routing tends to be brittle; hence,
+  Teredo addresses should be avoided whenever possible.
+
+  The same issues apply to multi-homed IPv4 hosts.  However, in IPv4
+  multi-homing is not as common in IPv6, and in the presence of NAT
+  the issues are somewhat more complicated, so this specification
+  refrains from making any recommendations about binding of IPv4
+  sockets.
+
+
+Changes to the BitTorrent protocol
+==================================
+
+The PORT message, as defined in BEP-5, is extended to work over both
+IPv4 and IPv6.  The information provided by the PORT message only
+applies to the address family it is carried over: a PORT message sent
+over IPv4 only advertises participation in the IPv4 DHT, and a PORT
+message sent over IPv6 only advertises participation in the IPv6 DHT.
+
+  **Rationale**: in the presence of the LTEP extension negotiation
+  protocol [#BEP-10]_, which advertises a peer's addresses across
+  address families, it might be possible to use the PORT message for
+  both address families.  However, since an implementation need not
+  participate in both DHTs, nor use the same port in both DHTs, this
+  specification leaves the role of bridging the two DHTs to the
+  'find_nodes' message (see below).
+
 
 
 Changes and extensions to existing messages
@@ -153,20 +216,20 @@ want
 
 The "want" parameter is allowed in the find_nodes and get_peers requests,
 and governs the presence or absence of the "nodes" and "nodes6" parameters
-in the requested reply.  Its value is a string of one or more characters,
-which may include
+in the requested reply.  Its value is a list of one or more strings, which
+may include
 
-  * "4": the node requests the presence of a "nodes" key;
+  * "n4": the node requests the presence of a "nodes" key;
 
-  * "6": the node requests the presence of a "nodes6" key.
+  * "n6": the node requests the presence of a "nodes6" key.
 
-For future extensibility, other characters may be present in the string,
+For future extensibility, other strings may be present in the list,
 and must be silently ignored on reception.
 
-   **Note**: the "want" parameter is currently under discussion.  It
-   has been suggested that it should be renamed to "flags", and that
-   it should be a list of flags rather than a string.  This author
-   is not convinced yet.
+   **Rationale**: the "want" parameter is not intended to carry random
+   sundry flags, which can simply be included in the top-level
+   dictionary of the message.  Extending the "want" parameter without
+   good reason is discouraged.
 
 
 Changes to message semantics
@@ -187,10 +250,10 @@ if the request was sent over IPv4, and should include "nodes6" if the
 request was sent over IPv6.
 
   **Rationale**: this is an incompatible change to the protocol
-  defined in BEP-5 [#BEP-5]_, which specifies that "nodes" and
-  "values" are mutually exclusive.  However, this change makes the DHT
-  more reliable, and has been deployed by most implementations for
-  over a year with no negative effects.
+  defined in BEP-5, which specifies that "nodes" and "values" are
+  mutually exclusive.  However, this change makes the DHT more
+  reliable, and has been deployed by most implementations for over
+  a year with no negative effects.
 
 When a node receives a get_peers request and it has contact
 information for the matching address family and info-hash, it should
@@ -206,7 +269,7 @@ interpretation of "values".
 
   **Rationale**: if the requesting node is a single-stack node, it has
   no interest in values of the other address family.  If the
-  requesting node is a double-stack node, then it must perform the two
+  requesting node is a dual-stack node, then it must perform the two
   announces in parallel; providing both sets of data in both sets of
   replies merely increases the amount of traffic without giving any
   extra information.
@@ -234,12 +297,19 @@ References
 .. [#BEP-5] BEP_0005.  DHT Protocol.
    (http://www.bittorrent.org/beps/bep_0005.html)
 
+.. [#BEP-10] BEP_0010.  Extension Protocol.
+   (http://www.bittorrent.org/beps/bep_0010.html)
+
+.. [#IPv6] RFC 2460.  Internet Protocol, Version 6 (IPv6) Specification.
+   S. Deering, R. Hinden. December 1998.
+
+.. [#IPv4] RFC 791.  Internet Protocol.  J. Postel.  September 1981.
 
 
 Copyright
 =========
 
-This document has been placed in the public domain.
+This document is in the public domain.
 
 
 ..

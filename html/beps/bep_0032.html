@@ -38,9 +38,9 @@
 </tr>
 <tr class="field"><th class="field-name">Title:</th><td class="field-body">BitTorrent DHT Extensions for IPv6</td>
 </tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body">11185</td>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">11187</td>
 </tr>
-<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0032.rst">2009-10-29 23:46:53 +0000 (Thu, 29 Oct 2009)</a></td>
+<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0032.rst">2009-11-20 17:16:34 +0000 (Fri, 20 Nov 2009)</a></td>
 </tr>
 <tr class="field"><th class="field-name">Author:</th><td class="field-body">Juliusz Chroboczek &lt;jch&#32;&#97;t&#32;pps.jussieu.fr&gt;</td>
 </tr>
@@ -54,7 +54,8 @@
 </tr>
 <tr class="field"><th class="field-name">Created:</th><td class="field-body">14-Oct-2009</td>
 </tr>
-<tr class="field"><th class="field-name">Post-History:</th><td class="field-body"></td>
+<tr class="field"><th class="field-name">Post-History:</th><td class="field-body">15-Oct-2009: Promote same ID in IPv6 and IPv4 nodes. Drop values6. Added some rationales
+11-Nov-2011: Change want to be a list of flags.  Add nodes about MTU and source address selection.  Define behaviour of PORT message.</td>
 </tr>
 </tbody>
 </table>
@@ -100,8 +101,8 @@
 </div>
 <div class="section" id="abstract">
 <h1>Abstract</h1>
-<p>This proposal describes a set of extensions to the BitTorrent DHT <a class="footnote-reference" href="#bep-5" id="id1">[1]</a>
-to allow operation over IPv6.</p>
+<p>This document describes a set of extensions to the BitTorrent DHT
+<a class="footnote-reference" href="#bep-5" id="id1">[1]</a> to allow operation over IPv6.</p>
 </div>
 <div class="section" id="introduction">
 <h1>Introduction</h1>
@@ -111,23 +112,16 @@ performance of the BitTorrent protocol by making an increasing number of
 peers unreachable.  The simple and efficient solution to this problem is to
 deploy BitTorrent over the IPv6 protocol, which does not suffer from
 address exhaustion.</p>
-<p>A number of extensions (mostly undocumented) to the BitTorrent protocol
-have been defined in order to allow it to operate over IPv6.
-Unfortunately, these extensions only allow locating IPv6 peers by using
-trackers or through peer exchange -- but not from the DHT.  This document
-describes the procedures and message formats needed to deploy an IPv6
-version of the BitTorrent DHT.</p>
-<p>The extension described in this document also solves a long-standing
-issue with the protocol defined in BEP-5.  The presence of contact
-information in the reply is no longer governed by the presence of
-a &quot;values&quot; key; this avoids the well-known problem of contact
-information being masked by peer information.  While this is an
-incompatible change, it is believed to be properly handled by all
-deployed implementations.</p>
+<p>A number of extensions (mostly undocumented) to the BitTorrent
+protocol have been defined in order to allow it to operate over IPv6.
+Unfortunately, these extensions only allow locating IPv6 peers by
+using trackers or through peer exchange -- but not from the DHT.  This
+document describes the procedures and message formats used in the IPv6
+DHT.</p>
 </div>
 <div class="section" id="operation">
 <h1>Operation</h1>
-<p>There are two distinct DHTs: the existing IPv4 DHT, and the new IPv6 DHT.</p>
+<p>There are two distinct DHTs: the IPv4 DHT, and the IPv6 DHT.</p>
 <p>The two DHTs are independent, meaning that no IPv6 data is stored in the
 IPv4 DHT, and, conversely, no IPv4 data is stored in the IPv6 DHT.  A node
 wishing to participate in both DHTs must maintain two distinct routing
@@ -136,10 +130,10 @@ tables, one for IPv4 and one for IPv6.</p>
 id in both tables.  This simplifies implementation and debugging, and
 slightly increases efficiency in the case where the two DHTs are
 mostly congruent.</p>
-<p>By default, messages only carry data in the address family implied by the
-network layer protocol.  In the case of the &quot;nodes&quot; and &quot;nodes6&quot; arguments
-in replies to the find_nodes and get_peers requests, however, the requestor
-may request that the reply contain &quot;nodes&quot;, &quot;nodes6&quot; or both fields.</p>
+<p>Usually, messages only carry data in the address family implied by the
+network layer protocol.  In the case of the find_nodes and get_peers
+requests, however, the requestor may optionally request that the reply
+should contain IPv4 node information, IPv6 node information, or both.</p>
 <div class="section" id="single-protocol-nodes">
 <h2>Single-protocol nodes</h2>
 <p>A single-protocol node (IPv4 or IPv6) only participates in one DHT.  Such
@@ -151,23 +145,24 @@ data provided by default is exactly what it needs.</p>
 <p>While conceptually equivalent to a pair of single-protocol nodes,
 a dual-stack (IPv4 and IPv6) node can make bootstrap faster and
 improve the reliability of the protocol by &quot;leaking&quot; data between the
-two DHTs, as described in the following paragraphs.</p>
+two DHTs, as described in the following sections.</p>
 <div class="section" id="bootstrapping">
 <h3>Bootstrapping</h3>
 <p>A dual-stack node that is bootstrapping its DHT will send find_nodes
 requests in order to populate its routing tables.  In order to accelerate
-this process, it should request both &quot;nodes&quot; and &quot;nodes6&quot; fields.</p>
+this process, it should request both IPv4 and IPv6 node information.</p>
 </div>
 <div class="section" id="steady-state-operation">
 <h3>Steady-state operation</h3>
-<p>Once bootstrap is successful, a node should normally only request
-&quot;nodes&quot; replies from IPv4 nodes, and &quot;nodes6&quot; replies from IPv6 nodes.
-Requesting both address families in all requests is unlikely to
-provide useful information, and hence uselessly increases network
-traffic.</p>
+<p>Once bootstrap is successful, a node should normally only request IPv4
+node information from IPv4 nodes, and IPv6 node information from IPv6
+nodes.  Requesting node information for both address families in all
+requests is unlikely to provide useful information, and hence
+increases network traffic with no benefit.</p>
 <p>In order to increase the reliability of the DHT after a single-protocol
 network outage, however, a node may <em>ocasionally</em> send a request for
-&quot;nodes&quot; to an IPv6 node, or a request for &quot;nodes6&quot; to an IPv4 node.</p>
+IPv4 node information to an IPv6 node, or a request for IPv6 node
+information to an IPv4 node.</p>
 </div>
 </div>
 <div class="section" id="maximum-packet-size">
@@ -205,7 +200,7 @@ native traffic, especially when speaking to other Teredo hosts,
 experience shows that Teredo routing tends to be brittle; hence,
 Teredo addresses should be avoided whenever possible.</p>
 <p>The same issues apply to multi-homed IPv4 hosts.  However, in IPv4
-multi-homing is not as common in IPv6, and in the presence of NAT
+multi-homing is not as common as in IPv6, and in the presence of NAT
 the issues are somewhat more complicated, so this specification
 refrains from making any recommendations about binding of IPv4
 sockets.</p>
@@ -216,17 +211,21 @@ sockets.</p>
 <h1>Changes to the BitTorrent protocol</h1>
 <p>The PORT message, as defined in BEP-5, is extended to work over both
 IPv4 and IPv6.  The information provided by the PORT message only
-applies to the address family it is carried over: a PORT message sent
-over IPv4 only advertises participation in the IPv4 DHT, and a PORT
-message sent over IPv6 only advertises participation in the IPv6 DHT.</p>
+applies to the address it was sent from; this implies that a PORT
+message sent over IPv4 only advertises participation in the IPv4 DHT,
+and a PORT message sent over IPv6 only advertises participation in the
+IPv6 DHT.</p>
+<p>Multihomed hosts should take care to only send PORT messages over
+connections established from the address on which they participate in
+the DHT.</p>
 <blockquote>
 <strong>Rationale</strong>: in the presence of the LTEP extension negotiation
 protocol <a class="footnote-reference" href="#bep-10" id="id4">[2]</a>, which advertises a peer's addresses across
-address families, it might be possible to use the PORT message for
-both address families.  However, since an implementation need not
-participate in both DHTs, nor use the same port in both DHTs, this
-specification leaves the role of bridging the two DHTs to the
-'find_nodes' message (see below).</blockquote>
+address families, it would in principle be possible to use the PORT
+message for both address families.  However, since an implementation
+need not participate in both DHTs, nor use the same port in both
+DHTs, this specification leaves the role of bridging the two DHTs to
+the 'find_nodes' message (see below).</blockquote>
 </div>
 <div class="section" id="changes-and-extensions-to-existing-messages">
 <h1>Changes and extensions to existing messages</h1>
@@ -237,15 +236,14 @@ specification leaves the role of bridging the two DHTs to the
 <p>In a reply sent over IPv4, the &quot;values&quot; parameter contains a list of
 strings, each of which contains compact format IPv4 contact
 information for a single peer.</p>
-<p>In a reply sent over IPv6, &quot;values' contains a list of strings, each
+<p>In a reply sent over IPv6, &quot;values&quot; contains a list of strings, each
 of which contains compact format IPv6 contact information for a single
 peer.</p>
 <p>Implementations of this specification must be able to properly parse
 hybrid &quot;values&quot; lists -- lists containing an arbitrary mixture of
-6-octet IPv4 values and 18-octet IPv6 values.  However,
-implementations should not send such hybrid lists, and must not send
-hybrid lists in a reply to an IPv4 request that doesn't contain
-a &quot;want&quot; parameter.</p>
+6-octet IPv4 values and 18-octet IPv6 values.  However, implementations
+should not send such hybrid lists, and must not send hybrid lists in
+a reply to an IPv4 request that doesn't contain a &quot;want&quot; parameter.</p>
 <blockquote>
 <strong>Rationale</strong>: a request sent over IPv4 with no &quot;want&quot; parameter
 could originate from a node that implements plain BEP-5, and which
@@ -256,11 +254,11 @@ might therefore be unable to parse a hybrid list.</blockquote>
 <h2>New parameters</h2>
 <div class="section" id="nodes6">
 <h3>nodes6</h3>
-<p>The &quot;nodes6&quot; parameter is analogous to the existing &quot;nodes&quot; parameter:
-when present, it carries a string containing the compact IPv6 node
-info for the 8 closest good nodes in the sending node's IPv6 routing
-table.  This parameter is allowed in replies to the find_nodes and
-get_peers messages (see below).</p>
+<p>The &quot;nodes6&quot; parameter is analogous to the &quot;nodes&quot; parameter: when
+present, it carries a string containing the compact IPv6 node
+information for the 8 closest good nodes in the sending node's IPv6
+routing table.  This parameter is allowed in replies to the find_nodes
+and get_peers messages (see below).</p>
 </div>
 <div class="section" id="want">
 <h3>want</h3>
@@ -280,19 +278,19 @@ and must be silently ignored on reception.</p>
 <strong>Rationale</strong>: the &quot;want&quot; parameter is not intended to carry random
 sundry flags, which can simply be included in the top-level
 dictionary of the message.  Extending the &quot;want&quot; parameter without
-good reason is discouraged.</blockquote>
+good reason is not recommended.</blockquote>
 </div>
 </div>
 <div class="section" id="changes-to-message-semantics">
 <h2>Changes to message semantics</h2>
 <div class="section" id="find-nodes-and-get-peers">
 <h3>find_nodes and get_peers</h3>
-<p>A node sending a find_nodes or get_peers request should include
-a &quot;want&quot; parameter containing one or both of the characters &quot;4&quot; or
-&quot;6&quot;.  A node replying to a find_nodes or get_peers request should
-include a &quot;nodes&quot; parameter if and only if the request's &quot;want&quot;
-parameter included a &quot;4&quot;, and should include a &quot;nodes6&quot; parameter if
-and only if the request's &quot;want&quot; parameter included a &quot;6&quot;.</p>
+<p>A node sending a find_nodes or get_peers request may include a &quot;want&quot;
+parameter containing one or both of the strings &quot;n4&quot; or &quot;n6&quot;.  A node
+replying to a find_nodes or get_peers request that includes a &quot;want&quot;
+parameter should include a &quot;nodes&quot; parameter if the request's &quot;want&quot;
+parameter contained the string &quot;n4&quot;, and should include a &quot;nodes6&quot;
+parameter if the request's &quot;want&quot; parameter contained the string &quot;n6&quot;.</p>
 <p>In the absence of a &quot;want&quot; parameter, the reply should include &quot;nodes&quot;
 if the request was sent over IPv4, and should include &quot;nodes6&quot; if the
 request was sent over IPv6.</p>
@@ -300,9 +298,9 @@ request was sent over IPv6.</p>
 <strong>Rationale</strong>: this is an incompatible change to the protocol
 defined in BEP-5, which specifies that &quot;nodes&quot; and &quot;values&quot; are
 mutually exclusive.  However, this change makes the DHT more
-reliable, and has been deployed by most implementations for over
-a year with no negative effects.</blockquote>
-<p>When a node receives a get_peers request and it has contact
+reliable, and has been deployed by most implementations with no
+negative effects.</blockquote>
+<p>When a node receives a get_peers request and it has peer contact
 information for the matching address family and info-hash, it should
 additionally include a &quot;values&quot; parameter containing a list of 6-octet
 strings if the request was sent over IPv4, and a list of 18-octet
@@ -331,8 +329,8 @@ advertise an IPv6 address.</p>
 </div>
 <div class="section" id="acknowledgements">
 <h1>Acknowledgements</h1>
-<p>I gratefully acknowledge the influence of <em>The 8472</em> and <em>arvid</em> over
-this work.</p>
+<p>I gratefully acknowledge the help of <em>The 8472</em> and <em>arvid</em> in
+developing this specification.</p>
 </div>
 <div class="section" id="references">
 <h1>References</h1>

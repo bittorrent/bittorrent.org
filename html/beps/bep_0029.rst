@@ -160,6 +160,9 @@ This is the difference between the local time and the timestamp in the last
 received packet, at the time the last packet was received. This is the latest
 one-way delay measurement of the link from the remote peer to the local machine.
 
+When a socket is newly opened and doesn't have any delay samples yet, this must                         
+be set to 0. 
+
 wnd_size
 ........
 

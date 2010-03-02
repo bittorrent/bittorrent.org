@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.5: http://docutils.sourceforge.net/" />
+<title></title>
+<link rel="stylesheet" href="../css/bep.css" type="text/css" />
+</head>
+<body>
+<div class="document">
+
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="../index.html">BitTorrent<span>.org</span></a></h1>
+</div>
+<div id="nav">
+<ul>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../introduction.html">For Users</a></li>
+<li><a href="bep_0000.html"><span>For Developers</span></a></li>
+<!-- <li><a href="./blog">Blog</a></li> -->
+<li><a href="http://forum.bittorrent.org"> Forums </li>
+<li><a href="../donate.html">Donate!</a></li>
+</ul>
+</div> <!-- nav -->
+<!-- ### Begin Content ### -->
+<div id="second">
+
+
+
+<table class="rfc2822 docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">BEP:</th><td class="field-body">33</td>
+</tr>
+<tr class="field"><th class="field-name">Title:</th><td class="field-body">DHT Scrapes</td>
+</tr>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">11190</td>
+</tr>
+<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0033.rst">2010-03-02 00:15:00 +0000 (Tue, 02 Mar 2010)</a></td>
+</tr>
+<tr class="field"><th class="field-name">Author:</th><td class="field-body">The 8472</td>
+</tr>
+<tr class="field"><th class="field-name">Status:</th><td class="field-body">Draft</td>
+</tr>
+<tr class="field"><th class="field-name">Type:</th><td class="field-body">Standards Track</td>
+</tr>
+<tr class="field"><th class="field-name">Content-Type:</th><td class="field-body"><a class="reference external" href="http://www.bittorrent.org/beps/bep-0012">text/x-rst</a></td>
+</tr>
+<tr class="field"><th class="field-name">Created:</th><td class="field-body">20-Jan-2010</td>
+</tr>
+<tr class="field"><th class="field-name">Post-History:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#abstract" id="id2">Abstract</a></li>
+<li><a class="reference internal" href="#rationale" id="id3">Rationale</a></li>
+<li><a class="reference internal" href="#approach" id="id4">Approach</a><ul>
+<li><a class="reference internal" href="#bloom-filters" id="id5">Bloom Filters</a><ul>
+<li><a class="reference internal" href="#calculating-the-estimate" id="id6">Calculating the estimate</a></li>
+<li><a class="reference internal" href="#test-vectors" id="id7">Test Vectors</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#new-announce-peer-semantics" id="id8">New ANNOUNCE_PEER semantics</a></li>
+<li><a class="reference internal" href="#new-get-peers-semantics" id="id9">New GET_PEERS semantics</a><ul>
+<li><a class="reference internal" href="#handling-legacy-responses" id="id10">Handling legacy responses</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#changed-announce-accounting" id="id11">Changed announce accounting</a></li>
+<li><a class="reference internal" href="#scrape-scheduling" id="id12">Scrape scheduling</a></li>
+<li><a class="reference internal" href="#acknowledgements" id="id13">Acknowledgements</a></li>
+<li><a class="reference internal" href="#references" id="id14">References</a></li>
+<li><a class="reference internal" href="#copyright" id="id15">Copyright</a></li>
+</ul>
+</div>
+<div class="section" id="abstract">
+<h1>Abstract</h1>
+<p>This BEP specifies an extension to the BitTorrent DHT (BEP 5) to support scrapes via distributed counting based on bloom filters.</p>
+</div>
+<div class="section" id="rationale">
+<h1>Rationale</h1>
+<p>Scrapes are an important part of the BitTorrent ecosystem as they allow users to assess the state of a torrent and clients to determine which swarm to select next in their seeding queue, without having to participate in the swarm first.</p>
+<p>These options are currently not available in the absence of a tracker, this BEP aims to rectify this.</p>
+</div>
+<div class="section" id="approach">
+<h1>Approach</h1>
+<p>Due to the lack of replication, inaccurate routing table maintenance and stores on nodes outside the circle of the K closest nodes announces are often scattered over a dozen or more nodes around the target key, with no single node having a complete set of peers.</p>
+<p>Estimating the swarm size based on such random distributions would be very noisy and border on guessing since the number of values nodes share for any given key is not known, and thus either averaging or adding them can be required in the extreme cases.</p>
+<p>For distributed counting Bloom Filters are suitable because their population count can be estimated, they are compact and performing unions is trivial</p>
+<div class="section" id="bloom-filters">
+<h2>Bloom Filters</h2>
+<p>To keep things simple and ensure compatibility all implementations must be functionally equivalent to the following pseudocode (all variables are unsigned):</p>
+<pre class="literal-block">
+// fixed parameters
+k = 2
+m = 256*8
+
+// the filter
+byte[m/8] bloom
+
+function insertIP(byte[] ip) {
+
+    byte[20] hash = sha1(ip)
+
+    int index1 = hash[0] | hash[1] &lt;&lt; 8
+    int index2 = hash[2] | hash[3] &lt;&lt; 8
+
+    // truncate index to m (11 bits required)
+    index1 %= m
+    index2 %= m
+
+    // set bits at index1 and index2
+    bloom[index1 / 8] |= 0x01 &lt;&lt; index1 % 8
+    bloom[index2 / 8] |= 0x01 &lt;&lt; index2 % 8
+}
+
+// insert IP 192.168.1.1 into the filter:
+insertIP(byte[4] {192,168,1,1})
+</pre>
+<p>Only IP addresses (v4 or v6) may be inserted into the bloom filters. Port numbers or host names are not allowed.</p>
+<div class="section" id="calculating-the-estimate">
+<h3>Calculating the estimate</h3>
+<p>To estimate the count of items in a bloom filter the following equation can (see <a class="footnote-reference" href="#bloom" id="id1">[1]</a>) be used:</p>
+<pre class="literal-block">
+k = 2
+m = 256*8
+
+c = min(m-1,countZeroBits(bloom))
+
+size = log(c /m) / (k * log(1 - 1/m))
+</pre>
+<p>The same equation can be used to estimate the size of a union of sets represented by bloom filters simply by ORing the bits of each filter.</p>
+<p>With the chosen parameters the false error rate approaches one around 8000 inserted values, at this point the size estimation breaks down.</p>
+<p>Improved algorithms to calculate the cardinality of the union of bloom filters may work beyond that limit for somewhat disjoint sets but they require further research.</p>
+</div>
+<div class="section" id="test-vectors">
+<h3>Test Vectors</h3>
+<p>Inserting the addresses 192.0.2.0 - 192.0.2.255 and 2001:DB8:: - 2001:DB8::3E7 (ranges are inclusive) into a bloom filter must result in the following array of bytes in hex representation:</p>
+<pre class="literal-block">
+F6C3F5EA A07FFD91 BDE89F77 7F26FB2B FF37BDB8 FB2BBAA2 FD3DDDE7 BACFFF75 EE7CCBAE
+FE5EEDB1 FBFAFF67 F6ABFF5E 43DDBCA3 FD9B9FFD F4FFD3E9 DFF12D1B DF59DB53 DBE9FA5B
+7FF3B8FD FCDE1AFB 8BEDD7BE 2F3EE71E BBBFE93B CDEEFE14 8246C2BC 5DBFF7E7 EFDCF24F
+D8DC7ADF FD8FFFDF DDFFF7A4 BBEEDF5C B95CE81F C7FCFF1F F4FFFFDF E5F7FDCB B7FD79B3
+FA1FC77B FE07FFF9 05B7B7FF C7FEFEFF E0B8370B B0CD3F5B 7F2BD93F EB4386CF DD6F7FD5
+BFAF2E9E BFFFFEEC D67ADBF7 C67F17EF D5D75EBA 6FFEBA7F FF47A91E B1BFBB53 E8ABFB57
+62ABE8FF 237279BF EFBFEEF5 FFC5FEBF DFE5ADFF ADFEE1FB 737FFFFB FD9F6AEF FEEE76B6
+FD8F72EF
+</pre>
+<p>For the 1256 inserted values the calculated estimate should be 1224.9308</p>
+<p>Implementations must be tested for correctness before deployment since incorrect bloom filter implementations would completely distort scrape results.</p>
+</div>
+</div>
+</div>
+<div class="section" id="new-announce-peer-semantics">
+<h1>New ANNOUNCE_PEER semantics</h1>
+<p>If the requesting node is seeding the torrent it announces then it must add a &quot;seed&quot;=1 key/value-pair to the &quot;a&quot; dictionary in the request.</p>
+<p>The response is unchanged.</p>
+</div>
+<div class="section" id="new-get-peers-semantics">
+<h1>New GET_PEERS semantics</h1>
+<p>Requests now support two new parameters in the &quot;a&quot; dictionary: &quot;noseed&quot;=1 and &quot;scrape&quot;=1</p>
+<p>If &quot;noseed&quot; is set to 1 in the request then the responding node should try to fill the values list with non-seed items on a best-effort basis.</p>
+<p>If &quot;scrape&quot; is set to 1 in the request <em>and</em> the responding node has database entries for that infohash then it must add two fields to the &quot;r&quot; dictionary in the response:</p>
+<blockquote>
+&quot;BFsd&quot; : Bloom Filter representing all stored seeds for that infohash
+&quot;BFpe&quot; : Bloom Filter representing all stored peers for that infohash</blockquote>
+<p>Each field must be 256 bytes in size and generated based on the algorithm described in the previous chapter.</p>
+<p>The requesting nodes may perform sanity checks on the returned bloom filters, e.g. checking if they are not full (within the 6000 entry limit defined below) or if the returned values are actually contained in either of the two filters.</p>
+<p>Implementations which also implement BEP 32 must take care not to exceed the specified packet sizes since the filters require over 512 bytes in the packet. This can be achieved by returning less values and only returning the mandatory node lists even when additional ones are requested.</p>
+<p>Tokens may be omitted under certain conditions (see <a class="reference internal" href="#changed-announce-accounting">changed announce accounting</a>). If a node does not return a token it indicates that it currently cannot accept announces for this infohash. Thus the requesting node should only announce to the K nodes which are the the closest to the target <em>and</em> have returned a token.</p>
+<div class="section" id="handling-legacy-responses">
+<h2>Handling legacy responses</h2>
+<p>If a response only contains a &quot;values&quot; list when a scrape has been requested then an implementation may generate a bloom filter for that list locally.</p>
+<p>Due to the absence of seed/peer information the filter should be considered as a peer filter. Before inserting values into the filter it should check if the IPs are not present in the seed filters of other nodes to prevent the item from being counted as seed and peer at the same time.</p>
+</div>
+</div>
+<div class="section" id="changed-announce-accounting">
+<h1>Changed announce accounting</h1>
+<p>Nodes following this BEP must store the seed status of announcing nodes, if no seed key was present or the value was not 1 then it should assume that the announcing node is a peer.</p>
+<p>Nodes must store peer information as sets of unique IPs for each infohash. I.e. &lt;Infohash,IP&gt; tuples in the database must be unique while port numbers, seed status and other values may be updated.</p>
+<p>Nodes should try to keep <em>max(seeds,peers)</em> below 6000 since the bloom filters reach a false positive rate of 1.0 as they approach a set size of ~8000 entries . This can be achieved by not responding with tokens to get_peers requests for an infohash which has reached this limit.</p>
+</div>
+<div class="section" id="scrape-scheduling">
+<h1>Scrape scheduling</h1>
+<p>Scrapes for active torrents can be piggybacked on the announces and thus should only incur minimal additional cost.</p>
+<p>Inactive torrents on the other hand must be scheduled carefully since clients can potentially keep track of hundreds of inactive torrents for every active one.</p>
+<ul class="simple">
+<li>Clients should only perform DHT scrapes on torrents where no tracker is available or tracker scrapes are not successful</li>
+<li>The number of concurrently active scrapes for inactive torrents should be limited, e.g. 4 during startup and 1 for steady state operation.</li>
+<li>Intervals between scrapes should be somewhat randomized to avoid wave-like traffic patterns.</li>
+<li>Scrapes for inactive torrents should be performed with a lower RPC concurrency and more lenient timeouts than regular lookups as they have a low priority. 3 concurrent RPC calls and 10s timeouts should be sufficient.</li>
+<li>Caching node lists from previous lookups to the same torrents can significantly cut down on the lookup traffic for repeated scrapes to the same torrents</li>
+</ul>
+</div>
+<div class="section" id="acknowledgements">
+<h1>Acknowledgements</h1>
+<p>Thanks to Juliusz Chroboczek to let me bounce ideas off him.</p>
+</div>
+<div class="section" id="references">
+<h1>References</h1>
+<table class="docutils footnote" frame="void" id="bloom" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>Broder, Andrei; Mitzenmacher, Michael (2005), &quot;Network Applications of Bloom Filters: A Survey&quot;
+(<a class="reference external" href="http://www.eecs.harvard.edu/~michaelm/postscripts/im2005b.pdf">http://www.eecs.harvard.edu/~michaelm/postscripts/im2005b.pdf</a>)</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="copyright">
+<h1>Copyright</h1>
+<p>This document has been placed in the public domain.</p>
+<!-- Local Variables:
+mode: indented-text
+indent-tabs-mode: nil
+sentence-end-double-space: t
+fill-column: 70
+coding: utf-8
+End: -->
+</div>
+
+
+</div>
+	<div id="footer">
+<hr/>
+</div>
+
+</div>
+</body>
+</html>

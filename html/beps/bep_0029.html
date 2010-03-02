@@ -38,9 +38,9 @@
 </tr>
 <tr class="field"><th class="field-name">Title:</th><td class="field-body">uTorrent transport protocol</td>
 </tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body">11166</td>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">11189</td>
 </tr>
-<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0029.rst">2009-07-15 12:42:16 -0700 (Wed, 15 Jul 2009)</a></td>
+<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0029.rst">2010-01-22 01:49:42 +0000 (Fri, 22 Jan 2010)</a></td>
 </tr>
 <tr class="field"><th class="field-name">Author:</th><td class="field-body">Arvid Norberg &lt;arvid&#32;&#97;t&#32;bittorrent.com&gt;</td>
 </tr>
@@ -48,7 +48,7 @@
 </tr>
 <tr class="field"><th class="field-name">Type:</th><td class="field-body">Standards Track</td>
 </tr>
-<tr class="field"><th class="field-name">Content-Type:</th><td class="field-body"><a class="reference" href="http://www.bittorrent.org/beps/bep-0012">text/x-rst</a></td>
+<tr class="field"><th class="field-name">Content-Type:</th><td class="field-body"><a class="reference external" href="http://www.bittorrent.org/beps/bep-0012">text/x-rst</a></td>
 </tr>
 <tr class="field"><th class="field-name">Created:</th><td class="field-body">22-Jun-2009</td>
 </tr>
@@ -60,31 +60,31 @@
 <div class="contents topic" id="contents">
 <p class="topic-title first">Contents</p>
 <ul class="simple">
-<li><a class="reference" href="#utorrent-transport-protocol" id="id2">uTorrent Transport Protocol</a><ul>
-<li><a class="reference" href="#credits" id="id3">credits</a></li>
-<li><a class="reference" href="#rationale" id="id4">rationale</a></li>
-<li><a class="reference" href="#overview" id="id5">overview</a></li>
-<li><a class="reference" href="#header-format" id="id6">header format</a><ul>
-<li><a class="reference" href="#version" id="id7">version</a></li>
-<li><a class="reference" href="#connection-id" id="id8">connection_id</a></li>
-<li><a class="reference" href="#timestamp-microseconds" id="id9">timestamp_microseconds</a></li>
-<li><a class="reference" href="#timestamp-difference-microseconds" id="id10">timestamp_difference_microseconds</a></li>
-<li><a class="reference" href="#wnd-size" id="id11">wnd_size</a></li>
-<li><a class="reference" href="#extension" id="id12">extension</a><ul>
-<li><a class="reference" href="#selective-ack" id="id13">Selective ACK</a></li>
-<li><a class="reference" href="#extension-bits" id="id14">Extension bits</a></li>
+<li><a class="reference internal" href="#utorrent-transport-protocol" id="id2">uTorrent Transport Protocol</a><ul>
+<li><a class="reference internal" href="#credits" id="id3">credits</a></li>
+<li><a class="reference internal" href="#rationale" id="id4">rationale</a></li>
+<li><a class="reference internal" href="#overview" id="id5">overview</a></li>
+<li><a class="reference internal" href="#header-format" id="id6">header format</a><ul>
+<li><a class="reference internal" href="#version" id="id7">version</a></li>
+<li><a class="reference internal" href="#connection-id" id="id8">connection_id</a></li>
+<li><a class="reference internal" href="#timestamp-microseconds" id="id9">timestamp_microseconds</a></li>
+<li><a class="reference internal" href="#timestamp-difference-microseconds" id="id10">timestamp_difference_microseconds</a></li>
+<li><a class="reference internal" href="#wnd-size" id="id11">wnd_size</a></li>
+<li><a class="reference internal" href="#extension" id="id12">extension</a><ul>
+<li><a class="reference internal" href="#selective-ack" id="id13">Selective ACK</a></li>
+<li><a class="reference internal" href="#extension-bits" id="id14">Extension bits</a></li>
 </ul>
 </li>
-<li><a class="reference" href="#type" id="id15">type</a></li>
-<li><a class="reference" href="#seq-nr" id="id16">seq_nr</a></li>
-<li><a class="reference" href="#ack-nr" id="id17">ack_nr</a></li>
+<li><a class="reference internal" href="#type" id="id15">type</a></li>
+<li><a class="reference internal" href="#seq-nr" id="id16">seq_nr</a></li>
+<li><a class="reference internal" href="#ack-nr" id="id17">ack_nr</a></li>
 </ul>
 </li>
-<li><a class="reference" href="#connection-setup" id="id18">connection setup</a></li>
-<li><a class="reference" href="#packet-loss" id="id19">packet loss</a></li>
-<li><a class="reference" href="#timeouts" id="id20">timeouts</a></li>
-<li><a class="reference" href="#packet-sizes" id="id21">packet sizes</a></li>
-<li><a class="reference" href="#congestion-control" id="id22">congestion control</a></li>
+<li><a class="reference internal" href="#connection-setup" id="id18">connection setup</a></li>
+<li><a class="reference internal" href="#packet-loss" id="id19">packet loss</a></li>
+<li><a class="reference internal" href="#timeouts" id="id20">timeouts</a></li>
+<li><a class="reference internal" href="#packet-sizes" id="id21">packet sizes</a></li>
+<li><a class="reference internal" href="#congestion-control" id="id22">congestion control</a></li>
 </ul>
 </li>
 </ul>
@@ -142,7 +142,7 @@ congestion control works.</p>
 <p>uTP is a transport protocol layered on top of UDP. As such, it must
 (and has the ability to) implement its own congestion control.</p>
 <p>The main difference compared to TCP is the delay based congestion
-control. See the <a class="reference" href="#congestion-control">congestion control</a> section.</p>
+control. See the <a class="reference internal" href="#congestion-control">congestion control</a> section.</p>
 <p>Like TCP, uTP uses window based congestion control. Each socket
 has a <tt class="docutils literal"><span class="pre">max_window</span></tt> which determines the maximum number of bytes
 the socket may have <em>in-flight</em> at any given time. Any packet that
@@ -150,7 +150,7 @@ has been sent, but not yet acked, is considered to be in-flight.</p>
 <p>The number of bytes in-flight is <tt class="docutils literal"><span class="pre">cur_window</span></tt>.</p>
 <p>A socket may only send a packet if <tt class="docutils literal"><span class="pre">cur_window</span></tt> + <tt class="docutils literal"><span class="pre">packet_size</span></tt>
 is less than or equal to min(<tt class="docutils literal"><span class="pre">max_window</span></tt>, <tt class="docutils literal"><span class="pre">wnd_size</span></tt>).
-The packet size may vary, see the <a class="reference" href="#packet-sizes">packet sizes</a> section.</p>
+The packet size may vary, see the <a class="reference internal" href="#packet-sizes">packet sizes</a> section.</p>
 <p><tt class="docutils literal"><span class="pre">wnd_size</span></tt> is the advertised window from the other end. It sets
 an upper limit on the number of packets in-flight.</p>
 <p>An implementation MAY violate the above rule if the <tt class="docutils literal"><span class="pre">max_window</span></tt>
@@ -159,7 +159,7 @@ the average <tt class="docutils literal"><span class="pre">cur_window</span></tt
 <p>Each socket keeps a state for the last delay measurement from the
 other endpoint (<tt class="docutils literal"><span class="pre">reply_micro</span></tt>). Whenever a packet is received,
 this state is updated by subtracting <tt class="docutils literal"><span class="pre">timestamp_microseconds</span></tt>
-from the hosts current time, in microseconds (see <a class="reference" href="#header-format">header format</a>).</p>
+from the hosts current time, in microseconds (see <a class="reference internal" href="#header-format">header format</a>).</p>
 <p>Every time a packet is sent, the sockets <tt class="docutils literal"><span class="pre">reply_micro</span></tt> value is
 put in the <tt class="docutils literal"><span class="pre">timestamp_difference_microseconds</span></tt> field of the packet
 header.</p>
@@ -211,6 +211,8 @@ to the actual transmit time it is set, the better.</p>
 <p>This is the difference between the local time and the timestamp in the last
 received packet, at the time the last packet was received. This is the latest
 one-way delay measurement of the link from the remote peer to the local machine.</p>
+<p>When a socket is newly opened and doesn't have any delay samples yet, this must
+be set to 0.</p>
 </div>
 <div class="section" id="wnd-size">
 <h3>wnd_size</h3>

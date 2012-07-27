@@ -1,0 +1,63 @@
+BEP: 34
+Title: DNS Tracker Preferences
+Version: $Revision$
+Last-Modified: $Date$
+Author:  Fredrik Neij <tiamo@tfr.org>, Arvid Norberg <arvid@bittorrent.com>, Chris Brown <cbrown@bittorrent.com>
+Status:  Draft
+Type:    Standards Track
+Created: 26-July-2012
+Post-History:
+
+Abstract
+========
+
+Sometimes when users create torrents they mistakingly add website URLs as trackers. This results in those websites getting flooded with unwanted HTTP traffic.
+
+To prevent this flooding, trackers and websites can declare via DNS TXT record which ports (if any) on which they are running trackers.
+
+If a torrent contains a URL that according to this record does not have a tracker running on it, the client should attempt to fix the URL by trying connections on one or more of the ports in the TXT record.
+
+This will also be helpful for example when a tracker switches from HTTP to UDP service, to prevent the tracker from being flooded with obsolete HTTP requests. This would direct the client to use UDP instead of HTTP in a old torrent where only the previous service are listed.
+
+It's worth noting that this could potentially allow ISPs to prevent trackers from operating by injecting entries into DNS records.
+
+Syntax
+======
+
+The contents of the TXT records are case-sensitive and consist of one or more words separated by spaces.
+
+**Words**
+
+- BITTORRENT - This should always be the first word in the record. The presence of a record beginning with this word indicates that the host is only running trackers on the ports explicitly indicated in the following words.
+
+- UDP\:X - This word indicates that there is a tracker running on UDP port X.
+
+- TCP\:X - This word indicates that there is a tracker running on TCP port X.
+
+The trackers should be in order of preference with preferred trackers coming first. 
+
+Unrecognized words are silently ignored for the sake of future expansion and readability (as shown below).
+
+**Examples**
+
+- "BITTORRENT" - The host is not running any trackers.
+
+- "BITTORRENT DENY ALL" - Handled exactly like the previous example, but more readable. The words "DENY" and "ALL" are ignored.
+
+- "BITTORRENT UDP:1337 TCP:80" - The host is running two trackers, one on UDP port 1337 and one on TCP port 80. The UDP tracker is prefered.
+
+
+Copyright
+=========
+
+This document has been placed in the public domain.
+
+
+..
+   Local Variables:
+   mode: indented-text
+   indent-tabs-mode: nil
+   sentence-end-double-space: t
+   fill-column: 70
+   coding: utf-8
+   End:

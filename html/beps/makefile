@@ -41,7 +41,7 @@ BEPS= \
 all:	$(BEPS) 
 
 %.html:%.rst_post
-	rstbep2html.py --template=template.txt --pep-base-url=http://www.bittorrent.org/beps/ --cloak-email-addresses --link-stylesheet --stylesheet=../css/bep.css --no-toc-backlinks $? >$@ --traceback
+	rst2html-2.6.py --template=template.txt --pep-base-url=http://www.bittorrent.org/beps/ --cloak-email-addresses --link-stylesheet --stylesheet=../css/bep.css --no-toc-backlinks $? >$@ --traceback
 
 %.rst_post: %.rst
 	python postprocess.py $? > $@ 

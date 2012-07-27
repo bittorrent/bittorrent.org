@@ -1,12 +1,12 @@
-BEP: 34
-Title: DNS Tracker Preferences
-Version: $Revision$
-Last-Modified: $Date$
-Author:  Fredrik Neij <tiamo@tfr.org>, Arvid Norberg <arvid@bittorrent.com>, Chris Brown <cbrown@bittorrent.com>
-Status:  Draft
-Type:    Standards Track
-Created: 26-July-2012
-Post-History:
+:BEP: 34
+:Title: DNS Tracker Preferences
+:Version: $Revision$
+:Last-Modified: $Date$
+:Author:  Fredrik Neij <tiamo@tfr.org>, Arvid Norberg <arvid@bittorrent.com>, Chris Brown <cbrown@bittorrent.com>
+:Status:  Draft
+:Type:    Standards Track
+:Created: 26-July-2012
+:Post-History:
 
 Abstract
 ========

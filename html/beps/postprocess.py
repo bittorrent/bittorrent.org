@@ -23,11 +23,10 @@ if len(sys.argv) != 2:
 #        date = val
 
 for x in os.popen( "git log -n 1 %s" % sys.argv[1]):
-    print x
-    if x.beginswith('commit '):
+    if x.startswith('commit '):
         revision = x.split(' ')[1]
         continue
-    if x.beginswith('Date:'):
+    if x.startswith('Date:'):
         date = x.split(':')[1].strip()
         continue
 

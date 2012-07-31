@@ -1,12 +1,12 @@
-BEP: 35
-Title: DNS Tracker Preferences
-Version: $Revision$
-Last-Modified: $Date$
-Author:  Chris Brown <cbrown@bittorrent.com>
-Status:  Draft
-Type:    Standards Track
-Created: 27-July-2012
-Post-History:
+:BEP: 35
+:Title: Torrent Signing
+:Version: $Revision$
+:Last-Modified: $Date$
+:Author:  Chris Brown <cbrown@bittorrent.com>
+:Status:  Draft
+:Type:    Standards Track
+:Created: 27-July-2012
+:Post-History:
 
 Abstract
 ========
@@ -58,17 +58,21 @@ These steps provide OpenSSL commands as examples, but can also be done with othe
 
 1. Generate a public / private key pair.
 
-    ``openssl genrsa -des3 -out privkey.pem 2048``
+::
+
+	openssl genrsa -des3 -out privkey.pem 2048
 
 2. Create a certificate request.
+The common name should be a unique identifier for the
+entity in reverse-dns notation as explained above (e.g.
+com.bittorrent).
 
-    ``openssl req -new -key privkey.pem -out cert.csr``
+::
 
-    The common name should be a unique identifier for the entity in reverse-dns notation as explained above (e.g. com.bittorrent).
+	openssl req -new -key privkey.pem -out cert.csr
 
 3. Send your certificate request to a certificate authority or sign / generate your own certificate.
-
-    See `Generating a Certificate from a Certificate Request`_ below.
+See `Generating a Certificate from a Certificate Request`_ below.
 
 4. Use a tool such as `ut-signing-tool`_ to sign your torrent.
 
@@ -82,22 +86,24 @@ Configure OpenSSL to not add any extensions to the certificate. This should make
 
     ``x509_extensions = usr_cert      # The extensions to add to the cert``
 
-    Common locations of openssl.cnf:
+Common locations of openssl.cnf:
 
-    ::
-        
-        OSX:      /System/Library/OpenSSL/openssl.cnf 
-        Ubuntu:   /etc/ssl/openssl.cnf
-        RedHat:   /etc/pki/tls/openssl.cnf
+::
+    
+    OSX:      /System/Library/OpenSSL/openssl.cnf 
+    Ubuntu:   /etc/ssl/openssl.cnf
+    RedHat:   /etc/pki/tls/openssl.cnf
 
-        Other:    /usr/lib/ssl/openssl.cnf
-                  /usr/local/ssl/openssl.cnf
-                  /usr/local/openssl/openssl.cnf
+    Other:    /usr/lib/ssl/openssl.cnf
+              /usr/local/ssl/openssl.cnf
+              /usr/local/openssl/openssl.cnf
 
 
 Run the following command in OpenSSL. The serial number (after *-set_serial*) MUST be unique for ALL certificates you issue!
 
-    ``openssl x509 -req -days 365 -in cert.csr -CA cert.pem -CAkey privkey.pem -set_serial 01 -out newcert.pem``
+::
+
+	openssl x509 -req -days 365 -in cert.csr -CA cert.pem -CAkey privkey.pem -set_serial 01 -out newcert.pem
 
 
 References

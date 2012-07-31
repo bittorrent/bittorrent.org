@@ -1,0 +1,122 @@
+BEP: 35
+Title: DNS Tracker Preferences
+Version: $Revision$
+Last-Modified: $Date$
+Author:  Chris Brown <cbrown@bittorrent.com>
+Status:  Draft
+Type:    Standards Track
+Created: 27-July-2012
+Post-History:
+
+Abstract
+========
+
+When users open torrents, they normally receive a warning to alert them of the fact that the contents may be dangerous. If we can be confident that the torrent came from a trusted source, we can forego this unnecessary hassle and users can feel safer about downloading these files.
+
+To identify the source of a torrent, RSA signatures can be embedded into the .torrent file. These signatures can verify that the contents of the torrent have been unaltered, and by maintaining a database of trusted sources within the client, we can in turn trust the contents of the torrent.
+
+Furthermore, an entity that signs a torrent doesn't necessarily have to represent the source of the torrent. It can represent anyone who endorses the torrent and vouches for it's safety and authenticity.  Thus, a torrent may have multiple signatures.
+
+
+Torrent Format
+==============
+
+If the .torrent file is signed, it contains a *signatures* key whose value is a dictionary. This dictionary's keys are unique identifiers of the signing entity in reverse-dns notation (e.g. com.bittorrent). To avoid conflicts, it's highly recommended that each identifier be based on a registered domain name that is owned by the signing entity. The corresponding value for each key is another dictionary whose keys are as follows:
+
+**Signature Keys**
+
+* **certificate** - Optional byte string. If present, the contents of this should be the DER encoded X.509 certificate used to sign the torrent. If this key is excluded, the user must already have this certificate stored and trusted. In most cases, if the certificate is a root certificate (i.e. it is not signed by another certificate), it is recommended that this key be excluded.
+
+* **info** - Optional dictionary. This key's only current purpose is to allow for future extensibility. The contents are signed, so anything within this can be assumed to have only been altered by the signing entity.
+
+* **signature** - Required byte string. This is the RSA signature of the concatenation of the torrent's info dictionary and the signature's info dictionary (if present).
+
+A certificate will be trusted if it is signed by a trusted entity. However, certificate chains of arbitrary length are not yet allowed.
+
+**Format Overview**
+
+.. parsed-literal::
+
+    {
+        "announce": ...,
+        "info": { ... },
+        "signatures": {
+            "com.bittorrent": {
+                "certificate": *optional, DER encoded x.509 certificate*,
+                "info": { ... } *optional*,
+                "signature": *signed data = info + sig info if present*,
+            },
+            ...
+        }
+    }
+
+
+Signing a Torrent
+=================
+
+These steps provide OpenSSL commands as examples, but can also be done with other tools.
+
+1. Generate a public / private key pair.
+
+    ``openssl genrsa -des3 -out privkey.pem 2048``
+
+2. Create a certificate request.
+
+    ``openssl req -new -key privkey.pem -out cert.csr``
+
+    The common name should be a unique identifier for the entity in reverse-dns notation as explained above (e.g. com.bittorrent).
+
+3. Send your certificate request to a certificate authority or sign / generate your own certificate.
+
+    See `Generating a Certificate from a Certificate Request`_ below.
+
+4. Use a tool such as `ut-signing-tool`_ to sign your torrent.
+
+
+Generating a Certificate from a Certificate Request
+===================================================
+
+OpenSSL is provided as an example, but this can also be done with other tools.
+
+Configure OpenSSL to not add any extensions to the certificate. This should make the certificate V1 which greatly reduces its size. To do this, comment out the following line in your openssl.cnf file:
+
+    ``x509_extensions = usr_cert      # The extensions to add to the cert``
+
+    Common locations of openssl.cnf:
+
+    ::
+        
+        OSX:      /System/Library/OpenSSL/openssl.cnf 
+        Ubuntu:   /etc/ssl/openssl.cnf
+        RedHat:   /etc/pki/tls/openssl.cnf
+
+        Other:    /usr/lib/ssl/openssl.cnf
+                  /usr/local/ssl/openssl.cnf
+                  /usr/local/openssl/openssl.cnf
+
+
+Run the following command in OpenSSL. The serial number (after *-set_serial*) MUST be unique for ALL certificates you issue!
+
+    ``openssl x509 -req -days 365 -in cert.csr -CA cert.pem -CAkey privkey.pem -set_serial 01 -out newcert.pem``
+
+
+References
+==========
+
+.. _`ut-signing-tool`: https://github.com/bittorrent/ut-signing-tool
+
+
+Copyright
+=========
+
+This document has been placed in the public domain.
+
+
+..
+   Local Variables:
+   mode: indented-text
+   indent-tabs-mode: nil
+   sentence-end-double-space: t
+   fill-column: 70
+   coding: utf-8
+   End:

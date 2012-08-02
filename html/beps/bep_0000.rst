@@ -81,8 +81,8 @@ Num        Title
 |31|       :raw-html:`<A HREF="bep_0031.html">Tracker Failure Retry Extension</A>`
 |32|       :raw-html:`<A HREF="bep_0032.html">IPv6 extension for DHT</A>`
 |33|       :raw-html:`<A HREF="bep_0033.html">DHT scrape</A>`
-|34|       :raw-html:`<A HREF="bep_0034.html">DHT scrape</A>`
-|35|       :raw-html:`<A HREF="bep_0035.html">DHT scrape</A>`
+|34|       :raw-html:`<A HREF="bep_0034.html">DNS Tracker Preferences</A>`
+|35|       :raw-html:`<A HREF="bep_0035.html">Torrent Signing</A>`
 ======     ===================
 
 
@@ -142,6 +142,6 @@ At this time, no BEPs have been rejected.
 .. |31| replace:: :raw-html:`<A HREF="bep_0031.html">31</A>`
 .. |32| replace:: :raw-html:`<A HREF="bep_0032.html">32</A>`
 .. |33| replace:: :raw-html:`<A HREF="bep_0033.html">33</A>`
-.. |34| replace:: :raw-html:`<A HREF="bep_0034.html">33</A>`
-.. |35| replace:: :raw-html:`<A HREF="bep_0035.html">33</A>`
+.. |34| replace:: :raw-html:`<A HREF="bep_0034.html">34</A>`
+.. |35| replace:: :raw-html:`<A HREF="bep_0035.html">35</A>`
 .. |1000| replace:: :raw-html:`<A HREF="bep_1000.html">1000</A>`

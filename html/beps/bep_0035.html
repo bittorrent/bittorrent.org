@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.8.1: http://docutils.sourceforge.net/" />
+<title></title>
+<meta name="author" content="Chris Brown &lt;cbrown&#64;bittorrent.com&gt;" />
+<link rel="stylesheet" href="../css/bep.css" type="text/css" />
+</head>
+<body>
+<div class="document">
+
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="../index.html">BitTorrent<span>.org</span></a></h1>
+</div>
+<div id="nav">
+<ul>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../introduction.html">For Users</a></li>
+<li><a href="bep_0000.html"><span>For Developers</span></a></li>
+<!-- <li><a href="./blog">Blog</a></li> -->
+<li><a href="http://forum.bittorrent.org"> Forums </li>
+<li><a href="../donate.html">Donate!</a></li>
+</ul>
+</div> <!-- nav -->
+<!-- ### Begin Content ### -->
+<div id="second">
+
+
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
+<tbody valign="top">
+<tr class="field"><th class="docinfo-name">BEP:</th><td class="field-body">35</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Title:</th><td class="field-body">Torrent Signing</td>
+</tr>
+<tr><th class="docinfo-name">Version:</th>
+<td>f277efe5ac873ed2c89df3133f6ca7e43b64cac4</td></tr>
+<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Tue Jul 31 12</td>
+</tr>
+<tr><th class="docinfo-name">Author:</th>
+<td>Chris Brown &lt;<a class="reference external" href="mailto:cbrown&#37;&#52;&#48;bittorrent&#46;com">cbrown<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;</td></tr>
+<tr><th class="docinfo-name">Status:</th>
+<td>Draft</td></tr>
+<tr class="field"><th class="docinfo-name">Type:</th><td class="field-body">Standards Track</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Created:</th><td class="field-body">27-July-2012</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Post-History:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="abstract">
+<h1>Abstract</h1>
+<p>When users open torrents, they normally receive a warning to alert them of the fact that the contents may be dangerous. If we can be confident that the torrent came from a trusted source, we can forego this unnecessary hassle and users can feel safer about downloading these files.</p>
+<p>To identify the source of a torrent, RSA signatures can be embedded into the .torrent file. These signatures can verify that the contents of the torrent have been unaltered, and by maintaining a database of trusted sources within the client, we can in turn trust the contents of the torrent.</p>
+<p>Furthermore, an entity that signs a torrent doesn't necessarily have to represent the source of the torrent. It can represent anyone who endorses the torrent and vouches for it's safety and authenticity.  Thus, a torrent may have multiple signatures.</p>
+</div>
+<div class="section" id="torrent-format">
+<h1>Torrent Format</h1>
+<p>If the .torrent file is signed, it contains a <em>signatures</em> key whose value is a dictionary. This dictionary's keys are unique identifiers of the signing entity in reverse-dns notation (e.g. com.bittorrent). To avoid conflicts, it's highly recommended that each identifier be based on a registered domain name that is owned by the signing entity. The corresponding value for each key is another dictionary whose keys are as follows:</p>
+<p><strong>Signature Keys</strong></p>
+<ul class="simple">
+<li><strong>certificate</strong> - Optional byte string. If present, the contents of this should be the DER encoded X.509 certificate used to sign the torrent. If this key is excluded, the user must already have this certificate stored and trusted. In most cases, if the certificate is a root certificate (i.e. it is not signed by another certificate), it is recommended that this key be excluded.</li>
+<li><strong>info</strong> - Optional dictionary. This key's only current purpose is to allow for future extensibility. The contents are signed, so anything within this can be assumed to have only been altered by the signing entity.</li>
+<li><strong>signature</strong> - Required byte string. This is the RSA signature of the concatenation of the torrent's info dictionary and the signature's info dictionary (if present).</li>
+</ul>
+<p>A certificate will be trusted if it is signed by a trusted entity. However, certificate chains of arbitrary length are not yet allowed.</p>
+<p><strong>Format Overview</strong></p>
+<pre class="literal-block">
+{
+    &quot;announce&quot;: ...,
+    &quot;info&quot;: { ... },
+    &quot;signatures&quot;: {
+        &quot;com.bittorrent&quot;: {
+            &quot;certificate&quot;: <em>optional, DER encoded x.509 certificate</em>,
+            &quot;info&quot;: { ... } <em>optional</em>,
+            &quot;signature&quot;: <em>signed data = info + sig info if present</em>,
+        },
+        ...
+    }
+}
+</pre>
+</div>
+<div class="section" id="signing-a-torrent">
+<h1>Signing a Torrent</h1>
+<p>These steps provide OpenSSL commands as examples, but can also be done with other tools.</p>
+<ol class="arabic simple">
+<li>Generate a public / private key pair.</li>
+</ol>
+<pre class="literal-block">
+openssl genrsa -des3 -out privkey.pem 2048
+</pre>
+<p>2. Create a certificate request.
+The common name should be a unique identifier for the
+entity in reverse-dns notation as explained above (e.g.
+com.bittorrent).</p>
+<pre class="literal-block">
+openssl req -new -key privkey.pem -out cert.csr
+</pre>
+<p>3. Send your certificate request to a certificate authority or sign / generate your own certificate.
+See <a class="reference internal" href="#generating-a-certificate-from-a-certificate-request">Generating a Certificate from a Certificate Request</a> below.</p>
+<ol class="arabic simple" start="4">
+<li>Use a tool such as <a class="reference external" href="https://github.com/bittorrent/ut-signing-tool">ut-signing-tool</a> to sign your torrent.</li>
+</ol>
+</div>
+<div class="section" id="generating-a-certificate-from-a-certificate-request">
+<h1>Generating a Certificate from a Certificate Request</h1>
+<p>OpenSSL is provided as an example, but this can also be done with other tools.</p>
+<p>Configure OpenSSL to not add any extensions to the certificate. This should make the certificate V1 which greatly reduces its size. To do this, comment out the following line in your openssl.cnf file:</p>
+<blockquote>
+<tt class="docutils literal">x509_extensions = usr_cert&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # The extensions to add to the cert</tt></blockquote>
+<p>Common locations of openssl.cnf:</p>
+<pre class="literal-block">
+OSX:      /System/Library/OpenSSL/openssl.cnf
+Ubuntu:   /etc/ssl/openssl.cnf
+RedHat:   /etc/pki/tls/openssl.cnf
+
+Other:    /usr/lib/ssl/openssl.cnf
+          /usr/local/ssl/openssl.cnf
+          /usr/local/openssl/openssl.cnf
+</pre>
+<p>Run the following command in OpenSSL. The serial number (after <em>-set_serial</em>) MUST be unique for ALL certificates you issue!</p>
+<pre class="literal-block">
+openssl x509 -req -days 365 -in cert.csr -CA cert.pem -CAkey privkey.pem -set_serial 01 -out newcert.pem
+</pre>
+</div>
+<div class="section" id="references">
+<h1>References</h1>
+</div>
+<div class="section" id="copyright">
+<h1>Copyright</h1>
+<p>This document has been placed in the public domain.</p>
+<!-- Local Variables:
+mode: indented-text
+indent-tabs-mode: nil
+sentence-end-double-space: t
+fill-column: 70
+coding: utf-8
+End: -->
+</div>
+
+</div>
+	<div id="footer">
+<hr/>
+</div>
+
+</div>
+</body>
+</html>

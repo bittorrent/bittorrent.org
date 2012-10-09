@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.8.1: http://docutils.sourceforge.net/" />
+<meta name="generator" content="Docutils 0.9.1: http://docutils.sourceforge.net/" />
 <title></title>
 <meta name="author" content="Arvid Norberg &lt;arvid&#64;bittorrent.com&gt;" />
 <link rel="stylesheet" href="../css/bep.css" type="text/css" />
@@ -39,8 +39,8 @@
 <tr class="field"><th class="docinfo-name">Title:</th><td class="field-body">Torrent RSS feeds</td>
 </tr>
 <tr><th class="docinfo-name">Version:</th>
-<td>f3b927a6bad7e4049f929cc30f3f467256fd68b6</td></tr>
-<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Tue Oct 9 01</td>
+<td>98e39c80d7fb595cda1f6e663a98980e2c3d0eb6</td></tr>
+<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Tue Oct 9 07</td>
 </tr>
 <tr><th class="docinfo-name">Author:</th>
 <td>Arvid Norberg &lt;<a class="reference external" href="mailto:arvid&#37;&#52;&#48;bittorrent&#46;com">arvid<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;</td></tr>
@@ -61,8 +61,8 @@
 <div class="section" id="terminology">
 <h1>Terminology</h1>
 <p>For the purpose of the BEP, the term torrent link will be used to identify any kind of URL
-identifying a torrent. This may be either and HTTP URL pointing to a .torrent file or
-a magnet link identifying a torrent info-hash.</p>
+identifying a torrent. This may be either an HTTP or HTTPS URL pointing to a .torrent file or
+a <a class="reference external" href="bep0009.html">magnet link</a> identifying a torrent info-hash.</p>
 </div>
 <div class="section" id="client-support">
 <h1>Client support</h1>
@@ -107,7 +107,7 @@ a magnet link identifying a torrent info-hash.</p>
 </tbody>
 </table>
 <p>RSS 2.0 are feeds based on the rss/channel/item tags.</p>
-<p>Atom are feeds based on the feed/entry</p>
+<p>Atom are feeds based on the feed/entry tags.</p>
 <p>The following table indicates which tags are supported for <em>items</em> in a feed. Only tags
 that identify the torrent are included, since those are the key tags. The <tt class="docutils literal">ttl</tt> tag is
 used by the server to indicate how frequently subscribers should refresh the feed.</p>
@@ -190,10 +190,12 @@ used by the server to indicate how frequently subscribers should refresh the fee
 </tr>
 </tbody>
 </table>
-<p>[1] Does not support the <tt class="docutils literal">length</tt>-attribute
-[2] Azureus tolerates HTML in descriptions, but strips mark-up
-[3] Based on org.kmallan.azureus.rssfeed.Scheduler.java from <a class="reference external" href="http://azureus.sourceforge.net/plugin_details.php?plugin=rssfeed">http://azureus.sourceforge.net/plugin_details.php?plugin=rssfeed</a> , version 1.3.6
-[4] Uses YaRSS2 <a class="reference external" href="https://github.com/bendikro/deluge-yarss-plugin/blob/master/yarss2/lib/feedparser.py">https://github.com/bendikro/deluge-yarss-plugin/blob/master/yarss2/lib/feedparser.py</a></p>
+<div class="line-block">
+<div class="line">[1] Does not support the <tt class="docutils literal">length</tt>-attribute</div>
+<div class="line">[2] Azureus tolerates HTML in descriptions, but strips mark-up</div>
+<div class="line">[3] Based on org.kmallan.azureus.rssfeed.Scheduler.java from <a class="reference external" href="http://azureus.sourceforge.net/plugin_details.php?plugin=rssfeed">http://azureus.sourceforge.net/plugin_details.php?plugin=rssfeed</a> , version 1.3.6</div>
+<div class="line">[4] Uses YaRSS2 <a class="reference external" href="https://github.com/bendikro/deluge-yarss-plugin/blob/master/yarss2/lib/feedparser.py">https://github.com/bendikro/deluge-yarss-plugin/blob/master/yarss2/lib/feedparser.py</a></div>
+</div>
 <p>By far the most well supported format for feeds among bittorrent clients are <em>RSS</em> (as opposed to Atom)
 and the <tt class="docutils literal">enclosure</tt> tag for torrent content.</p>
 <div class="section" id="enclosure">
@@ -259,6 +261,19 @@ occur in this tag, containing the magnet link and name of the torrent respective
 <pre class="literal-block">
 &lt;guid&gt;http://featuredcontent.utorrent.com/torrents/WillisEarlBeal-BitTorrent.torrent&lt;/guid&gt;
 </pre>
+<p>However, for the most part, clients expect the GUID to simply be a unique
+identifier for this piece of content and is only used to avoid downloading
+duplicates. uTorrent is an exception in that it also looks for torrent links
+in the guid tag.</p>
+</div>
+<div class="section" id="conclusions">
+<h2>conclusions</h2>
+<p>Even though this section may look like a comparison of clients, its main
+point is that there are currently a very large number of ways of representing
+torrents in RSS feeds, and clients support some and not others.</p>
+<p>The main take away from the client support is that there is a distinct need for
+a standardization document like this, to make torrent RSS feeds less of a black
+art, and to provide clear recommendations for torrent feed providers.</p>
 </div>
 </div>
 <div class="section" id="torrent-rss-feeds">
@@ -283,14 +298,14 @@ If practical, the <tt class="docutils literal">guid</tt> SHOULD be the info-hash
 would match across different feeds.</p>
 <p>Example:</p>
 <pre class="literal-block">
-&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
-&lt;rss version=&quot;2.0&quot;&gt;
-        &lt;channel&gt;
-                &lt;title&gt;Featured content&lt;/title&gt;
-                &lt;link&gt;http://featuredcontent.utorrent.com/&lt;/link&gt;
-                &lt;item&gt;
-                        &lt;title&gt;WillisEarlBeal-BitTorrent&lt;/title&gt;
-                        &lt;description&gt;
+<strong>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;</strong>
+<strong>&lt;rss version=&quot;2.0&quot;&gt;</strong>
+        <strong>&lt;channel&gt;</strong>
+                <strong>&lt;title&gt;</strong> Featured content <strong>&lt;/title&gt;</strong>
+                <strong>&lt;link&gt;</strong> <a class="reference external" href="http://featuredcontent.utorrent.com/">http://featuredcontent.utorrent.com/</a> <strong>&lt;/link&gt;</strong>
+                <strong>&lt;item&gt;</strong>
+                        <strong>&lt;title&gt;</strong> WillisEarlBeal-BitTorrent <strong>&lt;/title&gt;</strong>
+                        <strong>&lt;description&gt;</strong>
                                 The Principles of a Protagonist Bundle
 
                                 Chicago native Willis Earl Beal came from humble musical beginnings- he
@@ -300,14 +315,49 @@ would match across different feeds.</p>
                                 he continued his practice of 'gifting' as he simultaneously recorded a
                                 set of songs on a discarded karaoke machine that would become Acousmatic
                                 Sorcery, his Hot Charity/XL Recordings debut.
-                        &lt;/description&gt;
-                        &lt;guid&gt;e380a6c5ae0fb15f296d29964a56250780b05ad7&lt;/guid&gt;
-                        &lt;enclosure url=&quot;http://featuredcontent.utorrent.com/torrents/WillisEarlBeal-BitTorrent.torrent&quot;
-                                length=&quot;168773863&quot; type=&quot;application/x-bittorrent&quot; /&gt;
-                &lt;/item&gt;
-        &lt;/channel&gt;
-&lt;/rss&gt;
+                        <strong>&lt;/description&gt;</strong>
+                        <strong>&lt;guid&gt;</strong> e380a6c5ae0fb15f296d29964a56250780b05ad7 <strong>&lt;/guid&gt;</strong>
+                        <strong>&lt;enclosure
+                                url=&quot;http://featuredcontent.utorrent.com/torrents/WillisEarlBeal-BitTorrent.torrent&quot;
+                                length=&quot;168773863&quot; type=&quot;application/x-bittorrent&quot; /&gt;</strong>
+                <strong>&lt;/item&gt;</strong>
+        <strong>&lt;/channel&gt;</strong>
+<strong>&lt;/rss&gt;</strong>
 </pre>
+<div class="section" id="extended-torrent-attributes">
+<h2>extended torrent attributes</h2>
+<p>For torrent sites providing listings of torrents along with more detailed statistics,
+the recommended tags are the ones defined by <a class="reference external" href="http://xmlns.ezrss.it/0.1/">eztv</a>.</p>
+<p>Example:</p>
+<pre class="literal-block">
+<strong>&lt;torrent&gt;</strong>
+        <strong>&lt;filename&gt;</strong> WillisEarlBeal-BitTorrent <strong>&lt;/filename&gt;</strong>
+        <strong>&lt;contentlength&gt;</strong> 28571661 <strong>&lt;/contentlength&gt;</strong>
+        <strong>&lt;magneturi&gt;</strong> magnet:?xt=urn:btih:e380a6c5ae0fb15f296d29964a56250780b05ad7&amp;dn=WillisEarlBean <strong>&lt;/magneturi&gt;</strong>
+        <strong>&lt;trackers&gt;</strong>
+                <strong>&lt;group order=&quot;ordered&quot;&gt;</strong>
+                        <strong>&lt;tracker seeds=&quot;359&quot; peers=&quot;3961&quot;&gt;</strong>
+                                udp://tracker.openbittorrent.com:80/announce
+                        <strong>&lt;/tracker&gt;</strong>
+                <strong>&lt;/group&gt;</strong>
+                <strong>&lt;group order=&quot;random&quot;&gt;</strong>
+                        <strong>&lt;tracker seeds=&quot;365&quot; peers=&quot;4451&quot;&gt;</strong>
+                                <a class="reference external" href="http://tracker.publicbt.com/announce">http://tracker.publicbt.com/announce</a>
+                        <strong>&lt;/tracker&gt;</strong>
+                        <strong>&lt;tracker seeds=&quot;367&quot; peers=&quot;4434&quot;&gt;</strong>
+                                udp://tracker.publicbt.com:80/announce
+                        <strong>&lt;/tracker&gt;</strong>
+                        <strong>&lt;tracker seeds=&quot;565&quot; peers=&quot;6406&quot;&gt;</strong>
+                                udp://tracker.istole.it:80/announce
+                        <strong>&lt;/tracker&gt;</strong>
+                        <strong>&lt;tracker seeds=&quot;0&quot; peers=&quot;0&quot;&gt;</strong>
+                                <a class="reference external" href="http://tracker.hexagon.cc:2710/announce">http://tracker.hexagon.cc:2710/announce</a>
+                        <strong>&lt;/tracker&gt;</strong>
+                <strong>&lt;/group&gt;</strong>
+        <strong>&lt;/trackers&gt;</strong>
+<strong>&lt;/torrent&gt;</strong>
+</pre>
+</div>
 </div>
 <div class="section" id="copyright">
 <h1>Copyright</h1>

@@ -83,6 +83,7 @@ Num        Title
 |33|       :raw-html:`<A HREF="bep_0033.html">DHT scrape</A>`
 |34|       :raw-html:`<A HREF="bep_0034.html">DNS Tracker Preferences</A>`
 |35|       :raw-html:`<A HREF="bep_0035.html">Torrent Signing</A>`
+|36|       :raw-html:`<A HREF="bep_0036.html">Torrent RSS feeds</A>`
 ======     ===================
 
 
@@ -144,4 +145,5 @@ At this time, no BEPs have been rejected.
 .. |33| replace:: :raw-html:`<A HREF="bep_0033.html">33</A>`
 .. |34| replace:: :raw-html:`<A HREF="bep_0034.html">34</A>`
 .. |35| replace:: :raw-html:`<A HREF="bep_0035.html">35</A>`
+.. |36| replace:: :raw-html:`<A HREF="bep_0035.html">36</A>`
 .. |1000| replace:: :raw-html:`<A HREF="bep_1000.html">1000</A>`

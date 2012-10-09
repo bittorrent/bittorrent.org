@@ -1,0 +1,217 @@
+:BEP: 36
+:Title: Torrent RSS feeds
+:Version: $Revision$
+:Last-Modified: $Date$
+:Author:  Arvid Norberg <arvid@bittorrent.com>
+:Status:  Draft
+:Type:    Standards Track
+:Created: 9-October-2012
+:Post-History:
+
+Abstract
+========
+
+It has become common practice to public RSS feeds linking to content by using torrent files. This BEP attempts to document and standardize how to format such RSS feeds.
+
+Terminology
+===========
+
+For the purpose of the BEP, the term torrent link will be used to identify any kind of URL
+identifying a torrent. This may be either and HTTP URL pointing to a .torrent file or
+a magnet link identifying a torrent info-hash.
+
+Client support
+==============
+
+This section will document which RSS formats currently are supported by bittorrent clients.
+
++-----------------------------+---------+--------+
+| client                      | RSS 2.0 | Atom   |
++=============================+=========+========+
+| uTorrent                    | Yes     | No     |
++-----------------------------+---------+--------+
+| Azureus                     | Yes     | No     |
++-----------------------------+---------+--------+
+| Deluge                      | Yes     | Yes    |
++-----------------------------+---------+--------+
+| qBittorrent                 | Yes     | No     |
++-----------------------------+---------+--------+
+| KTorrent                    | Yes     | Yes    |
++-----------------------------+---------+--------+
+| libtorrent                  | Yes     | Yes    |
++-----------------------------+---------+--------+
+
+RSS 2.0 are feeds based on the rss/channel/item tags.
+
+Atom are feeds based on the feed/entry
+
+The following table indicates which tags are supported for *items* in a feed. Only tags
+that identify the torrent are included, since those are the key tags. The ``ttl`` tag is
+used by the server to indicate how frequently subscribers should refresh the feed.
+
++-----------------------------+--------+-------------+-----------------+--------------+--------+-----------+--------+
+| client                      | <ttl>  | <enclosure> | <media:content> | <media:hash> | <link> | <torrent> | <guid> |
++=============================+========+=============+=================+==============+========+===========+========+
+| uTorrent                    | Yes    | Yes         | Yes             | Yes          | Yes    | Yes       | Yes    |
++-----------------------------+--------+-------------+-----------------+--------------+--------+-----------+--------+
+| Azureus [3]                 | Yes    | Yes [1]     | No              | No           | Yes    | No        | No     |
++-----------------------------+--------+-------------+-----------------+--------------+--------+-----------+--------+
+| Deluge [4]                  | Yes    | Yes [1]     | No              | No           | No     | No        | No     |
++-----------------------------+--------+-------------+-----------------+--------------+--------+-----------+--------+
+| qBittorrent                 | No     | Yes [1]     | No              | No           | No     | No        | No     |
++-----------------------------+--------+-------------+-----------------+--------------+--------+-----------+--------+
+| KTorrent                    | ?      | Yes [1]     | No              | No           | No     | No        | No     |
++-----------------------------+--------+-------------+-----------------+--------------+--------+-----------+--------+
+| libtorrent                  | Yes    | Yes         | Yes             | No           | Yes    | No        | No     |
++-----------------------------+--------+-------------+-----------------+--------------+--------+-----------+--------+
+
+[1] Does not support the ``length``-attribute
+[2] Azureus tolerates HTML in descriptions, but strips mark-up
+[3] Based on org.kmallan.azureus.rssfeed.Scheduler.java from http://azureus.sourceforge.net/plugin_details.php?plugin=rssfeed , version 1.3.6
+[4] Uses YaRSS2 https://github.com/bendikro/deluge-yarss-plugin/blob/master/yarss2/lib/feedparser.py
+
+By far the most well supported format for feeds among bittorrent clients are *RSS* (as opposed to Atom)
+and the ``enclosure`` tag for torrent content.
+
+enclosure
+---------
+
+The enclosure tag MUST have a ``type`` attribute set to "application/x-bittorrent" and
+MUST store the torrent linke in a ``url`` attribute. It MAY have a ``length`` attribute,
+which should indicate the size of the torrent's content in bytes.
+
+Example::
+
+	<enclosure type="application/x-bittorrent" length="12216320" url="http://featuredcontent.utorrent.com/torrents/WillisEarlBeal-BitTorrent.torrent"/>
+
+media:content
+-------------
+
+The media content tag is really the "content" tag under the namespace ``http://search.yahoo.com/mrss/``. Most bittorrent
+clients don't support XML namespaces in their generic form. Most clients that support the ``media:content`` tag
+assume that the namespace is called ``media`` in the feed, and will not recognize the tag otherwise.
+
+For more information see `the media RSS specification`_.
+
+.. _`the media RSS specification`: http://search.yahoo.com/mrss/
+
+The ``media::content`` tag includes metadata as attributes. The ones relevant to bittorrent clients are
+``url`` which is the torrent link, and ``filesize`` which is the size of the torrent's content (in bytes).
+
+Example::
+
+	<media:content url="http://featuredcontent.utorrent.com/torrents/WillisEarlBeal-BitTorrent.torrent" fileSize="12216320"/>
+
+media:hash
+----------
+
+The media hash tag provides the info hash of the torrent hex encoded.
+
+Example::
+
+	<media:hash algo="sha1"><8c056e06fbc16d2a2be79cefbf3e4ddc15396abe/media:hash>
+
+
+link
+----
+
+The link tag contains the torrent link as its body.
+
+Example::
+
+	<link>http://featuredcontent.utorrent.com/torrents/WillisEarlBeal-BitTorrent.torrent</link>
+
+torrent
+-------
+
+The torrent tag can be used instead of magnet links or to complement another tag which has
+a torrent link in it. The torrent tag only provides two attributes; ``infohash`` and
+``contentlength``. Which is supposed to be the hex encoded info-hash of the torrent and
+the size of the torrent's content respectively.
+
+Although uTorrent doesn't support any other tags, ``magneturi`` and ``filename`` typically
+occur in this tag, containing the magnet link and name of the torrent respectively
+
+Example::
+
+	<torrent>
+		<infohash>"8c056e06fbc16d2a2be79cefbf3e4ddc15396abe</infohash>
+		<contentlength>600162597</contentlength>
+	</torrent>
+
+For more information, see the xmlns_.
+
+.. _xmlns: http://xmlns.ezrss.it/0.1/
+
+guid
+----
+
+Sometimes the torrent link is encoded as the GUID in RSS feeds.
+
+Example::
+
+	<guid>http://featuredcontent.utorrent.com/torrents/WillisEarlBeal-BitTorrent.torrent</guid>
+
+Torrent RSS feeds
+=================
+
+The proposed standard RSS feed format for torrents is an RSS 2.0 feed using
+the ``enclosure`` tag for torrent content.
+
+The ``ttl`` tag SHOULD be supported and honored. The definition of the value
+inside the ``ttl`` tag is the number of seconds to wait until the client should refresh
+the feed the next time.
+
+The ``enclosure`` tag MUST include a ``type`` attribute set to ``application/x-bittorrent``
+and MUST include a ``url`` attribute containing the torrent link. Furthermore, it SHOULD, if
+reasonably practical, contain a ``length`` attribute as well. The value of the ``length``
+attribute indicates the size of the torrent's content, specified in number of bytes.
+
+If an ``enclosure`` tag matching the above mentioned specifications, it SHOULD take priority
+over any other tag found in the RSS ``item``.
+
+The ``title`` tag SHOULD be used for the name of the torrent.
+
+The ``description`` tag MAY be used for a description of the content. If a ``description`` tag
+is available, it SHOULD NOT contain any markup. It should be plain text.
+
+Example::
+
+	<?xml version="1.0" encoding="utf-8"?>
+	<rss version="2.0">
+		<channel>
+			<title>Featured content</title>
+			<link>http://featuredcontent.utorrent.com/</link>
+			<item>
+				<title>WillisEarlBeal-BitTorrent</title>
+				<description>
+					The Principles of a Protagonist Bundle
+
+					Chicago native Willis Earl Beal came from humble musical beginnings- he
+					began as a street performer of sorts that was prone to leaving homemade
+					novels, artwork and CD-Rs across America to promote his work, suggesting
+					a desire to be heard. Thereafter, he relocated to Albuquerque, NM where
+					he continued his practice of 'gifting' as he simultaneously recorded a
+					set of songs on a discarded karaoke machine that would become Acousmatic
+					Sorcery, his Hot Charity/XL Recordings debut.
+				</description>
+				<enclosure url="http://featuredcontent.utorrent.com/torrents/WillisEarlBeal-BitTorrent.torrent"
+					length="168773863" type="application/x-bittorrent" />
+			</item>
+		</channel>
+	</rss>
+
+Copyright
+=========
+
+This document has been placed in the public domain.
+
+
+..
+   Local Variables:
+   mode: indented-text
+   indent-tabs-mode: nil
+   sentence-end-double-space: t
+   fill-column: 70
+   coding: utf-8
+   End:

@@ -86,7 +86,7 @@ enclosure
 ---------
 
 The enclosure tag MUST have a ``type`` attribute set to "application/x-bittorrent" and
-MUST store the torrent linke in a ``url`` attribute. It MAY have a ``length`` attribute,
+MUST store the torrent link in a ``url`` attribute. It MAY have a ``length`` attribute,
 which should indicate the size of the torrent's content in bytes.
 
 Example::
@@ -134,7 +134,7 @@ torrent
 -------
 
 The torrent tag can be used instead of magnet links or to complement another tag which has
-a torrent link in it. The torrent tag only provides two attributes; ``infohash`` and
+a torrent link in it. The torrent tag only provides two attributes, ``infohash`` and
 ``contentlength``, which are supposed to be the hex encoded info-hash of the torrent and
 the size of the torrent's content respectively.
 

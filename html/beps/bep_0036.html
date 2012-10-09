@@ -39,7 +39,7 @@
 <tr class="field"><th class="docinfo-name">Title:</th><td class="field-body">Torrent RSS feeds</td>
 </tr>
 <tr><th class="docinfo-name">Version:</th>
-<td>3d62f35300480c64752215e9d49251314c0bbdca</td></tr>
+<td>fa9af611f502d76434d29905c0ec6ec4a624f5d9</td></tr>
 <tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Tue Oct 9 11</td>
 </tr>
 <tr><th class="docinfo-name">Author:</th>
@@ -205,7 +205,7 @@ and the <tt class="docutils literal">enclosure</tt> tag for torrent content.</p>
 <div class="section" id="enclosure">
 <h2>enclosure</h2>
 <p>The enclosure tag MUST have a <tt class="docutils literal">type</tt> attribute set to &quot;application/x-bittorrent&quot; and
-MUST store the torrent linke in a <tt class="docutils literal">url</tt> attribute. It MAY have a <tt class="docutils literal">length</tt> attribute,
+MUST store the torrent link in a <tt class="docutils literal">url</tt> attribute. It MAY have a <tt class="docutils literal">length</tt> attribute,
 which should indicate the size of the torrent's content in bytes.</p>
 <p>Example:</p>
 <pre class="literal-block">
@@ -244,7 +244,7 @@ assume that the namespace is called <tt class="docutils literal">media</tt> in t
 <div class="section" id="torrent">
 <h2>torrent</h2>
 <p>The torrent tag can be used instead of magnet links or to complement another tag which has
-a torrent link in it. The torrent tag only provides two attributes; <tt class="docutils literal">infohash</tt> and
+a torrent link in it. The torrent tag only provides two attributes, <tt class="docutils literal">infohash</tt> and
 <tt class="docutils literal">contentlength</tt>, which are supposed to be the hex encoded info-hash of the torrent and
 the size of the torrent's content respectively.</p>
 <p>Although uTorrent doesn't support any other tags, <tt class="docutils literal">magneturi</tt> and <tt class="docutils literal">filename</tt> typically

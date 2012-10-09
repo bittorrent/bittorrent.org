@@ -175,6 +175,11 @@ The ``title`` tag SHOULD be used for the name of the torrent.
 The ``description`` tag MAY be used for a description of the content. If a ``description`` tag
 is available, it SHOULD NOT contain any markup. It should be plain text.
 
+Clients often need to identify whether a torrent has already been downloaded or not just
+by inspecting the ``item``. For this reason, RSS feeds SHOULD include a ``guid`` field.
+If practical, the ``guid`` SHOULD be the info-hash of the torrent. That way, GUIDs
+would match across different feeds.
+
 Example::
 
 	<?xml version="1.0" encoding="utf-8"?>
@@ -195,6 +200,7 @@ Example::
 					set of songs on a discarded karaoke machine that would become Acousmatic
 					Sorcery, his Hot Charity/XL Recordings debut.
 				</description>
+				<guid>e380a6c5ae0fb15f296d29964a56250780b05ad7</guid>
 				<enclosure url="http://featuredcontent.utorrent.com/torrents/WillisEarlBeal-BitTorrent.torrent"
 					length="168773863" type="application/x-bittorrent" />
 			</item>

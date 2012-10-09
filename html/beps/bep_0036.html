@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.8.1: http://docutils.sourceforge.net/" />
+<title></title>
+<meta name="author" content="Arvid Norberg &lt;arvid&#64;bittorrent.com&gt;" />
+<link rel="stylesheet" href="../css/bep.css" type="text/css" />
+</head>
+<body>
+<div class="document">
+
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="../index.html">BitTorrent<span>.org</span></a></h1>
+</div>
+<div id="nav">
+<ul>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../introduction.html">For Users</a></li>
+<li><a href="bep_0000.html"><span>For Developers</span></a></li>
+<!-- <li><a href="./blog">Blog</a></li> -->
+<li><a href="http://forum.bittorrent.org"> Forums </li>
+<li><a href="../donate.html">Donate!</a></li>
+</ul>
+</div> <!-- nav -->
+<!-- ### Begin Content ### -->
+<div id="second">
+
+
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
+<tbody valign="top">
+<tr class="field"><th class="docinfo-name">BEP:</th><td class="field-body">36</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Title:</th><td class="field-body">Torrent RSS feeds</td>
+</tr>
+<tr><th class="docinfo-name">Version:</th>
+<td>f3b927a6bad7e4049f929cc30f3f467256fd68b6</td></tr>
+<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Tue Oct 9 01</td>
+</tr>
+<tr><th class="docinfo-name">Author:</th>
+<td>Arvid Norberg &lt;<a class="reference external" href="mailto:arvid&#37;&#52;&#48;bittorrent&#46;com">arvid<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;</td></tr>
+<tr><th class="docinfo-name">Status:</th>
+<td>Draft</td></tr>
+<tr class="field"><th class="docinfo-name">Type:</th><td class="field-body">Standards Track</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Created:</th><td class="field-body">9-October-2012</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Post-History:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="abstract">
+<h1>Abstract</h1>
+<p>It has become common practice to public RSS feeds linking to content by using torrent files. This BEP attempts to document and standardize how to format such RSS feeds.</p>
+</div>
+<div class="section" id="terminology">
+<h1>Terminology</h1>
+<p>For the purpose of the BEP, the term torrent link will be used to identify any kind of URL
+identifying a torrent. This may be either and HTTP URL pointing to a .torrent file or
+a magnet link identifying a torrent info-hash.</p>
+</div>
+<div class="section" id="client-support">
+<h1>Client support</h1>
+<p>This section will document which RSS formats currently are supported by bittorrent clients.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="63%" />
+<col width="20%" />
+<col width="17%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">client</th>
+<th class="head">RSS 2.0</th>
+<th class="head">Atom</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>uTorrent</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr><td>Azureus</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr><td>Deluge</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr><td>qBittorrent</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr><td>KTorrent</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr><td>libtorrent</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<p>RSS 2.0 are feeds based on the rss/channel/item tags.</p>
+<p>Atom are feeds based on the feed/entry</p>
+<p>The following table indicates which tags are supported for <em>items</em> in a feed. Only tags
+that identify the torrent are included, since those are the key tags. The <tt class="docutils literal">ttl</tt> tag is
+used by the server to indicate how frequently subscribers should refresh the feed.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="27%" />
+<col width="7%" />
+<col width="12%" />
+<col width="16%" />
+<col width="13%" />
+<col width="7%" />
+<col width="10%" />
+<col width="7%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">client</th>
+<th class="head">&lt;ttl&gt;</th>
+<th class="head">&lt;enclosure&gt;</th>
+<th class="head">&lt;media:content&gt;</th>
+<th class="head">&lt;media:hash&gt;</th>
+<th class="head">&lt;link&gt;</th>
+<th class="head">&lt;torrent&gt;</th>
+<th class="head">&lt;guid&gt;</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>uTorrent</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr><td>Azureus [3]</td>
+<td>Yes</td>
+<td>Yes [1]</td>
+<td>No</td>
+<td>No</td>
+<td>Yes</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr><td>Deluge [4]</td>
+<td>Yes</td>
+<td>Yes [1]</td>
+<td>No</td>
+<td>No</td>
+<td>No</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr><td>qBittorrent</td>
+<td>No</td>
+<td>Yes [1]</td>
+<td>No</td>
+<td>No</td>
+<td>No</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr><td>KTorrent</td>
+<td>?</td>
+<td>Yes [1]</td>
+<td>No</td>
+<td>No</td>
+<td>No</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr><td>libtorrent</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>No</td>
+<td>Yes</td>
+<td>No</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<p>[1] Does not support the <tt class="docutils literal">length</tt>-attribute
+[2] Azureus tolerates HTML in descriptions, but strips mark-up
+[3] Based on org.kmallan.azureus.rssfeed.Scheduler.java from <a class="reference external" href="http://azureus.sourceforge.net/plugin_details.php?plugin=rssfeed">http://azureus.sourceforge.net/plugin_details.php?plugin=rssfeed</a> , version 1.3.6
+[4] Uses YaRSS2 <a class="reference external" href="https://github.com/bendikro/deluge-yarss-plugin/blob/master/yarss2/lib/feedparser.py">https://github.com/bendikro/deluge-yarss-plugin/blob/master/yarss2/lib/feedparser.py</a></p>
+<p>By far the most well supported format for feeds among bittorrent clients are <em>RSS</em> (as opposed to Atom)
+and the <tt class="docutils literal">enclosure</tt> tag for torrent content.</p>
+<div class="section" id="enclosure">
+<h2>enclosure</h2>
+<p>The enclosure tag MUST have a <tt class="docutils literal">type</tt> attribute set to &quot;application/x-bittorrent&quot; and
+MUST store the torrent linke in a <tt class="docutils literal">url</tt> attribute. It MAY have a <tt class="docutils literal">length</tt> attribute,
+which should indicate the size of the torrent's content in bytes.</p>
+<p>Example:</p>
+<pre class="literal-block">
+&lt;enclosure type=&quot;application/x-bittorrent&quot; length=&quot;12216320&quot; url=&quot;http://featuredcontent.utorrent.com/torrents/WillisEarlBeal-BitTorrent.torrent&quot;/&gt;
+</pre>
+</div>
+<div class="section" id="media-content">
+<h2>media:content</h2>
+<p>The media content tag is really the &quot;content&quot; tag under the namespace <tt class="docutils literal"><span class="pre">http://search.yahoo.com/mrss/</span></tt>. Most bittorrent
+clients don't support XML namespaces in their generic form. Most clients that support the <tt class="docutils literal">media:content</tt> tag
+assume that the namespace is called <tt class="docutils literal">media</tt> in the feed, and will not recognize the tag otherwise.</p>
+<p>For more information see <a class="reference external" href="http://search.yahoo.com/mrss/">the media RSS specification</a>.</p>
+<p>The <tt class="docutils literal"><span class="pre">media::content</span></tt> tag includes metadata as attributes. The ones relevant to bittorrent clients are
+<tt class="docutils literal">url</tt> which is the torrent link, and <tt class="docutils literal">filesize</tt> which is the size of the torrent's content (in bytes).</p>
+<p>Example:</p>
+<pre class="literal-block">
+&lt;media:content url=&quot;http://featuredcontent.utorrent.com/torrents/WillisEarlBeal-BitTorrent.torrent&quot; fileSize=&quot;12216320&quot;/&gt;
+</pre>
+</div>
+<div class="section" id="media-hash">
+<h2>media:hash</h2>
+<p>The media hash tag provides the info hash of the torrent hex encoded.</p>
+<p>Example:</p>
+<pre class="literal-block">
+&lt;media:hash algo=&quot;sha1&quot;&gt;&lt;8c056e06fbc16d2a2be79cefbf3e4ddc15396abe/media:hash&gt;
+</pre>
+</div>
+<div class="section" id="link">
+<h2>link</h2>
+<p>The link tag contains the torrent link as its body.</p>
+<p>Example:</p>
+<pre class="literal-block">
+&lt;link&gt;http://featuredcontent.utorrent.com/torrents/WillisEarlBeal-BitTorrent.torrent&lt;/link&gt;
+</pre>
+</div>
+<div class="section" id="torrent">
+<h2>torrent</h2>
+<p>The torrent tag can be used instead of magnet links or to complement another tag which has
+a torrent link in it. The torrent tag only provides two attributes; <tt class="docutils literal">infohash</tt> and
+<tt class="docutils literal">contentlength</tt>. Which is supposed to be the hex encoded info-hash of the torrent and
+the size of the torrent's content respectively.</p>
+<p>Although uTorrent doesn't support any other tags, <tt class="docutils literal">magneturi</tt> and <tt class="docutils literal">filename</tt> typically
+occur in this tag, containing the magnet link and name of the torrent respectively</p>
+<p>Example:</p>
+<pre class="literal-block">
+&lt;torrent&gt;
+        &lt;infohash&gt;&quot;8c056e06fbc16d2a2be79cefbf3e4ddc15396abe&lt;/infohash&gt;
+        &lt;contentlength&gt;600162597&lt;/contentlength&gt;
+&lt;/torrent&gt;
+</pre>
+<p>For more information, see the <a class="reference external" href="http://xmlns.ezrss.it/0.1/">xmlns</a>.</p>
+</div>
+<div class="section" id="guid">
+<h2>guid</h2>
+<p>Sometimes the torrent link is encoded as the GUID in RSS feeds.</p>
+<p>Example:</p>
+<pre class="literal-block">
+&lt;guid&gt;http://featuredcontent.utorrent.com/torrents/WillisEarlBeal-BitTorrent.torrent&lt;/guid&gt;
+</pre>
+</div>
+</div>
+<div class="section" id="torrent-rss-feeds">
+<h1>Torrent RSS feeds</h1>
+<p>The proposed standard RSS feed format for torrents is an RSS 2.0 feed using
+the <tt class="docutils literal">enclosure</tt> tag for torrent content.</p>
+<p>The <tt class="docutils literal">ttl</tt> tag SHOULD be supported and honored. The definition of the value
+inside the <tt class="docutils literal">ttl</tt> tag is the number of seconds to wait until the client should refresh
+the feed the next time.</p>
+<p>The <tt class="docutils literal">enclosure</tt> tag MUST include a <tt class="docutils literal">type</tt> attribute set to <tt class="docutils literal"><span class="pre">application/x-bittorrent</span></tt>
+and MUST include a <tt class="docutils literal">url</tt> attribute containing the torrent link. Furthermore, it SHOULD, if
+reasonably practical, contain a <tt class="docutils literal">length</tt> attribute as well. The value of the <tt class="docutils literal">length</tt>
+attribute indicates the size of the torrent's content, specified in number of bytes.</p>
+<p>If an <tt class="docutils literal">enclosure</tt> tag matching the above mentioned specifications, it SHOULD take priority
+over any other tag found in the RSS <tt class="docutils literal">item</tt>.</p>
+<p>The <tt class="docutils literal">title</tt> tag SHOULD be used for the name of the torrent.</p>
+<p>The <tt class="docutils literal">description</tt> tag MAY be used for a description of the content. If a <tt class="docutils literal">description</tt> tag
+is available, it SHOULD NOT contain any markup. It should be plain text.</p>
+<p>Clients often need to identify whether a torrent has already been downloaded or not just
+by inspecting the <tt class="docutils literal">item</tt>. For this reason, RSS feeds SHOULD include a <tt class="docutils literal">guid</tt> field.
+If practical, the <tt class="docutils literal">guid</tt> SHOULD be the info-hash of the torrent. That way, GUIDs
+would match across different feeds.</p>
+<p>Example:</p>
+<pre class="literal-block">
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;rss version=&quot;2.0&quot;&gt;
+        &lt;channel&gt;
+                &lt;title&gt;Featured content&lt;/title&gt;
+                &lt;link&gt;http://featuredcontent.utorrent.com/&lt;/link&gt;
+                &lt;item&gt;
+                        &lt;title&gt;WillisEarlBeal-BitTorrent&lt;/title&gt;
+                        &lt;description&gt;
+                                The Principles of a Protagonist Bundle
+
+                                Chicago native Willis Earl Beal came from humble musical beginnings- he
+                                began as a street performer of sorts that was prone to leaving homemade
+                                novels, artwork and CD-Rs across America to promote his work, suggesting
+                                a desire to be heard. Thereafter, he relocated to Albuquerque, NM where
+                                he continued his practice of 'gifting' as he simultaneously recorded a
+                                set of songs on a discarded karaoke machine that would become Acousmatic
+                                Sorcery, his Hot Charity/XL Recordings debut.
+                        &lt;/description&gt;
+                        &lt;guid&gt;e380a6c5ae0fb15f296d29964a56250780b05ad7&lt;/guid&gt;
+                        &lt;enclosure url=&quot;http://featuredcontent.utorrent.com/torrents/WillisEarlBeal-BitTorrent.torrent&quot;
+                                length=&quot;168773863&quot; type=&quot;application/x-bittorrent&quot; /&gt;
+                &lt;/item&gt;
+        &lt;/channel&gt;
+&lt;/rss&gt;
+</pre>
+</div>
+<div class="section" id="copyright">
+<h1>Copyright</h1>
+<p>This document has been placed in the public domain.</p>
+<!-- Local Variables:
+mode: indented-text
+indent-tabs-mode: nil
+sentence-end-double-space: t
+fill-column: 70
+coding: utf-8
+End: -->
+</div>
+
+</div>
+	<div id="footer">
+<hr/>
+</div>
+
+</div>
+</body>
+</html>

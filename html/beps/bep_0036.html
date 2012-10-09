@@ -39,8 +39,8 @@
 <tr class="field"><th class="docinfo-name">Title:</th><td class="field-body">Torrent RSS feeds</td>
 </tr>
 <tr><th class="docinfo-name">Version:</th>
-<td>98e39c80d7fb595cda1f6e663a98980e2c3d0eb6</td></tr>
-<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Tue Oct 9 07</td>
+<td>3d62f35300480c64752215e9d49251314c0bbdca</td></tr>
+<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Tue Oct 9 11</td>
 </tr>
 <tr><th class="docinfo-name">Author:</th>
 <td>Arvid Norberg &lt;<a class="reference external" href="mailto:arvid&#37;&#52;&#48;bittorrent&#46;com">arvid<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;</td></tr>
@@ -56,13 +56,17 @@
 </table>
 <div class="section" id="abstract">
 <h1>Abstract</h1>
-<p>It has become common practice to public RSS feeds linking to content by using torrent files. This BEP attempts to document and standardize how to format such RSS feeds.</p>
+<p>It has become common practice to publish RSS feeds linking to content by using torrent files. This BEP attempts to document and standardize how to format such RSS feeds.</p>
 </div>
 <div class="section" id="terminology">
 <h1>Terminology</h1>
 <p>For the purpose of the BEP, the term torrent link will be used to identify any kind of URL
 identifying a torrent. This may be either an HTTP or HTTPS URL pointing to a .torrent file or
 a <a class="reference external" href="bep0009.html">magnet link</a> identifying a torrent info-hash.</p>
+<p>The key words &quot;MUST&quot;, &quot;MUST NOT&quot;, &quot;REQUIRED&quot;, &quot;SHALL&quot;, &quot;SHALL
+NOT&quot;, &quot;SHOULD&quot;, &quot;SHOULD NOT&quot;, &quot;RECOMMENDED&quot;,  &quot;MAY&quot;, and
+&quot;OPTIONAL&quot; in this document are to be interpreted as described in
+<a class="reference external" href="http://www.ietf.org/rfc/rfc2119.txt">RFC 2119</a>.</p>
 </div>
 <div class="section" id="client-support">
 <h1>Client support</h1>
@@ -241,7 +245,7 @@ assume that the namespace is called <tt class="docutils literal">media</tt> in t
 <h2>torrent</h2>
 <p>The torrent tag can be used instead of magnet links or to complement another tag which has
 a torrent link in it. The torrent tag only provides two attributes; <tt class="docutils literal">infohash</tt> and
-<tt class="docutils literal">contentlength</tt>. Which is supposed to be the hex encoded info-hash of the torrent and
+<tt class="docutils literal">contentlength</tt>, which are supposed to be the hex encoded info-hash of the torrent and
 the size of the torrent's content respectively.</p>
 <p>Although uTorrent doesn't support any other tags, <tt class="docutils literal">magneturi</tt> and <tt class="docutils literal">filename</tt> typically
 occur in this tag, containing the magnet link and name of the torrent respectively</p>

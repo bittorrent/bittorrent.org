@@ -11,7 +11,7 @@
 Abstract
 ========
 
-It has become common practice to public RSS feeds linking to content by using torrent files. This BEP attempts to document and standardize how to format such RSS feeds.
+It has become common practice to publish RSS feeds linking to content by using torrent files. This BEP attempts to document and standardize how to format such RSS feeds.
 
 Terminology
 ===========
@@ -22,6 +22,12 @@ a `magnet link`_ identifying a torrent info-hash.
 
 .. _`magnet link`: bep0009.html
 
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
+NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and
+"OPTIONAL" in this document are to be interpreted as described in
+`RFC 2119`_.
+
+.. _`RFC 2119`: http://www.ietf.org/rfc/rfc2119.txt
 
 Client support
 ==============
@@ -129,7 +135,7 @@ torrent
 
 The torrent tag can be used instead of magnet links or to complement another tag which has
 a torrent link in it. The torrent tag only provides two attributes; ``infohash`` and
-``contentlength``. Which is supposed to be the hex encoded info-hash of the torrent and
+``contentlength``, which are supposed to be the hex encoded info-hash of the torrent and
 the size of the torrent's content respectively.
 
 Although uTorrent doesn't support any other tags, ``magneturi`` and ``filename`` typically

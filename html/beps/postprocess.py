@@ -22,12 +22,12 @@ if len(sys.argv) != 2:
 #    elif key == "Last Changed Date":
 #        date = val
 
-for x in os.popen( "git log -n 1 %s" % sys.argv[1]):
+for x in os.popen( "git log -n 1 -- %s" % sys.argv[1]):
     if x.startswith('commit '):
         revision = x.split(' ')[1]
         continue
     if x.startswith('Date:'):
-        date = x.split(':')[1].strip()
+        date = ':'.join(x.split(':')[1:]).strip()
         continue
 
 fp = open(sys.argv[1], 'r')

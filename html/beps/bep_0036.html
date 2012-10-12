@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.9.1: http://docutils.sourceforge.net/" />
+<meta name="generator" content="Docutils 0.8.1: http://docutils.sourceforge.net/" />
 <title></title>
 <meta name="author" content="Arvid Norberg &lt;arvid&#64;bittorrent.com&gt;" />
 <link rel="stylesheet" href="../css/bep.css" type="text/css" />
@@ -22,7 +22,8 @@
 <li><a href="../introduction.html">For Users</a></li>
 <li><a href="bep_0000.html"><span>For Developers</span></a></li>
 <!-- <li><a href="./blog">Blog</a></li> -->
-<li><a href="http://forum.bittorrent.org"> Forums </li>
+<li><a href="mailing_list.html">Developer mailing list</a> </li>
+<li><a href="http://forum.bittorrent.org"> Forums (archive)</li>
 <li><a href="../donate.html">Donate!</a></li>
 </ul>
 </div> <!-- nav -->
@@ -39,8 +40,8 @@
 <tr class="field"><th class="docinfo-name">Title:</th><td class="field-body">Torrent RSS feeds</td>
 </tr>
 <tr><th class="docinfo-name">Version:</th>
-<td>fa9af611f502d76434d29905c0ec6ec4a624f5d9</td></tr>
-<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Tue Oct 9 11</td>
+<td>9adb0b38049066348d881e3ada6d84051367410c</td></tr>
+<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Tue Oct 9 16:18:55 2012 -0700</td>
 </tr>
 <tr><th class="docinfo-name">Author:</th>
 <td>Arvid Norberg &lt;<a class="reference external" href="mailto:arvid&#37;&#52;&#48;bittorrent&#46;com">arvid<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;</td></tr>
@@ -107,6 +108,10 @@ NOT&quot;, &quot;SHOULD&quot;, &quot;SHOULD NOT&quot;, &quot;RECOMMENDED&quot;, 
 <tr><td>libtorrent</td>
 <td>Yes</td>
 <td>Yes</td>
+</tr>
+<tr><td>Catch</td>
+<td>Yes</td>
+<td>No</td>
 </tr>
 </tbody>
 </table>
@@ -192,6 +197,15 @@ used by the server to indicate how frequently subscribers should refresh the fee
 <td>No</td>
 <td>No</td>
 </tr>
+<tr><td>Catch [5]</td>
+<td>No</td>
+<td>Yes</td>
+<td>No</td>
+<td>No</td>
+<td>No</td>
+<td>No</td>
+<td>No</td>
+</tr>
 </tbody>
 </table>
 <div class="line-block">
@@ -199,6 +213,7 @@ used by the server to indicate how frequently subscribers should refresh the fee
 <div class="line">[2] Azureus tolerates HTML in descriptions, but strips mark-up</div>
 <div class="line">[3] Based on org.kmallan.azureus.rssfeed.Scheduler.java from <a class="reference external" href="http://azureus.sourceforge.net/plugin_details.php?plugin=rssfeed">http://azureus.sourceforge.net/plugin_details.php?plugin=rssfeed</a> , version 1.3.6</div>
 <div class="line">[4] Uses YaRSS2 <a class="reference external" href="https://github.com/bendikro/deluge-yarss-plugin/blob/master/yarss2/lib/feedparser.py">https://github.com/bendikro/deluge-yarss-plugin/blob/master/yarss2/lib/feedparser.py</a></div>
+<div class="line">[5] Source at <a class="reference external" href="http://code.google.com/p/catch/source/browse/trunk/FeedChecker.m">http://code.google.com/p/catch/source/browse/trunk/FeedChecker.m</a></div>
 </div>
 <p>By far the most well supported format for feeds among bittorrent clients are <em>RSS</em> (as opposed to Atom)
 and the <tt class="docutils literal">enclosure</tt> tag for torrent content.</p>

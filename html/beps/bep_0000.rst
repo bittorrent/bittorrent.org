@@ -6,7 +6,7 @@
 :Status:  Active
 :Type:    Process
 :Created: 10-Jan-2008
-:Post-History:
+:Post-History: Oct 13, 2012: updated link to document repository
 
 The BitTorrent Community Forum coordinates the development of the
 BitTorrent protocol suite and its reference implementation. It is the
@@ -18,7 +18,7 @@ This document indexes all BitTorrent Enhancement Proposals (BEPs).
 When a new proposal is submitted, one of the BitTorrent.org editors
 assigns a BEP number and updates this index appropriately.  Each
 document has a number that never changes and the history of the
-document is maintained in subversion [#svn]_.
+document is maintained in git [#git]_.
   
 .. role:: raw-html(raw)
    :format: html
@@ -112,7 +112,7 @@ Rejected BEPs
 At this time, no BEPs have been rejected.
 
 .. [#python] http://www.python.org/dev/peps/
-.. [#svn] http://bittorrent.org/trac
+.. [#git] https://github.com/bittorrent/bittorrent.org
 .. |0| replace:: :raw-html:`<A HREF="bep_0000.html">0</A>`
 .. |1| replace:: :raw-html:`<A HREF="bep_0001.html">1</A>`
 .. |2| replace:: :raw-html:`<A HREF="bep_0002.html">2</A>`

@@ -117,7 +117,8 @@ body {
     padding:0 7em;
     }
 
-.field-name {
+.field-name,
+.docinfo-name {
     margin:0;
     font-size: 1.2em;
     text-align: right;

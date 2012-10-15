@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.9.1: http://docutils.sourceforge.net/" />
+<title></title>
+<meta name="author" content="Arvid Norberg &lt;arvid&#64;bittorrent.com&gt;" />
+<link rel="stylesheet" href="../css/bep.css" type="text/css" />
+</head>
+<body>
+<div class="document">
+
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="../index.html">BitTorrent<span>.org</span></a></h1>
+</div>
+<div id="nav">
+<ul>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../introduction.html">For Users</a></li>
+<li><a href="bep_0000.html"><span>For Developers</span></a></li>
+<!-- <li><a href="./blog">Blog</a></li> -->
+<li><a href="mailing_list.html">Developer mailing list</a> </li>
+<li><a href="http://forum.bittorrent.org"> Forums (archive)</li>
+<li><a href="../donate.html">Donate!</a></li>
+</ul>
+</div> <!-- nav -->
+<!-- ### Begin Content ### -->
+<div id="second">
+
+
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
+<tbody valign="top">
+<tr class="field"><th class="docinfo-name">BEP:</th><td class="field-body">37</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Title:</th><td class="field-body">Anonymous BitTorrent over proxies</td>
+</tr>
+<tr><th class="docinfo-name">Version:</th>
+<td>N/A</td></tr>
+<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">N/A</td>
+</tr>
+<tr><th class="docinfo-name">Author:</th>
+<td>Arvid Norberg &lt;<a class="reference external" href="mailto:arvid&#37;&#52;&#48;bittorrent&#46;com">arvid<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;</td></tr>
+<tr><th class="docinfo-name">Status:</th>
+<td>Draft</td></tr>
+<tr class="field"><th class="docinfo-name">Type:</th><td class="field-body">Informational</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Created:</th><td class="field-body">15-October-2012</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Post-History:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="abstract">
+<h1>Abstract</h1>
+<p>This BEP aims to provide recommendations for BitTorrent clients using proxies
+for the purpose of obfuscating the origin of its traffic. It primarily focuses
+on ways to inadvertantly leak information that could aid an adversary in discovering
+the origin.</p>
+</div>
+<div class="section" id="setup">
+<h1>Setup</h1>
+<p>For the purposes of this BEP, the assumption is that the user of the bittorrent
+client attempts to remain anonymous. This is attempted by by configuring the
+client to use a proxy, running on a 3rd party machine, or running over <a class="reference external" href="http://www.tor.org">Tor</a>.</p>
+<p>This use case is especially important when BitTorrent is being used to distribute
+sensitive information where the originator or anyone participating in the swarm
+may risk reprisals. Such anonymity is critical where political and religious
+speech is threatened.</p>
+<p>It is the author's hope that this document will be updated as new potential
+information leaks of the BitTorrent protocol are discovered.</p>
+<p>Thie BEP essentially describes the semantics of the <tt class="docutils literal">anonymous_mode</tt> settings
+in <a class="reference external" href="www.utorrent.com">uTorrent</a> and <a class="reference external" href="www.libtorrent.org">libtorrent</a>.</p>
+</div>
+<div class="section" id="information-leaks">
+<h1>Information leaks</h1>
+<p>One way for an attacker to identify the true origin of a bittorrent client
+using a proxy is to look for hints in the data the client is sending. This
+could include anything from the specific version of software is being used,
+the peer ID that's advertized to listen port numbers.</p>
+<p>This section will cover specific pieces of the BitTorrent protocol that could
+be used in such attacks, that client authors may want to restrict when using
+proxies.</p>
+<p>Each sub section has a recommended mitigation. It is meant to be applied only
+in scenarios where the user is attempting to remain anonymous. Which using a proxy
+may be a good indicator of.</p>
+<div class="section" id="software-version">
+<h2>software version</h2>
+<p>BitTorrent client often encode what software its running in the peer ID
+advertised in the BitTorrent handshake (see <a class="reference external" href="bep_0020.html">BEP20</a>). It's also commonly exchanged as
+part of the extended handshake (see <a class="reference external" href="bep_0010.html">BEP10</a>), where a free-form string
+representation of the client name and version is exchanged.</p>
+<p>If the client, or the specific version of it, the user is running is rare,
+an attacker may use that to narrow down the set of potential users that may
+be on the other end of a certain peer connection.</p>
+<p>For instance, it's possible that the orignal download of the client, or
+auto-updates of the client do not happen over an anonymized network. Hence,
+it cannot be ruled out that an adversary can eaves drop on who downloaded
+which version of the software.</p>
+<p><em>uTorrent includes its build number in the version advertises in the peer ID,
+making it more unique.</em></p>
+<p><em>uTorrent does not use proxy settings when checking for auto-updates and
+downloading new versions, because it's considered a risk to fail updates.</em></p>
+<p>The recommendation is to <strong>not</strong> send the <tt class="docutils literal">&quot;v&quot;</tt> key in the extended handshake
+and to not encode client version in the peer ID.</p>
+</div>
+<div class="section" id="peer-id">
+<h2>peer ID</h2>
+<p>The peer ID as a 20 byte identifier which is supposed to be unique to a
+specific BitTorrent peer. This ID was thought to be useful when the protocol
+was designed, but turned out to be redundant and is typically not used for
+anything other than detecting whether a client connected to itself.</p>
+<p>The BitTorrent specification (<a class="reference external" href="bep_0003.html">BEP3</a>) indicates that the peer ID is persistent
+throughout the dowload of one torrent. In practice, it is common for clients
+to generate a single peer ID and use it for all torrents. The peer ID may even
+be persisted across sessions.</p>
+<p>Using the same peer ID on multiple swarms leaks information about participation
+in other swarms. The adversary could correlate a peer ID to other swarms. This
+exposes the risk that one of those swarms may at some point be joind without
+the proxy running, and the user's true IP is given out. An adversary could also
+narrow down its possibilities by simply analyzing which other swarms the victim
+participates in.</p>
+<p>Simply analyzing swarms may narrow down locale and cultural associations, with
+other content.</p>
+<p>The recommendation is to always send a random peer ID, to both trackers and other
+peers.</p>
+</div>
+<div class="section" id="ip-and-port-in-extended-handshake">
+<h2>IP and port in extended handshake</h2>
+<p>As part of the extended handshake, some clients advertise their listen port and
+alternative IP address. The purpose of this it to let the other end be able
+to connect back if the connection is broken for some reason.</p>
+<p>The alternative IP is typically and IPv6 address, when connecting over IPv4
+and vice versa. (See <a class="reference external" href="bep_0010.html">BEP10</a>).</p>
+<p>Clearly sending the actual IP address as part of the message gives away the
+user. It's also important to note that the port (<tt class="docutils literal">p</tt>) could pose a threat
+if it is persistent (<a class="reference internal" href="#listen-port">listen port</a>).</p>
+<p>The recommendation is to never send <tt class="docutils literal">ipv4</tt> and the <tt class="docutils literal">ipv6</tt> fields in the
+extended header. Don't send <tt class="docutils literal">p</tt> unless it refers to the proxy's listen port.</p>
+</div>
+<div class="section" id="listen-port">
+<h2>listen port</h2>
+<p>A popular feature among clients is to generate a random port on first start,
+and then save that port for using in subsequent sessions.</p>
+<p>This poses a similar threat as a persistent peer ID. The port space typically
+used is the upper 10 or 20 thousand ports or so. This makes the port picked
+by your client fairly unique. If the same port is used consistently, the same
+kinds of correlations can be made as with the <a class="reference internal" href="#peer-id">peer ID</a>.</p>
+<p>The recommendation is to generate a new random listen port for every session.
+Don't advertise your listen port in the extended handshake, unless it refers
+to the listen port on the proxy. The listen port used on the proxy should
+be randomized on every startup.</p>
+</div>
+<div class="section" id="dht-port">
+<h2>DHT port</h2>
+<p>As part of the BitTorrent extension to support DHT, peers send a <tt class="docutils literal">dht port</tt>-
+message after handshake, to inform the other peer that it is participating
+in the DHT on the specified port.</p>
+<p>The DHT typically uses the same port as the bittorrent engine's listen port.
+The DHT listen port can provide similar correlations as the bittorent
+engine's <a class="reference internal" href="#listen-port">listen port</a>.</p>
+<p>The recommendation is to not send the DHT listen port message, unless
+it refers to the listen port opened on the proxy.</p>
+</div>
+<div class="section" id="tracker-ip-argument">
+<h2>tracker IP argument</h2>
+<p>Some clients supports an extension to the HTTP tracker protocol involving
+sending <tt class="docutils literal">&amp;ipv4=</tt>, <tt class="docutils literal">&amp;ipv6=</tt> and <tt class="docutils literal">&amp;ip=</tt> arguments. These intend to
+work as hints for the tracker in order to more easily connect IPv4 and IPv6
+peers on the same swarm.</p>
+<p>The <tt class="docutils literal">&amp;ip=</tt> argument is not specific to HTTP trackers, but exist on UDP
+trackers as well. These fields could concievably be used by and adversary to
+find the true IP address of the client.</p>
+<p>The recommendation is to never send either of <tt class="docutils literal">&amp;ip=</tt>, <tt class="docutils literal">&amp;IPv4=</tt> or
+<tt class="docutils literal">&amp;IPv6=</tt> to any tracker, and to not send the <tt class="docutils literal">ip</tt> field to UDP trackers.</p>
+</div>
+<div class="section" id="unsupported-proxy-protocols">
+<h2>unsupported proxy protocols</h2>
+<p>When using a proxy, it is very common for the proxy to only support
+a limited subset of types of traffic. For instance, an HTTP
+tracker may only support HTTP requests, and will never support UDP
+circuits. They may support arbitrary TCP via the CONNECT method.</p>
+<p>The SOCKS5 protocol supports UDP and incoming connections, but most
+popular implementations have no to poor support of these features.</p>
+<p>It is important that the client never circumvents the proxy for traffic
+that otherwise would not be supported. If the user has indicated
+it would like to remain anonymous, not working is better than leaking
+information.</p>
+<p>The recommendation is to simply drop all UDP traffic when using an
+HTTP or SOCKS4 proxy. UDP trackers, DHT and uTP will simply not work.
+Attempt to accept incoming connections over SOCKS5, but expect it to
+fail. Don't fall back to accepting connections locally. Attempt
+to set up a UDP tunnel with SOCKS5, but expect to fail.</p>
+</div>
+<div class="section" id="incoming-connections">
+<h2>incoming connections</h2>
+<p>When routing all traffic through a proxy, a client may still accept
+incoming connections from other peers (it's just that no peer would
+know about its IP).</p>
+<p>An adversary may try to connect to the client on its public IP however.
+For instance, if the adversary can limit the possible IPs the victim
+is behind to some reasonably small number, all of them could simply be
+contacted until the victim computer is found.</p>
+<p>The recommendation, don't accept incoming connections other than via the
+proxy. If incoming connections are supported at all, it's likely a SOCKS5
+proxy and all incoming connections are actually initiated as outgoing
+ones. In such case, there is no need for a listen socket at all.
+Don't accept any DHT packets, unless it comes from the proxy.</p>
+</div>
+<div class="section" id="local-peer-discovery">
+<h2>Local peer discovery</h2>
+<p>Local peer discovery involves joining a multi-cast group and advertising
+which torrents one is interested in or seeding.</p>
+<p>IP multicast does not have an inherent restriction to not leave an
+internet subscriber's home. There are networks where multicast is
+allowed across an entire campus for instance. Broadcasting which torrents
+one is downloading to an undefined, and potentially large set of computers
+is risky.</p>
+<p>The recommendation is to disable local peer discovery.</p>
+</div>
+<div class="section" id="port-forwarding">
+<h2>port forwarding</h2>
+<p>Even if incoming connections are rejected, an adversary may be able to
+tell whether a certain port is open on a router and closed on the internal
+computer. For example by examining the ICMP response from trying to contact
+the open port and a port that is assumed to be closed. The computer running
+the client may behave differently from the NAT. There may also be an opportunity
+for identifying differences in timing of the responses.</p>
+<p>An adversary could use such technique by pinning a specific <a class="reference internal" href="#listen-port">listen port</a>
+to a specific (or a small number) of IPs.</p>
+<p>The recommendation is to not forward any ports, since it's not necessary anyway.</p>
+</div>
+</div>
+<div class="section" id="copyright">
+<h1>Copyright</h1>
+<p>This document has been placed in the public domain.</p>
+<!-- Local Variables:
+mode: indented-text
+indent-tabs-mode: nil
+sentence-end-double-space: t
+fill-column: 70
+coding: utf-8
+End: -->
+</div>
+
+</div>
+	<div id="footer">
+<hr/>
+</div>
+
+</div>
+</body>
+</html>

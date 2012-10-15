@@ -6,7 +6,7 @@
 :Status:  Draft
 :Type:    Standards Track
 :Created: 9-October-2012
-:Post-History:
+:Post-History: 14-Oct-1012: Change enclosure/size to refer to the .torrent file, rather than torrent content
 
 Abstract
 ========
@@ -65,24 +65,23 @@ used by the server to indicate how frequently subscribers should refresh the fee
 +=============================+========+=============+=================+==============+========+===========+========+
 | uTorrent                    | Yes    | Yes         | Yes             | Yes          | Yes    | Yes       | Yes    |
 +-----------------------------+--------+-------------+-----------------+--------------+--------+-----------+--------+
-| Azureus [3]                 | Yes    | Yes [1]     | No              | No           | Yes    | No        | No     |
+| Azureus [3]                 | Yes    | Yes         | No              | No           | Yes    | No        | No     |
 +-----------------------------+--------+-------------+-----------------+--------------+--------+-----------+--------+
-| Deluge [4]                  | Yes    | Yes [1]     | No              | No           | No     | No        | No     |
+| Deluge [4]                  | Yes    | Yes         | No              | No           | No     | No        | No     |
 +-----------------------------+--------+-------------+-----------------+--------------+--------+-----------+--------+
-| qBittorrent                 | No     | Yes [1]     | No              | No           | No     | No        | No     |
+| qBittorrent                 | No     | Yes         | No              | No           | No     | No        | No     |
 +-----------------------------+--------+-------------+-----------------+--------------+--------+-----------+--------+
-| KTorrent                    | ?      | Yes [1]     | No              | No           | No     | No        | No     |
+| KTorrent                    | ?      | Yes         | No              | No           | No     | No        | No     |
 +-----------------------------+--------+-------------+-----------------+--------------+--------+-----------+--------+
 | libtorrent                  | Yes    | Yes         | Yes             | No           | Yes    | No        | No     |
 +-----------------------------+--------+-------------+-----------------+--------------+--------+-----------+--------+
-| Catch [5]                   | No     | Yes         | No              | No           | No     | No        | No     |
+| Catch [1]                   | No     | Yes         | No              | No           | No     | No        | No     |
 +-----------------------------+--------+-------------+-----------------+--------------+--------+-----------+--------+
 
-| [1] Does not support the ``length``-attribute
+| [1] Source at http://code.google.com/p/catch/source/browse/trunk/FeedChecker.m
 | [2] Azureus tolerates HTML in descriptions, but strips mark-up
 | [3] Based on org.kmallan.azureus.rssfeed.Scheduler.java from http://azureus.sourceforge.net/plugin_details.php?plugin=rssfeed , version 1.3.6
 | [4] Uses YaRSS2 https://github.com/bendikro/deluge-yarss-plugin/blob/master/yarss2/lib/feedparser.py
-| [5] Source at http://code.google.com/p/catch/source/browse/trunk/FeedChecker.m
 
 By far the most well supported format for feeds among bittorrent clients are *RSS* (as opposed to Atom)
 and the ``enclosure`` tag for torrent content.
@@ -92,11 +91,11 @@ enclosure
 
 The enclosure tag MUST have a ``type`` attribute set to "application/x-bittorrent" and
 MUST store the torrent link in a ``url`` attribute. It MAY have a ``length`` attribute,
-which should indicate the size of the torrent's content in bytes.
+which should indicate the size of the .torrent file, in bytes.
 
 Example::
 
-	<enclosure type="application/x-bittorrent" length="12216320" url="http://featuredcontent.utorrent.com/torrents/WillisEarlBeal-BitTorrent.torrent"/>
+	<enclosure type="application/x-bittorrent" length="12216" url="http://featuredcontent.utorrent.com/torrents/WillisEarlBeal-BitTorrent.torrent"/>
 
 media:content
 -------------
@@ -193,9 +192,7 @@ inside the ``ttl`` tag is the number of seconds to wait until the client should 
 the feed the next time.
 
 The ``enclosure`` tag MUST include a ``type`` attribute set to ``application/x-bittorrent``
-and MUST include a ``url`` attribute containing the torrent link. Furthermore, it SHOULD, if
-reasonably practical, contain a ``length`` attribute as well. The value of the ``length``
-attribute indicates the size of the torrent's content, specified in number of bytes.
+and MUST include a ``url`` attribute containing the torrent link.
 
 If an ``enclosure`` tag matching the above mentioned specifications, it SHOULD take priority
 over any other tag found in the RSS ``item``.
@@ -235,7 +232,7 @@ Example:
 				**<guid>** e380a6c5ae0fb15f296d29964a56250780b05ad7 **</guid>**
 				**<enclosure
 					url="http://featuredcontent.utorrent.com/torrents/WillisEarlBeal-BitTorrent.torrent"
-					length="168773863" type="application/x-bittorrent" />**
+					type="application/x-bittorrent" />**
 			**</item>**
 		**</channel>**
 	**</rss>**

@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.8.1: http://docutils.sourceforge.net/" />
+<meta name="generator" content="Docutils 0.9.1: http://docutils.sourceforge.net/" />
 <title></title>
 <meta name="author" content="Arvid Norberg &lt;arvid&#64;bittorrent.com&gt;" />
 <link rel="stylesheet" href="../css/bep.css" type="text/css" />
@@ -40,8 +40,8 @@
 <tr class="field"><th class="docinfo-name">Title:</th><td class="field-body">Torrent RSS feeds</td>
 </tr>
 <tr><th class="docinfo-name">Version:</th>
-<td>9adb0b38049066348d881e3ada6d84051367410c</td></tr>
-<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Tue Oct 9 16:18:55 2012 -0700</td>
+<td>0cfd1731b1bd533a0150db214e4f2b616061d18b</td></tr>
+<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Thu Oct 11 20:08:21 2012 -0700</td>
 </tr>
 <tr><th class="docinfo-name">Author:</th>
 <td>Arvid Norberg &lt;<a class="reference external" href="mailto:arvid&#37;&#52;&#48;bittorrent&#46;com">arvid<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;</td></tr>
@@ -51,7 +51,7 @@
 </tr>
 <tr class="field"><th class="docinfo-name">Created:</th><td class="field-body">9-October-2012</td>
 </tr>
-<tr class="field"><th class="docinfo-name">Post-History:</th><td class="field-body"></td>
+<tr class="field"><th class="docinfo-name">Post-History:</th><td class="field-body">14-Oct-1012: Change enclosure/size to refer to the .torrent file, rather than torrent content</td>
 </tr>
 </tbody>
 </table>
@@ -154,7 +154,7 @@ used by the server to indicate how frequently subscribers should refresh the fee
 </tr>
 <tr><td>Azureus [3]</td>
 <td>Yes</td>
-<td>Yes [1]</td>
+<td>Yes</td>
 <td>No</td>
 <td>No</td>
 <td>Yes</td>
@@ -163,7 +163,7 @@ used by the server to indicate how frequently subscribers should refresh the fee
 </tr>
 <tr><td>Deluge [4]</td>
 <td>Yes</td>
-<td>Yes [1]</td>
+<td>Yes</td>
 <td>No</td>
 <td>No</td>
 <td>No</td>
@@ -172,7 +172,7 @@ used by the server to indicate how frequently subscribers should refresh the fee
 </tr>
 <tr><td>qBittorrent</td>
 <td>No</td>
-<td>Yes [1]</td>
+<td>Yes</td>
 <td>No</td>
 <td>No</td>
 <td>No</td>
@@ -181,7 +181,7 @@ used by the server to indicate how frequently subscribers should refresh the fee
 </tr>
 <tr><td>KTorrent</td>
 <td>?</td>
-<td>Yes [1]</td>
+<td>Yes</td>
 <td>No</td>
 <td>No</td>
 <td>No</td>
@@ -197,7 +197,7 @@ used by the server to indicate how frequently subscribers should refresh the fee
 <td>No</td>
 <td>No</td>
 </tr>
-<tr><td>Catch [5]</td>
+<tr><td>Catch [1]</td>
 <td>No</td>
 <td>Yes</td>
 <td>No</td>
@@ -209,11 +209,10 @@ used by the server to indicate how frequently subscribers should refresh the fee
 </tbody>
 </table>
 <div class="line-block">
-<div class="line">[1] Does not support the <tt class="docutils literal">length</tt>-attribute</div>
+<div class="line">[1] Source at <a class="reference external" href="http://code.google.com/p/catch/source/browse/trunk/FeedChecker.m">http://code.google.com/p/catch/source/browse/trunk/FeedChecker.m</a></div>
 <div class="line">[2] Azureus tolerates HTML in descriptions, but strips mark-up</div>
 <div class="line">[3] Based on org.kmallan.azureus.rssfeed.Scheduler.java from <a class="reference external" href="http://azureus.sourceforge.net/plugin_details.php?plugin=rssfeed">http://azureus.sourceforge.net/plugin_details.php?plugin=rssfeed</a> , version 1.3.6</div>
 <div class="line">[4] Uses YaRSS2 <a class="reference external" href="https://github.com/bendikro/deluge-yarss-plugin/blob/master/yarss2/lib/feedparser.py">https://github.com/bendikro/deluge-yarss-plugin/blob/master/yarss2/lib/feedparser.py</a></div>
-<div class="line">[5] Source at <a class="reference external" href="http://code.google.com/p/catch/source/browse/trunk/FeedChecker.m">http://code.google.com/p/catch/source/browse/trunk/FeedChecker.m</a></div>
 </div>
 <p>By far the most well supported format for feeds among bittorrent clients are <em>RSS</em> (as opposed to Atom)
 and the <tt class="docutils literal">enclosure</tt> tag for torrent content.</p>
@@ -221,10 +220,10 @@ and the <tt class="docutils literal">enclosure</tt> tag for torrent content.</p>
 <h2>enclosure</h2>
 <p>The enclosure tag MUST have a <tt class="docutils literal">type</tt> attribute set to &quot;application/x-bittorrent&quot; and
 MUST store the torrent link in a <tt class="docutils literal">url</tt> attribute. It MAY have a <tt class="docutils literal">length</tt> attribute,
-which should indicate the size of the torrent's content in bytes.</p>
+which should indicate the size of the .torrent file, in bytes.</p>
 <p>Example:</p>
 <pre class="literal-block">
-&lt;enclosure type=&quot;application/x-bittorrent&quot; length=&quot;12216320&quot; url=&quot;http://featuredcontent.utorrent.com/torrents/WillisEarlBeal-BitTorrent.torrent&quot;/&gt;
+&lt;enclosure type=&quot;application/x-bittorrent&quot; length=&quot;12216&quot; url=&quot;http://featuredcontent.utorrent.com/torrents/WillisEarlBeal-BitTorrent.torrent&quot;/&gt;
 </pre>
 </div>
 <div class="section" id="media-content">
@@ -303,9 +302,7 @@ the <tt class="docutils literal">enclosure</tt> tag for torrent content.</p>
 inside the <tt class="docutils literal">ttl</tt> tag is the number of seconds to wait until the client should refresh
 the feed the next time.</p>
 <p>The <tt class="docutils literal">enclosure</tt> tag MUST include a <tt class="docutils literal">type</tt> attribute set to <tt class="docutils literal"><span class="pre">application/x-bittorrent</span></tt>
-and MUST include a <tt class="docutils literal">url</tt> attribute containing the torrent link. Furthermore, it SHOULD, if
-reasonably practical, contain a <tt class="docutils literal">length</tt> attribute as well. The value of the <tt class="docutils literal">length</tt>
-attribute indicates the size of the torrent's content, specified in number of bytes.</p>
+and MUST include a <tt class="docutils literal">url</tt> attribute containing the torrent link.</p>
 <p>If an <tt class="docutils literal">enclosure</tt> tag matching the above mentioned specifications, it SHOULD take priority
 over any other tag found in the RSS <tt class="docutils literal">item</tt>.</p>
 <p>The <tt class="docutils literal">title</tt> tag SHOULD be used for the name of the torrent.</p>
@@ -338,7 +335,7 @@ would match across different feeds.</p>
                         <strong>&lt;guid&gt;</strong> e380a6c5ae0fb15f296d29964a56250780b05ad7 <strong>&lt;/guid&gt;</strong>
                         <strong>&lt;enclosure
                                 url=&quot;http://featuredcontent.utorrent.com/torrents/WillisEarlBeal-BitTorrent.torrent&quot;
-                                length=&quot;168773863&quot; type=&quot;application/x-bittorrent&quot; /&gt;</strong>
+                                type=&quot;application/x-bittorrent&quot; /&gt;</strong>
                 <strong>&lt;/item&gt;</strong>
         <strong>&lt;/channel&gt;</strong>
 <strong>&lt;/rss&gt;</strong>

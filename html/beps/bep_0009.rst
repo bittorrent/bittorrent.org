@@ -1,12 +1,12 @@
-BEP: 9
-Title: Extension for Peers to Send Metadata Files
-Version: $Revision$
-Last-Modified: $Date$
-Author:  Greg Hazel <greg@bittorrent.com>, Arvid Norberg <arvid@bittorrent.com>
-Status:  Draft
-Type:    Standards Track
-Created: 31-Jan-2008
-Post-History:
+:BEP: 9
+:Title: Extension for Peers to Send Metadata Files
+:Version: $Revision$
+:Last-Modified: $Date$
+:Author:  Greg Hazel <greg@bittorrent.com>, Arvid Norberg <arvid@bittorrent.com>
+:Status:  Draft
+:Type:    Standards Track
+:Created: 31-Jan-2008
+:Post-History: 14-Oct-2012: point out that unrecognized message types should be ignored
 
 The purpose of this extension is to allow clients to join a swarm and
 complete a download without the need of downloading a .torrent file
@@ -53,6 +53,9 @@ The extension messages are bencoded. There are 3 different kinds of messages:
 The bencoded messages have a key "msg_type" which value is an integer
 corresponding to the type of message. They also have a key "piece", which
 indicates which part of the metadata this message refers to.
+
+In order to support future extensability, an unrecognized message ID MUST
+be ignored.
 
 request
 -------

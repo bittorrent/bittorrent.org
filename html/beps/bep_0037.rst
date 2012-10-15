@@ -1,0 +1,261 @@
+:BEP: 37
+:Title: Anonymous BitTorrent over proxies
+:Version: $Revision$
+:Last-Modified: $Date$
+:Author:  Arvid Norberg <arvid@bittorrent.com>
+:Status:  Draft
+:Type:    Informational
+:Created: 15-October-2012
+:Post-History:
+
+Abstract
+========
+
+This BEP aims to provide recommendations for BitTorrent clients using proxies
+for the purpose of obfuscating the origin of its traffic. It primarily focuses
+on ways to inadvertantly leak information that could aid an adversary in discovering
+the origin.
+
+Setup
+=====
+
+For the purposes of this BEP, the assumption is that the user of the bittorrent
+client attempts to remain anonymous. This is attempted by by configuring the
+client to use a proxy, running on a 3rd party machine, or running over Tor_.
+
+This use case is especially important when BitTorrent is being used to distribute
+sensitive information where the originator or anyone participating in the swarm
+may risk reprisals. Such anonymity is critical where political and religious
+speech is threatened.
+
+.. _Tor: http://www.tor.org
+
+It is the author's hope that this document will be updated as new potential
+information leaks of the BitTorrent protocol are discovered.
+
+Thie BEP essentially describes the semantics of the ``anonymous_mode`` settings
+in uTorrent_ and libtorrent_.
+
+.. _uTorrent: www.utorrent.com
+.. _libtorrent: www.libtorrent.org
+
+Information leaks
+=================
+
+One way for an attacker to identify the true origin of a bittorrent client
+using a proxy is to look for hints in the data the client is sending. This
+could include anything from the specific version of software is being used,
+the peer ID that's advertized to listen port numbers.
+
+This section will cover specific pieces of the BitTorrent protocol that could
+be used in such attacks, that client authors may want to restrict when using
+proxies.
+
+Each sub section has a recommended mitigation. It is meant to be applied only
+in scenarios where the user is attempting to remain anonymous. Which using a proxy
+may be a good indicator of.
+
+software version
+----------------
+
+BitTorrent client often encode what software its running in the peer ID
+advertised in the BitTorrent handshake (see BEP20_). It's also commonly exchanged as
+part of the extended handshake (see BEP10_), where a free-form string
+representation of the client name and version is exchanged.
+
+.. _BEP10: bep_0010.html
+.. _BEP20: bep_0020.html
+
+If the client, or the specific version of it, the user is running is rare,
+an attacker may use that to narrow down the set of potential users that may
+be on the other end of a certain peer connection.
+
+For instance, it's possible that the orignal download of the client, or
+auto-updates of the client do not happen over an anonymized network. Hence,
+it cannot be ruled out that an adversary can eaves drop on who downloaded
+which version of the software.
+
+*uTorrent includes its build number in the version advertises in the peer ID,
+making it more unique.*
+
+*uTorrent does not use proxy settings when checking for auto-updates and
+downloading new versions, because it's considered a risk to fail updates.*
+
+The recommendation is to **not** send the ``"v"`` key in the extended handshake
+and to not encode client version in the peer ID.
+
+peer ID
+-------
+
+The peer ID as a 20 byte identifier which is supposed to be unique to a
+specific BitTorrent peer. This ID was thought to be useful when the protocol
+was designed, but turned out to be redundant and is typically not used for
+anything other than detecting whether a client connected to itself.
+
+The BitTorrent specification (BEP3_) indicates that the peer ID is persistent
+throughout the dowload of one torrent. In practice, it is common for clients
+to generate a single peer ID and use it for all torrents. The peer ID may even
+be persisted across sessions.
+
+Using the same peer ID on multiple swarms leaks information about participation
+in other swarms. The adversary could correlate a peer ID to other swarms. This
+exposes the risk that one of those swarms may at some point be joind without
+the proxy running, and the user's true IP is given out. An adversary could also
+narrow down its possibilities by simply analyzing which other swarms the victim
+participates in.
+
+Simply analyzing swarms may narrow down locale and cultural associations, with
+other content.
+
+The recommendation is to always send a random peer ID, to both trackers and other
+peers.
+
+.. _BEP3: bep_0003.html
+
+IP and port in extended handshake
+---------------------------------
+
+As part of the extended handshake, some clients advertise their listen port and
+alternative IP address. The purpose of this it to let the other end be able
+to connect back if the connection is broken for some reason.
+
+The alternative IP is typically and IPv6 address, when connecting over IPv4
+and vice versa. (See BEP10_).
+
+Clearly sending the actual IP address as part of the message gives away the
+user. It's also important to note that the port (``p``) could pose a threat
+if it is persistent (`listen port`_).
+
+.. _BEP10: bep_0010.html
+
+The recommendation is to never send ``ipv4`` and the ``ipv6`` fields in the
+extended header. Don't send ``p`` unless it refers to the proxy's listen port.
+
+listen port
+-----------
+
+A popular feature among clients is to generate a random port on first start,
+and then save that port for using in subsequent sessions.
+
+This poses a similar threat as a persistent peer ID. The port space typically
+used is the upper 10 or 20 thousand ports or so. This makes the port picked
+by your client fairly unique. If the same port is used consistently, the same
+kinds of correlations can be made as with the `peer ID`_.
+
+The recommendation is to generate a new random listen port for every session.
+Don't advertise your listen port in the extended handshake, unless it refers
+to the listen port on the proxy. The listen port used on the proxy should
+be randomized on every startup.
+
+DHT port
+--------
+
+As part of the BitTorrent extension to support DHT, peers send a ``dht port``-
+message after handshake, to inform the other peer that it is participating
+in the DHT on the specified port.
+
+The DHT typically uses the same port as the bittorrent engine's listen port.
+The DHT listen port can provide similar correlations as the bittorent
+engine's `listen port`_.
+
+The recommendation is to not send the DHT listen port message, unless
+it refers to the listen port opened on the proxy.
+
+tracker IP argument
+-------------------
+
+Some clients supports an extension to the HTTP tracker protocol involving
+sending ``&ipv4=``, ``&ipv6=`` and ``&ip=`` arguments. These intend to
+work as hints for the tracker in order to more easily connect IPv4 and IPv6
+peers on the same swarm.
+
+The ``&ip=`` argument is not specific to HTTP trackers, but exist on UDP
+trackers as well. These fields could concievably be used by and adversary to
+find the true IP address of the client.
+
+The recommendation is to never send either of ``&ip=``, ``&IPv4=`` or
+``&IPv6=`` to any tracker, and to not send the ``ip`` field to UDP trackers.
+
+unsupported proxy protocols
+---------------------------
+
+When using a proxy, it is very common for the proxy to only support
+a limited subset of types of traffic. For instance, an HTTP
+tracker may only support HTTP requests, and will never support UDP
+circuits. They may support arbitrary TCP via the CONNECT method.
+
+The SOCKS5 protocol supports UDP and incoming connections, but most
+popular implementations have no to poor support of these features.
+
+It is important that the client never circumvents the proxy for traffic
+that otherwise would not be supported. If the user has indicated
+it would like to remain anonymous, not working is better than leaking
+information.
+
+The recommendation is to simply drop all UDP traffic when using an
+HTTP or SOCKS4 proxy. UDP trackers, DHT and uTP will simply not work.
+Attempt to accept incoming connections over SOCKS5, but expect it to
+fail. Don't fall back to accepting connections locally. Attempt
+to set up a UDP tunnel with SOCKS5, but expect to fail.
+
+incoming connections
+--------------------
+
+When routing all traffic through a proxy, a client may still accept
+incoming connections from other peers (it's just that no peer would
+know about its IP).
+
+An adversary may try to connect to the client on its public IP however.
+For instance, if the adversary can limit the possible IPs the victim
+is behind to some reasonably small number, all of them could simply be
+contacted until the victim computer is found.
+
+The recommendation, don't accept incoming connections other than via the
+proxy. If incoming connections are supported at all, it's likely a SOCKS5
+proxy and all incoming connections are actually initiated as outgoing
+ones. In such case, there is no need for a listen socket at all.
+Don't accept any DHT packets, unless it comes from the proxy.
+
+Local peer discovery
+--------------------
+
+Local peer discovery involves joining a multi-cast group and advertising
+which torrents one is interested in or seeding.
+
+IP multicast does not have an inherent restriction to not leave an
+internet subscriber's home. There are networks where multicast is
+allowed across an entire campus for instance. Broadcasting which torrents
+one is downloading to an undefined, and potentially large set of computers
+is risky.
+
+The recommendation is to disable local peer discovery.
+
+port forwarding
+---------------
+
+Even if incoming connections are rejected, an adversary may be able to
+tell whether a certain port is open on a router and closed on the internal
+computer. For example by examining the ICMP response from trying to contact
+the open port and a port that is assumed to be closed. The computer running
+the client may behave differently from the NAT. There may also be an opportunity
+for identifying differences in timing of the responses.
+
+An adversary could use such technique by pinning a specific `listen port`_
+to a specific (or a small number) of IPs.
+
+The recommendation is to not forward any ports, since it's not necessary anyway.
+
+Copyright
+=========
+
+This document has been placed in the public domain.
+
+
+..
+   Local Variables:
+   mode: indented-text
+   indent-tabs-mode: nil
+   sentence-end-double-space: t
+   fill-column: 70
+   coding: utf-8
+   End:

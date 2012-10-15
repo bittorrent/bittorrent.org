@@ -3,8 +3,8 @@
 import os
 import sys
 
-date = None
-revision = None
+date = 'N/A'
+revision = 'N/A'
 
 if len(sys.argv) != 2:
     sys.stderr.write( "Usage: postprocess.py input > output\n" )

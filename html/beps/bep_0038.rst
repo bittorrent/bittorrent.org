@@ -1,0 +1,66 @@
+:BEP: 38
+:Title: Finding Local Data Via Torrent File Hints
+:Version: $Revision$
+:Last-Modified: $Date$
+:Author:  Arvid Norberg <arvid@bittorrent.com>, Chris Brown <cbrown@bittorrent.com>
+:Status:  Draft
+:Type:    Standards Track
+:Created: 17-October-2012
+:Post-History:
+
+
+Abstract
+========
+
+Often content providers distribute torrents that share some of the same files. This is most frequently done with episodic content or content that recieves periodic updates. Currently, when downloading a torrent, users must download all files within that torrent regardless of whether or not they have already downloaded them using a different torrent. This extension adds the ability for content providers to include hints in torrent files that allow clients to easily deduce which files a user already has.
+
+Overview
+========
+
+The hints embedded in a torrent file come in two varieties:
+
+**The Info Hash Variety**
+
+The torrent may have a "similar" key whose value is a list of info hashes stored as binary strings. These info hashes identify torrents that might share files.
+
+**The Collection Variety**
+
+The torrent may have a "collections" key whose value is a list of string identifiers that represent the "collections" that the torrent belongs to. For example, a tv series may put all of their episodes into the "com.network.seriesname.season1" collection. In most cases, this is much easier to do than maintaining a list of info hashes for similar torrents. Torrents belonging to the same collection might share files.
+
+These keys can be either inside or outside of the info dict. If a key is both inside and outside the info dict, the values are merged. Based on these hints, the client can deduce which files it already has and re-use that data.
+
+Implementation
+==============
+
+While the details of the algorithms behind the client implementation are beyond the scope of this BEP, there are a few basic optimizations content providers should expect when a client attempts to re-use data from another torrent.
+
+** Piece Hash Comparisons **
+
+If two torrents have pieces with the same hash, the data from those pieces will be re-used. This optimization greatly favors torrents with piece-aligned files.
+
+** File Name Comparisons **
+
+If two torrents have files with the same name, those files should be suspected to be the same or very similar. The client should attempt to re-use the files either in whole or in part. If data is prepended, appended, inserted, modified, or trimmed off of either end, the client should still make some attempt to salvage pieces from the files.
+
+** Info Hash Hint Symmetry **
+
+If torrent B hints that it might share files with torrent A, then torrent A might share files with torrent B. The client should be aware of this, and in cases where torrent B is added before torrent A, the client should use the hints from torrent B to make deductions. In other words, the hints given by all previously added torrents should be used when adding a new torrent.
+
+** Hard Links **
+
+If an entire file in a previously downloaded torrent can be re-used, the client should use a hard link on systems that support it rather than create a copy of the file.
+
+Copyright
+=========
+
+This document has been placed in the public domain.
+
+
+..
+   Local Variables:
+   mode: indented-text
+   indent-tabs-mode: nil
+   sentence-end-double-space: t
+   fill-column: 70
+   coding: utf-8
+   End:

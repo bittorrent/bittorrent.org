@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.9.1: http://docutils.sourceforge.net/" />
+<title></title>
+<meta name="author" content="Arvid Norberg &lt;arvid&#64;bittorrent.com&gt;, Chris Brown &lt;cbrown&#64;bittorrent.com&gt;" />
+<link rel="stylesheet" href="../css/bep.css" type="text/css" />
+</head>
+<body>
+<div class="document">
+
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="../index.html">BitTorrent<span>.org</span></a></h1>
+</div>
+<div id="nav">
+<ul>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../introduction.html">For Users</a></li>
+<li><a href="bep_0000.html"><span>For Developers</span></a></li>
+<!-- <li><a href="./blog">Blog</a></li> -->
+<li><a href="mailing_list.html">Developer mailing list</a> </li>
+<li><a href="http://forum.bittorrent.org"> Forums (archive)</li>
+<li><a href="../donate.html">Donate!</a></li>
+</ul>
+</div> <!-- nav -->
+<!-- ### Begin Content ### -->
+<div id="second">
+
+
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
+<tbody valign="top">
+<tr class="field"><th class="docinfo-name">BEP:</th><td class="field-body">38</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Title:</th><td class="field-body">Finding Local Data Via Torrent File Hints</td>
+</tr>
+<tr><th class="docinfo-name">Version:</th>
+<td>49d80936b8621911d12a9e1db0edc3f93ae8a3cd</td></tr>
+<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Thu Oct 18 16:48:53 2012 -0700</td>
+</tr>
+<tr><th class="docinfo-name">Author:</th>
+<td>Arvid Norberg &lt;<a class="reference external" href="mailto:arvid&#37;&#52;&#48;bittorrent&#46;com">arvid<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;, Chris Brown &lt;<a class="reference external" href="mailto:cbrown&#37;&#52;&#48;bittorrent&#46;com">cbrown<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;</td></tr>
+<tr><th class="docinfo-name">Status:</th>
+<td>Draft</td></tr>
+<tr class="field"><th class="docinfo-name">Type:</th><td class="field-body">Standards Track</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Created:</th><td class="field-body">17-October-2012</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Post-History:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="abstract">
+<h1>Abstract</h1>
+<p>Often content providers distribute torrents that share some of the same files. This is most frequently done with episodic content or content that recieves periodic updates. Currently, when downloading a torrent, users must download all files within that torrent regardless of whether or not they have already downloaded them using a different torrent. This extension adds the ability for content providers to include hints in torrent files that allow clients to easily deduce which files a user already has.</p>
+</div>
+<div class="section" id="overview">
+<h1>Overview</h1>
+<p>The hints embedded in a torrent file come in two varieties:</p>
+<p><strong>The Info Hash Variety</strong></p>
+<p>The torrent may have a &quot;similar&quot; key whose value is a list of info hashes stored as binary strings. These info hashes identify torrents that might share files.</p>
+<p><strong>The Collection Variety</strong></p>
+<p>The torrent may have a &quot;collections&quot; key whose value is a list of string identifiers that represent the &quot;collections&quot; that the torrent belongs to. For example, a tv series may put all of their episodes into the &quot;com.network.seriesname.season1&quot; collection. In most cases, this is much easier to do than maintaining a list of info hashes for similar torrents. Torrents belonging to the same collection might share files.</p>
+<p>These keys can be either inside or outside of the info dict. If a key is both inside and outside the info dict, the values are merged. Based on these hints, the client can deduce which files it already has and re-use that data.</p>
+</div>
+<div class="section" id="implementation">
+<h1>Implementation</h1>
+<p>While the details of the algorithms behind the client implementation are beyond the scope of this BEP, there are a few basic optimizations content providers should expect when a client attempts to re-use data from another torrent.</p>
+<p>** Piece Hash Comparisons **</p>
+<p>If two torrents have pieces with the same hash, the data from those pieces will be re-used. This optimization greatly favors torrents with piece-aligned files.</p>
+<p>** File Name Comparisons **</p>
+<p>If two torrents have files with the same name, those files should be suspected to be the same or very similar. The client should attempt to re-use the files either in whole or in part. If data is prepended, appended, inserted, modified, or trimmed off of either end, the client should still make some attempt to salvage pieces from the files.</p>
+<p>** Info Hash Hint Symmetry **</p>
+<p>If torrent B hints that it might share files with torrent A, then torrent A might share files with torrent B. The client should be aware of this, and in cases where torrent B is added before torrent A, the client should use the hints from torrent B to make deductions. In other words, the hints given by all previously added torrents should be used when adding a new torrent.</p>
+<p>** Hard Links **</p>
+<p>If an entire file in a previously downloaded torrent can be re-used, the client should use a hard link on systems that support it rather than create a copy of the file.</p>
+</div>
+<div class="section" id="copyright">
+<h1>Copyright</h1>
+<p>This document has been placed in the public domain.</p>
+<!-- Local Variables:
+mode: indented-text
+indent-tabs-mode: nil
+sentence-end-double-space: t
+fill-column: 70
+coding: utf-8
+End: -->
+</div>
+
+</div>
+	<div id="footer">
+<hr/>
+</div>
+
+</div>
+</body>
+</html>

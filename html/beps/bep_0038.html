@@ -40,8 +40,8 @@
 <tr class="field"><th class="docinfo-name">Title:</th><td class="field-body">Finding Local Data Via Torrent File Hints</td>
 </tr>
 <tr><th class="docinfo-name">Version:</th>
-<td>49d80936b8621911d12a9e1db0edc3f93ae8a3cd</td></tr>
-<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Thu Oct 18 16:48:53 2012 -0700</td>
+<td>9c6c7c56d9d9d2644cd7852f1a40fc76f2ab8136</td></tr>
+<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Thu Oct 18 17:00:42 2012 -0700</td>
 </tr>
 <tr><th class="docinfo-name">Author:</th>
 <td>Arvid Norberg &lt;<a class="reference external" href="mailto:arvid&#37;&#52;&#48;bittorrent&#46;com">arvid<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;, Chris Brown &lt;<a class="reference external" href="mailto:cbrown&#37;&#52;&#48;bittorrent&#46;com">cbrown<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;</td></tr>
@@ -71,13 +71,13 @@
 <div class="section" id="implementation">
 <h1>Implementation</h1>
 <p>While the details of the algorithms behind the client implementation are beyond the scope of this BEP, there are a few basic optimizations content providers should expect when a client attempts to re-use data from another torrent.</p>
-<p>** Piece Hash Comparisons **</p>
+<p><strong>Piece Hash Comparisons</strong></p>
 <p>If two torrents have pieces with the same hash, the data from those pieces will be re-used. This optimization greatly favors torrents with piece-aligned files.</p>
-<p>** File Name Comparisons **</p>
+<p><strong>File Name Comparisons</strong></p>
 <p>If two torrents have files with the same name, those files should be suspected to be the same or very similar. The client should attempt to re-use the files either in whole or in part. If data is prepended, appended, inserted, modified, or trimmed off of either end, the client should still make some attempt to salvage pieces from the files.</p>
-<p>** Info Hash Hint Symmetry **</p>
+<p><strong>Info Hash Hint Symmetry</strong></p>
 <p>If torrent B hints that it might share files with torrent A, then torrent A might share files with torrent B. The client should be aware of this, and in cases where torrent B is added before torrent A, the client should use the hints from torrent B to make deductions. In other words, the hints given by all previously added torrents should be used when adding a new torrent.</p>
-<p>** Hard Links **</p>
+<p><strong>Hard Links</strong></p>
 <p>If an entire file in a previously downloaded torrent can be re-used, the client should use a hard link on systems that support it rather than create a copy of the file.</p>
 </div>
 <div class="section" id="copyright">

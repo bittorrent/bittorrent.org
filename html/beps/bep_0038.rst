@@ -34,19 +34,19 @@ Implementation
 
 While the details of the algorithms behind the client implementation are beyond the scope of this BEP, there are a few basic optimizations content providers should expect when a client attempts to re-use data from another torrent.
 
-** Piece Hash Comparisons **
+**Piece Hash Comparisons**
 
 If two torrents have pieces with the same hash, the data from those pieces will be re-used. This optimization greatly favors torrents with piece-aligned files.
 
-** File Name Comparisons **
+**File Name Comparisons**
 
 If two torrents have files with the same name, those files should be suspected to be the same or very similar. The client should attempt to re-use the files either in whole or in part. If data is prepended, appended, inserted, modified, or trimmed off of either end, the client should still make some attempt to salvage pieces from the files.
 
-** Info Hash Hint Symmetry **
+**Info Hash Hint Symmetry**
 
 If torrent B hints that it might share files with torrent A, then torrent A might share files with torrent B. The client should be aware of this, and in cases where torrent B is added before torrent A, the client should use the hints from torrent B to make deductions. In other words, the hints given by all previously added torrents should be used when adding a new torrent.
 
-** Hard Links **
+**Hard Links**
 
 If an entire file in a previously downloaded torrent can be re-used, the client should use a hard link on systems that support it rather than create a copy of the file.
 

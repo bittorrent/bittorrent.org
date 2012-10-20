@@ -19,7 +19,7 @@ Overview
 
 The feed URL through which content providers can distribute updates is specified by an "update-url" key in the torrent's info dict.  A GET "info_hash" parameter whose value is the hexadecimal info hash of the torrent will be added to requests sent to this URL.  If a response with a 200 status and a valid torrent file is recieved, the client should download that torrent.
 
-Because in many cases it's preferable for clients to be able to download new content without user interaction, the torrent pointed to by the feed URL should be signed. For a client to download new torrents automatically, they need to be signed by the torrent originator, who should be specified by an "originator" key within the info dict. The value of this key should be a byte string containing the originator's DER encoded X.509 certificate. See BEP 35 for details regarding torrent signing.
+Because in many cases it's preferable for clients to be able to download new content without user interaction, the torrent pointed to by the feed URL should be signed. For a client to download new torrents automatically, they need to be signed by the torrent originator, who should be specified by an "originator" key within the info dict. The value of this key should be a byte string containing the originator's DER encoded X.509 certificate. See BEP 35 [#BEP-35]_ for details regarding torrent signing.
 
 For each torrent with a feed URL, the client should periodically check for new downloads as described above. Once the feed URL for a torrent returns a valid torrent, the feed URL of the older torrent should no longer be checked. To continue providing updates, content providers should embed a feed URL into the newer torrent.
 
@@ -46,7 +46,16 @@ Example Torrent Format
 Notes
 =====
 
-It's strongly recommended that clients implementing this BEP also implement BEP 38 (Finding Local Data Via Torrent File Hints). In cases where the torrents being updated are receiving new revisions of themselves, this can dramatically reduce disk usage and download time.
+It's strongly recommended that clients implementing this BEP also implement BEP 38 [#BEP-38]_. In cases where the torrents being updated are receiving new revisions of themselves, this can dramatically reduce disk usage and download time.
+
+References
+==========
+
+.. [#BEP-35] BEP 35: Torrent Signing
+   (http://www.bittorrent.org/beps/bep_0035.html)
+
+.. [#BEP-38] BEP 38: Finding Local Data Via Torrent File Hints
+   (http://www.bittorrent.org/beps/bep_0038.html)
 
 Copyright
 =========

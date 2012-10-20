@@ -3,8 +3,9 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.5: http://docutils.sourceforge.net/" />
+<meta name="generator" content="Docutils 0.8.1: http://docutils.sourceforge.net/" />
 <title></title>
+<meta name="author" content="Bram Cohen &lt;bram&#64;bittorrent.com&gt;" />
 <link rel="stylesheet" href="../css/bep.css" type="text/css" />
 </head>
 <body>
@@ -21,7 +22,8 @@
 <li><a href="../introduction.html">For Users</a></li>
 <li><a href="bep_0000.html"><span>For Developers</span></a></li>
 <!-- <li><a href="./blog">Blog</a></li> -->
-<li><a href="http://forum.bittorrent.org"> Forums </li>
+<li><a href="mailing_list.html">Developer mailing list</a> </li>
+<li><a href="http://forum.bittorrent.org"> Forums (archive)</li>
 <li><a href="../donate.html">Donate!</a></li>
 </ul>
 </div> <!-- nav -->
@@ -29,46 +31,32 @@
 <div id="second">
 
 
-
-<table class="rfc2822 docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">BEP:</th><td class="field-body">3</td>
+<tr class="field"><th class="docinfo-name">BEP:</th><td class="field-body">3</td>
 </tr>
-<tr class="field"><th class="field-name">Title:</th><td class="field-body">The BitTorrent Protocol Specification</td>
+<tr class="field"><th class="docinfo-name">Title:</th><td class="field-body">The BitTorrent Protocol Specification</td>
 </tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body">11031</td>
+<tr><th class="docinfo-name">Version:</th>
+<td>a74be05a8d7e278c494ead7eacfa0f14d149e5f4</td></tr>
+<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Thu Jun 25 01:41:20 2009 +0000</td>
 </tr>
-<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0003.rst">2008-02-28 16:43:58 -0800 (Thu, 28 Feb 2008)</a></td>
+<tr><th class="docinfo-name">Author:</th>
+<td>Bram Cohen &lt;<a class="reference external" href="mailto:bram&#37;&#52;&#48;bittorrent&#46;com">bram<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;</td></tr>
+<tr><th class="docinfo-name">Status:</th>
+<td>Final</td></tr>
+<tr class="field"><th class="docinfo-name">Type:</th><td class="field-body">Standard</td>
 </tr>
-<tr class="field"><th class="field-name">Author:</th><td class="field-body">Bram Cohen &lt;bram&#32;&#97;t&#32;bittorrent.com&gt;</td>
+<tr class="field"><th class="docinfo-name">Created:</th><td class="field-body">10-Jan-2008</td>
 </tr>
-<tr class="field"><th class="field-name">Status:</th><td class="field-body">Final</td>
-</tr>
-<tr class="field"><th class="field-name">Type:</th><td class="field-body">Standard</td>
-</tr>
-<tr class="field"><th class="field-name">Created:</th><td class="field-body">10-Jan-2008</td>
-</tr>
-<tr class="field"><th class="field-name">Post-History:</th><td class="field-body">24-Jun-2009, clarified the encoding of strings in torrent files</td>
+<tr class="field"><th class="docinfo-name">Post-History:</th><td class="field-body">24-Jun-2009 (<a class="reference external" href="mailto:arvid&#37;&#52;&#48;bittorrent&#46;com">arvid<span>&#64;</span>bittorrent<span>&#46;</span>com</a>), clarified the encoding of strings in torrent files.
+20-Oct-2012 (<a class="reference external" href="mailto:arvid&#37;&#52;&#48;bittorrent&#46;com">arvid<span>&#64;</span>bittorrent<span>&#46;</span>com</a>), clarified that info-hash is the digest of en bencoding found in .torrent file.
+Introduced some references to new BEPs and cleaned up formatting.</td>
 </tr>
 </tbody>
 </table>
-<hr />
-<div class="contents topic" id="contents">
-<p class="topic-title first">Contents</p>
-<ul class="simple">
-<li><a class="reference" href="#a-bittorrent-file-distribution-consists-of-these-entities" id="id2">A BitTorrent file distribution consists of these entities:</a></li>
-<li><a class="reference" href="#to-start-serving-a-host-goes-through-the-following-steps" id="id3">To start serving, a host goes through the following steps:</a></li>
-<li><a class="reference" href="#to-start-downloading-a-user-does-the-following" id="id4">To start downloading, a user does the following:</a></li>
-<li><a class="reference" href="#the-connectivity-is-as-follows" id="id5">The connectivity is as follows:</a></li>
-<li><a class="reference" href="#metainfo-files-are-bencoded-dictionaries-with-the-following-keys" id="id6">Metainfo files are bencoded dictionaries with the following keys:</a></li>
-<li><a class="reference" href="#tracker-get-requests-have-the-following-keys" id="id7">Tracker GET requests have the following keys:</a></li>
-<li><a class="reference" href="#all-non-keepalive-messages-start-with-a-single-byte-which-gives-their-type" id="id8">All non-keepalive messages start with a single byte which gives their type.</a></li>
-<li><a class="reference" href="#the-possible-values-are" id="id9">The possible values are:</a></li>
-<li><a class="reference" href="#copyright" id="id10">Copyright</a></li>
-</ul>
-</div>
 <p>BitTorrent is a protocol for distributing files. It identifies content
 by URL and is designed to integrate seamlessly with the web. Its
 advantage over plain HTTP is that when multiple downloads of the same
@@ -110,75 +98,82 @@ downloaders with only a modest increase in its load.</p>
 <li>Tell downloader to exit (it keeps uploading until this happens).</li>
 </ol>
 </div>
-<div class="section" id="the-connectivity-is-as-follows">
-<h1>The connectivity is as follows:</h1>
+<div class="section" id="bencoding">
+<h1>bencoding</h1>
 <ul class="simple">
-<li>Strings are length-prefixed base ten followed by a colon and the string. For example <tt class="docutils literal"><span class="pre">4:spam</span></tt> corresponds to 'spam'.</li>
+<li>Strings are length-prefixed base ten followed by a colon and the string. For example <tt class="docutils literal">4:spam</tt> corresponds to 'spam'.</li>
 <li>Integers are represented by an 'i' followed by the number in base 10
-followed by an 'e'. For example <tt class="docutils literal"><span class="pre">i3e</span></tt> corresponds to 3 and
+followed by an 'e'. For example <tt class="docutils literal">i3e</tt> corresponds to 3 and
 <tt class="docutils literal"><span class="pre">i-3e</span></tt> corresponds to -3. Integers have no size
 limitation. <tt class="docutils literal"><span class="pre">i-0e</span></tt> is invalid. All encodings with a leading
-zero, such as <tt class="docutils literal"><span class="pre">i03e</span></tt>, are invalid, other than
-<tt class="docutils literal"><span class="pre">i0e</span></tt>, which of course corresponds to 0.</li>
+zero, such as <tt class="docutils literal">i03e</tt>, are invalid, other than
+<tt class="docutils literal">i0e</tt>, which of course corresponds to 0.</li>
 <li>Lists are encoded as an 'l' followed by their elements (also
-bencoded) followed by an 'e'. For example <tt class="docutils literal"><span class="pre">l4:spam4:eggse</span></tt>
+bencoded) followed by an 'e'. For example <tt class="docutils literal">l4:spam4:eggse</tt>
 corresponds to ['spam', 'eggs'].</li>
 <li>Dictionaries are encoded as a 'd' followed by a list of alternating
 keys and their corresponding values followed by an 'e'. For example,
-<tt class="docutils literal"><span class="pre">d3:cow3:moo4:spam4:eggse</span></tt> corresponds to {'cow': 'moo',
-'spam': 'eggs'} and <tt class="docutils literal"><span class="pre">d4:spaml1:a1:bee</span></tt> corresponds to
+<tt class="docutils literal">d3:cow3:moo4:spam4:eggse</tt> corresponds to {'cow': 'moo',
+'spam': 'eggs'} and <tt class="docutils literal">d4:spaml1:a1:bee</tt> corresponds to
 {'spam': ['a', 'b']}. Keys must be strings and appear in sorted order
 (sorted as raw strings, not alphanumerics).</li>
 </ul>
 </div>
-<div class="section" id="metainfo-files-are-bencoded-dictionaries-with-the-following-keys">
-<h1>Metainfo files are bencoded dictionaries with the following keys:</h1>
+<div class="section" id="metainfo-files">
+<h1>metainfo files</h1>
+<p>Metainfo files (also known as .torrent files) are bencoded dictionaries
+with the following keys:</p>
 <dl class="docutils">
 <dt>announce</dt>
 <dd>The URL of the tracker.</dd>
 <dt>info</dt>
-<dd><p class="first">This maps to a dictionary, with keys described below.</p>
-<p>The <tt class="docutils literal"><span class="pre">name</span></tt> key maps to a UTF-8 encoded string which is the
+<dd>This maps to a dictionary, with keys described below.</dd>
+</dl>
+<p>All strings in a .torrent file that contains text must be UTF-8
+encoded.</p>
+<div class="section" id="info-dictionary">
+<h2>info dictionary</h2>
+<p>The <tt class="docutils literal">name</tt> key maps to a UTF-8 encoded string which is the
 suggested name to save the file (or directory) as. It is purely advisory.</p>
-<p><tt class="docutils literal"><span class="pre">piece</span> <span class="pre">length</span></tt> maps to the number of bytes in each piece
+<p><tt class="docutils literal">piece length</tt> maps to the number of bytes in each piece
 the file is split into. For the purposes of transfer, files are
 split into fixed-size pieces which are all the same length except for
-possibly the last one which may be truncated. <tt class="docutils literal"><span class="pre">piece</span>
-<span class="pre">length</span></tt> is almost always a power of two, most commonly 2 18 =
+possibly the last one which may be truncated. <tt class="docutils literal">piece
+length</tt> is almost always a power of two, most commonly 2 18 =
 256 K (BitTorrent prior to version 3.2 uses 2 20 = 1 M as
 default).</p>
-<p><tt class="docutils literal"><span class="pre">pieces</span></tt> maps to a string whose length is a multiple of
+<p><tt class="docutils literal">pieces</tt> maps to a string whose length is a multiple of
 20. It is to be subdivided into strings of length 20, each of which is
 the SHA1 hash of the piece at the corresponding index.</p>
-<p>There is also a key <tt class="docutils literal"><span class="pre">length</span></tt> or a key <tt class="docutils literal"><span class="pre">files</span></tt>,
-but not both or neither. If <tt class="docutils literal"><span class="pre">length</span></tt> is present then the
+<p>There is also a key <tt class="docutils literal">length</tt> or a key <tt class="docutils literal">files</tt>,
+but not both or neither. If <tt class="docutils literal">length</tt> is present then the
 download represents a single file, otherwise it represents a set of
 files which go in a directory structure.</p>
-<p>In the single file case, <tt class="docutils literal"><span class="pre">length</span></tt> maps to the length of
+<p>In the single file case, <tt class="docutils literal">length</tt> maps to the length of
 the file in bytes.</p>
 <p>For the purposes of the other keys, the multi-file case is treated as
 only having a single file by concatenating the files in the order they
 appear in the files list. The files list is the value
-<tt class="docutils literal"><span class="pre">files</span></tt> maps to, and is a list of dictionaries containing
+<tt class="docutils literal">files</tt> maps to, and is a list of dictionaries containing
 the following keys:</p>
-<p><tt class="docutils literal"><span class="pre">length</span></tt> - The length of the file, in bytes.</p>
-<p><tt class="docutils literal"><span class="pre">path</span></tt> - A list of UTF-8 encoded strings corresponding to subdirectory
+<p><tt class="docutils literal">length</tt> - The length of the file, in bytes.</p>
+<p><tt class="docutils literal">path</tt> - A list of UTF-8 encoded strings corresponding to subdirectory
 names, the last of which is the actual file name (a zero length list
 is an error case).</p>
 <p>In the single file case, the name key is the name of a file, in the
 muliple file case, it's the name of a directory.</p>
-<p class="last">All strings in a .torrent file that contains text must be UTF-8
-encoded.</p>
-</dd>
-</dl>
 </div>
-<div class="section" id="tracker-get-requests-have-the-following-keys">
-<h1>Tracker GET requests have the following keys:</h1>
+</div>
+<div class="section" id="trackers">
+<h1>trackers</h1>
+<p>Tracker GET requests have the following keys:</p>
 <dl class="docutils">
 <dt>info_hash</dt>
 <dd>The 20 byte sha1 hash of the bencoded form of the info value from the
 metainfo file. Note that this is a substring of the metainfo
-file. This value will almost certainly have to be escaped.</dd>
+file. The info-hash must be the hash of the encoded form as found
+in the .torrent file, regardless of it being invalid. This value
+will almost certainly have to be escaped.</dd>
 <dt>peer_id</dt>
 <dd>A string of length 20 which this downloader uses as its id. Each
 downloader generates its own id at random at the start of a new
@@ -202,33 +197,38 @@ the file length since it might be a resume, and there's a chance that
 some of the downloaded data failed an integrity check and had to be
 re-downloaded.</dd>
 <dt>event</dt>
-<dd>This is an optional key which maps to <tt class="docutils literal"><span class="pre">started</span></tt>,
-<tt class="docutils literal"><span class="pre">completed</span></tt>, or <tt class="docutils literal"><span class="pre">stopped</span></tt> (or
-<tt class="docutils literal"><span class="pre">empty</span></tt>, which is the same as not being present). If not
+<dd>This is an optional key which maps to <tt class="docutils literal">started</tt>,
+<tt class="docutils literal">completed</tt>, or <tt class="docutils literal">stopped</tt> (or
+<tt class="docutils literal">empty</tt>, which is the same as not being present). If not
 present, this is one of the announcements done at regular
-intervals. An announcement using <tt class="docutils literal"><span class="pre">started</span></tt> is sent when a
-download first begins, and one using <tt class="docutils literal"><span class="pre">completed</span></tt> is sent
-when the download is complete. No <tt class="docutils literal"><span class="pre">completed</span></tt> is sent if
+intervals. An announcement using <tt class="docutils literal">started</tt> is sent when a
+download first begins, and one using <tt class="docutils literal">completed</tt> is sent
+when the download is complete. No <tt class="docutils literal">completed</tt> is sent if
 the file was complete when started. Downloaders send an announcement
-using <tt class="docutils literal"><span class="pre">stopped</span></tt> when they cease downloading.</dd>
+using <tt class="docutils literal">stopped</tt> when they cease downloading.</dd>
 </dl>
 <p>Tracker responses are bencoded dictionaries. If a tracker response
-has a key <tt class="docutils literal"><span class="pre">failure</span> <span class="pre">reason</span></tt>, then that maps to a human
+has a key <tt class="docutils literal">failure reason</tt>, then that maps to a human
 readable string which explains why the query failed, and no other keys
-are required. Otherwise, it must have two keys: <tt class="docutils literal"><span class="pre">interval</span></tt>,
+are required. Otherwise, it must have two keys: <tt class="docutils literal">interval</tt>,
 which maps to the number of seconds the downloader should wait between
-regular rerequests, and <tt class="docutils literal"><span class="pre">peers</span></tt>. <tt class="docutils literal"><span class="pre">peers</span></tt> maps to
-a list of dictionaries corresponding to <tt class="docutils literal"><span class="pre">peers</span></tt>, each of
-which contains the keys <tt class="docutils literal"><span class="pre">peer</span> <span class="pre">id</span></tt>, <tt class="docutils literal"><span class="pre">ip</span></tt>, and
-<tt class="docutils literal"><span class="pre">port</span></tt>, which map to the peer's self-selected ID, IP
+regular rerequests, and <tt class="docutils literal">peers</tt>. <tt class="docutils literal">peers</tt> maps to
+a list of dictionaries corresponding to <tt class="docutils literal">peers</tt>, each of
+which contains the keys <tt class="docutils literal">peer id</tt>, <tt class="docutils literal">ip</tt>, and
+<tt class="docutils literal">port</tt>, which map to the peer's self-selected ID, IP
 address or dns name as a string, and port number, respectively. Note
 that downloaders may rerequest on nonscheduled times if an event
 happens or they need more peers.</p>
+<p>More commonly is that trackers return a compact representation of
+the peer list, see <a class="reference external" href="bep_0023.html">BEP 23</a>.</p>
 <p>If you want to make any extensions to metainfo files or tracker
 queries, please coordinate with Bram Cohen to make sure that all
 extensions are done compatibly.</p>
-<p>BitTorrent's peer protocol operates over TCP. It performs efficiently
-without setting any socket options.</p>
+<p>It is common to announce over a <a class="reference external" href="bep_0015.html">UDP tracker protocol</a> as well.</p>
+</div>
+<div class="section" id="peer-protocol">
+<h1>peer protocol</h1>
+<p>BitTorrent's peer protocol operates over TCP or <a class="reference external" href="bep_0029.html">uTP</a>.</p>
 <p>Peer connections are symmetrical. Messages sent in both directions
 look the same, and data can flow in either direction.</p>
 <p>The peer protocol refers to pieces of the file by index as
@@ -267,7 +267,7 @@ protocol using these bytes, please coordinate with Bram Cohen to make
 sure all extensions are done compatibly.</p>
 <p>Next comes the 20 byte sha1 hash of the bencoded form of the info
 value from the metainfo file. (This is the same value which is
-announced as <tt class="docutils literal"><span class="pre">info_hash</span></tt> to the tracker, only here it's raw
+announced as <tt class="docutils literal">info_hash</tt> to the tracker, only here it's raw
 instead of quoted here). If both sides don't send the same value, they
 sever the connection. The one possible exception is if a downloader
 wants to do multiple downloads over a single port, they may wait for
@@ -283,11 +283,10 @@ and ignored. Keepalives are generally sent once every two minutes, but
 note that timeouts can be done much more quickly when data is
 expected.</p>
 </div>
-<div class="section" id="all-non-keepalive-messages-start-with-a-single-byte-which-gives-their-type">
-<h1>All non-keepalive messages start with a single byte which gives their type.</h1>
-</div>
-<div class="section" id="the-possible-values-are">
-<h1>The possible values are:</h1>
+<div class="section" id="peer-messages">
+<h1>peer messages</h1>
+<p>All non-keepalive messages start with a single byte which gives their type.</p>
+<p>The possible values are:</p>
 <ul class="simple">
 <li>0 - choke</li>
 <li>1 - unchoke</li>
@@ -355,7 +354,7 @@ uploader gets choked. If a downloader has a complete file, it uses its
 upload rate rather than its download rate to decide who to
 unchoke.</p>
 <p>For optimistic unchoking, at any one time there is a single peer
-which is unchoked regardless of it's upload rate (if interested, it
+which is unchoked regardless of its upload rate (if interested, it
 counts as one of the four allowed downloaders.) Which peer is
 optimistically unchoked rotates every 30 seconds. To give them a
 decent chance of getting a complete piece to upload, new connections
@@ -365,15 +364,7 @@ as anywhere else in the rotation.</p>
 <div class="section" id="copyright">
 <h1>Copyright</h1>
 <p>This document has been placed in the public domain.</p>
-<!-- Local Variables:
-mode: indented-text
-indent-tabs-mode: nil
-sentence-end-double-space: t
-fill-column: 70
-coding: utf-8
-End: -->
 </div>
-
 
 </div>
 	<div id="footer">

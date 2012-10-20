@@ -40,8 +40,8 @@
 <tr class="field"><th class="docinfo-name">Title:</th><td class="field-body">Updating Torrents Via Feed URL</td>
 </tr>
 <tr><th class="docinfo-name">Version:</th>
-<td>1e312406cad89f60f4d90aa0f55211eaab2ea362</td></tr>
-<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Fri Oct 19 17:19:02 2012 -0700</td>
+<td>00def662ec9298ef67b2e6a882edf8d4703d356e</td></tr>
+<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Fri Oct 19 17:38:25 2012 -0700</td>
 </tr>
 <tr><th class="docinfo-name">Author:</th>
 <td>Arvid Norberg &lt;<a class="reference external" href="mailto:arvid&#37;&#52;&#48;bittorrent&#46;com">arvid<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;, Chris Brown &lt;<a class="reference external" href="mailto:cbrown&#37;&#52;&#48;bittorrent&#46;com">cbrown<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;</td></tr>
@@ -62,7 +62,7 @@
 <div class="section" id="overview">
 <h1>Overview</h1>
 <p>The feed URL through which content providers can distribute updates is specified by an &quot;update-url&quot; key in the torrent's info dict.  A GET &quot;info_hash&quot; parameter whose value is the hexadecimal info hash of the torrent will be added to requests sent to this URL.  If a response with a 200 status and a valid torrent file is recieved, the client should download that torrent.</p>
-<p>Because in many cases it's preferable for clients to be able to download new content without user interaction, the torrent pointed to by the feed URL should be signed. For a client to download new torrents automatically, they need to be signed by the torrent originator, who should be specified by an &quot;originator&quot; key within the info dict. The value of this key should be a byte string containing the originator's DER encoded X.509 certificate. See BEP 35 for details regarding torrent signing.</p>
+<p>Because in many cases it's preferable for clients to be able to download new content without user interaction, the torrent pointed to by the feed URL should be signed. For a client to download new torrents automatically, they need to be signed by the torrent originator, who should be specified by an &quot;originator&quot; key within the info dict. The value of this key should be a byte string containing the originator's DER encoded X.509 certificate. See BEP 35 <a class="footnote-reference" href="#bep-35" id="id1">[1]</a> for details regarding torrent signing.</p>
 <p>For each torrent with a feed URL, the client should periodically check for new downloads as described above. Once the feed URL for a torrent returns a valid torrent, the feed URL of the older torrent should no longer be checked. To continue providing updates, content providers should embed a feed URL into the newer torrent.</p>
 <div class="section" id="example-torrent-format">
 <h2>Example Torrent Format</h2>
@@ -86,7 +86,24 @@
 </div>
 <div class="section" id="notes">
 <h1>Notes</h1>
-<p>It's strongly recommended that clients implementing this BEP also implement BEP 38 (Finding Local Data Via Torrent File Hints). In cases where the torrents being updated are receiving new revisions of themselves, this can dramatically reduce disk usage and download time.</p>
+<p>It's strongly recommended that clients implementing this BEP also implement BEP 38 <a class="footnote-reference" href="#bep-38" id="id2">[2]</a>. In cases where the torrents being updated are receiving new revisions of themselves, this can dramatically reduce disk usage and download time.</p>
+</div>
+<div class="section" id="references">
+<h1>References</h1>
+<table class="docutils footnote" frame="void" id="bep-35" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>BEP 35: Torrent Signing
+(<a class="reference external" href="http://www.bittorrent.org/beps/bep_0035.html">http://www.bittorrent.org/beps/bep_0035.html</a>)</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="bep-38" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td>BEP 38: Finding Local Data Via Torrent File Hints
+(<a class="reference external" href="http://www.bittorrent.org/beps/bep_0038.html">http://www.bittorrent.org/beps/bep_0038.html</a>)</td></tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="copyright">
 <h1>Copyright</h1>

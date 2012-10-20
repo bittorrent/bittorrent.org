@@ -1,0 +1,64 @@
+:BEP: 39
+:Title: Updating Torrents Via Feed URL
+:Version: $Revision$
+:Last-Modified: $Date$
+:Author:  Arvid Norberg <arvid@bittorrent.com>, Chris Brown <cbrown@bittorrent.com>
+:Status:  Draft
+:Type:    Standards Track
+:Created: 19-October-2012
+:Post-History:
+
+
+Abstract
+========
+
+With episodic content or content that recieves periodic updates, it's often useful for users to be able to subscribe to subsequent episodes or revisions. This BEP aims to provide a convenient way for users to do so by allowing content providers to embed a feed URL into a torrent file.
+
+Overview
+========
+
+The feed URL through which content providers can distribute updates is specified by an "update-url" key in the torrent's info dict.  A GET "info_hash" parameter whose value is the hexadecimal info hash of the torrent will be added to requests sent to this URL.  If a response with a 200 status and a valid torrent file is recieved, the client should download that torrent.
+
+Because in many cases it's preferable for clients to be able to download new content without user interaction, the torrent pointed to by the feed URL should be signed. For a client to download new torrents automatically, they need to be signed by the torrent originator, who should be specified by an "originator" key within the info dict. The value of this key should be a byte string containing the originator's DER encoded X.509 certificate. See BEP 35 for details regarding torrent signing.
+
+For each torrent with a feed URL, the client should periodically check for new downloads as described above. Once the feed URL for a torrent returns a valid torrent, the feed URL of the older torrent should no longer be checked. To continue providing updates, content providers should embed a feed URL into the newer torrent.
+
+Example Torrent Format
+----------------------
+
+.. parsed-literal::
+
+    {
+        "announce": ...,
+        "info": {
+            "originator": *com.bittorrent's DER encoded x.509 certificate*,
+            "update-url": "http://www.bittorrent.com/update-feed",
+            ...
+        },
+        "signatures": {
+            "com.bittorrent": {
+                "signature": *info dict signature*,
+            },
+            ...
+        }
+    }
+
+Notes
+=====
+
+It's strongly recommended that clients implementing this BEP also implement BEP 38 (Finding Local Data Via Torrent File Hints). In cases where the torrents being updated are receiving new revisions of themselves, this can dramatically reduce disk usage and download time.
+
+Copyright
+=========
+
+This document has been placed in the public domain.
+
+
+..
+   Local Variables:
+   mode: indented-text
+   indent-tabs-mode: nil
+   sentence-end-double-space: t
+   fill-column: 70
+   coding: utf-8
+   End:

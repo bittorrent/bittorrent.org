@@ -62,17 +62,13 @@ These steps provide OpenSSL commands as examples, but can also be done with othe
 
 	openssl genrsa -des3 -out privkey.pem 2048
 
-2. Create a certificate request.
-The common name should be a unique identifier for the
-entity in reverse-dns notation as explained above (e.g.
-com.bittorrent).
+2. Create a certificate request. The common name should be a unique identifier for the entity in reverse-dns notation as explained above (e.g. com.bittorrent).
 
 ::
 
 	openssl req -new -key privkey.pem -out cert.csr
 
-3. Send your certificate request to a certificate authority or sign / generate your own certificate.
-See `Generating a Certificate from a Certificate Request`_ below.
+3. Send your certificate request to a certificate authority or sign / generate your own certificate. See `Generating a Certificate from a Certificate Request`_ below.
 
 4. Use a tool such as `ut-signing-tool`_ to sign your torrent.
 

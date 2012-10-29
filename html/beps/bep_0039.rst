@@ -21,6 +21,8 @@ The feed URL through which content providers can distribute updates is specified
 
 Because in many cases it's preferable for clients to be able to download new content without user interaction, the torrent pointed to by the feed URL should be signed. For a client to download new torrents automatically, they need to be signed by the torrent originator, who should be specified by an "originator" key within the info dict. The value of this key should be a byte string containing the originator's DER encoded X.509 certificate. See BEP 35 [#BEP-35]_ for details regarding torrent signing.
 
+If a torrent is signed by its originator, and the originator's signature contains an "update-url" key inside of its optional info dict, that url will be used instead of the one in the torrent's info dict.
+
 For each torrent with a feed URL, the client should periodically check for new downloads as described above. Once the feed URL for a torrent returns a valid torrent, the feed URL of the older torrent should no longer be checked. To continue providing updates, content providers should embed a feed URL into the newer torrent.
 
 Example Torrent Format

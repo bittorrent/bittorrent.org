@@ -1,13 +1,14 @@
-BEP: 29
-Title: uTorrent transport protocol
-Version: $Revision$
-Last-Modified: $Date$
-Author:  Arvid Norberg <arvid@bittorrent.com>
-Status:  Draft
-Type:    Standards Track
-Content-Type: text/x-rst
-Created: 22-Jun-2009
-Post-History:
+:BEP: 29
+:Title: uTorrent transport protocol
+:Version: $Revision$
+:Last-Modified: $Date$
+:Author:  Arvid Norberg <arvid@bittorrent.com>
+:Status:  Draft
+:Type:    Standards Track
+:Content-Type: text/x-rst
+:Created: 22-Jun-2009
+:Post-History: 20-Oct-2012 (arvid@bittorrent.com), update the loss factor from 0.78 to 0.5.
+	Removed 'bitfield' extension header. Fixed typo in uTP header (type and version were swapped)
 
 uTorrent Transport Protocol
 ===========================
@@ -119,7 +120,7 @@ version 1 header:
 
 	0       4       8               16              24              32
 	+-------+-------+---------------+---------------+---------------+
-	| ver   | type  | extension     | connection_id                 |
+	| type  | ver   | extension     | connection_id                 |
 	+-------+-------+---------------+---------------+---------------+
 	| timestamp_microseconds                                        |
 	+---------------+---------------+---------------+---------------+
@@ -181,10 +182,9 @@ extension
 The type of the first extension in a linked list of extension headers. 0 means
 no extension.
 
-There are two extensions:
+There is currently one extension:
 
 1. Selective acks
-2. Extension bits
 
 Extensions are linked, just like TCP options. If the extension field is non-zero,
 immediately following the uTP header are two bytes::
@@ -239,22 +239,6 @@ represented in a selective ACK bitfield::
 
 The number in the diagram maps the bit in the bitmask to the offset to add to
 ``ack_nr`` in order to calculate the sequence number that the bit is ACKing.
-
-Extension bits
-,,,,,,,,,,,,,,
-
-The extension bits are intended to communicate support for extensions. Currently
-it's always set to 0. It is an 8 byte bitmask where each bit specifies support
-for a specific feature::
-
-	0               8               16
-	+---------------+---------------+---------------+---------------+
-	| extension     | len           | extension bitmask
-	+---------------+---------------+---------------+---------------+
-	
-	+---------------+---------------+---------------+---------------+
-	                                |
-	+---------------+---------------+
 
 type
 ....
@@ -392,9 +376,7 @@ This is applied to selective acks as well. Each packet that is acked in the sele
 ack message counts as one duplicate ack, which, if it 3 or more, should trigger a
 re-send of packets that had at least 3 packets acked after them.
 
-When a packet is lost, the ``max_window`` is multiplied by 0.78. TCP multiplies by
-0.5, but since this is a much less likely event in uTP, and since the uTP ramp-up
-is slower than TCP, this is a reasonable optimization.
+When a packet is lost, the ``max_window`` is multiplied by 0.5 to mimic TCP.
 
 timeouts
 --------
@@ -502,14 +484,4 @@ If max_window becomes less than 0, it is set to 0. A window size of zero means t
 socket may not send any packets. In this state, the socket will trigger a timeout and
 force the window size to one packet size, and send one packet. See the section on timeouts
 for more information.
-
-
-..
-   Local Variables:
-   mode: indented-text
-   indent-tabs-mode: nil
-   sentence-end-double-space: t
-   fill-column: 70
-   coding: utf-8
-   End:
 

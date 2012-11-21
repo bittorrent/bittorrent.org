@@ -1,0 +1,60 @@
+:BEP: 40
+:Title: Canonical Peer Priority
+:Version: $Revision$
+:Last-Modified: $Date$
+:Author:  Arvid Norberg <arvid@bittorrent.com>, Chris Brown <cbrown@bittorrent.com>
+:Status:  Draft
+:Type:    Standards Track
+:Created: 8-November-2012
+:Post-History:
+
+
+Abstract
+========
+
+The aim of this bep is to solve two problems with BitTorrent:
+
+1. The barrier of entry to a swarm may be high when most peers (or at least most early peers with most of the data) are all fully connected at all times, never having a connection slot for new incoming connections. Peers are likely to attempt a new outgoing connection immediately when a peer is dropped, to reach the connection limit. This means that the number of connected peers + half-open outgoing connections always reaches the limit, resulting in new incoming connections being refused.
+
+2. There's an opportunity to DDoS a swarm by filling up everyone's connections slots, and continuously making incoming connections at such rate that peers won't have an opportunity to connect to anyone else.
+
+The solution to these problems is to come up with a formula that all peers agree on to prioritize certain IP addresses for peers over others. As long as this formula is correctly defined, and all (or at least most) peers agree on what it is, all peers have equal footing on joining swarms, and a DDoS attack is only as affective as the proportion of attackers to legitimate peers.
+
+Overview
+========
+
+The formula to be used in prioritizing peers is this:
+
+	*priority = sha1(sort(our_ip_part, peer_ip_part))*
+
+The IP parts to be used should be the first 24 bits of the IP addresses if the connection is over IPv4, unless the first 24 bits are identical.  In that case, the last 8 bits of the IP addresses should be used instead.  If the connection if over IPv6, either the first 48 bits or the last 80 bits should be used in the same way.
+
+The client should aways derive its own IP part from the IP address that the peer sees it as, so that both the client and peer arrive at the same hash. The client can use an IP address given via BEP 10 [#BEP-10]_ as a hint, but should not blindly trust it.
+
+Examples
+========
+
+If the client is *123.213.32.10* and the peer is *98.76.54.32*, the hash that they should both arrive at is *sha1(624C367BD520)* or *C4443A9BC166BA17CD1D929CD63C978977FA190E*.
+
+If the client is *123.213.32.10* and the peer is *123.213.32.234*, the hash that they should both arrive at is *sha1(20EA)* or *B793FDA7C18C7880B195FE533A2048D688C56668*.
+
+References
+==========
+
+.. [#BEP-10] BEP 10: Extension Protocol
+   (http://www.bittorrent.org/beps/bep_0010.html)
+
+Copyright
+=========
+
+This document has been placed in the public domain.
+
+
+..
+   Local Variables:
+   mode: indented-text
+   indent-tabs-mode: nil
+   sentence-end-double-space: t
+   fill-column: 70
+   coding: utf-8
+   End:

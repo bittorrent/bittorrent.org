@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.9.1: http://docutils.sourceforge.net/" />
+<title></title>
+<meta name="author" content="Arvid Norberg &lt;arvid&#64;bittorrent.com&gt;, Chris Brown &lt;cbrown&#64;bittorrent.com&gt;" />
+<link rel="stylesheet" href="../css/bep.css" type="text/css" />
+</head>
+<body>
+<div class="document">
+
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="../index.html">BitTorrent<span>.org</span></a></h1>
+</div>
+<div id="nav">
+<ul>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../introduction.html">For Users</a></li>
+<li><a href="bep_0000.html"><span>For Developers</span></a></li>
+<!-- <li><a href="./blog">Blog</a></li> -->
+<li><a href="mailing_list.html">Developer mailing list</a> </li>
+<li><a href="http://forum.bittorrent.org"> Forums (archive)</li>
+<li><a href="../donate.html">Donate!</a></li>
+</ul>
+</div> <!-- nav -->
+<!-- ### Begin Content ### -->
+<div id="second">
+
+
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
+<tbody valign="top">
+<tr class="field"><th class="docinfo-name">BEP:</th><td class="field-body">40</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Title:</th><td class="field-body">Canonical Peer Priority</td>
+</tr>
+<tr><th class="docinfo-name">Version:</th>
+<td>9dfbd4a76531a0f6c7c2a790d7a7c34f45e93d78</td></tr>
+<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Wed Nov 21 15:11:29 2012 -0800</td>
+</tr>
+<tr><th class="docinfo-name">Author:</th>
+<td>Arvid Norberg &lt;<a class="reference external" href="mailto:arvid&#37;&#52;&#48;bittorrent&#46;com">arvid<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;, Chris Brown &lt;<a class="reference external" href="mailto:cbrown&#37;&#52;&#48;bittorrent&#46;com">cbrown<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;</td></tr>
+<tr><th class="docinfo-name">Status:</th>
+<td>Draft</td></tr>
+<tr class="field"><th class="docinfo-name">Type:</th><td class="field-body">Standards Track</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Created:</th><td class="field-body">8-November-2012</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Post-History:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="abstract">
+<h1>Abstract</h1>
+<p>The aim of this bep is to solve two problems with BitTorrent:</p>
+<ol class="arabic simple">
+<li>The barrier of entry to a swarm may be high when most peers (or at least most early peers with most of the data) are all fully connected at all times, never having a connection slot for new incoming connections. Peers are likely to attempt a new outgoing connection immediately when a peer is dropped, to reach the connection limit. This means that the number of connected peers + half-open outgoing connections always reaches the limit, resulting in new incoming connections being refused.</li>
+<li>There's an opportunity to DDoS a swarm by filling up everyone's connections slots, and continuously making incoming connections at such rate that peers won't have an opportunity to connect to anyone else.</li>
+</ol>
+<p>The solution to these problems is to come up with a formula that all peers agree on to prioritize certain IP addresses for peers over others. As long as this formula is correctly defined, and all (or at least most) peers agree on what it is, all peers have equal footing on joining swarms, and a DDoS attack is only as affective as the proportion of attackers to legitimate peers.</p>
+</div>
+<div class="section" id="overview">
+<h1>Overview</h1>
+<p>The formula to be used in prioritizing peers is this:</p>
+<blockquote>
+<em>priority = sha1(sort(our_ip_part, peer_ip_part))</em></blockquote>
+<p>The IP parts to be used should be the first 24 bits of the IP addresses if the connection is over IPv4, unless the first 24 bits are identical.  In that case, the last 8 bits of the IP addresses should be used instead.  If the connection if over IPv6, either the first 48 bits or the last 80 bits should be used in the same way.</p>
+<p>The client should aways derive its own IP part from the IP address that the peer sees it as, so that both the client and peer arrive at the same hash. The client can use an IP address given via BEP 10 <a class="footnote-reference" href="#bep-10" id="id1">[1]</a> as a hint, but should not blindly trust it.</p>
+</div>
+<div class="section" id="examples">
+<h1>Examples</h1>
+<p>If the client is <em>123.213.32.10</em> and the peer is <em>98.76.54.32</em>, the hash that they should both arrive at is <em>sha1(624C367BD520)</em> or <em>C4443A9BC166BA17CD1D929CD63C978977FA190E</em>.</p>
+<p>If the client is <em>123.213.32.10</em> and the peer is <em>123.213.32.234</em>, the hash that they should both arrive at is <em>sha1(20EA)</em> or <em>B793FDA7C18C7880B195FE533A2048D688C56668</em>.</p>
+</div>
+<div class="section" id="references">
+<h1>References</h1>
+<table class="docutils footnote" frame="void" id="bep-10" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>BEP 10: Extension Protocol
+(<a class="reference external" href="http://www.bittorrent.org/beps/bep_0010.html">http://www.bittorrent.org/beps/bep_0010.html</a>)</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="copyright">
+<h1>Copyright</h1>
+<p>This document has been placed in the public domain.</p>
+<!-- Local Variables:
+mode: indented-text
+indent-tabs-mode: nil
+sentence-end-double-space: t
+fill-column: 70
+coding: utf-8
+End: -->
+</div>
+
+</div>
+	<div id="footer">
+<hr/>
+</div>
+
+</div>
+</body>
+</html>

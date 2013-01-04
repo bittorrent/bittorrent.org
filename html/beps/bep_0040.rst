@@ -25,18 +25,31 @@ Overview
 
 The formula to be used in prioritizing peers is this:
 
-	*priority = sha1(sort(our_ip_part, peer_ip_part))*
+	*priority = sha1(sort(masked_client_ip, masked_peer_ip))*
+	
+If the IP addresses are the same, the port numbers (16-bit integers) should be used instead:
 
-The IP parts to be used should be the first 24 bits of the IP addresses if the connection is over IPv4, unless the first 24 bits are identical.  In that case, the last 8 bits of the IP addresses should be used instead.  If the connection if over IPv6, either the first 48 bits or the last 80 bits should be used in the same way.
+	*priority = sha1(sort(client_port, peer_port))*
+
+For an IPv4 address, the mask to be used should be *FF.FF.55.55* unless the IP addresses are in the same /16. In that case, the mask to be used should be *FF.FF.FF.55*. If the IP addresses are in the same /24, the entire address should be used (mask *FF.FF.FF.FF*). 
+
+For an IPv6 address, the mask should be derived in the same way, beginning with *FFFF:FFFF:FFFF:5555:5555:5555:5555:5555*. If the IP addresses are in the same /48, the mask to be used should be *FFFF:FFFF:FFFF:FF55:5555:5555:5555:5555*. If the IP addresses are in the same /56, the mask to be used should be *FFFF:FFFF:FFFF:FFFF:5555:5555:5555:5555*, etc...
 
 The client should aways derive its own IP part from the IP address that the peer sees it as, so that both the client and peer arrive at the same hash. The client can use an IP address given via BEP 10 [#BEP-10]_ as a hint, but should not blindly trust it.
 
 Examples
 ========
 
-If the client is *123.213.32.10* and the peer is *98.76.54.32*, the hash that they should both arrive at is *sha1(624C367BD520)* or *C4443A9BC166BA17CD1D929CD63C978977FA190E*.
+If the client is *123.213.32.10* and the peer is *98.76.54.32*, the hash that they should both arrive at is *sha1(624C14007BD50000)* or *285AD0DD471F6C04FA18F22C81ADA6A8AB4F8801*.
 
-If the client is *123.213.32.10* and the peer is *123.213.32.234*, the hash that they should both arrive at is *sha1(20EA)* or *B793FDA7C18C7880B195FE533A2048D688C56668*.
+If the client is *123.213.32.10* and the peer is *123.213.32.234*, the hash that they should both arrive at is *sha1(7BD5200A7BD520EA)* or *BED015767BB51ED4BDA125C9647F9CBE4DF0DB38*.
+
+Notes
+=====
+
+A peer's priority can be computed before connecting, so it may be beneficial for clients to take that into consideration when deciding which peers to connect to.
+
+Prioritization should be used within torrents only (not at a global level). This specification is not intended to influence the method by which peer slots are divided up among torrents.
 
 References
 ==========

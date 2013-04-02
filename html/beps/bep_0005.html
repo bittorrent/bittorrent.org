@@ -3,8 +3,9 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.5: http://docutils.sourceforge.net/" />
+<meta name="generator" content="Docutils 0.10: http://docutils.sourceforge.net/" />
 <title></title>
+<meta name="author" content="Andrew Loewenstern &lt;drue&#64;bittorrent.com&gt;, Arvid Norberg &lt;arvid&#64;bittorrent.com&gt;" />
 <link rel="stylesheet" href="../css/bep.css" type="text/css" />
 </head>
 <body>
@@ -21,7 +22,8 @@
 <li><a href="../introduction.html">For Users</a></li>
 <li><a href="bep_0000.html"><span>For Developers</span></a></li>
 <!-- <li><a href="./blog">Blog</a></li> -->
-<li><a href="http://forum.bittorrent.org"> Forums </li>
+<li><a href="mailing_list.html">Developer mailing list</a> </li>
+<li><a href="http://forum.bittorrent.org"> Forums (archive)</li>
 <li><a href="../donate.html">Donate!</a></li>
 </ul>
 </div> <!-- nav -->
@@ -29,57 +31,30 @@
 <div id="second">
 
 
-
-<table class="rfc2822 docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">BEP:</th><td class="field-body">5</td>
+<tr class="field"><th class="docinfo-name">BEP:</th><td class="field-body">5</td>
 </tr>
-<tr class="field"><th class="field-name">Title:</th><td class="field-body">DHT Protocol</td>
+<tr class="field"><th class="docinfo-name">Title:</th><td class="field-body">DHT Protocol</td>
 </tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body">11031</td>
+<tr><th class="docinfo-name">Version:</th>
+<td>1e703dbf99dca8962addc89a2ef451cc199ec697</td></tr>
+<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Fri Feb 29 00:43:58 2008 +0000</td>
 </tr>
-<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0005.rst">2008-02-28 16:43:58 -0800 (Thu, 28 Feb 2008)</a></td>
+<tr><th class="docinfo-name">Author:</th>
+<td>Andrew Loewenstern &lt;<a class="reference external" href="mailto:drue&#37;&#52;&#48;bittorrent&#46;com">drue<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;, Arvid Norberg &lt;<a class="reference external" href="mailto:arvid&#37;&#52;&#48;bittorrent&#46;com">arvid<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;</td></tr>
+<tr><th class="docinfo-name">Status:</th>
+<td>Draft</td></tr>
+<tr class="field"><th class="docinfo-name">Type:</th><td class="field-body">Standards Track</td>
 </tr>
-<tr class="field"><th class="field-name">Author:</th><td class="field-body">Andrew Loewenstern &lt;drue&#32;&#97;t&#32;bittorrent.com&gt;</td>
+<tr class="field"><th class="docinfo-name">Created:</th><td class="field-body">31-Jan-2008</td>
 </tr>
-<tr class="field"><th class="field-name">Status:</th><td class="field-body">Draft</td>
-</tr>
-<tr class="field"><th class="field-name">Type:</th><td class="field-body">Standards Track</td>
-</tr>
-<tr class="field"><th class="field-name">Created:</th><td class="field-body">31-Jan-2008</td>
-</tr>
-<tr class="field"><th class="field-name">Post-History:</th><td class="field-body"></td>
+<tr class="field"><th class="docinfo-name">Post-History:</th><td class="field-body">22-March-2013: Add &quot;implied_port&quot; to announce_peer message, to improve NAT support</td>
 </tr>
 </tbody>
 </table>
-<hr />
-<div class="contents topic" id="contents">
-<p class="topic-title first">Contents</p>
-<ul class="simple">
-<li><a class="reference internal" href="#overview" id="id3">Overview</a></li>
-<li><a class="reference internal" href="#routing-table" id="id4">Routing Table</a></li>
-<li><a class="reference internal" href="#bittorrent-protocol-extension" id="id5">BitTorrent Protocol Extension</a></li>
-<li><a class="reference internal" href="#torrent-file-extensions" id="id6">Torrent File Extensions</a></li>
-<li><a class="reference internal" href="#krpc-protocol" id="id7">KRPC Protocol</a><ul>
-<li><a class="reference internal" href="#contact-encoding" id="id8">Contact Encoding</a></li>
-<li><a class="reference internal" href="#queries" id="id9">Queries</a></li>
-<li><a class="reference internal" href="#responses" id="id10">Responses</a></li>
-<li><a class="reference internal" href="#errors" id="id11">Errors</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#dht-queries" id="id12">DHT Queries</a><ul>
-<li><a class="reference internal" href="#ping" id="id13">ping</a></li>
-<li><a class="reference internal" href="#find-node" id="id14">find_node</a></li>
-<li><a class="reference internal" href="#get-peers" id="id15">get_peers</a></li>
-<li><a class="reference internal" href="#announce-peer" id="id16">announce_peer</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#references" id="id17">References</a></li>
-<li><a class="reference internal" href="#copyright" id="id18">Copyright</a></li>
-</ul>
-</div>
 <p>BitTorrent uses a &quot;distributed sloppy hash table&quot; (DHT) for storing
 peer contact information for &quot;trackerless&quot; torrents. In effect, each
 peer becomes a tracker. The protocol is based on Kademila <a class="footnote-reference" href="#kademlia" id="id1">[1]</a> and is
@@ -105,7 +80,7 @@ other nodes in the DHT that have IDs that are &quot;close&quot; to their own but
 have only a handful of contacts with IDs that are very far away from
 their own.</p>
 <p>In Kademlia, the distance metric is XOR and the result is interpreted
-as an unsigned integer. <tt class="docutils literal"><span class="pre">distance(A,B)</span> <span class="pre">=</span> <span class="pre">|A</span> <span class="pre">xor</span> <span class="pre">B|</span></tt> Smaller values
+as an unsigned integer. <tt class="docutils literal">distance(A,B) = |A xor B|</tt> Smaller values
 are closer.</p>
 <p>When a node wants to find peers for a torrent, it uses the distance
 metric to compare the infohash of the torrent with the IDs of the
@@ -321,9 +296,9 @@ senders node ID in network byte order. The appropriate response to a
 ping has a single key &quot;id&quot; containing the node ID of the responding
 node.</p>
 <pre class="literal-block">
-arguments:  {&quot;id&quot;&amp;nbsp;: &quot;&lt;querying nodes id&gt;&quot;}
+arguments:  {&quot;id&quot; : &quot;&lt;querying nodes id&gt;&quot;}
 
-response: {&quot;id&quot;&amp;nbsp;: &quot;&lt;queried nodes id&gt;&quot;}
+response: {&quot;id&quot; : &quot;&lt;queried nodes id&gt;&quot;}
 </pre>
 <p>Example Packets</p>
 <pre class="literal-block">
@@ -345,9 +320,9 @@ find_node query, it should respond with a key &quot;nodes&quot; and value of a
 string containing the compact node info for the target node or the K
 (8) closest good nodes in its own routing table.</p>
 <pre class="literal-block">
-arguments:  {&quot;id&quot;&amp;nbsp;: &quot;&lt;querying nodes id&gt;&quot;, &quot;target&quot;&amp;nbsp;: &quot;&lt;id of target node&gt;&quot;}
+arguments:  {&quot;id&quot; : &quot;&lt;querying nodes id&gt;&quot;, &quot;target&quot; : &quot;&lt;id of target node&gt;&quot;}
 
-response: {&quot;id&quot;&amp;nbsp;: &quot;&lt;queried nodes id&gt;&quot;, &quot;nodes&quot;&amp;nbsp;: &quot;&lt;compact node info&gt;&quot;}
+response: {&quot;id&quot; : &quot;&lt;queried nodes id&gt;&quot;, &quot;nodes&quot; : &quot;&lt;compact node info&gt;&quot;}
 </pre>
 <p>Example Packets</p>
 <pre class="literal-block">
@@ -373,11 +348,11 @@ supplied in the query. In either case a &quot;token&quot; key is also included i
 the return value. The token value is a required argument for a future
 announce_peer query. The token value should be a short binary string.</p>
 <pre class="literal-block">
-arguments:  {&quot;id&quot;&amp;nbsp;: &quot;&lt;querying nodes id&gt;&quot;, &quot;info_hash&quot;&amp;nbsp;: &quot;&lt;20-byte infohash of target torrent&gt;&quot;}
+arguments:  {&quot;id&quot; : &quot;&lt;querying nodes id&gt;&quot;, &quot;info_hash&quot; : &quot;&lt;20-byte infohash of target torrent&gt;&quot;}
 
-response: {&quot;id&quot;&amp;nbsp;: &quot;&lt;queried nodes id&gt;&quot;, &quot;token&quot;&amp;nbsp;:&quot;&lt;opaque write token&gt;&quot;, &quot;values&quot;&amp;nbsp;: [&quot;&lt;peer 1 info string&gt;&quot;, &quot;&lt;peer 2 info string&gt;&quot;]}
+response: {&quot;id&quot; : &quot;&lt;queried nodes id&gt;&quot;, &quot;token&quot; :&quot;&lt;opaque write token&gt;&quot;, &quot;values&quot; : [&quot;&lt;peer 1 info string&gt;&quot;, &quot;&lt;peer 2 info string&gt;&quot;]}
 
-or: {&quot;id&quot;&amp;nbsp;: &quot;&lt;queried nodes id&gt;&quot;, &quot;token&quot;&amp;nbsp;:&quot;&lt;opaque write token&gt;&quot;, &quot;nodes&quot;&amp;nbsp;: &quot;&lt;compact node info&gt;&quot;}
+or: {&quot;id&quot; : &quot;&lt;queried nodes id&gt;&quot;, &quot;token&quot; :&quot;&lt;opaque write token&gt;&quot;, &quot;nodes&quot; : &quot;&lt;compact node info&gt;&quot;}
 </pre>
 <p>Example Packets:</p>
 <pre class="literal-block">
@@ -404,14 +379,24 @@ that the token was previously sent to the same IP address as the
 querying node. Then the queried node should store the IP address of the
 querying node and the supplied port number under the infohash in its
 store of peer contact information.</p>
+<p>There is an optional argument called <tt class="docutils literal">implied_port</tt> which value is either
+0 or 1. If it is present and non-zero, the <tt class="docutils literal">port</tt> argument should be
+ignored and the source port of the UDP packet should be used as the peer's
+port instead. This is useful for peers behind a NAT that may not know
+their external port, and supporting uTP, they accept incoming connections
+on the same port as the DHT port.</p>
 <pre class="literal-block">
-arguments:  {&quot;id&quot; : &quot;&lt;querying nodes id&gt;&quot;, &quot;info_hash&quot; : &quot;&lt;20-byte infohash of target torrent&gt;&quot;, &quot;port&quot; : &lt;port number&gt;, &quot;token&quot; : &quot;&lt;opaque token&gt;&quot;}
+arguments:  {&quot;id&quot; : &quot;&lt;querying nodes id&gt;&quot;,
+  &quot;implied_port&quot;: &lt;0 or 1&gt;,
+  &quot;info_hash&quot; : &quot;&lt;20-byte infohash of target torrent&gt;&quot;,
+  &quot;port&quot; : &lt;port number&gt;,
+  &quot;token&quot; : &quot;&lt;opaque token&gt;&quot;}
 
 response: {&quot;id&quot; : &quot;&lt;queried nodes id&gt;&quot;}
 </pre>
 <p>Example Packets:</p>
 <pre class="literal-block">
-announce_peers Query = {&quot;t&quot;:&quot;aa&quot;, &quot;y&quot;:&quot;q&quot;, &quot;q&quot;:&quot;announce_peer&quot;, &quot;a&quot;: {&quot;id&quot;:&quot;abcdefghij0123456789&quot;, &quot;info_hash&quot;:&quot;mnopqrstuvwxyz123456&quot;, &quot;port&quot;: 6881, &quot;token&quot;: &quot;aoeusnth&quot;}}
+announce_peers Query = {&quot;t&quot;:&quot;aa&quot;, &quot;y&quot;:&quot;q&quot;, &quot;q&quot;:&quot;announce_peer&quot;, &quot;a&quot;: {&quot;id&quot;:&quot;abcdefghij0123456789&quot;, &quot;implied_port&quot;: 1, &quot;info_hash&quot;:&quot;mnopqrstuvwxyz123456&quot;, &quot;port&quot;: 6881, &quot;token&quot;: &quot;aoeusnth&quot;}}
 bencoded = d1:ad2:id20:abcdefghij01234567899:info_hash20:&lt;br /&gt;
 mnopqrstuvwxyz1234564:porti6881e5:token8:aoeusnthe1:q13:announce_peer1:t2:aa1:y1:qe
 </pre>
@@ -439,15 +424,7 @@ bencoded = d1:rd2:id20:mnopqrstuvwxyz123456e1:t2:aa1:y1:re
 <div class="section" id="copyright">
 <h1>Copyright</h1>
 <p>This document has been placed in the public domain.</p>
-<!-- Local Variables:
-mode: indented-text
-indent-tabs-mode: nil
-sentence-end-double-space: t
-fill-column: 70
-coding: utf-8
-End: -->
 </div>
-
 
 </div>
 	<div id="footer">

@@ -1,12 +1,12 @@
-BEP: 5
-Title: DHT Protocol
-Version: $Revision$
-Last-Modified: $Date$
-Author:  Andrew Loewenstern <drue@bittorrent.com>
-Status:  Draft
-Type:    Standards Track
-Created: 31-Jan-2008
-Post-History:
+:BEP: 5
+:Title: DHT Protocol
+:Version: $Revision$
+:Last-Modified: $Date$
+:Author:  Andrew Loewenstern <drue@bittorrent.com>, Arvid Norberg <arvid@bittorrent.com>
+:Status:  Draft
+:Type:    Standards Track
+:Created: 31-Jan-2008
+:Post-History: 22-March-2013: Add "implied_port" to announce_peer message, to improve NAT support
 
 BitTorrent uses a "distributed sloppy hash table" (DHT) for storing
 peer contact information for "trackerless" torrents. In effect, each
@@ -275,9 +275,9 @@ node.
 
 ::
 
-  arguments:  {"id"&nbsp;: "<querying nodes id>"}
+  arguments:  {"id" : "<querying nodes id>"}
   
-  response: {"id"&nbsp;: "<queried nodes id>"}
+  response: {"id" : "<queried nodes id>"}
 
 
 Example Packets
@@ -306,9 +306,9 @@ string containing the compact node info for the target node or the K
 
 ::
 
-  arguments:  {"id"&nbsp;: "<querying nodes id>", "target"&nbsp;: "<id of target node>"}
+  arguments:  {"id" : "<querying nodes id>", "target" : "<id of target node>"}
 
-  response: {"id"&nbsp;: "<queried nodes id>", "nodes"&nbsp;: "<compact node info>"}
+  response: {"id" : "<queried nodes id>", "nodes" : "<compact node info>"}
 
 
 Example Packets
@@ -341,11 +341,11 @@ announce_peer query. The token value should be a short binary string.
 
 ::
 
-  arguments:  {"id"&nbsp;: "<querying nodes id>", "info_hash"&nbsp;: "<20-byte infohash of target torrent>"}
+  arguments:  {"id" : "<querying nodes id>", "info_hash" : "<20-byte infohash of target torrent>"}
 
-  response: {"id"&nbsp;: "<queried nodes id>", "token"&nbsp;:"<opaque write token>", "values"&nbsp;: ["<peer 1 info string>", "<peer 2 info string>"]}
+  response: {"id" : "<queried nodes id>", "token" :"<opaque write token>", "values" : ["<peer 1 info string>", "<peer 2 info string>"]}
 
-  or: {"id"&nbsp;: "<queried nodes id>", "token"&nbsp;:"<opaque write token>", "nodes"&nbsp;: "<compact node info>"}
+  or: {"id" : "<queried nodes id>", "token" :"<opaque write token>", "nodes" : "<compact node info>"}
 
 
 Example Packets:
@@ -380,9 +380,20 @@ querying node. Then the queried node should store the IP address of the
 querying node and the supplied port number under the infohash in its
 store of peer contact information.
 
+There is an optional argument called ``implied_port`` which value is either
+0 or 1. If it is present and non-zero, the ``port`` argument should be
+ignored and the source port of the UDP packet should be used as the peer's
+port instead. This is useful for peers behind a NAT that may not know
+their external port, and supporting uTP, they accept incoming connections
+on the same port as the DHT port.
+
 ::
 
-  arguments:  {"id" : "<querying nodes id>", "info_hash" : "<20-byte infohash of target torrent>", "port" : <port number>, "token" : "<opaque token>"}
+  arguments:  {"id" : "<querying nodes id>",
+    "implied_port": <0 or 1>,
+    "info_hash" : "<20-byte infohash of target torrent>",
+    "port" : <port number>,
+    "token" : "<opaque token>"}
   
   response: {"id" : "<queried nodes id>"}
   
@@ -390,7 +401,7 @@ store of peer contact information.
 Example Packets:
 ::
 
-  announce_peers Query = {"t":"aa", "y":"q", "q":"announce_peer", "a": {"id":"abcdefghij0123456789", "info_hash":"mnopqrstuvwxyz123456", "port": 6881, "token": "aoeusnth"}}
+  announce_peers Query = {"t":"aa", "y":"q", "q":"announce_peer", "a": {"id":"abcdefghij0123456789", "implied_port": 1, "info_hash":"mnopqrstuvwxyz123456", "port": 6881, "token": "aoeusnth"}}
   bencoded = d1:ad2:id20:abcdefghij01234567899:info_hash20:<br />
   mnopqrstuvwxyz1234564:porti6881e5:token8:aoeusnthe1:q13:announce_peer1:t2:aa1:y1:qe
 
@@ -412,13 +423,3 @@ Copyright
 
 This document has been placed in the public domain.
 
-
-
-..
-   Local Variables:
-   mode: indented-text
-   indent-tabs-mode: nil
-   sentence-end-double-space: t
-   fill-column: 70
-   coding: utf-8
-   End:

@@ -310,7 +310,7 @@ that downloader just completed and checked the hash of.</p>
 <p>'request' messages contain an index, begin, and length. The last
 two are byte offsets. Length is generally a power of two unless it
 gets truncated by the end of the file. All current implementations use
-2 15 , and close connections which request an amount greater than 2
+2^15 , and close connections which request an amount greater than 2^
 17.</p>
 <p>'cancel' messages have the same payload as request messages. They
 are generally only sent towards the end of a download, during what's

@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.10: http://docutils.sourceforge.net/" />
+<title></title>
+<meta name="author" content="Preston Lee &lt;preston.lee&#64;prestonlee.com&gt;" />
+<link rel="stylesheet" href="../css/bep.css" type="text/css" />
+</head>
+<body>
+<div class="document">
+
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="../index.html">BitTorrent<span>.org</span></a></h1>
+</div>
+<div id="nav">
+<ul>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../introduction.html">For Users</a></li>
+<li><a href="bep_0000.html"><span>For Developers</span></a></li>
+<!-- <li><a href="./blog">Blog</a></li> -->
+<li><a href="mailing_list.html">Developer mailing list</a> </li>
+<li><a href="http://forum.bittorrent.org"> Forums (archive)</li>
+<li><a href="../donate.html">Donate!</a></li>
+</ul>
+</div> <!-- nav -->
+<!-- ### Begin Content ### -->
+<div id="second">
+
+
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
+<tbody valign="top">
+<tr class="field"><th class="docinfo-name">BEP:</th><td class="field-body">41</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Title:</th><td class="field-body">Volunteer Peer Partial Replication &amp; Balancing</td>
+</tr>
+<tr><th class="docinfo-name">Version:</th>
+<td>N/A</td></tr>
+<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">N/A</td>
+</tr>
+<tr><th class="docinfo-name">Author:</th>
+<td>Preston Lee &lt;<a class="reference external" href="mailto:preston&#46;lee&#37;&#52;&#48;prestonlee&#46;com">preston<span>&#46;</span>lee<span>&#64;</span>prestonlee<span>&#46;</span>com</a>&gt;</td></tr>
+<tr><th class="docinfo-name">Status:</th>
+<td>Draft</td></tr>
+<tr class="field"><th class="docinfo-name">Type:</th><td class="field-body">Standards Track</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Created:</th><td class="field-body">23-January-2013</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Post-History:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="abstract">
+<h1>Abstract</h1>
+<p>Storage-intensive tasks such as the analysis of genomics, particle physics, or space sensor data often require huge data sets to be transferred large geographic distances. Projects such as World Community Grid create “volunteer computing” networks to distribute computational workloads across distributed networks of philanthropic “donor” machines via a central control server, but analogous concepts for volunteer storage have not been broadly adopted, despite great need in scientific communities.</p>
+<p>While many implementations of distributed file systems have emerged, these are generally designed on the presumption that the user replicating content is also consuming the content, which is not necessarily the case. Additionally, fields such as genomics deal with data that cannot necessarily be “public” in nature. DNA data, for example, may or may not be made available for public consumption due to legal, ethical, scientific, or other concerns.  The storage requirements of such organizations could be greatly displaced by providing several extensions to standard BitTorrent semantics, making academic and scientific studies in “big data” fields cheaper and more operationally sustainable, while also allowing layman to fulfill storage and archiving needs while not necessarilly being granted the ability to hold all data at a given moment in time.</p>
+</div>
+<div class="section" id="volunteer-network-semantics">
+<h1>Volunteer Network Semantics</h1>
+<p>Peers acting as volunteer in the swarm MUST attempt to download only the pieces assigned to them, as well as validate that other peers are requesting only those assigned to them.</p>
+<div class="section" id="volunteer-peer">
+<h2>Volunteer Peer</h2>
+<blockquote>
+The concept of a “volunteer client” is similar to a normal peer, except the client:</blockquote>
+<ul class="simple">
+<li>MUST support BEP-0036 to retrieve a dynamic list of torrents from an RSS generator.</li>
+<li>MUST inform the tracker of “storage space available”, as well as several other parameters, when requesting - the feed a defined by BEP-0036.</li>
+<li>MUST only download torrent pieces as commanded by the tracker, up to available local storage. In the event - the tracker changes its commands, the client MUST delete non-authorized pieces no later than the new pieces - have completed downloading.</li>
+<li>MUST enforce BEP-0027, when appropriately enabled by a metainfo file.</li>
+<li>SHOULD make all network communications, including all tracker and P2P interaction, over SSL.</li>
+<li>SHOULD use local piece-level encryption when writing to disk.</li>
+<li>MUST obey a “time to live” (TTL) on every torrent, in minutes. When the time since last announce exceeds -he * TTL, the client MUST delete all pieces for the given torrent.</li>
+<li>MUST observe and report certain configuration parameters and statistics to the tracker. (Described below.)</li>
+</ul>
+<p>Outside of these core semantic differences, a volunteer client uses the existing BitTorrent P2P wire protocol.</p>
+</div>
+<div class="section" id="users">
+<h2>Users</h2>
+<p>Additionally, the controlling user is assumed to be running the client as a storage contributor and MAY or MAY NOT desire to open the data they are storing. Since this expected user interaction MAY be different, the user:</p>
+<ul class="simple">
+<li>SHALL be allowed to control when the client runs.</li>
+<li>SHALL be allowed to set maximum storage and bandwidth contributions to the swarm.</li>
+<li>MAY be allowed to set other detailed P2P configuration parameters.</li>
+<li>MAY select a preference for specific RSS feed(s), which MUST be obeyed by the client when specified.</li>
+<li>MAY NOT know the torrents that have been joined.</li>
+</ul>
+</div>
+<div class="section" id="tracker-rss-generator">
+<h2>Tracker &amp; RSS Generator</h2>
+<p>Each tracker, presumably integrated with a BEP-0036 RSS feed generator, issues commands to the client through a combination of dynamic RSS feed and announce request/response cycles. Tracker modifications SHOULD be implemented and are highly encouraged, but are not required. Implementors SHOULD NOT authoritatively trust the clients self-reported statistics are true. Self-reported system information is provided for optional piece balancing consideration by the RSS generator.</p>
+<p>When the client initially polls the RSS feed(s), the following additional parameters SHOULD be provided in the HTTP query string:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="26%" />
+<col width="51%" />
+<col width="13%" />
+<col width="10%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Example Value</th>
+<th class="head">Units</th>
+<th class="head">Required</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>peer_id</td>
+<td>2dd028f....c538ad</td>
+<td>peer ID</td>
+<td>Yes</td>
+</tr>
+<tr><td>user</td>
+<td><a class="reference external" href="mailto:me&#37;&#52;&#48;example&#46;com">me<span>&#64;</span>example<span>&#46;</span>com</a></td>
+<td>account ID</td>
+<td>No</td>
+</tr>
+<tr><td>token</td>
+<td><a class="reference external" href="mailto:AOEU!&#37;&#52;&#48;#$1234">AOEU!<span>&#64;</span>#$1234</a></td>
+<td>string</td>
+<td>No</td>
+</tr>
+<tr><td>cpu_count</td>
+<td>2</td>
+<td>int</td>
+<td>No</td>
+</tr>
+<tr><td>cpu_mhz</td>
+<td>1433</td>
+<td>MHz int</td>
+<td>No</td>
+</tr>
+<tr><td>ram_mb</td>
+<td>8589934592</td>
+<td>bytes long</td>
+<td>No</td>
+</tr>
+<tr><td>disk_maximum_bytes</td>
+<td>34359738368</td>
+<td>bytes long</td>
+<td>Yes</td>
+</tr>
+<tr><td>disk_used_bytes</td>
+<td>1234567890</td>
+<td>bytes long</td>
+<td>Yes</td>
+</tr>
+<tr><td>completed_pieces</td>
+<td>{‘e2d...3c2’=[0,7,42],‘80d..2f2’=&gt;[]}</td>
+<td>JSON map</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<p>Notes:</p>
+<dl class="docutils">
+<dt>completed_pieces</dt>
+<dd>A JSON structure mapping the &quot;info_hash&quot; of torrents to an array of piece numbers that have be fully downloaded by this peer.</dd>
+<dt>user</dt>
+<dd>Typicaly a username or email address identifying the user.</dd>
+<dt>token</dt>
+<dd>A secret string known only by client and server. When used in conjuction with the &quot;user&quot; field, it is recommended to treat it as a &quot;password&quot; or &quot;API key&quot;.</dd>
+</dl>
+<p>The RSS generator MAY use this information, as well as the announce history of the tracker, to dynamically decide which torrents, if any, the client should join. Authentication and authorization checks SHOULD be performed to prevent client spoofing, but is not required to function in a trusted network.</p>
+</div>
+<div class="section" id="metainfo-files">
+<h2>Metainfo Files</h2>
+<p>Individual BitTorrents divide content into a number of pieces, N, at the time of torrent creation. Hashes for each piece are included in the .torrent metadata file, which allows clients to validate the correctness of individual piece transfers.</p>
+<p>To facilitate the tracking process, a volunteer tracker MAY observe a “volunteer=1” option in the peer announcement request. When this flag is set, the peer value of “left=0” SHALL reflect the total number of bytes need by the client to reach its own assigned portion of the torrent, not the number of bytes needed to download the entire torrent.</p>
+<p>Unlike standard bittorrent, each torrent metainfo file defines a Volunteer Client Percentage, P, keyed as “percentage” at the root level of the metainfo file. The value being expressed is a real number between 0 (exclusive) and 1 (inclusive), which is the maximum percentage of pieces any given volunteer client may replicate before it MUST force itself to stop downloading pieces. The value MAY be safely ignored by clients not operating as a volunteer. The total number of pieces a client shall download per torrent, M, is thus the same  for every volunteer participating in the torrent, and is always rounded up to the nearest integer value.</p>
+<blockquote>
+<em>M = ceiling(N * P)</em></blockquote>
+<p>All M pieces download by a given client MUST be limited to a contiguous region of piece numbers starting at an &quot;Affinity Offset&quot;, A, defined by each client as:</p>
+<blockquote>
+<em>A = MD5(concat(peer_id, torrent_info_hash)) % M</em></blockquote>
+<p>Since both the Peer ID and torrent info_hash are known to the tracker, A does not need to be explicitly reported between the two. The last piece, L, to be downloaded -- in terms of offset number and not necessarily reflective of the order in which pieces are downloaded -- is defined as:</p>
+<blockquote>
+<em>L = (A + M - 1)</em></blockquote>
+<p>The client will only attempt to locally replicate a given piece number, X, if and only if the following function evaluates true:</p>
+<blockquote>
+<em>should_replicate(X) := (X &gt;= A &amp;&amp; X &lt;= L) || (N &lt;= L &amp;&amp; X &lt;= L - N)</em></blockquote>
+<p>The first half of the expression handles common cases where every block has a sequential piece number. This fails, however, when the pieces per torrent, M, would require a piece “past” the end of the torrent. (See examples.) In this case, the latter half of the expression allows the pieces to “wrap around” to the beginning of the torrent data at piece #0.</p>
+<p>A tracker supporting this protocol MAY implement a piece priority tracking component to return a suggested piece acquistion order as part of the normal client announce. When the client sets the “volunteer” bit in the announce as defined above, the tracker MAY return an order array within the root level of the dictionary, keyed by “piece_priority”. Upon receiving this response, the client SHOULD obey this request.</p>
+<p>For example, the tracker implementation MAY establish a priority queue per torrent, for identifying the least available blocks. The queue orders the pieces from top (highest priority) to bottom, with the least currently seeded pieces at the top, subsorted by the least seeded in the last D days, where D is left to the tracker to define.</p>
+</div>
+</div>
+<div class="section" id="examples">
+<h1>Examples</h1>
+<p>The piece-limiting characteristics of a client may be easier to understand with two common examples:</p>
+<div class="section" id="typical-case">
+<h2>Typical Case</h2>
+<p>Let’s say a torrent has 16 pieces, with a defined allowance of  25% of pieces per torrent, as illustrated in the following diagram, for a client whose affinity offset happens to be 8. This, as well as every other volunteer client, will attempt to acquire 4 pieces.</p>
+<div class="figure">
+<img alt="bep_0041_common_case.png" src="bep_0041_common_case.png" />
+<p class="caption"><strong>Figure 1:</strong> The first 768 bytes of the RC4 pseudorandom
+string are discarded.  The parameter <em>i</em> in the tracker response has
+value <tt class="docutils literal">x xor i</tt>.  The parameter <em>n</em> has value <tt class="docutils literal">y xor n</tt>.</p>
+</div>
+</div>
+<div class="section" id="wrap-around-case">
+<h2>Wrap-Around Case</h2>
+<p>Now let’s consider a different torrent and different client, in the diagram below. N is still 16, but P has been raised to 35% and A happens to be 12. Since L is greater than or equal to N, the first two pieces will also be included in the clients acquisition list.</p>
+<div class="figure">
+<img alt="bep_0041_wrap_around_case.png" src="bep_0041_wrap_around_case.png" />
+<p class="caption"><strong>Figure 2:</strong> A sequential set of pieces from the middle of the torrent is replicated by this peer.</p>
+</div>
+<p>Volunteer Client Lifecycle</p>
+<div class="figure">
+<img alt="bep_0041_volunteer_client_sequence_diagram.png" src="bep_0041_volunteer_client_sequence_diagram.png" />
+<p class="caption"><strong>Figure 1:</strong> The set of pieces to be replicated &quot;wraps around&quot; to the beginning of the torrent, at piece #0.</p>
+</div>
+</div>
+</div>
+<div class="section" id="references">
+<h1>References</h1>
+<table class="docutils footnote" frame="void" id="bep-0010" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[1]</td><td>BEP 10: Extension Protocol
+(<a class="reference external" href="http://www.bittorrent.org/beps/bep_0010.html">http://www.bittorrent.org/beps/bep_0010.html</a>)</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="bep-0027" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[2]</td><td>BEP 27: Private Torrents
+(<a class="reference external" href="http://www.bittorrent.org/beps/bep_0027.html">http://www.bittorrent.org/beps/bep_0027.html</a>)</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="bep-0036" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[3]</td><td>BEP 36: Torrent RSS Feeds
+(<a class="reference external" href="http://www.bittorrent.org/beps/bep_0036.html">http://www.bittorrent.org/beps/bep_0036.html</a>)</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="copyright">
+<h1>Copyright</h1>
+<p>This document has been placed in the public domain by Preston Lee.</p>
+<table class="docutils footnote" frame="void" id="author" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[4]</td><td>Preston Lee
+(<a class="reference external" href="http://www.prestonlee.com">http://www.prestonlee.com</a>)</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="github" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[5]</td><td>GitHub
+(<a class="reference external" href="https://github.com/preston">https://github.com/preston</a>)</td></tr>
+</tbody>
+</table>
+<!-- Local Variables:
+mode: indented-text
+indent-tabs-mode: nil
+sentence-end-double-space: t
+fill-column: 70
+coding: utf-8
+End: -->
+</div>
+
+</div>
+	<div id="footer">
+<hr/>
+</div>
+
+</div>
+</body>
+</html>

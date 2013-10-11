@@ -9,6 +9,7 @@
 :Post-History: 24-Jun-2009 (arvid@bittorrent.com), clarified the encoding of strings in torrent files.
 	20-Oct-2012 (arvid@bittorrent.com), clarified that info-hash is the digest of en bencoding found in .torrent file.
 	Introduced some references to new BEPs and cleaned up formatting.
+	11-Oct-2013 (arvid@bittorrent.com), correct the accepted and de-facto sizes for request messages
 
 BitTorrent is a protocol for distributing files. It identifies content
 by URL and is designed to integrate seamlessly with the web. Its
@@ -311,8 +312,8 @@ that downloader just completed and checked the hash of.
 'request' messages contain an index, begin, and length. The last
 two are byte offsets. Length is generally a power of two unless it
 gets truncated by the end of the file. All current implementations use
-2 15 , and close connections which request an amount greater than 2
-17.
+2^14 (16 kiB), and close connections which request an amount greater than
+that.
 
 'cancel' messages have the same payload as request messages. They
 are generally only sent towards the end of a download, during what's

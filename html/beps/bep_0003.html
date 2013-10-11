@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.8.1: http://docutils.sourceforge.net/" />
+<meta name="generator" content="Docutils 0.10: http://docutils.sourceforge.net/" />
 <title></title>
 <meta name="author" content="Bram Cohen &lt;bram&#64;bittorrent.com&gt;" />
 <link rel="stylesheet" href="../css/bep.css" type="text/css" />
@@ -40,8 +40,8 @@
 <tr class="field"><th class="docinfo-name">Title:</th><td class="field-body">The BitTorrent Protocol Specification</td>
 </tr>
 <tr><th class="docinfo-name">Version:</th>
-<td>a74be05a8d7e278c494ead7eacfa0f14d149e5f4</td></tr>
-<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Thu Jun 25 01:41:20 2009 +0000</td>
+<td>becdd9a11e68ace72751306b3d59146ed648e6fe</td></tr>
+<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Sat Oct 20 09:12:06 2012 -0700</td>
 </tr>
 <tr><th class="docinfo-name">Author:</th>
 <td>Bram Cohen &lt;<a class="reference external" href="mailto:bram&#37;&#52;&#48;bittorrent&#46;com">bram<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;</td></tr>
@@ -53,7 +53,8 @@
 </tr>
 <tr class="field"><th class="docinfo-name">Post-History:</th><td class="field-body">24-Jun-2009 (<a class="reference external" href="mailto:arvid&#37;&#52;&#48;bittorrent&#46;com">arvid<span>&#64;</span>bittorrent<span>&#46;</span>com</a>), clarified the encoding of strings in torrent files.
 20-Oct-2012 (<a class="reference external" href="mailto:arvid&#37;&#52;&#48;bittorrent&#46;com">arvid<span>&#64;</span>bittorrent<span>&#46;</span>com</a>), clarified that info-hash is the digest of en bencoding found in .torrent file.
-Introduced some references to new BEPs and cleaned up formatting.</td>
+Introduced some references to new BEPs and cleaned up formatting.
+11-Oct-2013 (<a class="reference external" href="mailto:arvid&#37;&#52;&#48;bittorrent&#46;com">arvid<span>&#64;</span>bittorrent<span>&#46;</span>com</a>), correct the accepted and de-facto sizes for request messages</td>
 </tr>
 </tbody>
 </table>
@@ -310,8 +311,8 @@ that downloader just completed and checked the hash of.</p>
 <p>'request' messages contain an index, begin, and length. The last
 two are byte offsets. Length is generally a power of two unless it
 gets truncated by the end of the file. All current implementations use
-2 15 , and close connections which request an amount greater than 2
-17.</p>
+2^14 (16 kiB), and close connections which request an amount greater than
+that.</p>
 <p>'cancel' messages have the same payload as request messages. They
 are generally only sent towards the end of a download, during what's
 called 'endgame mode'. When a download is almost complete, there's a

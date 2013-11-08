@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.8.1: http://docutils.sourceforge.net/" />
+<title></title>
+<meta name="author" content="Michael C. Toren &lt;mct&#64;toren.net&gt;" />
+<link rel="stylesheet" href="../css/bep.css" type="text/css" />
+</head>
+<body>
+<div class="document">
+
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="../index.html">BitTorrent<span>.org</span></a></h1>
+</div>
+<div id="nav">
+<ul>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../introduction.html">For Users</a></li>
+<li><a href="bep_0000.html"><span>For Developers</span></a></li>
+<!-- <li><a href="./blog">Blog</a></li> -->
+<li><a href="mailing_list.html">Developer mailing list</a> </li>
+<li><a href="http://forum.bittorrent.org"> Forums (archive)</li>
+<li><a href="../donate.html">Donate!</a></li>
+</ul>
+</div> <!-- nav -->
+<!-- ### Begin Content ### -->
+<div id="second">
+
+
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
+<tbody valign="top">
+<tr class="field"><th class="docinfo-name">BEP:</th><td class="field-body">41</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Title:</th><td class="field-body">UDP Tracker Protocol Extensions</td>
+</tr>
+<tr><th class="docinfo-name">Version:</th>
+<td>9192f080e5b6c475e1f8c98f85a9012160879656</td></tr>
+<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Fri Nov 8 10:50:26 2013 -0800</td>
+</tr>
+<tr><th class="docinfo-name">Author:</th>
+<td>Michael C. Toren &lt;<a class="reference external" href="mailto:mct&#37;&#52;&#48;toren&#46;net">mct<span>&#64;</span>toren<span>&#46;</span>net</a>&gt;</td></tr>
+<tr><th class="docinfo-name">Status:</th>
+<td>Draft</td></tr>
+<tr class="field"><th class="docinfo-name">Type:</th><td class="field-body">Standards Track</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Created:</th><td class="field-body">5-November-2013</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Post-History:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="abstract">
+<h1>Abstract</h1>
+<p>Since its initial inception, the UDP Tracker Protocol has seen widespread
+adoption by the BitTorrent ecosystem.  It is by far the dominant tracker
+protocol in use, dwarfing the earlier HTTP-based protocol.  However, the
+current version of the UDP protocol used to today does not include any method
+of adding extensions or additional features.  Worse, previous versions of the
+protocol have described contradictory, incompatible methods.  This BEP defines
+a new extension mechanism that allows new features to be easily added without
+breaking the existing protocol.</p>
+</div>
+<div class="section" id="overview">
+<h1>Overview</h1>
+<p>The original UDP Tracker specification <a class="footnote-reference" href="#id6" id="id1">[1]</a> was written by Olaf van der Spek in
+2004, for use with his xbtt-tracker.  An additional specification was written
+by Arvid Norberg for rasterbar.com <a class="footnote-reference" href="#id7" id="id2">[2]</a> in 2005, referencing Olaf's earlier
+work.  These two specifications are almost identical, differing only in how
+user authentication and future extendibility is handled.  Unfortunately, these
+differences are significant enough to make the two specifications incompatible
+with one another when either of these optional features is used.</p>
+<p>In 2008, the BitTorrent Enhancement Proposal (BEP) process was put in place to
+codify many of the improvements that had been made to BitTorrent since it was
+first released.  The same year, Olaf authored BEP-15 <a class="footnote-reference" href="#id8" id="id3">[3]</a> to once again
+document the UDP Tracker Protocol.  BEP-15 is largely based on his earlier
+specification, but differs in that it does not include any form of
+authentication, or define any extension mechanism, stating only: <em>&quot;Extension
+bits or a version field are not included.  Clients and trackers should not
+assume packets to be of a certain size. This way, additional fields can be
+added without breaking compatibility.&quot;</em></p>
+<p>As a result, BEP-15 can be thought of as describing the least common denominator
+of the two specifications that came before it, and is the most interoperable
+version that has ever been documented.  More importantly, there do not appear
+to be any existing trackers or clients in use today that implement any of the
+user authentication methods or extension mechanisms that were described in the
+earlier specifications.  It is therefore possible for us to safely define a new
+extension mechanism, so long as care is taken not to conflict with the existing
+protocol.</p>
+<p>This document defines such an extension mechanism.  This mechanism is completely
+optional, and is backwards compatible with the existing protocol.  It has been
+widely deployed in uTorrent since version 3.2.2 (released in October, 2012)
+and is not known to cause any problems communicating with existing trackers.</p>
+</div>
+<div class="section" id="motivation">
+<h1>Motivation</h1>
+<p>Prior to the extensions defined in this document, UDP tracker URLs that
+contained PATH and QUERY components were completely valid, but those components
+were invisible to the tracker.  For example, from the tracker's perspective, the
+URL:</p>
+<blockquote>
+<tt class="docutils literal"><span class="pre">udp://tracker.example.com:80/dir?a=b&amp;c=d</span></tt></blockquote>
+<p>and the URL:</p>
+<blockquote>
+<tt class="docutils literal"><span class="pre">udp://tracker.example.com:80</span></tt></blockquote>
+<p>were completely indistinguishable.  This differs from the HTTP-based Tracker
+Protocol, and places restrictions on how a UDP tracker URLs may be used in
+practice.</p>
+<p>Our primary motivation was to develop an extension to the UDP protocol to allow
+the PATH and QUERY components to be sent to UDP trackers.  Rather than
+implementing a protocol change that only addressed this one issue, we chose to
+define an extension mechanism to allow future extensions to be easily added
+without risk of breaking the existing protocol.</p>
+</div>
+<div class="section" id="extension-format">
+<h1>Extension Format</h1>
+<p>The extension mechanism we chose is modeled after the one used in IP and TCP
+packets <a class="footnote-reference" href="#id9" id="id4">[4]</a>.  Extensions are defined by a series of <em>options</em>, which can define
+new behavior.</p>
+<p>Option parsing starts immediately at the end of a valid UDP Announce Request
+packet as defined by BEP-15 (at byte offset 98), and continues until either the
+end of the UDP packet is reached, or an <em>EndOfOptions</em> option is encountered,
+whichever happens first.  The <em>EndOfOptions</em> option allows the protocol to be
+further extended in the future, should this extension mechanism not prove to be
+as flexible as we hope.</p>
+<p>Each option made up of either one, two, or three fields:</p>
+<blockquote>
+<ul class="simple">
+<li>1 byte that identifies the option-type</li>
+<li>1 byte that specifies the length of the associated data that follows</li>
+<li>A variable-length data field.</li>
+</ul>
+</blockquote>
+<p>Most options have all three fields.  For option-types that include a length,
+the length field does not include the 2 bytes consumed by the option-type field
+and the length field itself in its total.  A length field of zero indicates
+that the data field has been omitted, and that the very next byte is either the
+option-byte for the next option, or the end of the packet.</p>
+<p>There are only two special-case options that use only the first field: <em>NOP</em>,
+and <em>EndOfOptions</em>.  Any options added in the future are required to include a
+length field.  This ensures that an extension parser written today can safely
+skip over any unknown option-types that may be defined in subsequent BEPs.</p>
+<p>This document defines one option which uses all three fields: <em>URLData</em></p>
+<p>This extension mechanism only allows options to be sent by the client, and only
+in the Announce Request packet.</p>
+</div>
+<div class="section" id="option-types">
+<h1>Option Types</h1>
+<p>The complete list of currently defined options is as follows:</p>
+<blockquote>
+<dl class="docutils">
+<dt><em>EndOfOptions</em>:   <em>&lt;Option-Type 0x0&gt;</em></dt>
+<dd>A special case option that has a <strong>fixed-length</strong> of one byte.
+It is <strong>not</strong> followed by a length field, or associated data.
+This option indicates that option parsing should stop.  Use of
+this option is optional; option parsing continues until either
+the end of the packet is reached, or an <em>EndOfOptions</em> option is
+encountered, whichever happens first.</dd>
+<dt><em>NOP</em>:   <em>&lt;Option-Type 0x1&gt;</em></dt>
+<dd>A special case option that has a <strong>fixed-length</strong> of one byte.  It
+is <strong>not</strong> followed by a length field, or associated data.  A
+<em>NOP</em> has no affect on option parsing.  It is used only if
+optional padding is necessary in the future.</dd>
+<dt><em>URLData</em>:   <em>&lt;Option-Type 0x2&gt;</em>, <em>&lt;Length Byte&gt;</em>, <em>&lt;Variable-Length URL Data&gt;</em></dt>
+<dd>A variable-length option, followed by a <strong>length byte</strong> and
+<strong>variable-length</strong> data.  The data field contains
+the concatenated PATH and QUERY portion of the UDP tracker URL.
+If this option appears more than once, the data fields are
+concatenated.  This allows clients to send PATH and QUERY
+strings that are longer than 255 bytes, chunked into blocks
+of no larger than 255 bytes.</dd>
+</dl>
+</blockquote>
+<p>To reiterate, it is critical that option parsers know which option-types are
+followed by a length byte, and which are not.  Option-types <strong>less than or equal
+to 0x1</strong> are <strong>never</strong> followed by a length byte.  Option-types <strong>greater than or
+equal to 0x2</strong> are <strong>always</strong> followed by a length byte.  Additionally, when a
+length-byte is present, option parsers must always be prepared for the length
+field to be zero, indicating no associated option data accompanies this option.</p>
+</div>
+<div class="section" id="examples">
+<h1>Examples</h1>
+<p>A client communicating with a tracker at the URL:</p>
+<blockquote>
+<tt class="docutils literal"><span class="pre">udp://tracker.example.com:80/dir?a=b&amp;c=d</span></tt></blockquote>
+<p>might include the following extension bytes in its UDP Announce Request packet,
+at byte offset 98, describing an <em>URLData</em> option to inform the tracker the full
+URL the client is using:</p>
+<pre class="literal-block">
+0x2, 0xC, '/', 'd', 'i', 'r', '?', 'a', '=', 'b', '&amp;', 'c', '=', 'd'
+</pre>
+<p>The following extensions bytes would be equally valid, and evaluate
+identically.
+Here, the <em>URLData</em> option is followed by two <em>NOPs</em>, to position the next
+option on a 32-bit word-boundary.  The final option is an <em>EndOfOptions</em>:</p>
+<pre class="literal-block">
+0x2, 0xC, '/', 'd', 'i', 'r', '?', 'a', '=', 'b', '&amp;', 'c', '=', 'd', 0x1, 0x1, 0x0
+</pre>
+<p>This is admittedly a convoluted example, constructed to demonstrate the use of
+the <em>NOP</em> and <em>EndOfOptions</em>.</p>
+<p>As a final example, a client communicating with a tracker at the URL:</p>
+<blockquote>
+<tt class="docutils literal"><span class="pre">udp://tracker.example.com:80</span></tt></blockquote>
+<p>might include the following extension bytes in its UDP Announce Request packet,
+containing the <em>URLData</em> option with a length-byte of zero:</p>
+<pre class="literal-block">
+0x2, 0x0
+</pre>
+<p>A client may wish to send an empty <em>URLData</em> option to indicate that it
+supports the <em>URLData</em> extension, but that no PATH or QUERY components were
+present in the tracker URL it used.</p>
+</div>
+<div class="section" id="use-cases">
+<h1>Use Cases</h1>
+<p>The initial problem we were attempting solve was how to run a high-performance
+tracker while restricting the infohashes it would serve.  Using a whitelist file
+was quickly ruled out, due to the large number of infohashes to be supported,
+and a requirement to support adding new infohashes very frequently and quickly.</p>
+<p>The mechanism we chose used a public-key signature system to cryptographically
+sign each valid infohash.  This was first developed using an HTTP-based
+tracker, where the infohash signature could easily be included in the tracker
+URL.  This had the advantage of allowing us to deploy the system with complete
+interoperability with existing clients.  But, we also wanted to support UDP
+trackers, for better performance, which led to the creation of this extension
+mechanism.</p>
+<p>As an example, a tracker URL might be:</p>
+<blockquote>
+<tt class="docutils literal"><span class="pre">udp://tracker.example.com:80/?auth=0x00000000000000000000</span></tt></blockquote>
+<p>Where the string &quot;0x00000000000000000000&quot; is the public-key signature of the
+infohash.  A tracker which receives this QUERY string can authenticate the
+signature using the public-key.  New valid tracker URLs can be created offline
+using the secret-key.</p>
+</div>
+<div class="section" id="implementations">
+<h1>Implementations</h1>
+<p>uTorrent versions since 3.2.2 (released in October, 2012) have supported
+this extension mechanism, including support for the <em>URLData</em> option.</p>
+<p>BitTorrent, Inc has patched OpenTracker to support this extension mechanism,
+including support for the <em>URLData</em> option, and uses the QUERY string to
+authenticate valid infohashes as described in the previous section.  The patch
+uses Ed25519 <a class="footnote-reference" href="#id10" id="id5">[5]</a> as the public-key signature system.  We intend to release
+this patch as an Open Source contribution to OpenTracker in the near future.</p>
+</div>
+<div class="section" id="references">
+<h1>References</h1>
+<table class="docutils footnote" frame="void" id="id6" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>Olaf van der Spek's original specification:
+<a class="reference external" href="http://xbtt.sourceforge.net/udp_tracker_protocol.html">http://xbtt.sourceforge.net/udp_tracker_protocol.html</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id7" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td>Arvid Norberg's specification, for rasterbar.com:
+<a class="reference external" href="http://www.rasterbar.com/products/libtorrent/udp_tracker_protocol.html">http://www.rasterbar.com/products/libtorrent/udp_tracker_protocol.html</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id8" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[3]</a></td><td><em>UDP Tracker Protocol for BitTorrent</em>, written by Olaf van der Spek:
+<a class="reference external" href="http://www.bittorrent.org/beps/bep_0015.html">http://www.bittorrent.org/beps/bep_0015.html</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id9" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id4">[4]</a></td><td><em>Transmission Control Protocol</em>, from Network Sorcery's RFC Sourcebook:
+<a class="reference external" href="http://www.networksorcery.com/enp/protocol/tcp.htm#Options">http://www.networksorcery.com/enp/protocol/tcp.htm#Options</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id10" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id5">[5]</a></td><td><em>Ed25519: high-speed high-security signatures</em>, by Daniel J. Bernstein:
+<a class="reference external" href="http://ed25519.cr.yp.to/">http://ed25519.cr.yp.to/</a></td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="copyright">
+<h1>Copyright</h1>
+<p>This document has been placed in the public domain.</p>
+<!-- Local Variables:
+mode: indented-text
+indent-tabs-mode: nil
+sentence-end-double-space: t
+fill-column: 70
+coding: utf-8
+End: -->
+</div>
+
+</div>
+	<div id="footer">
+<hr/>
+</div>
+
+</div>
+</body>
+</html>

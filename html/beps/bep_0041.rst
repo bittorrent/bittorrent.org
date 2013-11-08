@@ -1,0 +1,262 @@
+:BEP: 41
+:Title: UDP Tracker Protocol Extensions
+:Version: $Revision$
+:Last-Modified: $Date$
+:Author:  Michael C. Toren <mct@toren.net>
+:Status:  Draft
+:Type:    Standards Track
+:Created: 5-November-2013
+:Post-History:
+
+Abstract
+========
+
+Since its initial inception, the UDP Tracker Protocol has seen widespread
+adoption by the BitTorrent ecosystem.  It is by far the dominant tracker
+protocol in use, dwarfing the earlier HTTP-based protocol.  However, the
+current version of the UDP protocol used to today does not include any method
+of adding extensions or additional features.  Worse, previous versions of the
+protocol have described contradictory, incompatible methods.  This BEP defines
+a new extension mechanism that allows new features to be easily added without
+breaking the existing protocol.
+
+Overview
+========
+
+The original UDP Tracker specification [1]_ was written by Olaf van der Spek in
+2004, for use with his xbtt-tracker.  An additional specification was written
+by Arvid Norberg for rasterbar.com [2]_ in 2005, referencing Olaf's earlier
+work.  These two specifications are almost identical, differing only in how
+user authentication and future extendibility is handled.  Unfortunately, these
+differences are significant enough to make the two specifications incompatible
+with one another when either of these optional features is used.
+
+In 2008, the BitTorrent Enhancement Proposal (BEP) process was put in place to
+codify many of the improvements that had been made to BitTorrent since it was
+first released.  The same year, Olaf authored BEP-15 [3]_ to once again
+document the UDP Tracker Protocol.  BEP-15 is largely based on his earlier
+specification, but differs in that it does not include any form of
+authentication, or define any extension mechanism, stating only: *"Extension
+bits or a version field are not included.  Clients and trackers should not
+assume packets to be of a certain size. This way, additional fields can be
+added without breaking compatibility."*
+
+As a result, BEP-15 can be thought of as describing the least common denominator
+of the two specifications that came before it, and is the most interoperable
+version that has ever been documented.  More importantly, there do not appear
+to be any existing trackers or clients in use today that implement any of the
+user authentication methods or extension mechanisms that were described in the
+earlier specifications.  It is therefore possible for us to safely define a new
+extension mechanism, so long as care is taken not to conflict with the existing
+protocol.
+
+This document defines such an extension mechanism.  This mechanism is completely
+optional, and is backwards compatible with the existing protocol.  It has been
+widely deployed in uTorrent since version 3.2.2 (released in October, 2012)
+and is not known to cause any problems communicating with existing trackers.
+
+Motivation
+==========
+
+Prior to the extensions defined in this document, UDP tracker URLs that
+contained PATH and QUERY components were completely valid, but those components
+were invisible to the tracker.  For example, from the tracker's perspective, the
+URL:
+
+        ``udp://tracker.example.com:80/dir?a=b&c=d``
+
+and the URL:
+
+	``udp://tracker.example.com:80``
+
+were completely indistinguishable.  This differs from the HTTP-based Tracker
+Protocol, and places restrictions on how a UDP tracker URLs may be used in
+practice.
+
+Our primary motivation was to develop an extension to the UDP protocol to allow
+the PATH and QUERY components to be sent to UDP trackers.  Rather than
+implementing a protocol change that only addressed this one issue, we chose to
+define an extension mechanism to allow future extensions to be easily added
+without risk of breaking the existing protocol.
+
+
+Extension Format
+================
+
+The extension mechanism we chose is modeled after the one used in IP and TCP
+packets [4]_.  Extensions are defined by a series of *options*, which can define
+new behavior.
+
+Option parsing starts immediately at the end of a valid UDP Announce Request
+packet as defined by BEP-15 (at byte offset 98), and continues until either the
+end of the UDP packet is reached, or an *EndOfOptions* option is encountered,
+whichever happens first.  The *EndOfOptions* option allows the protocol to be
+further extended in the future, should this extension mechanism not prove to be
+as flexible as we hope.
+
+Each option made up of either one, two, or three fields:
+
+	- 1 byte that identifies the option-type
+	- 1 byte that specifies the length of the associated data that follows
+	- A variable-length data field.
+
+Most options have all three fields.  For option-types that include a length,
+the length field does not include the 2 bytes consumed by the option-type field
+and the length field itself in its total.  A length field of zero indicates
+that the data field has been omitted, and that the very next byte is either the
+option-byte for the next option, or the end of the packet.
+
+There are only two special-case options that use only the first field: *NOP*,
+and *EndOfOptions*.  Any options added in the future are required to include a
+length field.  This ensures that an extension parser written today can safely
+skip over any unknown option-types that may be defined in subsequent BEPs.
+
+This document defines one option which uses all three fields: *URLData*
+
+This extension mechanism only allows options to be sent by the client, and only
+in the Announce Request packet.
+
+
+Option Types
+============
+
+The complete list of currently defined options is as follows:
+
+	*EndOfOptions*:   *<Option-Type 0x0>*
+		A special case option that has a **fixed-length** of one byte.
+		It is **not** followed by a length field, or associated data.
+		This option indicates that option parsing should stop.  Use of
+		this option is optional; option parsing continues until either
+		the end of the packet is reached, or an *EndOfOptions* option is
+		encountered, whichever happens first.
+
+	*NOP*:   *<Option-Type 0x1>*
+		A special case option that has a **fixed-length** of one byte.  It
+		is **not** followed by a length field, or associated data.  A
+		*NOP* has no affect on option parsing.  It is used only if
+		optional padding is necessary in the future.
+
+	*URLData*:   *<Option-Type 0x2>*, *<Length Byte>*, *<Variable-Length URL Data>*
+		A variable-length option, followed by a **length byte** and
+		**variable-length** data.  The data field contains
+		the concatenated PATH and QUERY portion of the UDP tracker URL.
+		If this option appears more than once, the data fields are
+		concatenated.  This allows clients to send PATH and QUERY
+		strings that are longer than 255 bytes, chunked into blocks
+		of no larger than 255 bytes.
+
+To reiterate, it is critical that option parsers know which option-types are
+followed by a length byte, and which are not.  Option-types **less than or equal
+to 0x1** are **never** followed by a length byte.  Option-types **greater than or
+equal to 0x2** are **always** followed by a length byte.  Additionally, when a
+length-byte is present, option parsers must always be prepared for the length
+field to be zero, indicating no associated option data accompanies this option.
+
+Examples
+========
+
+A client communicating with a tracker at the URL:
+
+        ``udp://tracker.example.com:80/dir?a=b&c=d``
+
+might include the following extension bytes in its UDP Announce Request packet,
+at byte offset 98, describing an *URLData* option to inform the tracker the full
+URL the client is using::
+
+	0x2, 0xC, '/', 'd', 'i', 'r', '?', 'a', '=', 'b', '&', 'c', '=', 'd'
+
+The following extensions bytes would be equally valid, and evaluate
+identically.
+Here, the *URLData* option is followed by two *NOPs*, to position the next
+option on a 32-bit word-boundary.  The final option is an *EndOfOptions*::
+
+	0x2, 0xC, '/', 'd', 'i', 'r', '?', 'a', '=', 'b', '&', 'c', '=', 'd', 0x1, 0x1, 0x0
+
+This is admittedly a convoluted example, constructed to demonstrate the use of
+the *NOP* and *EndOfOptions*.
+
+As a final example, a client communicating with a tracker at the URL:
+
+	``udp://tracker.example.com:80``
+
+might include the following extension bytes in its UDP Announce Request packet,
+containing the *URLData* option with a length-byte of zero::
+
+	0x2, 0x0
+
+A client may wish to send an empty *URLData* option to indicate that it
+supports the *URLData* extension, but that no PATH or QUERY components were
+present in the tracker URL it used.
+
+
+Use Cases
+=========
+
+The initial problem we were attempting solve was how to run a high-performance
+tracker while restricting the infohashes it would serve.  Using a whitelist file
+was quickly ruled out, due to the large number of infohashes to be supported,
+and a requirement to support adding new infohashes very frequently and quickly.
+
+The mechanism we chose used a public-key signature system to cryptographically
+sign each valid infohash.  This was first developed using an HTTP-based
+tracker, where the infohash signature could easily be included in the tracker
+URL.  This had the advantage of allowing us to deploy the system with complete
+interoperability with existing clients.  But, we also wanted to support UDP
+trackers, for better performance, which led to the creation of this extension
+mechanism.
+
+As an example, a tracker URL might be:
+
+	``udp://tracker.example.com:80/?auth=0x00000000000000000000``
+
+Where the string "0x00000000000000000000" is the public-key signature of the
+infohash.  A tracker which receives this QUERY string can authenticate the
+signature using the public-key.  New valid tracker URLs can be created offline
+using the secret-key.
+
+Implementations
+===============
+
+
+uTorrent versions since 3.2.2 (released in October, 2012) have supported
+this extension mechanism, including support for the *URLData* option.
+
+BitTorrent, Inc has patched OpenTracker to support this extension mechanism,
+including support for the *URLData* option, and uses the QUERY string to
+authenticate valid infohashes as described in the previous section.  The patch
+uses Ed25519 [5]_ as the public-key signature system.  We intend to release
+this patch as an Open Source contribution to OpenTracker in the near future.
+
+
+References
+==========
+
+.. [1] Olaf van der Spek's original specification:
+	http://xbtt.sourceforge.net/udp_tracker_protocol.html
+
+.. [2] Arvid Norberg's specification, for rasterbar.com:
+	http://www.rasterbar.com/products/libtorrent/udp_tracker_protocol.html
+
+.. [3] *UDP Tracker Protocol for BitTorrent*, written by Olaf van der Spek:
+	http://www.bittorrent.org/beps/bep_0015.html
+
+.. [4] *Transmission Control Protocol*, from Network Sorcery's RFC Sourcebook:
+	http://www.networksorcery.com/enp/protocol/tcp.htm#Options
+
+.. [5] *Ed25519: high-speed high-security signatures*, by Daniel J. Bernstein:
+	http://ed25519.cr.yp.to/
+
+Copyright
+=========
+
+This document has been placed in the public domain.
+
+
+..
+   Local Variables:
+   mode: indented-text
+   indent-tabs-mode: nil
+   sentence-end-double-space: t
+   fill-column: 70
+   coding: utf-8
+   End:

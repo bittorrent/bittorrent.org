@@ -13,8 +13,7 @@
 <li><a href="../index.html">Home</a></li>
 <li><a href="../introduction.html">For Users</a></li>
 <li><a href="bep_0000.html"><span>For Developers</span></a></li>
-<!-- <li><a href="./blog">Blog</a></li> -->
-<li><a href="mailing_list.html">Developer mailing list</a> </li>
+<li><a href="../mailing_list.html">Developer mailing list</a> </li>
 <li><a href="http://forum.bittorrent.org"> Forums (archive)</li>
 <li><a href="../donate.html">Donate!</a></li>
 </ul>

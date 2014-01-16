@@ -71,13 +71,13 @@ a node can choose, based on its external IP address.</p>
 <h1>Considerations</h1>
 <p>One straight forward scheme to tie the node ID to an IP would be to hash
 the IP and force the node ID to share the prefix of that hash. One main
-draw back of this approach is that an entities control over the DHT key
+drawback of this approach is that an entities control over the DHT key
 space grows linearly with its control over the IP address space.</p>
 <p>In order to successfully launch an attack, you just need to find 8 IPs
 whose hash will be <em>closest</em> to the target info-hash. Given the current
 size of the DHT, that is quite likely to be possible by anyone in control
 of a /8 IP block.</p>
-<p>The size of the DHT is approximately 8.4 million nodes. This is estmiated
+<p>The size of the DHT is approximately 8.4 million nodes. This is estimated
 by observing that a typical routing table typically has about 20 of its
 top routing table buckets full. That means the key space is dense enough
 to contain 8 nodes for every combination of the 20 top bits of node IDs.</p>
@@ -97,7 +97,7 @@ forced to run their DHT nodes on the same node ID.</p>
 of IPs, as well as allowing more than one node ID per external IP, the node
 ID can be restricted at each class level of the IP.</p>
 <p>Another important property of the restriction put on node IDs is that the
-distribution of the IDs remoain uniform. This is why CRC32C (Castagnoli) was
+distribution of the IDs remain uniform. This is why CRC32C (Castagnoli) was
 chosen as the hash function.</p>
 <p>The expression to calculate a valid ID prefix (from an IPv4 address) is:</p>
 <pre class="literal-block">
@@ -200,16 +200,16 @@ to this property.</p>
 <img alt="bep_0042_complete_bit_prefixes.png" src="bep_0042_complete_bit_prefixes.png" />
 <p>This test takes into account IP addresses that are not globally routable, i.e.
 reserved for local networks, multicast and other things. It also takes into
-account that some /8 blocks are not in use by end-users and exremely unlikely
+account that some /8 blocks are not in use by end-users and extremely unlikely
 to ever run a DHT node. This makes the results likely to be very similar to
 what we would see in the wild.</p>
 <p>These results indicate that CRC32C provides the best uniformity in the results
 in terms of bit prefixes where all possibilities are represented, and that
 no more than 21 bits should be used from the result. If more than 21 bits
-were to be used, there would be certain node IDs that would be impossible to
+were used, there would be certain node IDs that would be impossible to
 have, which would make routing sub-optimal.</p>
-<p>The second test is more of a sanity test for the uniform distribution property.
-The target space (32 bit interger) is divided up into 1000 buckets. Every valid
+<p>The second test is a sanity test for the uniform distribution property.
+The target space (32 bit integer) is divided up into 1000 buckets. Every valid
 IP and <tt class="docutils literal">r</tt> input is run through the algorithm and the result is put in the
 bucket it falls in. The expectation is that each bucket has roughly an equal
 number of results falling into it. The following graph shows the resulting

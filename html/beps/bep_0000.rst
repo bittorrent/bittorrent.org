@@ -88,6 +88,7 @@ Num        Title
 |39|       :raw-html:`<A HREF="bep_0039.html">Updating Torrents Via Feed URL</A>`
 |40|       :raw-html:`<A HREF="bep_0040.html">Canonical Peer Priority</A>`
 |41|       :raw-html:`<A HREF="bep_0041.html">UDP Tracker Protocol Extensions</A>`
+|42|       :raw-html:`<A HREF="bep_0042.html">DHT Security Extension</A>`
 ======     ===================
 
 
@@ -154,4 +155,5 @@ At this time, no BEPs have been rejected.
 .. |39| replace:: :raw-html:`<A HREF="bep_0039.html">39</A>`
 .. |40| replace:: :raw-html:`<A HREF="bep_0040.html">40</A>`
 .. |41| replace:: :raw-html:`<A HREF="bep_0041.html">41</A>`
+.. |42| replace:: :raw-html:`<A HREF="bep_0042.html">42</A>`
 .. |1000| replace:: :raw-html:`<A HREF="bep_1000.html">1000</A>`

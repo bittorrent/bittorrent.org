@@ -1,36 +1,35 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-<head>
+<head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.9.1: http://docutils.sourceforge.net/" />
+<meta name="generator" content="Docutils 0.11: http://docutils.sourceforge.net/" />
 <title></title>
-<meta name="author" content="Arvid Norberg &lt;arvid&#64;bittorrent.com&gt;, Chris Brown &lt;cbrown&#64;bittorrent.com&gt;" />
-<link rel="stylesheet" href="../css/bep.css" type="text/css" />
+<meta name="author" content="Arvid Norberg &lt;arvid&#64;bittorrent.com&gt;, Chris Brown &lt;cbrown&#64;bittorrent.com&gt;" />
+<link rel="stylesheet" href="../css/bep.css" type="text/css" />
 </head>
 <body>
-<div class="document">
-
-<div id="upper" class="clear">
-<div id="wrap">
-<div id="header">
-<h1><a href="../index.html">BitTorrent<span>.org</span></a></h1>
-</div>
-<div id="nav">
-<ul>
-<li><a href="../index.html">Home</a></li>
-<li><a href="../introduction.html">For Users</a></li>
-<li><a href="bep_0000.html"><span>For Developers</span></a></li>
-<!-- <li><a href="./blog">Blog</a></li> -->
-<li><a href="../mailing_list.html">Developer mailing list</a> </li>
-<li><a href="http://forum.bittorrent.org"> Forums (archive)</li>
-<li><a href="../donate.html">Donate!</a></li>
-</ul>
-</div> <!-- nav -->
-<!-- ### Begin Content ### -->
-<div id="second">
-
-
+<div class="document">
+
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="../index.html">BitTorrent<span>.org</span></a></h1>
+</div>
+<div id="nav">
+<ul>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../introduction.html">For Users</a></li>
+<li><a href="bep_0000.html"><span>For Developers</span></a></li>
+<li><a href="../mailing_list.html">Developer mailing list</a> </li>
+<li><a href="http://forum.bittorrent.org"> Forums (archive)</li>
+<li><a href="../donate.html">Donate!</a></li>
+</ul>
+</div> <!-- nav -->
+<!-- ### Begin Content ### -->
+<div id="second">
+
+
 <table class="docinfo" frame="void" rules="none">
 <col class="docinfo-name" />
 <col class="docinfo-content" />
@@ -40,8 +39,8 @@
 <tr class="field"><th class="docinfo-name">Title:</th><td class="field-body">Canonical Peer Priority</td>
 </tr>
 <tr><th class="docinfo-name">Version:</th>
-<td>4eea5a557ad5b85ebd47f27f452cd121082c1ae0</td></tr>
-<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Fri Jan 4 15:18:06 2013 -0800</td>
+<td>ce39bdebbf2456c056e6493768cae13c6fb549eb</td></tr>
+<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Fri Jan 24 07:02:07 2014 -0800</td>
 </tr>
 <tr><th class="docinfo-name">Author:</th>
 <td>Arvid Norberg &lt;<a class="reference external" href="mailto:arvid&#37;&#52;&#48;bittorrent&#46;com">arvid<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;, Chris Brown &lt;<a class="reference external" href="mailto:cbrown&#37;&#52;&#48;bittorrent&#46;com">cbrown<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;</td></tr>
@@ -54,7 +53,7 @@
 <tr class="field"><th class="docinfo-name">Post-History:</th><td class="field-body"></td>
 </tr>
 </tbody>
-</table>
+</table>
 <div class="section" id="abstract">
 <h1>Abstract</h1>
 <p>The aim of this bep is to solve two problems with BitTorrent:</p>
@@ -68,23 +67,24 @@
 <h1>Overview</h1>
 <p>The formula to be used in prioritizing peers is this:</p>
 <blockquote>
-<em>priority = sha1(sort(masked_client_ip, masked_peer_ip))</em></blockquote>
+<em>priority = crc32-c(sort(masked_client_ip, masked_peer_ip))</em></blockquote>
 <p>If the IP addresses are the same, the port numbers (16-bit integers) should be used instead:</p>
 <blockquote>
-<em>priority = sha1(sort(client_port, peer_port))</em></blockquote>
+<em>priority = crc32-c(sort(client_port, peer_port))</em></blockquote>
 <p>For an IPv4 address, the mask to be used should be <em>FF.FF.55.55</em> unless the IP addresses are in the same /16. In that case, the mask to be used should be <em>FF.FF.FF.55</em>. If the IP addresses are in the same /24, the entire address should be used (mask <em>FF.FF.FF.FF</em>).</p>
 <p>For an IPv6 address, the mask should be derived in the same way, beginning with <em>FFFF:FFFF:FFFF:5555:5555:5555:5555:5555</em>. If the IP addresses are in the same /48, the mask to be used should be <em>FFFF:FFFF:FFFF:FF55:5555:5555:5555:5555</em>. If the IP addresses are in the same /56, the mask to be used should be <em>FFFF:FFFF:FFFF:FFFF:5555:5555:5555:5555</em>, etc...</p>
 <p>The client should aways derive its own IP part from the IP address that the peer sees it as, so that both the client and peer arrive at the same hash. The client can use an IP address given via BEP 10 <a class="footnote-reference" href="#bep-10" id="id1">[1]</a> as a hint, but should not blindly trust it.</p>
 </div>
 <div class="section" id="examples">
 <h1>Examples</h1>
-<p>If the client is <em>123.213.32.10</em> and the peer is <em>98.76.54.32</em>, the hash that they should both arrive at is <em>sha1(624C14007BD50000)</em> or <em>285AD0DD471F6C04FA18F22C81ADA6A8AB4F8801</em>.</p>
-<p>If the client is <em>123.213.32.10</em> and the peer is <em>123.213.32.234</em>, the hash that they should both arrive at is <em>sha1(7BD5200A7BD520EA)</em> or <em>BED015767BB51ED4BDA125C9647F9CBE4DF0DB38</em>.</p>
+<p>If the client is <em>123.213.32.10</em> and the peer is <em>98.76.54.32</em>, the hash that they should both arrive at is <em>crc32-c(624C14007BD50000)</em> or <em>BB97323E</em>.</p>
+<p>If the client is <em>123.213.32.10</em> and the peer is <em>123.213.32.234</em>, the hash that they should both arrive at is <em>crc32-c[(7BD5200A7BD520EA)</em> or <em>C816B840</em>.</p>
 </div>
 <div class="section" id="notes">
 <h1>Notes</h1>
 <p>A peer's priority can be computed before connecting, so it may be beneficial for clients to take that into consideration when deciding which peers to connect to.</p>
 <p>Prioritization should be used within torrents only (not at a global level). This specification is not intended to influence the method by which peer slots are divided up among torrents.</p>
+<p>Google provides a <a class="reference external" href="https://code.google.com/p/googleappengine/source/browse/trunk/python/google/appengine/api/files/crc32c.py?r=170">CRC32-C reference implementation</a>.</p>
 </div>
 <div class="section" id="references">
 <h1>References</h1>
@@ -106,13 +106,13 @@ sentence-end-double-space: t
 fill-column: 70
 coding: utf-8
 End: -->
-</div>
-
-</div>
-	<div id="footer">
-<hr/>
-</div>
-
+</div>
+
+</div>
+	<div id="footer">
+<hr/>
+</div>
+
 </div>
 </body>
-</html>
+</html>

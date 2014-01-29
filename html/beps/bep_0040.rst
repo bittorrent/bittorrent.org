@@ -25,11 +25,11 @@ Overview
 
 The formula to be used in prioritizing peers is this:
 
-	*priority = sha1(sort(masked_client_ip, masked_peer_ip))*
+	*priority = crc32-c(sort(masked_client_ip, masked_peer_ip))*
 	
 If the IP addresses are the same, the port numbers (16-bit integers) should be used instead:
 
-	*priority = sha1(sort(client_port, peer_port))*
+	*priority = crc32-c(sort(client_port, peer_port))*
 
 For an IPv4 address, the mask to be used should be *FF.FF.55.55* unless the IP addresses are in the same /16. In that case, the mask to be used should be *FF.FF.FF.55*. If the IP addresses are in the same /24, the entire address should be used (mask *FF.FF.FF.FF*). 
 
@@ -40,9 +40,9 @@ The client should aways derive its own IP part from the IP address that the peer
 Examples
 ========
 
-If the client is *123.213.32.10* and the peer is *98.76.54.32*, the hash that they should both arrive at is *sha1(624C14007BD50000)* or *285AD0DD471F6C04FA18F22C81ADA6A8AB4F8801*.
+If the client is *123.213.32.10* and the peer is *98.76.54.32*, the hash that they should both arrive at is *crc32-c(624C14007BD50000)* or *BB97323E*.
 
-If the client is *123.213.32.10* and the peer is *123.213.32.234*, the hash that they should both arrive at is *sha1(7BD5200A7BD520EA)* or *BED015767BB51ED4BDA125C9647F9CBE4DF0DB38*.
+If the client is *123.213.32.10* and the peer is *123.213.32.234*, the hash that they should both arrive at is *crc32-c[(7BD5200A7BD520EA)* or *C816B840*.
 
 Notes
 =====
@@ -50,6 +50,8 @@ Notes
 A peer's priority can be computed before connecting, so it may be beneficial for clients to take that into consideration when deciding which peers to connect to.
 
 Prioritization should be used within torrents only (not at a global level). This specification is not intended to influence the method by which peer slots are divided up among torrents.
+
+Google provides a `CRC32-C reference implementation <https://code.google.com/p/googleappengine/source/browse/trunk/python/google/appengine/api/files/crc32c.py?r=170>`_.
 
 References
 ==========

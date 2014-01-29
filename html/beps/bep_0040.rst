@@ -6,7 +6,7 @@
 :Status:  Draft
 :Type:    Standards Track
 :Created: 8-November-2012
-:Post-History:
+:Post-History: 29-January-2014 Specify CRC32-C rather than SHA1 hashing
 
 
 Abstract

@@ -1,12 +1,12 @@
-BEP: 15
-Title: UDP Tracker Protocol for BitTorrent
-Version: $Revision$
-Last-Modified: $Date$
-Author:  Olaf van der Spek <olafvdspek@gmail.com>
-Status:  Draft
-Type:    Standards Track
-Created: 13-Feb-2008
-Post-History:
+:BEP: 15
+:Title: UDP Tracker Protocol for BitTorrent
+:Version: $Revision$
+:Last-Modified: $Date$
+:Author:  Olaf van der Spek <olafvdspek@gmail.com>
+:Status:  Draft
+:Type:    Standards Track
+:Created: 13-Feb-2008
+:Post-History:
 
 Introduction
 ============

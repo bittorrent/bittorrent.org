@@ -40,9 +40,9 @@ The client should aways derive its own IP part from the IP address that the peer
 Examples
 ========
 
-If the client is *123.213.32.10* and the peer is *98.76.54.32*, the hash that they should both arrive at is *crc32-c(624C14007BD50000)* or *BB97323E*.
+If the client is *123.213.32.10* and the peer is *98.76.54.32*, the hash that they should both arrive at is *crc32-c(624C14007BD50000)* or *ec2d7224*.
 
-If the client is *123.213.32.10* and the peer is *123.213.32.234*, the hash that they should both arrive at is *crc32-c[(7BD5200A7BD520EA)* or *C816B840*.
+If the client is *123.213.32.10* and the peer is *123.213.32.234*, the hash that they should both arrive at is *crc32-c[(7BD5200A7BD520EA)* or *99568189*.
 
 Notes
 =====

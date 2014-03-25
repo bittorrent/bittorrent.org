@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-<head>
+<head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.11: http://docutils.sourceforge.net/" />
+<meta name="generator" content="Docutils 0.10: http://docutils.sourceforge.net/" />
 <title></title>
-<meta name="author" content="Arvid Norberg &lt;arvid&#64;bittorrent.com&gt;, Chris Brown &lt;cbrown&#64;bittorrent.com&gt;" />
-<link rel="stylesheet" href="../css/bep.css" type="text/css" />
+<meta name="author" content="Arvid Norberg &lt;arvid&#64;bittorrent.com&gt;, Chris Brown &lt;cbrown&#64;bittorrent.com&gt;" />
+<link rel="stylesheet" href="../css/bep.css" type="text/css" />
 </head>
 <body>
-<div class="document">
-
-<div id="upper" class="clear">
-<div id="wrap">
-<div id="header">
-<h1><a href="../index.html">BitTorrent<span>.org</span></a></h1>
-</div>
-<div id="nav">
-<ul>
-<li><a href="../index.html">Home</a></li>
-<li><a href="../introduction.html">For Users</a></li>
-<li><a href="bep_0000.html"><span>For Developers</span></a></li>
-<li><a href="../mailing_list.html">Developer mailing list</a> </li>
-<li><a href="http://forum.bittorrent.org"> Forums (archive)</li>
-<li><a href="../donate.html">Donate!</a></li>
-</ul>
-</div> <!-- nav -->
-<!-- ### Begin Content ### -->
-<div id="second">
-
-
+<div class="document">
+
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="../index.html">BitTorrent<span>.org</span></a></h1>
+</div>
+<div id="nav">
+<ul>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../introduction.html">For Users</a></li>
+<li><a href="bep_0000.html"><span>For Developers</span></a></li>
+<li><a href="../mailing_list.html">Developer mailing list</a> </li>
+<li><a href="http://forum.bittorrent.org"> Forums (archive)</li>
+<li><a href="../donate.html">Donate!</a></li>
+</ul>
+</div> <!-- nav -->
+<!-- ### Begin Content ### -->
+<div id="second">
+
+
 <table class="docinfo" frame="void" rules="none">
 <col class="docinfo-name" />
 <col class="docinfo-content" />
@@ -39,8 +39,8 @@
 <tr class="field"><th class="docinfo-name">Title:</th><td class="field-body">Canonical Peer Priority</td>
 </tr>
 <tr><th class="docinfo-name">Version:</th>
-<td>80a4e34ecaaedda7d14a95d2ac17df65db5a2d0a</td></tr>
-<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Wed Jan 29 15:33:37 2014 -0800</td>
+<td>b75d09c2d181ebd68789fec05ead462e250cb2d9</td></tr>
+<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Wed Jan 29 15:50:36 2014 -0800</td>
 </tr>
 <tr><th class="docinfo-name">Author:</th>
 <td>Arvid Norberg &lt;<a class="reference external" href="mailto:arvid&#37;&#52;&#48;bittorrent&#46;com">arvid<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;, Chris Brown &lt;<a class="reference external" href="mailto:cbrown&#37;&#52;&#48;bittorrent&#46;com">cbrown<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;</td></tr>
@@ -53,7 +53,7 @@
 <tr class="field"><th class="docinfo-name">Post-History:</th><td class="field-body">29-January-2014 Specify CRC32-C rather than SHA1 hashing</td>
 </tr>
 </tbody>
-</table>
+</table>
 <div class="section" id="abstract">
 <h1>Abstract</h1>
 <p>The aim of this bep is to solve two problems with BitTorrent:</p>
@@ -77,8 +77,8 @@
 </div>
 <div class="section" id="examples">
 <h1>Examples</h1>
-<p>If the client is <em>123.213.32.10</em> and the peer is <em>98.76.54.32</em>, the hash that they should both arrive at is <em>crc32-c(624C14007BD50000)</em> or <em>BB97323E</em>.</p>
-<p>If the client is <em>123.213.32.10</em> and the peer is <em>123.213.32.234</em>, the hash that they should both arrive at is <em>crc32-c[(7BD5200A7BD520EA)</em> or <em>C816B840</em>.</p>
+<p>If the client is <em>123.213.32.10</em> and the peer is <em>98.76.54.32</em>, the hash that they should both arrive at is <em>crc32-c(624C14007BD50000)</em> or <em>ec2d7224</em>.</p>
+<p>If the client is <em>123.213.32.10</em> and the peer is <em>123.213.32.234</em>, the hash that they should both arrive at is <em>crc32-c[(7BD5200A7BD520EA)</em> or <em>99568189</em>.</p>
 </div>
 <div class="section" id="notes">
 <h1>Notes</h1>
@@ -106,13 +106,13 @@ sentence-end-double-space: t
 fill-column: 70
 coding: utf-8
 End: -->
-</div>
-
-</div>
-	<div id="footer">
-<hr/>
-</div>
-
+</div>
+
+</div>
+	<div id="footer">
+<hr/>
+</div>
+
 </div>
 </body>
-</html>
+</html>

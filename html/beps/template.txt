@@ -14,7 +14,7 @@
 <li><a href="../introduction.html">For Users</a></li>
 <li><a href="bep_0000.html"><span>For Developers</span></a></li>
 <li><a href="../mailing_list.html">Developer mailing list</a> </li>
-<li><a href="http://forum.bittorrent.org"> Forums (archive)</li>
+<li><a href="http://forum.bittorrent.org"> Forums (archive) </a></li>
 </ul>
 </div> <!-- nav -->
 <!-- ### Begin Content ### -->

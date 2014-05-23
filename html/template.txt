@@ -13,7 +13,7 @@
 <li><a href="./index.html">Home</a></li>
 <li><a href="./introduction.html">For Users</a></li>
 <li><a href="./beps/bep_0000.html><span>For Developers</span></a></li>
-<li><a href="http://forum.bittorrent.org"> Forums </li>
+<li><a href="http://forum.bittorrent.org"> Forums </a></li>
 </ul>
 </div> <!-- nav -->
 <!-- ### Begin Content ### -->

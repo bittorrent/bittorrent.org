@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.5: http://docutils.sourceforge.net/" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
 <title></title>
 <link rel="stylesheet" href="../css/bep.css" type="text/css" />
 </head>
@@ -20,8 +20,8 @@
 <li><a href="../index.html">Home</a></li>
 <li><a href="../introduction.html">For Users</a></li>
 <li><a href="bep_0000.html"><span>For Developers</span></a></li>
-<li><a href="http://forum.bittorrent.org"> Forums </li>
-
+<li><a href="../mailing_list.html">Developer mailing list</a> </li>
+<li><a href="http://forum.bittorrent.org"> Forums (archive) </a></li>
 </ul>
 </div> <!-- nav -->
 <!-- ### Begin Content ### -->
@@ -29,75 +29,22 @@
 
 
 
-<table class="rfc2822 docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field"><th class="field-name">BEP:</th><td class="field-body">32</td>
-</tr>
-<tr class="field"><th class="field-name">Title:</th><td class="field-body">BitTorrent DHT Extensions for IPv6</td>
-</tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body">11187</td>
-</tr>
-<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0032.rst">2009-11-20 17:16:34 +0000 (Fri, 20 Nov 2009)</a></td>
-</tr>
-<tr class="field"><th class="field-name">Author:</th><td class="field-body">Juliusz Chroboczek &lt;jch&#32;&#97;t&#32;pps.jussieu.fr&gt;</td>
-</tr>
-<tr class="field"><th class="field-name">Status:</th><td class="field-body">Draft</td>
-</tr>
-<tr class="field"><th class="field-name">Type:</th><td class="field-body">Standards Track</td>
-</tr>
-<tr class="field"><th class="field-name">Requires:</th><td class="field-body"><a class="reference external" href="http://www.bittorrent.org/beps/bep-0005">5</a></td>
-</tr>
-<tr class="field"><th class="field-name">Content-Type:</th><td class="field-body"><a class="reference external" href="http://www.bittorrent.org/beps/bep-0012">text/x-rst</a></td>
-</tr>
-<tr class="field"><th class="field-name">Created:</th><td class="field-body">14-Oct-2009</td>
-</tr>
-<tr class="field"><th class="field-name">Post-History:</th><td class="field-body">15-Oct-2009: Promote same ID in IPv6 and IPv4 nodes. Drop values6. Added some rationales
-11-Nov-2011: Change want to be a list of flags.  Add nodes about MTU and source address selection.  Define behaviour of PORT message.</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<div class="contents topic" id="contents">
-<p class="topic-title first">Contents</p>
-<ul class="simple">
-<li><a class="reference internal" href="#abstract" id="id5">Abstract</a></li>
-<li><a class="reference internal" href="#introduction" id="id6">Introduction</a></li>
-<li><a class="reference internal" href="#operation" id="id7">Operation</a><ul>
-<li><a class="reference internal" href="#single-protocol-nodes" id="id8">Single-protocol nodes</a></li>
-<li><a class="reference internal" href="#dual-stack-nodes" id="id9">Dual-stack nodes</a><ul>
-<li><a class="reference internal" href="#bootstrapping" id="id10">Bootstrapping</a></li>
-<li><a class="reference internal" href="#steady-state-operation" id="id11">Steady-state operation</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#maximum-packet-size" id="id12">Maximum packet size</a></li>
-<li><a class="reference internal" href="#source-address-selection" id="id13">Source address selection</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#changes-to-the-bittorrent-protocol" id="id14">Changes to the BitTorrent protocol</a></li>
-<li><a class="reference internal" href="#changes-and-extensions-to-existing-messages" id="id15">Changes and extensions to existing messages</a><ul>
-<li><a class="reference internal" href="#changes-to-existing-parameters" id="id16">Changes to existing parameters</a><ul>
-<li><a class="reference internal" href="#values" id="id17">values</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#new-parameters" id="id18">New parameters</a><ul>
-<li><a class="reference internal" href="#nodes6" id="id19">nodes6</a></li>
-<li><a class="reference internal" href="#want" id="id20">want</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#changes-to-message-semantics" id="id21">Changes to message semantics</a><ul>
-<li><a class="reference internal" href="#find-nodes-and-get-peers" id="id22">find_nodes and get_peers</a></li>
-<li><a class="reference internal" href="#announce-peers" id="id23">announce_peers</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a class="reference internal" href="#acknowledgements" id="id24">Acknowledgements</a></li>
-<li><a class="reference internal" href="#references" id="id25">References</a></li>
-<li><a class="reference internal" href="#copyright" id="id26">Copyright</a></li>
-</ul>
-</div>
+<p>BEP: 32
+Title: BitTorrent DHT Extensions for IPv6
+Version: b0f04e1bfb9f04da2590370c8dcd46b58f35b45b</p>
+<p>Last-Modified: Fri Nov 20 17:16:34 2009 +0000
+Author:  Juliusz Chroboczek &lt;<a class="reference external" href="mailto:jch&#37;&#52;&#48;pps&#46;jussieu&#46;fr">jch<span>&#64;</span>pps<span>&#46;</span>jussieu<span>&#46;</span>fr</a>&gt;
+Status:  Draft
+Type:    Standards Track
+Requires: 5
+Content-Type: text/x-rst
+Created: 14-Oct-2009
+Post-History: 15-Oct-2009: Promote same ID in IPv6 and IPv4 nodes. Drop values6. Added some rationales</p>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">bep_0032.rst_post</tt>, line 13)</p>
+Unexpected indentation.</div>
+<blockquote>
+11-Nov-2011: Change want to be a list of flags.  Add nodes about MTU and source address selection.  Define behaviour of PORT message.</blockquote>
 <div class="section" id="abstract">
 <h1>Abstract</h1>
 <p>This document describes a set of extensions to the BitTorrent DHT
@@ -350,14 +297,14 @@ developing this specification.</p>
 <table class="docutils footnote" frame="void" id="ipv6" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id2">[3]</a></td><td><a class="reference external" href="http://www.faqs.org/rfcs/rfc2460.html">RFC 2460</a>.  Internet Protocol, Version 6 (IPv6) Specification.
+<tr><td class="label"><a class="fn-backref" href="#id2">[3]</a></td><td>RFC 2460.  Internet Protocol, Version 6 (IPv6) Specification.
 S. Deering, R. Hinden. December 1998.</td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="ipv4" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id3">[4]</a></td><td><a class="reference external" href="http://www.faqs.org/rfcs/rfc791.html">RFC 791</a>.  Internet Protocol.  J. Postel.  September 1981.</td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id3">[4]</a></td><td>RFC 791.  Internet Protocol.  J. Postel.  September 1981.</td></tr>
 </tbody>
 </table>
 </div>
@@ -372,7 +319,6 @@ fill-column: 70
 coding: utf-8
 End: -->
 </div>
-
 
 </div>
 	<div id="footer">

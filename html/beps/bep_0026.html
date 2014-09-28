@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.5: http://docutils.sourceforge.net/" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
 <title></title>
 <link rel="stylesheet" href="../css/bep.css" type="text/css" />
 </head>
@@ -20,8 +20,8 @@
 <li><a href="../index.html">Home</a></li>
 <li><a href="../introduction.html">For Users</a></li>
 <li><a href="bep_0000.html"><span>For Developers</span></a></li>
-<li><a href="http://forum.bittorrent.org"> Forums </li>
-
+<li><a href="../mailing_list.html">Developer mailing list</a> </li>
+<li><a href="http://forum.bittorrent.org"> Forums (archive) </a></li>
 </ul>
 </div> <!-- nav -->
 <!-- ### Begin Content ### -->
@@ -29,53 +29,23 @@
 
 
 
-<table class="rfc2822 docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field"><th class="field-name">BEP:</th><td class="field-body">26</td>
-</tr>
-<tr class="field"><th class="field-name">Title:</th><td class="field-body">Zeroconf Peer Advertising and Discovery</td>
-</tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body">11105</td>
-</tr>
-<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0026.rst">2008-05-27 20:57:09 -0700 (Tue, 27 May 2008)</a></td>
-</tr>
-<tr class="field"><th class="field-name">Author:</th><td class="field-body">Robin Perkins &lt;robin DOT perkins AT internode DOT on DOT net&gt;</td>
-</tr>
-<tr class="field"><th class="field-name">Status:</th><td class="field-body">Draft</td>
-</tr>
-<tr class="field"><th class="field-name">Type:</th><td class="field-body">Standards Track</td>
-</tr>
-<tr class="field"><th class="field-name">Content-Type:</th><td class="field-body"><a class="reference external" href="http://www.bittorrent.org/beps/bep-0012">text/x-rst</a></td>
-</tr>
-<tr class="field"><th class="field-name">Created:</th><td class="field-body">10-May-2008</td>
-</tr>
-<tr class="field"><th class="field-name">Post-History:</th><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
-<hr />
-<div class="contents topic" id="contents">
-<p class="topic-title first">Contents</p>
-<ul class="simple">
-<li><a class="reference internal" href="#abstract" id="id16">Abstract</a></li>
-<li><a class="reference internal" href="#rationale" id="id17">Rationale</a></li>
-<li><a class="reference internal" href="#requirements" id="id18">Requirements</a></li>
-<li><a class="reference internal" href="#method" id="id19">Method</a></li>
-<li><a class="reference internal" href="#considerations" id="id20">Considerations</a></li>
-<li><a class="reference internal" href="#thoughts" id="id21">Thoughts</a></li>
-<li><a class="reference internal" href="#references" id="id22">References</a></li>
-<li><a class="reference internal" href="#copyright" id="id23">Copyright</a></li>
-</ul>
-</div>
+<p>BEP: 26
+Title: Zeroconf Peer Advertising and Discovery
+Version: 448b96c37136889b759fc042f9e53f1fb1e31d14</p>
+<p>Last-Modified: Wed May 28 03:57:09 2008 +0000
+Author:  Robin Perkins &lt;robin DOT perkins AT internode DOT on DOT net&gt;
+Status:  Draft
+Type:    Standards Track
+Content-Type: text/x-rst
+Created: 10-May-2008
+Post-History:</p>
 <div class="section" id="abstract">
 <h1>Abstract</h1>
-<p><a class="reference external" href="ZeroConfigurationNetworking(Zeroconf)http://www.zeroconf.org">Zeroconf</a> <a class="footnote-reference" href="#id1" id="id2">[1]</a> is a collection of protocols including ipv4 link local
-networking, <a class="reference external" href="MulticastDomainNameSystem(mDNS)http://www.multicastdns.org">mDNS</a> <a class="footnote-reference" href="#id3" id="id4">[2]</a>, and <a class="reference external" href="DNSservice-discovery(DNS-SD)http://www.dns-sd.org">DNS service-discovery</a> <a class="footnote-reference" href="#id5" id="id6">[3]</a>. This document aims
+<p><a class="reference external" href="ZeroConfigurationNetworking(Zeroconf)http://www.zeroconf.org">Zeroconf</a> is a collection of protocols including ipv4 link local
+networking, <a class="reference external" href="MulticastDomainNameSystem(mDNS)http://www.multicastdns.org">mDNS</a>, and <a class="reference external" href="DNSservice-discovery(DNS-SD)http://www.dns-sd.org">DNS service-discovery</a>. This document aims
 to outline an extension for BitTorrent clients to allow them to find
 peers on a local-link network using the zeroconf <a class="reference external" href="DNSservice-discovery(DNS-SD)http://www.dns-sd.org">DNS
-service-discovery</a> <a class="footnote-reference" href="#id5" id="id7">[3]</a> system. It was written in the hope that clients
+service-discovery</a> system. It was written in the hope that clients
 could standardise the way in which they found peers on the local-link
 in order to maximize the functionality of the BitTorrent protocol.</p>
 </div>
@@ -104,8 +74,8 @@ zeroconf service discovery daemon. This is relatively trivial as there
 are many available for free but two particularly good zeroconf
 implementations are:</p>
 <ol class="arabic simple">
-<li>Apple's <a class="reference external" href="Apple'sBonjourhttp://developer.apple.com/networking/bonjour/">Bonjour</a> <a class="footnote-reference" href="#id11" id="id12">[5]</a> for Mac OS X (included by default), Windows and POSIX systems</li>
-<li><a class="reference external" href="Avahihttp://www.avahi.org">Avahi</a> <a class="footnote-reference" href="#id8" id="id9">[4]</a> recommended for Linux and BSD clients and already available in many Linux and BSD distributions.</li>
+<li>Apple's <a class="reference external" href="Apple'sBonjourhttp://developer.apple.com/networking/bonjour/">Bonjour</a> for Mac OS X (included by default), Windows and POSIX systems</li>
+<li><a class="reference external" href="Avahihttp://www.avahi.org">Avahi</a> recommended for Linux and BSD clients and already available in many Linux and BSD distributions.</li>
 </ol>
 <p>Note that you can only run one zeroconf instance per host due to it
 binding to specific ports on your network interfaces, so it is <strong>not</strong>
@@ -123,7 +93,7 @@ hex).</p>
 <p>Then clients need publish a subservice that is the torrent info hash (in hex). The result will be something in the form of:</p>
 <p><tt class="docutils literal"><span class="pre">&lt;peer-id&gt;._&lt;info-hash&gt;._sub._bittorrent._tcp.</span></tt>
 e.g.
-<tt class="docutils literal"><span class="pre">4d336d342d312d2d343834616435313564343437._32f17bbf96bdc77de85bb91ff8d56f124e817c0a._sub._bittorrent._tcp.</span></tt></p>
+<tt class="docutils literal">4d336d342d312d2d343834616435313564343437._32f17bbf96bdc77de85bb91ff8d56f124e817c0a._sub._bittorrent._tcp.</tt></p>
 <p>The above-mentioned zeroconf implementations provide good
 documentation for developers on how to do this. If the client uses the
 same peer-id for all torrents it has loaded, then for each additional
@@ -138,9 +108,9 @@ don't need to pass in the &quot;_sub&quot; label, since mDNSResponder will
 automatically add it for you).</p>
 <p><tt class="docutils literal"><span class="pre">&quot;_bittorrent._tcp,_info-hash1,_info-hash2,_info-hash3&quot;</span></tt></p>
 <p>For the Avahi C API use the function
-<tt class="docutils literal"><span class="pre">avahi_entry_group_add_service()</span></tt> to establish the parent
+<tt class="docutils literal">avahi_entry_group_add_service()</tt> to establish the parent
 _bittorrent._tcp service and
-<tt class="docutils literal"><span class="pre">avahi_entry_group_add_service_subtype()</span></tt> with
+<tt class="docutils literal">avahi_entry_group_add_service_subtype()</tt> with
 <tt class="docutils literal"><span class="pre">_&lt;info-hash&gt;._sub._bittorrent._tcp.</span></tt> as the 'type' parameter to
 establish the subservices. For both functions the &lt;peer-id&gt; should be
 used for the 'name' parameter.</p>
@@ -154,7 +124,7 @@ services in the form of:</p>
 <p><tt class="docutils literal"><span class="pre">_bittorrent-&lt;info-hash&gt;._tcp.</span></tt>
 i.e.
 <tt class="docutils literal"><span class="pre">_bittorrent-32f17bbf96bdc77de85bb91ff8d56f124e817c0a._tcp.</span></tt></p>
-<p>However this does not comply with <a class="reference external" href="http://www.faqs.org/rfcs/rfc2782.html">RFC 2782</a> as the service name needs
+<p>However this does not comply with RFC 2782 as the service name needs
 to be 14 characters or less in addition to the fact that it is not a
 service type but in fact a service instance it is advertising. Clients
 may choose to also browse for these services for backwards
@@ -181,8 +151,8 @@ uniqueness conflicts handled by zeroconf automatically. We
 ultimately only need to know what is on offer (as denoted by the
 info-hash) and where to get it (the resolved IP address).</li>
 <li>The mainline client and others may like to examine
-<a class="reference external" href="pybonjourhttp://o2s.csail.mit.edu/o2s-wiki/pybonjour">pybonjour</a> <a class="footnote-reference" href="#id14" id="id15">[6]</a>. pybonjour provides a pure-Python interface to Apple
-<a class="reference external" href="Apple'sBonjourhttp://developer.apple.com/networking/bonjour/">Bonjour</a> <a class="footnote-reference" href="#id11" id="id13">[5]</a> and compatible DNS-SD libraries (such as <a class="reference external" href="Avahihttp://www.avahi.org">Avahi</a> <a class="footnote-reference" href="#id8" id="id10">[4]</a>).</li>
+<a class="reference external" href="pybonjourhttp://o2s.csail.mit.edu/o2s-wiki/pybonjour">pybonjour</a>. pybonjour provides a pure-Python interface to Apple
+<a class="reference external" href="Apple'sBonjourhttp://developer.apple.com/networking/bonjour/">Bonjour</a> and compatible DNS-SD libraries (such as <a class="reference external" href="Avahihttp://www.avahi.org">Avahi</a>).</li>
 <li>Newer zeroconf implementations such as Bonjour include support for
 wide area service discovery. (Avahi can browse but not publish these
 yet). This may be another consideration in support of this BEP.</li>
@@ -191,42 +161,6 @@ yet). This may be another consideration in support of this BEP.</li>
 </div>
 <div class="section" id="references">
 <h1>References</h1>
-<table class="docutils footnote" frame="void" id="id1" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id2">[1]</a></td><td><a class="reference external" href="ZeroConfigurationNetworking(Zeroconf)http://www.zeroconf.org">ZeroConfigurationNetworking(Zeroconf)http://www.zeroconf.org</a></td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="id3" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id4">[2]</a></td><td><a class="reference external" href="MulticastDomainNameSystem(mDNS)http://www.multicastdns.org">MulticastDomainNameSystem(mDNS)http://www.multicastdns.org</a></td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="id5" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label">[3]</td><td><em>(<a class="fn-backref" href="#id6">1</a>, <a class="fn-backref" href="#id7">2</a>)</em> <a class="reference external" href="DNSservice-discovery(DNS-SD)http://www.dns-sd.org">DNSservice-discovery(DNS-SD)http://www.dns-sd.org</a></td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="id8" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label">[4]</td><td><em>(<a class="fn-backref" href="#id9">1</a>, <a class="fn-backref" href="#id10">2</a>)</em> <a class="reference external" href="Avahihttp://www.avahi.org">Avahihttp://www.avahi.org</a></td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="id11" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label">[5]</td><td><em>(<a class="fn-backref" href="#id12">1</a>, <a class="fn-backref" href="#id13">2</a>)</em> <a class="reference external" href="Apple'sBonjourhttp://developer.apple.com/networking/bonjour/">Apple'sBonjourhttp://developer.apple.com/networking/bonjour/</a></td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="id14" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id15">[6]</a></td><td><a class="reference external" href="pybonjourhttp://o2s.csail.mit.edu/o2s-wiki/pybonjour">pybonjourhttp://o2s.csail.mit.edu/o2s-wiki/pybonjour</a></td></tr>
-</tbody>
-</table>
 </div>
 <div class="section" id="copyright">
 <h1>Copyright</h1>
@@ -239,7 +173,6 @@ fill-column: 70
 coding: utf-8
 End: -->
 </div>
-
 
 </div>
 	<div id="footer">

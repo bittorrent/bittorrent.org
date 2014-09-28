@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.5: http://docutils.sourceforge.net/" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
 <title></title>
 <link rel="stylesheet" href="../css/bep.css" type="text/css" />
 </head>
@@ -20,8 +20,8 @@
 <li><a href="../index.html">Home</a></li>
 <li><a href="../introduction.html">For Users</a></li>
 <li><a href="bep_0000.html"><span>For Developers</span></a></li>
-<li><a href="http://forum.bittorrent.org"> Forums </li>
-
+<li><a href="../mailing_list.html">Developer mailing list</a> </li>
+<li><a href="http://forum.bittorrent.org"> Forums (archive) </a></li>
 </ul>
 </div> <!-- nav -->
 <!-- ### Begin Content ### -->
@@ -29,58 +29,16 @@
 
 
 
-<table class="rfc2822 docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field"><th class="field-name">BEP:</th><td class="field-body">33</td>
-</tr>
-<tr class="field"><th class="field-name">Title:</th><td class="field-body">DHT Scrapes</td>
-</tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body">11190</td>
-</tr>
-<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0033.rst">2010-03-02 00:15:00 +0000 (Tue, 02 Mar 2010)</a></td>
-</tr>
-<tr class="field"><th class="field-name">Author:</th><td class="field-body">The 8472</td>
-</tr>
-<tr class="field"><th class="field-name">Status:</th><td class="field-body">Draft</td>
-</tr>
-<tr class="field"><th class="field-name">Type:</th><td class="field-body">Standards Track</td>
-</tr>
-<tr class="field"><th class="field-name">Content-Type:</th><td class="field-body"><a class="reference external" href="http://www.bittorrent.org/beps/bep-0012">text/x-rst</a></td>
-</tr>
-<tr class="field"><th class="field-name">Created:</th><td class="field-body">20-Jan-2010</td>
-</tr>
-<tr class="field"><th class="field-name">Post-History:</th><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
-<hr />
-<div class="contents topic" id="contents">
-<p class="topic-title first">Contents</p>
-<ul class="simple">
-<li><a class="reference internal" href="#abstract" id="id2">Abstract</a></li>
-<li><a class="reference internal" href="#rationale" id="id3">Rationale</a></li>
-<li><a class="reference internal" href="#approach" id="id4">Approach</a><ul>
-<li><a class="reference internal" href="#bloom-filters" id="id5">Bloom Filters</a><ul>
-<li><a class="reference internal" href="#calculating-the-estimate" id="id6">Calculating the estimate</a></li>
-<li><a class="reference internal" href="#test-vectors" id="id7">Test Vectors</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a class="reference internal" href="#new-announce-peer-semantics" id="id8">New ANNOUNCE_PEER semantics</a></li>
-<li><a class="reference internal" href="#new-get-peers-semantics" id="id9">New GET_PEERS semantics</a><ul>
-<li><a class="reference internal" href="#handling-legacy-responses" id="id10">Handling legacy responses</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#changed-announce-accounting" id="id11">Changed announce accounting</a></li>
-<li><a class="reference internal" href="#scrape-scheduling" id="id12">Scrape scheduling</a></li>
-<li><a class="reference internal" href="#acknowledgements" id="id13">Acknowledgements</a></li>
-<li><a class="reference internal" href="#references" id="id14">References</a></li>
-<li><a class="reference internal" href="#copyright" id="id15">Copyright</a></li>
-</ul>
-</div>
+<p>BEP: 33
+Title: DHT Scrapes
+Version: 3e3c9c1f9a5271fc6be005320abbf140999ec225</p>
+<p>Last-Modified: Tue Mar 2 00:15:00 2010 +0000
+Author:  The 8472
+Status:  Draft
+Type:    Standards Track
+Content-Type: text/x-rst
+Created: 20-Jan-2010
+Post-History:</p>
 <div class="section" id="abstract">
 <h1>Abstract</h1>
 <p>This BEP specifies an extension to the BitTorrent DHT (BEP 5) to support scrapes via distributed counting based on bloom filters.</p>
@@ -225,7 +183,6 @@ fill-column: 70
 coding: utf-8
 End: -->
 </div>
-
 
 </div>
 	<div id="footer">

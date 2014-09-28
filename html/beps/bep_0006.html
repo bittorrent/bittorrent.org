@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.5: http://docutils.sourceforge.net/" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
 <title></title>
 <link rel="stylesheet" href="../css/bep.css" type="text/css" />
 </head>
@@ -20,9 +20,8 @@
 <li><a href="../index.html">Home</a></li>
 <li><a href="../introduction.html">For Users</a></li>
 <li><a href="bep_0000.html"><span>For Developers</span></a></li>
-
-<li><a href="http://forum.bittorrent.org"> Forums </li>
-
+<li><a href="../mailing_list.html">Developer mailing list</a> </li>
+<li><a href="http://forum.bittorrent.org"> Forums (archive) </a></li>
 </ul>
 </div> <!-- nav -->
 <!-- ### Begin Content ### -->
@@ -30,45 +29,15 @@
 
 
 
-<table class="rfc2822 docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field"><th class="field-name">BEP:</th><td class="field-body">6</td>
-</tr>
-<tr class="field"><th class="field-name">Title:</th><td class="field-body">Fast Extension</td>
-</tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body">11154</td>
-</tr>
-<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0006.rst">2008-09-25 17:35:20 -0700 (Thu, 25 Sep 2008)</a></td>
-</tr>
-<tr class="field"><th class="field-name">Author:</th><td class="field-body">David Harrison &lt;dave&#32;&#97;t&#32;bittorrent.com&gt;, Bram Cohen &lt;bram&#32;&#97;t&#32;bittorrent.com&gt;</td>
-</tr>
-<tr class="field"><th class="field-name">Status:</th><td class="field-body">Draft</td>
-</tr>
-<tr class="field"><th class="field-name">Type:</th><td class="field-body">Standards Track</td>
-</tr>
-<tr class="field"><th class="field-name">Created:</th><td class="field-body">01-Feb-2008</td>
-</tr>
-<tr class="field"><th class="field-name">Post-History:</th><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
-<hr />
-<div class="contents topic" id="contents">
-<p class="topic-title first">Contents</p>
-<ul class="simple">
-<li><a class="reference internal" href="#modifications-to-semantics-of-existing-messages" id="id5">Modifications to Semantics of Existing Messages</a></li>
-<li><a class="reference internal" href="#have-all-have-none" id="id6">Have All/Have None</a></li>
-<li><a class="reference internal" href="#suggest-piece" id="id7">Suggest Piece</a></li>
-<li><a class="reference internal" href="#reject-request" id="id8">Reject Request</a></li>
-<li><a class="reference internal" href="#allowed-fast" id="id9">Allowed Fast</a></li>
-<li><a class="reference internal" href="#allowed-fast-set-generation" id="id10">Allowed Fast Set Generation</a></li>
-<li><a class="reference internal" href="#example-implementation" id="id11">Example Implementation</a></li>
-<li><a class="reference internal" href="#references" id="id12">References</a></li>
-<li><a class="reference internal" href="#copyright" id="id13">Copyright</a></li>
-</ul>
-</div>
+<p>BEP: 6
+Title: Fast Extension
+Version: 44e62baae2ae995dd7592029fcdbd22b3add3b6b</p>
+<p>Last-Modified: Fri Sep 26 00:35:20 2008 +0000
+Author:  David Harrison &lt;<a class="reference external" href="mailto:dave&#37;&#52;&#48;bittorrent&#46;com">dave<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;, Bram Cohen &lt;<a class="reference external" href="mailto:bram&#37;&#52;&#48;bittorrent&#46;com">bram<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;
+Status:  Draft
+Type:    Standards Track
+Created: 01-Feb-2008
+Post-History:</p>
 <p>The Fast Extension packages several extensions: <em>Have None/Have All</em>,
 <em>Reject Requests</em>, <em>Suggestions</em> and <em>Allowed Fast.</em>
 These are enabled by setting the third least significant bit of the
@@ -85,7 +54,7 @@ byte opcode and zero or more opcode-dependant arguments.</p>
 <p>The key words &quot;MUST&quot;, &quot;MUST NOT&quot;, &quot;REQUIRED&quot;, &quot;SHALL&quot;, &quot;SHALL
 NOT&quot;, &quot;SHOULD&quot;, &quot;SHOULD NOT&quot;, &quot;RECOMMENDED&quot;,  &quot;MAY&quot;, and
 &quot;OPTIONAL&quot; in this document are to be interpreted as described in
-IETF <a class="reference external" href="http://www.ietf.org/rfc/rfc2119.txt">RFC 2119</a> <a class="footnote-reference" href="#id1" id="id2">[1]</a>.</p>
+IETF <a class="reference external" href="http://www.ietf.org/rfc/rfc2119.txt">RFC 2119</a>.</p>
 <div class="section" id="modifications-to-semantics-of-existing-messages">
 <h1>Modifications to Semantics of Existing Messages</h1>
 <p>The Fast Extension modifies the semantics of the
@@ -171,7 +140,7 @@ peer is choked.</li>
 <pre class="literal-block">
 * Allowed Fast: &lt;len=0x0005&gt;&lt;op=0x11&gt;&lt;index&gt;*
 </pre>
-<p>With the BitTorrent protocol specified in <a class="reference external" href="http://www.bittorrent.org/beps/bep_0003.html">BEP 0003</a> <a class="footnote-reference" href="#id3" id="id4">[2]</a>, new peers take
+<p>With the BitTorrent protocol specified in <a class="reference external" href="http://www.bittorrent.org/beps/bep_0003.html">BEP 0003</a>, new peers take
 several minutes to ramp up before they can effectively engage in
 BitTorrent's tit-for-tat. The reason is simple: starting peers have
 few pieces to trade.</p>
@@ -289,18 +258,6 @@ aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa for node with IP 80.4.4.200:
 </div>
 <div class="section" id="references">
 <h1>References</h1>
-<table class="docutils footnote" frame="void" id="id1" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id2">[1]</a></td><td><a class="reference external" href="http://www.ietf.org/rfc/rfc2119.txt">http://www.ietf.org/rfc/rfc2119.txt</a></td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="id3" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id4">[2]</a></td><td><a class="reference external" href="http://www.bittorrent.org/beps/bep_0003.html">http://www.bittorrent.org/beps/bep_0003.html</a></td></tr>
-</tbody>
-</table>
 </div>
 <div class="section" id="copyright">
 <h1>Copyright</h1>
@@ -313,7 +270,6 @@ fill-column: 70
 coding: utf-8
 End: -->
 </div>
-
 
 </div>
 	<div id="footer">

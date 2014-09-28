@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.5: http://docutils.sourceforge.net/" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
 <title></title>
 <link rel="stylesheet" href="../css/bep.css" type="text/css" />
 </head>
@@ -20,54 +20,26 @@
 <li><a href="../index.html">Home</a></li>
 <li><a href="../introduction.html">For Users</a></li>
 <li><a href="bep_0000.html"><span>For Developers</span></a></li>
-<li><a href="http://forum.bittorrent.org"> Forums </li>
-
+<li><a href="../mailing_list.html">Developer mailing list</a> </li>
+<li><a href="http://forum.bittorrent.org"> Forums (archive) </a></li>
 </ul>
 </div> <!-- nav -->
 <!-- ### Begin Content ### -->
 <div id="second">
 
-<table class="rfc2822 docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field"><th class="field-name">BEP:</th><td class="field-body">30</td>
-</tr>
-<tr class="field"><th class="field-name">Title:</th><td class="field-body">Merkle hash torrent extension</td>
-</tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body">11173</td>
-</tr>
-<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0030.rst">2009-08-28 11:30:47 -0700 (Fri, 28 Aug 2009)</a></td>
-</tr>
-<tr class="field"><th class="field-name">Author:</th><td class="field-body">Arno Bakker &lt;arno&#32;&#97;t&#32;cs.vu.nl&gt;</td>
-</tr>
-<tr class="field"><th class="field-name">Status:</th><td class="field-body">Draft</td>
-</tr>
-<tr class="field"><th class="field-name">Type:</th><td class="field-body">Standards Track</td>
-</tr>
-<tr class="field"><th class="field-name">Requires:</th><td class="field-body"><a class="reference" href="http://www.bittorrent.org/beps/bep-0010">10</a></td>
-</tr>
-<tr class="field"><th class="field-name">Content-Type:</th><td class="field-body"><a class="reference" href="http://www.bittorrent.org/beps/bep-0012">text/x-rst</a></td>
-</tr>
-<tr class="field"><th class="field-name">Created:</th><td class="field-body">11-Mar-2009</td>
-</tr>
-<tr class="field"><th class="field-name">Post-History:</th><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
-<hr />
-<div class="contents topic" id="contents">
-<p class="topic-title first">Contents</p>
-<ul class="simple">
-<li><a class="reference" href="#abstract" id="id7">Abstract</a></li>
-<li><a class="reference" href="#simple-merkle-hashes" id="id8">Simple Merkle Hashes</a></li>
-<li><a class="reference" href="#inclusion-in-bittorrent" id="id9">Inclusion in BitTorrent</a></li>
-<li><a class="reference" href="#discussion" id="id10">Discussion</a></li>
-<li><a class="reference" href="#acknowledgements" id="id11">Acknowledgements</a></li>
-<li><a class="reference" href="#references" id="id12">References</a></li>
-<li><a class="reference" href="#copyright" id="id13">Copyright</a></li>
-</ul>
-</div>
+
+
+<p>BEP: 30
+Title: Merkle hash torrent extension
+Version: cb00667a4f0efe3e7a4a671bad878f65fdd87658</p>
+<p>Last-Modified: Fri Aug 28 18:30:47 2009 +0000
+Author:  Arno Bakker &lt;<a class="reference external" href="mailto:arno&#37;&#52;&#48;cs&#46;vu&#46;nl">arno<span>&#64;</span>cs<span>&#46;</span>vu<span>&#46;</span>nl</a>&gt;
+Status:  Draft
+Type:    Standards Track
+Requires: 10
+Content-Type: text/x-rst
+Created: 11-Mar-2009
+Post-History:</p>
 <div class="section" id="abstract">
 <h1>Abstract</h1>
 <p>BitTorrent requires a torrent file containing a cryptographic digest of
@@ -152,30 +124,30 @@ P0   P1   P2   P3   P4   P5   P6   P7   P8*  P9*  P10  P11  P12   X    X    X
 <div class="section" id="inclusion-in-bittorrent">
 <h1>Inclusion in BitTorrent</h1>
 <p>The original publisher of the content-file set creates a so-called <em>Merkle
-torrent</em> which is a torrent file that contains a <tt class="docutils literal"><span class="pre">root</span> <span class="pre">hash</span></tt> key in its
-<tt class="docutils literal"><span class="pre">info</span></tt> part instead of a <tt class="docutils literal"><span class="pre">pieces</span></tt> key, see BEP 3 <a class="footnote-reference" href="#bep-3" id="id2">[2]</a>.</p>
+torrent</em> which is a torrent file that contains a <tt class="docutils literal">root hash</tt> key in its
+<tt class="docutils literal">info</tt> part instead of a <tt class="docutils literal">pieces</tt> key, see BEP 3 <a class="footnote-reference" href="#bep-3" id="id2">[2]</a>.</p>
 <p>When a seeder starts it uses the information in the Merkle torrent and the
 file set to reconstruct the hash tree and registers itself with the tracker
-using the hash value of the <tt class="docutils literal"><span class="pre">info</span></tt> part of the Merkle torrent, as usual
+using the hash value of the <tt class="docutils literal">info</tt> part of the Merkle torrent, as usual
 (see Discussion).</p>
 <p>A BitTorrent client that supports the Simple Merkle Hash extension must also
 support the Extension protocol (BEP 10) <a class="footnote-reference" href="#bep-10" id="id3">[3]</a>. In particular, it must add
-a  <tt class="docutils literal"><span class="pre">Tr_hashpiece</span></tt> message name in the <tt class="docutils literal"><span class="pre">m</span></tt> field of the Extension
-protocol's handshake message. Such a client must not send <tt class="docutils literal"><span class="pre">piece</span></tt> messages
-but must use Extension protocol messages with type <tt class="docutils literal"><span class="pre">Tr_hashpiece</span></tt> to send
+a  <tt class="docutils literal">Tr_hashpiece</tt> message name in the <tt class="docutils literal">m</tt> field of the Extension
+protocol's handshake message. Such a client must not send <tt class="docutils literal">piece</tt> messages
+but must use Extension protocol messages with type <tt class="docutils literal">Tr_hashpiece</tt> to send
 pieces.</p>
-<p>A <tt class="docutils literal"><span class="pre">Tr_hashpiece</span></tt> message consists of an index, begin, hashlist and piece.
+<p>A <tt class="docutils literal">Tr_hashpiece</tt> message consists of an index, begin, hashlist and piece.
 The hashlist consists of the piece's own hash, the piece's sibling hash, and
 the uncles of the piece up until and including the root hash (see above and
 Discussion). In particular, the hashlist is a list of 2-element lists. The
 first element denotes the node offset in the tree, the second element is the
 hash value. The node offset is the number of the node when numbered in a
 breadth-first fashion (i.e., going left to right starting at the top).</p>
-<p>Only the <tt class="docutils literal"><span class="pre">Tr_hashpiece</span></tt> message with begin field equal to 0 must contain a
+<p>Only the <tt class="docutils literal">Tr_hashpiece</tt> message with begin field equal to 0 must contain a
 filled hashlist, for all other begin values the hashlist must be empty. In
 other words, the message containing the first subpiece should have a filled
 hashlist, subsequent subpieces should not.</p>
-<p>Formally, a <tt class="docutils literal"><span class="pre">Tr_hashpiece</span></tt> message has the following payload:</p>
+<p>Formally, a <tt class="docutils literal">Tr_hashpiece</tt> message has the following payload:</p>
 <ol class="arabic simple">
 <li>4-byte index</li>
 <li>4-byte begin</li>
@@ -183,7 +155,7 @@ hashlist, subsequent subpieces should not.</p>
 <li>the bencoded hashlist</li>
 <li>the subpiece data</li>
 </ol>
-<p>Upon receipt of a <tt class="docutils literal"><span class="pre">Tr_hashpiece</span></tt> message, the receiver recomputes the root
+<p>Upon receipt of a <tt class="docutils literal">Tr_hashpiece</tt> message, the receiver recomputes the root
 hash using the hashlist and compares it to the root hash in the Merkle
 torrent. If they match, all the hash values are saved in the receiver's own
 hash tree, such that they can be passed on to others when the piece is
@@ -195,7 +167,7 @@ checked using the hash from the hash tree.</p>
 <p>We chose a binary tree for simplicity. Trees with larger degrees are also
 possible. However, the number of hashes that need to be sent with each
 piece is already small at about 2log of the file-set size.</p>
-<p>Using the hash of the <tt class="docutils literal"><span class="pre">info</span></tt> part for registering at the tracker means
+<p>Using the hash of the <tt class="docutils literal">info</tt> part for registering at the tracker means
 that for a given content-file set, the swarm that use a conventional torrent
 file and the swarm that uses a Merkle torrent will be disjunct. The infohash
 value is different, hence the swarms are known under different identifiers at
@@ -208,7 +180,7 @@ trivial.</p>
 <p>Because we let the initial seeders recalculate the hash tree, this
 extension is incompatible with the proposed HTTP Seeding extensions in
 BEP 17 <a class="footnote-reference" href="#bep-17" id="id4">[4]</a> and 19 <a class="footnote-reference" href="#bep-19" id="id5">[5]</a> .</p>
-<p>Including the root hash in a <tt class="docutils literal"><span class="pre">Tr_hashpiece</span></tt> message allows a quick sanity
+<p>Including the root hash in a <tt class="docutils literal">Tr_hashpiece</tt> message allows a quick sanity
 check.</p>
 <p>This extension paves the way for BitTorrent URLs. The only information
 required for a client to commence sharing are the root hash, the total size,
@@ -242,28 +214,28 @@ Springer-Verlag, pp. 369â378.</td></tr>
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
 <tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td>BEP_0003. The BitTorrent Protocol Specification, Cohen
-(<a class="reference" href="http://www.bittorrent.org/beps/bep_0003.html">http://www.bittorrent.org/beps/bep_0003.html</a>)</td></tr>
+(<a class="reference external" href="http://www.bittorrent.org/beps/bep_0003.html">http://www.bittorrent.org/beps/bep_0003.html</a>)</td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="bep-10" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
 <tr><td class="label"><a class="fn-backref" href="#id3">[3]</a></td><td>BEP_0010. Extension Protocol, Norberg, Strigeus, Hazel
-(<a class="reference" href="http://www.bittorrent.org/beps/bep_0010.html">http://www.bittorrent.org/beps/bep_0010.html</a>)</td></tr>
+(<a class="reference external" href="http://www.bittorrent.org/beps/bep_0010.html">http://www.bittorrent.org/beps/bep_0010.html</a>)</td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="bep-17" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
 <tr><td class="label"><a class="fn-backref" href="#id4">[4]</a></td><td>BEP_0017. HTTP Seeding, Hoffman
-(<a class="reference" href="http://www.bittorrent.org/beps/bep_0017.html">http://www.bittorrent.org/beps/bep_0017.html</a>)</td></tr>
+(<a class="reference external" href="http://www.bittorrent.org/beps/bep_0017.html">http://www.bittorrent.org/beps/bep_0017.html</a>)</td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="bep-19" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
 <tr><td class="label"><a class="fn-backref" href="#id5">[5]</a></td><td>BEP_0019. WebSeed - HTTP/FTP Seeding (GetRight style), Burford
-(<a class="reference" href="http://www.bittorrent.org/beps/bep_0019.html">http://www.bittorrent.org/beps/bep_0019.html</a>)</td></tr>
+(<a class="reference external" href="http://www.bittorrent.org/beps/bep_0019.html">http://www.bittorrent.org/beps/bep_0019.html</a>)</td></tr>
 </tbody>
 </table>
 </div>
@@ -278,7 +250,6 @@ fill-column: 70
 coding: utf-8
 End: -->
 </div>
-
 
 </div>
 	<div id="footer">

@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.5: http://docutils.sourceforge.net/" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
 <title></title>
 <link rel="stylesheet" href="../css/bep.css" type="text/css" />
 </head>
@@ -20,9 +20,8 @@
 <li><a href="../index.html">Home</a></li>
 <li><a href="../introduction.html">For Users</a></li>
 <li><a href="bep_0000.html"><span>For Developers</span></a></li>
-
-<li><a href="http://forum.bittorrent.org"> Forums </li>
-
+<li><a href="../mailing_list.html">Developer mailing list</a> </li>
+<li><a href="http://forum.bittorrent.org"> Forums (archive) </a></li>
 </ul>
 </div> <!-- nav -->
 <!-- ### Begin Content ### -->
@@ -30,45 +29,15 @@
 
 
 
-<table class="rfc2822 docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field"><th class="field-name">BEP:</th><td class="field-body">8</td>
-</tr>
-<tr class="field"><th class="field-name">Title:</th><td class="field-body">Tracker Peer Obfuscation</td>
-</tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body">11049</td>
-</tr>
-<tr class="field"><th class="field-name">Last-Modified:</th><td class="field-body"><a class="reference external" href="http://bittorrent.org/trac/browser/dotorg/trunk/html/beps/bep_0008.rst">2008-04-29 18:09:14 -0700 (Tue, 29 Apr 2008)</a></td>
-</tr>
-<tr class="field"><th class="field-name">Author:</th><td class="field-body">David Harrison &lt;dave&#32;&#97;t&#32;bittorrent.com&gt;, Anthony Ciani &lt;tony&#32;&#97;t&#32;ciani.phy.uic.edu&gt;, Arvid Norberg &lt;arvid&#32;&#97;t&#32;bittorrent.com&gt;, Greg Hazel &lt;greg&#32;&#97;t&#32;bittorrent.com&gt;</td>
-</tr>
-<tr class="field"><th class="field-name">Status:</th><td class="field-body">Deferred</td>
-</tr>
-<tr class="field"><th class="field-name">Type:</th><td class="field-body">Standards Track</td>
-</tr>
-<tr class="field"><th class="field-name">Created:</th><td class="field-body">31-Jan-2008</td>
-</tr>
-<tr class="field"><th class="field-name">Post-History:</th><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
-<hr />
-<div class="contents topic" id="contents">
-<p class="topic-title first">Contents</p>
-<ul class="simple">
-<li><a class="reference internal" href="#announce" id="id8">Announce</a></li>
-<li><a class="reference internal" href="#announce-response" id="id9">Announce Response</a></li>
-<li><a class="reference internal" href="#obfuscation-method" id="id10">Obfuscation Method</a></li>
-<li><a class="reference internal" href="#optimizations" id="id11">Optimizations</a></li>
-<li><a class="reference internal" href="#backwards-compatibility" id="id12">Backwards Compatibility</a></li>
-<li><a class="reference internal" href="#rationale" id="id13">Rationale</a></li>
-<li><a class="reference internal" href="#references" id="id14">References</a></li>
-<li><a class="reference internal" href="#example-python-code" id="id15">Example Python Code</a></li>
-<li><a class="reference internal" href="#copyright" id="id16">Copyright</a></li>
-</ul>
-</div>
+<p>BEP: 8
+Title: Tracker Peer Obfuscation
+Version: a6d4c7fcc6be11d0093b6b3b5687e3209e97c2cb</p>
+<p>Last-Modified: Wed Apr 30 01:09:14 2008 +0000
+Author:  David Harrison &lt;<a class="reference external" href="mailto:dave&#37;&#52;&#48;bittorrent&#46;com">dave<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;, Anthony Ciani &lt;<a class="reference external" href="mailto:tony&#37;&#52;&#48;ciani&#46;phy&#46;uic&#46;edu">tony<span>&#64;</span>ciani<span>&#46;</span>phy<span>&#46;</span>uic<span>&#46;</span>edu</a>&gt;, Arvid Norberg &lt;<a class="reference external" href="mailto:arvid&#37;&#52;&#48;bittorrent&#46;com">arvid<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;, Greg Hazel &lt;<a class="reference external" href="mailto:greg&#37;&#52;&#48;bittorrent&#46;com">greg<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;
+Status:  Deferred
+Type:    Standards Track
+Created: 31-Jan-2008
+Post-History:</p>
 <p>This extends the tracker protocol to support simple obfuscation of the
 peers it returns, using the infohash as a shared secret between the
 peer and the tracker. The obfuscation does not provide any security
@@ -79,23 +48,23 @@ connections that span between the receiver of a tracker response and
 any peer IP-port appearing in that tracker response.</p>
 <p>The key words &quot;MUST&quot;, &quot;MUST NOT&quot;, &quot;REQUIRED&quot;, &quot;SHALL&quot;, &quot;SHALL NOT&quot;, &quot;SHOULD&quot;,
 &quot;SHOULD NOT&quot;, &quot;RECOMMENDED&quot;, &quot;MAY&quot;, and &quot;OPTIONAL&quot; in this document are
-to be interpreted as described in IETF <a class="reference external" href="http://tools.ietf.org/html/rfc2119">RFC 2119</a> <a class="footnote-reference" href="#id6" id="id7">[5]</a>.</p>
+to be interpreted as described in IETF <a class="reference external" href="http://tools.ietf.org/html/rfc2119">RFC 2119</a>.</p>
 <div class="section" id="announce">
 <h1>Announce</h1>
-<p>When using this extension, instead of passing the <tt class="docutils literal"><span class="pre">info_hash</span></tt> parameter
-to the tracker, a <tt class="docutils literal"><span class="pre">sha_ih</span></tt> is passed.</p>
-<p>The value of <tt class="docutils literal"><span class="pre">sha_ih</span></tt> MUST be the info-hash of the torrent, with a second
+<p>When using this extension, instead of passing the <tt class="docutils literal">info_hash</tt> parameter
+to the tracker, a <tt class="docutils literal">sha_ih</tt> is passed.</p>
+<p>The value of <tt class="docutils literal">sha_ih</tt> MUST be the info-hash of the torrent, with a second
 SHA-1 applied to it.</p>
 <p>For example if a torrent has infohash with hex representation
-<tt class="docutils literal"><span class="pre">aaf4c61ddcc5e8a2dabedef3b482cd9aea9434d</span></tt> then its <tt class="docutils literal"><span class="pre">sha_ih</span></tt> is
+<tt class="docutils literal">aaf4c61ddcc5e8a2dabedef3b482cd9aea9434d</tt> then its <tt class="docutils literal">sha_ih</tt> is
 <tt class="docutils literal"><span class="pre">sha1(infohash)='6b4f89a54e2d27ecd7e8da5b4ab8fd9d1d8b119'</span></tt>.</p>
-<p>The value MUST be url encoded, just like the <tt class="docutils literal"><span class="pre">info_hash</span></tt>.  Thus the
-<tt class="docutils literal"><span class="pre">sha_ih</span></tt> above when url encoded becomes
+<p>The value MUST be url encoded, just like the <tt class="docutils literal">info_hash</tt>.  Thus the
+<tt class="docutils literal">sha_ih</tt> above when url encoded becomes
 <tt class="docutils literal"><span class="pre">kO%89%A5N-%27%EC%D7%E8%DA%05%B4%AB%8F%D9%D1%D8%B1%19</span></tt>.</p>
-<p>If the <tt class="docutils literal"><span class="pre">sha_ih</span></tt> is passed then the value for the <tt class="docutils literal"><span class="pre">port</span></tt> parameter
+<p>If the <tt class="docutils literal">sha_ih</tt> is passed then the value for the <tt class="docutils literal">port</tt> parameter
 should be treated as a 16 bit integer and MUST be obscured as
 described in the <a class="reference internal" href="#obfuscation-method">Obfuscation Method</a> section.  Similarly if the
-optional <tt class="docutils literal"><span class="pre">ip</span></tt> parameter is passed in the announce then its value
+optional <tt class="docutils literal">ip</tt> parameter is passed in the announce then its value
 MUST also be so obscured.</p>
 <p>This extension does not change the semantics of any parameter passed
 in the peer's announce.</p>
@@ -103,8 +72,8 @@ in the peer's announce.</p>
 <div class="section" id="announce-response">
 <h1>Announce Response</h1>
 <p>If the tracker supports this extension, the response should be exactly
-the same as if the <tt class="docutils literal"><span class="pre">info_hash</span></tt> had been passed, except that any
-field that contains peer information (such as <tt class="docutils literal"><span class="pre">peers</span></tt>, <tt class="docutils literal"><span class="pre">peers6</span></tt> or
+the same as if the <tt class="docutils literal">info_hash</tt> had been passed, except that any
+field that contains peer information (such as <tt class="docutils literal">peers</tt>, <tt class="docutils literal">peers6</tt> or
 any other field defined by another extension) MUST be obfuscated as
 described in the next section.</p>
 <p>There are additional parameters the tracker may OPTIONALLY return.
@@ -112,7 +81,7 @@ These are discussed in the <a class="reference internal" href="#optimizations">o
 </div>
 <div class="section" id="obfuscation-method">
 <h1>Obfuscation Method</h1>
-<p>The values for the <tt class="docutils literal"><span class="pre">ip</span></tt> and <tt class="docutils literal"><span class="pre">port</span></tt> announce parameters, the
+<p>The values for the <tt class="docutils literal">ip</tt> and <tt class="docutils literal">port</tt> announce parameters, the
 <em>returned peer list</em> and any other values that contain peer
 information are obscured using the method described in this section.</p>
 <p>We distinguish between the <em>tracker peer list</em> and the <em>returned peer
@@ -136,7 +105,7 @@ string, the tracker and client MUST discard the first 768 bytes.  The
 next 8 bytes in the pseudorandom string are reserved for optimizations
 discussed in the next section.</p>
 <p>To communicate an initialization vector, the tracker includes in the
-bencoded response the parameter <tt class="docutils literal"><span class="pre">iv</span></tt> with value set to a byte string
+bencoded response the parameter <tt class="docutils literal">iv</tt> with value set to a byte string
 containing the initialization vector.  The initialization vector can
 be of arbitrary length and is sent in plaintext.  Initialization
 vectors can only be applied to parameters in tracker responses and NOT
@@ -146,15 +115,15 @@ used as the RC4 key (160 bit key).  If the tracker provides an
 initialization vector then the RC4 key is generated by appending the
 vector to the infohash and then hashing with SHA-1.  The resulting
 hash is then used as the RC4 key.</p>
-<p>For example, given infohash <tt class="docutils literal"><span class="pre">aaf4c61ddcc5e8a2dabedef3b482cd9aea9434d</span></tt>
-and initialization vector <tt class="docutils literal"><span class="pre">abcd</span></tt> both represented in hex, the RC4 key
+<p>For example, given infohash <tt class="docutils literal">aaf4c61ddcc5e8a2dabedef3b482cd9aea9434d</tt>
+and initialization vector <tt class="docutils literal">abcd</tt> both represented in hex, the RC4 key
 is derived as follows:</p>
 <pre class="literal-block">
 key = sha1( 'aaf4c61ddcc5e8a2dabedef3b482cd9aea9434dabcd' )
 </pre>
-<p>The resulting key in hex is <tt class="docutils literal"><span class="pre">f36e9cae87cf33e07645ef5ca745a8a83469f31e</span></tt>.</p>
+<p>The resulting key in hex is <tt class="docutils literal">f36e9cae87cf33e07645ef5ca745a8a83469f31e</tt>.</p>
 <p>It is RECOMMENDED that the tracker use the initialization vector, and
-that it change the <tt class="docutils literal"><span class="pre">iv</span></tt> on roughly the same period as the rerequest
+that it change the <tt class="docutils literal">iv</tt> on roughly the same period as the rerequest
 interval.  The reasoning for this is contained in the rationale.</p>
 </div>
 <div class="section" id="optimizations">
@@ -209,7 +178,7 @@ pseudorandom string (see Figure 1).</p>
 <img alt="bep_0008_pseudo.png" src="bep_0008_pseudo.png" />
 <p class="caption"><strong>Figure 1:</strong> The first 768 bytes of the RC4 pseudorandom
 string are discarded.  The parameter <em>i</em> in the tracker response has
-value <tt class="docutils literal"><span class="pre">x</span> <span class="pre">xor</span> <span class="pre">i</span></tt>.  The parameter <em>n</em> has value <tt class="docutils literal"><span class="pre">y</span> <span class="pre">xor</span> <span class="pre">n</span></tt>.</p>
+value <tt class="docutils literal">x xor i</tt>.  The parameter <em>n</em> has value <tt class="docutils literal">y xor n</tt>.</p>
 </div>
 <p>We describe encryption in the following example for an ipv4 tracker peer
 list consisting of 3 ip-port pairs, and using an RC4 pseudorandom string
@@ -245,7 +214,7 @@ bencoded equivalent of:</p>
 peers=5201bedb15d72443e3f1a2df, i=1, n=2
 </pre>
 <p>In each response the tracker includes additional parameters such as
-the rerequest <tt class="docutils literal"><span class="pre">interval</span></tt> and the initialization vector <tt class="docutils literal"><span class="pre">iv</span></tt>.</p>
+the rerequest <tt class="docutils literal">interval</tt> and the initialization vector <tt class="docutils literal">iv</tt>.</p>
 <p>The tracker response MUST remain a valid bencoded message.</p>
 </div>
 <div class="section" id="backwards-compatibility">
@@ -255,7 +224,7 @@ by the inclusion of an <tt class="docutils literal"><span class="pre">obfuscate-
 same semantics as the <tt class="docutils literal"><span class="pre">announce-list</span></tt> parameter.  Peers that do not support
 obfuscation simply ignore the <tt class="docutils literal"><span class="pre">obfuscate-announce-list</span></tt>.</p>
 <p>A client that is configured to use this extension should always send
-the <tt class="docutils literal"><span class="pre">sha_ih</span></tt> to any tracker supporting obfuscation.  The client
+the <tt class="docutils literal">sha_ih</tt> to any tracker supporting obfuscation.  The client
 SHOULD only contact trackers in the <tt class="docutils literal"><span class="pre">announce-list</span></tt> once the client
 has attempted all trackers in the <tt class="docutils literal"><span class="pre">obfuscate-announce-list</span></tt> and all failed.</p>
 <p>If a tracker that supports obfuscation wishes to allow legacy peers to
@@ -266,16 +235,16 @@ the tracker failed to respond when selected from the
 <tt class="docutils literal"><span class="pre">obfuscate-announce-list</span></tt> then the client MAY treat the tracker in
 the <tt class="docutils literal"><span class="pre">announce-list</span></tt> as if it were temporarily unreachable and defer
 trying it until it has tried other trackers in the <tt class="docutils literal"><span class="pre">announce-list</span></tt>.</p>
-<p>Peers MUST never send both the <tt class="docutils literal"><span class="pre">info_hash</span></tt> and <tt class="docutils literal"><span class="pre">sha_ih</span></tt> parameters
+<p>Peers MUST never send both the <tt class="docutils literal">info_hash</tt> and <tt class="docutils literal">sha_ih</tt> parameters
 in the same request, since that would defeat the purpose of the shared
 secret.</p>
-<p>Any peer that requests with a <tt class="docutils literal"><span class="pre">sha_ih</span></tt> SHOULD implement Message
+<p>Any peer that requests with a <tt class="docutils literal">sha_ih</tt> SHOULD implement Message
 Stream Encryption (MSE) <a class="footnote-reference" href="#mse" id="id1">[1]</a>.  Any peer returned from the tracker
-in response to a request with a <tt class="docutils literal"><span class="pre">sha_ih</span></tt> SHOULD be assumed to
+in response to a request with a <tt class="docutils literal">sha_ih</tt> SHOULD be assumed to
 support Message Stream Encryption.  We include these provisions
 because if a peer communicates with another peer without using MSE
 then the BitTorrent protocol is trivially identified from the first
-twenty bytes of the BitTorrent header and the <tt class="docutils literal"><span class="pre">info_hash</span></tt> appears in
+twenty bytes of the BitTorrent header and the <tt class="docutils literal">info_hash</tt> appears in
 plaintext as the next twenty bytes, hence also defeating the purpose
 of the shared secret.</p>
 <p>If the tracker does not know enough peers assumed to support MSE to
@@ -307,7 +276,7 @@ torrents without sending the plaintext infohash and without requiring
 an additional prior exchange of a shared secret.  Where trackers now
 maintain mappings from infohash to the corresponding torrent's
 peerlist and other torrent-specific state, obfuscated trackers would
-need one additional mapping from <tt class="docutils literal"><span class="pre">sha_ih</span></tt> to the torrent's state.
+need one additional mapping from <tt class="docutils literal">sha_ih</tt> to the torrent's state.
 Trackers may also cache the encrypted version of each torrent's
 tracker peer list, to increase computational performance at the
 expense of increasing memory footprint by a constant factor.</p>
@@ -409,12 +378,6 @@ privacy protocol (WEP). ACM Transactions on Information and System
 Security, 7(2):319-332, May 2004.</td></tr>
 </tbody>
 </table>
-<table class="docutils footnote" frame="void" id="id6" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id7">[5]</a></td><td><a class="reference external" href="http://tools.ietf.org/html/rfc2119">http://tools.ietf.org/html/rfc2119</a></td></tr>
-</tbody>
-</table>
 </div>
 <div class="section" id="example-python-code">
 <h1>Example Python Code</h1>
@@ -494,7 +457,6 @@ fill-column: 70
 coding: utf-8
 End: -->
 </div>
-
 
 </div>
 	<div id="footer">

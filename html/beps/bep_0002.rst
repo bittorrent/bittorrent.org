@@ -1,13 +1,13 @@
-BEP: 2
-Title: Sample reStructured Text BEP Template
-Version: $Revision$
-Last-Modified: $Date$
-Author:  David Harrison <dave@bittorrent.com>
-Status:  Active
-Type:    Process
-Content-Type: text/x-rst
-Created: 02-Feb-2008
-Post-History: 
+:BEP: 2
+:Title: Sample reStructured Text BEP Template
+:Version: $Revision$
+:Last-Modified: $Date$
+:Author:  David Harrison <dave@bittorrent.com>
+:Status:  Active
+:Type:    Process
+:Content-Type: text/x-rst
+:Created: 02-Feb-2008
+:Post-History: 
 
 
 Abstract

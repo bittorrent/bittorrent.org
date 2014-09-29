@@ -1,12 +1,12 @@
-BEP: 17
-Title: HTTP Seeding
-Version: $Revision$
-Last-Modified: $Date$
-Author:  John Hoffman <theshadow@degreez.net>, DeHackEd
-Status:  Draft
-Type:    Standards Track
-Created: 07-Feb-2008
-Post-History:
+:BEP: 17
+:Title: HTTP Seeding
+:Version: $Revision$
+:Last-Modified: $Date$
+:Author:  John Hoffman <theshadow@degreez.net>, DeHackEd
+:Status:  Draft
+:Type:    Standards Track
+:Created: 07-Feb-2008
+:Post-History:
 
 
 Metadata Extension

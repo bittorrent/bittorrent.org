@@ -1,14 +1,14 @@
-BEP: 32
-Title: BitTorrent DHT Extensions for IPv6
-Version: $Revision$
-Last-Modified: $Date$
-Author:  Juliusz Chroboczek <jch@pps.jussieu.fr>
-Status:  Draft
-Type:    Standards Track
-Requires: 5
-Content-Type: text/x-rst
-Created: 14-Oct-2009
-Post-History: 15-Oct-2009: Promote same ID in IPv6 and IPv4 nodes. Drop values6. Added some rationales
+:BEP: 32
+:Title: BitTorrent DHT Extensions for IPv6
+:Version: $Revision$
+:Last-Modified: $Date$
+:Author:  Juliusz Chroboczek <jch@pps.jussieu.fr>
+:Status:  Draft
+:Type:    Standards Track
+:Requires: 5
+:Content-Type: text/x-rst
+:Created: 14-Oct-2009
+:Post-History: 15-Oct-2009: Promote same ID in IPv6 and IPv4 nodes. Drop values6. Added some rationales
               11-Nov-2011: Change want to be a list of flags.  Add nodes about MTU and source address selection.  Define behaviour of PORT message.
 
 

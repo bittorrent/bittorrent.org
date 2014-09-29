@@ -1,14 +1,14 @@
-BEP: 30
-Title: Merkle hash torrent extension
-Version: $Revision$
-Last-Modified: $Date$
-Author:  Arno Bakker <arno@cs.vu.nl>
-Status:  Draft
-Type:    Standards Track
-Requires: 10
-Content-Type: text/x-rst
-Created: 11-Mar-2009
-Post-History: 
+:BEP: 30
+:Title: Merkle hash torrent extension
+:Version: $Revision$
+:Last-Modified: $Date$
+:Author:  Arno Bakker <arno@cs.vu.nl>
+:Status:  Draft
+:Type:    Standards Track
+:Requires: 10
+:Content-Type: text/x-rst
+:Created: 11-Mar-2009
+:Post-History: 
 
 Abstract
 ========

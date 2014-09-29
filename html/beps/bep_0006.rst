@@ -1,12 +1,12 @@
-BEP: 6
-Title: Fast Extension
-Version: $Revision$
-Last-Modified: $Date$
-Author:  David Harrison <dave@bittorrent.com>, Bram Cohen <bram@bittorrent.com>
-Status:  Draft
-Type:    Standards Track
-Created: 01-Feb-2008
-Post-History:
+:BEP: 6
+:Title: Fast Extension
+:Version: $Revision$
+:Last-Modified: $Date$
+:Author:  David Harrison <dave@bittorrent.com>, Bram Cohen <bram@bittorrent.com>
+:Status:  Draft
+:Type:    Standards Track
+:Created: 01-Feb-2008
+:Post-History:
 
 The Fast Extension packages several extensions: *Have None/Have All*,
 *Reject Requests*, *Suggestions* and *Allowed Fast.*

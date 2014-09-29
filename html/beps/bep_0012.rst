@@ -1,12 +1,12 @@
-BEP: 12
-Title: Multitracker Metadata Extension
-Version: $Revision$
-Last-Modified: $Date$
-Author:  John Hoffman <theshadow@degreez.net>
-Status:  Draft
-Type:    Standards Track
-Created: 07-Feb-2008
-Post-History:
+:BEP: 12
+:Title: Multitracker Metadata Extension
+:Version: $Revision$
+:Last-Modified: $Date$
+:Author:  John Hoffman <theshadow@degreez.net>
+:Status:  Draft
+:Type:    Standards Track
+:Created: 07-Feb-2008
+:Post-History:
 
 
 Metadata Extension

@@ -1,13 +1,13 @@
-BEP: 23
-Title: Tracker Returns Compact Peer Lists
-Version: $Revision$
-Last-Modified: $Date$
-Author:  David Harrison <dave@bittorrent.com>
-Status:  Accepted 
-Type:    Standards track
-Content-Type: text/x-rst
-Created: 12-May-2008
-Post-History: 
+:BEP: 23
+:Title: Tracker Returns Compact Peer Lists
+:Version: $Revision$
+:Last-Modified: $Date$
+:Author:  David Harrison <dave@bittorrent.com>
+:Status:  Accepted 
+:Type:    Standards track
+:Content-Type: text/x-rst
+:Created: 12-May-2008
+:Post-History: 
 
 
 Abstract

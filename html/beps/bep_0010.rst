@@ -1,12 +1,12 @@
-BEP: 10
-Title: Extension Protocol
-Version: $Revision$
-Last-Modified: $Date$
-Author:  Arvid Norberg <arvid@bittorrent.com>, Ludvig Strigeus <bittorrent@strigeus.com>, Greg Hazel <greg@bittorrent.com>
-Status:  Draft
-Type:    Standards Track
-Created: 31-Jan-2008
-Post-History:
+:BEP: 10
+:Title: Extension Protocol
+:Version: $Revision$
+:Last-Modified: $Date$
+:Author:  Arvid Norberg <arvid@bittorrent.com>, Ludvig Strigeus <bittorrent@strigeus.com>, Greg Hazel <greg@bittorrent.com>
+:Status:  Draft
+:Type:    Standards Track
+:Created: 31-Jan-2008
+:Post-History:
 
 
 The intention of this protocol is to provide a simple and thin transport

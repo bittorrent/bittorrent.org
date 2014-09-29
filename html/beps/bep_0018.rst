@@ -1,13 +1,13 @@
-BEP: 18
-Title: Search Engine Specificiation
-Version: $Revision$
-Last-Modified: $Date$
-Author:  Richard Choi <rchoi@bittorrent.com>
-Status:  Draft
-Type:    Standards Track
-Content-Type: text/x-rst
-Created: 12-Feb-2008
-Post-History: 
+:BEP: 18
+:Title: Search Engine Specificiation
+:Version: $Revision$
+:Last-Modified: $Date$
+:Author:  Richard Choi <rchoi@bittorrent.com>
+:Status:  Draft
+:Type:    Standards Track
+:Content-Type: text/x-rst
+:Created: 12-Feb-2008
+:Post-History: 
 
 
 Rationale

@@ -1,16 +1,16 @@
-=================================
-BitTorrent DHT Security Extension
-=================================
+:BEP: 42
+:Title: DHT Security extension
+:Version: $Revision$
+:Last-Modified: $Date$
+:Author:  Arvid Norberg <arvid@bittorrent.com>
+:Status:  Draft
+:Type:    Standards Track
+:Created: 15-January-2014
+:Post-History:
 
-:Author: Arvid Norberg, arvid@bittorrent.com
-:Version: 1.0.0
 
-.. contents:: Table of Contents
-  :depth: 2
-  :backlinks: none
-
-BitTorrent DHT Security Extension
----------------------------------
+DHT Security Extension
+----------------------
 
 The purpose of this extension is to make it harder to launch a few
 specific attacks against the BitTorrent DHT and also to make it harder

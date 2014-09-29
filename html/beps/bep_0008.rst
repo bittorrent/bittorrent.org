@@ -1,12 +1,12 @@
-BEP: 8
-Title: Tracker Peer Obfuscation
-Version: $Revision$
-Last-Modified: $Date$
-Author:  David Harrison <dave@bittorrent.com>, Anthony Ciani <tony@ciani.phy.uic.edu>, Arvid Norberg <arvid@bittorrent.com>, Greg Hazel <greg@bittorrent.com> 
-Status:  Deferred
-Type:    Standards Track
-Created: 31-Jan-2008
-Post-History:
+:BEP: 8
+:Title: Tracker Peer Obfuscation
+:Version: $Revision$
+:Last-Modified: $Date$
+:Author:  David Harrison <dave@bittorrent.com>, Anthony Ciani <tony@ciani.phy.uic.edu>, Arvid Norberg <arvid@bittorrent.com>, Greg Hazel <greg@bittorrent.com> 
+:Status:  Deferred
+:Type:    Standards Track
+:Created: 31-Jan-2008
+:Post-History:
 
 This extends the tracker protocol to support simple obfuscation of the
 peers it returns, using the infohash as a shared secret between the

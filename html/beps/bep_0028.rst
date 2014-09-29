@@ -1,13 +1,13 @@
-BEP: 28
-Title: Tracker exchange extension
-Version: $Revision$
-Last-Modified: $Date$
-Author:  Arvid Norberg <arvid@bittorrent.com>
-Status:  Draft
-Type:    Standards Track
-Content-Type: text/x-rst
-Created: 26-Nov-2008
-Post-History: 15-Oct-2009: Add a section on not hammering bad trackers
+:BEP: 28
+:Title: Tracker exchange extension
+:Version: $Revision$
+:Last-Modified: $Date$
+:Author:  Arvid Norberg <arvid@bittorrent.com>
+:Status:  Draft
+:Type:    Standards Track
+:Content-Type: text/x-rst
+:Created: 26-Nov-2008
+:Post-History: 15-Oct-2009: Add a section on not hammering bad trackers
 
 Tracker exchange extension
 ==========================

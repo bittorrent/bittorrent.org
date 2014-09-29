@@ -1,13 +1,13 @@
-BEP: 25
-Title: An Alternate BitTorrent Cache Discovery Protocol
-Version: $Revision$
-Last-Modified: $Date$
-Author:  David Harrison <dave@bittorrent.com>, Greg Hazel <greg@bittorrent.com>, Stanislav Shalunov <shalunov@bittorrent.com>
-Status:  Draft
-Type:    Standards track
-Content-Type: text/x-rst
-Created: 20-May-2008
-Post-History: 
+:BEP: 25
+:Title: An Alternate BitTorrent Cache Discovery Protocol
+:Version: $Revision$
+:Last-Modified: $Date$
+:Author:  David Harrison <dave@bittorrent.com>, Greg Hazel <greg@bittorrent.com>, Stanislav Shalunov <shalunov@bittorrent.com>
+:Status:  Draft
+:Type:    Standards track
+:Content-Type: text/x-rst
+:Created: 20-May-2008
+:Post-History: 
 
 Motivation
 ==========

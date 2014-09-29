@@ -1,13 +1,13 @@
-﻿BEP: 33
-Title: DHT Scrapes
-Version: $Revision$
-Last-Modified: $Date$
-Author:  The 8472
-Status:  Draft
-Type:    Standards Track
-Content-Type: text/x-rst
-Created: 20-Jan-2010
-Post-History: 
+﻿:BEP: 33
+:Title: DHT Scrapes
+:Version: $Revision$
+:Last-Modified: $Date$
+:Author:  The 8472
+:Status:  Draft
+:Type:    Standards Track
+:Content-Type: text/x-rst
+:Created: 20-Jan-2010
+:Post-History: 
 
 
 Abstract

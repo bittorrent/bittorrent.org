@@ -1,12 +1,12 @@
-BEP: 20
-Title: Peer ID Conventions
-Version: $Revision$
-Last-Modified: $Date$
-Author:  David Harrison <dave@bittorrent.com>
-Status:  Active
-Type:    Process
-Created: Feb-27-2008
-Post-History:
+:BEP: 20
+:Title: Peer ID Conventions
+:Version: $Revision$
+:Last-Modified: $Date$
+:Author:  David Harrison <dave@bittorrent.com>
+:Status:  Active
+:Type:    Process
+:Created: Feb-27-2008
+:Post-History:
 
 The 20-byte *peer id* field sent in tracker requests and in the peer
 handshake has traditionally been used not only to identify peers but

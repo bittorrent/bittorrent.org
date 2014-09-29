@@ -1,12 +1,12 @@
-BEP: 7
-Title: IPv6 Tracker Extension
-Version: $Revision$
-Last-Modified: $Date$
-Author:  Greg Hazel <greg@bittorrent.com>, Arvid Norberg <arvid@bittorrent.com>
-Status:  Draft
-Type:    Standards Track
-Created: 31-Jan-2008
-Post-History:
+:BEP: 7
+:Title: IPv6 Tracker Extension
+:Version: $Revision$
+:Last-Modified: $Date$
+:Author:  Greg Hazel <greg@bittorrent.com>, Arvid Norberg <arvid@bittorrent.com>
+:Status:  Draft
+:Type:    Standards Track
+:Created: 31-Jan-2008
+:Post-History:
 
 This extension extends the tracker response to better support IPv6 peers as
 well as defines a way for multi homed machines to announce multiple addresses

@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
+<title></title>
+<meta name="author" content="Arvid Norberg &lt;arvid&#64;bittorrent.com&gt;, Steve Austin &lt;sca&#64;bittorrent.com&gt;" />
+<link rel="stylesheet" href="../css/bep.css" type="text/css" />
+</head>
+<body>
+<div class="document">
+
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="../index.html">BitTorrent<span>.org</span></a></h1>
+</div>
+<div id="nav">
+<ul>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../introduction.html">For Users</a></li>
+<li><a href="bep_0000.html"><span>For Developers</span></a></li>
+<li><a href="../mailing_list.html">Developer mailing list</a> </li>
+<li><a href="http://forum.bittorrent.org"> Forums (archive) </a></li>
+</ul>
+</div> <!-- nav -->
+<!-- ### Begin Content ### -->
+<div id="second">
+
+
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
+<tbody valign="top">
+<tr class="field"><th class="docinfo-name">BEP:</th><td class="field-body">0043</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Title:</th><td class="field-body">Read-only DHT Nodes</td>
+</tr>
+<tr><th class="docinfo-name">Version:</th>
+<td>N/A</td></tr>
+<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">N/A</td>
+</tr>
+<tr><th class="docinfo-name">Author:</th>
+<td>Arvid Norberg &lt;<a class="reference external" href="mailto:arvid&#37;&#52;&#48;bittorrent&#46;com">arvid<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;, Steve Austin &lt;<a class="reference external" href="mailto:sca&#37;&#52;&#48;bittorrent&#46;com">sca<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;</td></tr>
+<tr><th class="docinfo-name">Status:</th>
+<td>Draft</td></tr>
+<tr class="field"><th class="docinfo-name">Type:</th><td class="field-body">Standards Track</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Content-Type:</th><td class="field-body">text/x-rst</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Created:</th><td class="field-body">06-Oct-2014</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Post-History:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="abstract">
+<h1>Abstract</h1>
+<p>This extension introduces the concept of a 'read-only' DHT node for devices
+which are behind a restrictive NAT where hole punching has failed  and the
+node is essentially uncontactable or for devices where additional network traffic can affect
+device users monetarily, when devices have a fixed data plan, and in usability,
+where traffic adversely affects battery life.</p>
+</div>
+<div class="section" id="rationale">
+<h1>Rationale</h1>
+<p>The BitTorrent client and BitTorrent's new Bleep messaging service
+both use the &quot;distributed hash table&quot; (DHT)[1] for storing contact information.
+Each DHT node maintains a routing table to consult when it needs to find
+information from the DHT. When a device running a DHT node fails to hole
+punch, it is not reachable from outside and thus attempts to write to it will fail.
+In such cases, time can be saved if the node can declare that it should not be contacted.
+Such a state is also useful for devices which are sensitive to network traffic, particularly mobile
+devices where additional traffic has a both a monetary cost (when the additional network usage
+exceeds a fixed-bandwidth plan) and a cost in battery life (since the
+additional network traffic can prevent the radio from entering a power-saving
+state).</p>
+<p>The concept of a 'read-only' DHT node saves time when nodes cannot be contacted from outside and
+reduces network traffic by not responding to queries and signaling other DHT nodes to not place it
+in their routing table and not to ping it to make see if it is still present.</p>
+</div>
+<div class="section" id="read-only-state">
+<h1>Read-Only State</h1>
+<p>When a DHT node enters the read-only state, it changes its behavior
+in the following ways:</p>
+<ul class="simple">
+<li>It no longer responds to 'query' messages that it receives, that is messages containing a 'q' flag in the top-level dictionary.</li>
+<li>In each outgoing query message the read-only DHT node places a 'ro' key in the top-level message dictionary and sets its value to 1. This will appear in the request as '2:roi1e'.</li>
+</ul>
+<p>A node that receives DHT messages should inspect incoming queries
+for the 'ro' flag set to 1.  If it is found, the node should not add
+the message sender to its routing table.  Instead it should
+merely service the query as usual.  The reason for not adding the read-only
+node to the DHT routing table is that it will both waste time to ping the read-only node,
+since they will not respond to the ping, and it will cause the read-only
+node to incur further network traffic.</p>
+</div>
+<div class="section" id="references">
+<h1>References</h1>
+<table class="docutils footnote" frame="void" id="bep-5" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[1]</td><td>BEP_0005. DHT Protocol
+(<a class="reference external" href="http://www.bittorrent.org/beps/bep_0005.html">http://www.bittorrent.org/beps/bep_0005.html</a>)</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="copyright">
+<h1>Copyright</h1>
+<p>This document has been placed in the public domain.</p>
+<!-- Local Variables:
+mode: indented-text
+indent-tabs-mode: nil
+sentence-end-double-space: t
+fill-column: 70
+coding: utf-8
+End: -->
+</div>
+
+</div>
+	<div id="footer">
+<hr/>
+</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
+<title></title>
+<meta name="author" content="Justin Li &lt;jli&#64;j-li.net&gt;, Jimmy Zelinskie &lt;jimmyzelinskie&#64;gmail.com&gt;, Cooper Lees &lt;me&#64;cooperlees.com&gt;" />
+<link rel="stylesheet" href="../css/bep.css" type="text/css" />
+</head>
+<body>
+<div class="document">
+
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="../index.html">BitTorrent<span>.org</span></a></h1>
+</div>
+<div id="nav">
+<ul>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../introduction.html">For Users</a></li>
+<li><a href="bep_0000.html"><span>For Developers</span></a></li>
+<li><a href="../mailing_list.html">Developer mailing list</a> </li>
+<li><a href="http://forum.bittorrent.org"> Forums (archive) </a></li>
+</ul>
+</div> <!-- nav -->
+<!-- ### Begin Content ### -->
+<div id="second">
+
+
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
+<tbody valign="top">
+<tr class="field"><th class="docinfo-name">BEP:</th><td class="field-body">46</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Title:</th><td class="field-body">UDP Tracker Dual-IP-Stack Extension</td>
+</tr>
+<tr><th class="docinfo-name">Version:</th>
+<td>2f75af36d1694f8685733373bdb79dddc0fc9201</td></tr>
+<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Tue Mar 24 21:14:15 2015 -0400</td>
+</tr>
+<tr><th class="docinfo-name">Author:</th>
+<td>Justin Li &lt;<a class="reference external" href="mailto:jli&#37;&#52;&#48;j-li&#46;net">jli<span>&#64;</span>j-li<span>&#46;</span>net</a>&gt;, Jimmy Zelinskie &lt;<a class="reference external" href="mailto:jimmyzelinskie&#37;&#52;&#48;gmail&#46;com">jimmyzelinskie<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;, Cooper Lees &lt;<a class="reference external" href="mailto:me&#37;&#52;&#48;cooperlees&#46;com">me<span>&#64;</span>cooperlees<span>&#46;</span>com</a>&gt;</td></tr>
+<tr><th class="docinfo-name">Status:</th>
+<td>Draft</td></tr>
+<tr class="field"><th class="docinfo-name">Type:</th><td class="field-body">Standards Track</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Created:</th><td class="field-body">24-Mar-2015</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Post-History:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="introduction">
+<h1>Introduction</h1>
+<p>The original UDP Tracker Protocol (BEP-15) <a class="footnote-reference" href="#id5" id="id1">[1]</a> deferred IPv6 support to
+a future extension due to the immaturity of IPv6 deployments at the
+time. After several years, IPv6 has become widespread, and is replacing
+IPv4 completely in many contexts. This BEP defines the standard way of
+handling IPv6 in the UDP tracker protocol.</p>
+<p>The IPv6 Tracker Extension protocol for HTTP (BEP-7) <a class="footnote-reference" href="#id6" id="id2">[2]</a> defines a simple
+method for indicating a peer's IPv6 address. To simplify implementation and
+encourage adoption, BEP-45 takes a similar approach for UDP, allowing both an
+IPv4 and IPv6 address to be specified.</p>
+<p>In 2007, Dirk Engling (erdgeist) proposed a method of handling IPv6 <a class="footnote-reference" href="#id8" id="id3">[4]</a>,
+however his approach did not address support for dual-stacked peers. In order
+to improve the efficacy of the swarm, dual-stacked peers can be essential to
+bridging the gap between networks.</p>
+<p>The key words &quot;MUST&quot;, &quot;MUST NOT&quot;, &quot;REQUIRED&quot;, &quot;SHALL&quot;, &quot;SHALL NOT&quot;, &quot;SHOULD&quot;,
+&quot;SHOULD NOT&quot;, &quot;RECOMMENDED&quot;, &quot;MAY&quot;, and &quot;OPTIONAL&quot; in this document are to be
+interpreted as described in IETF <a class="reference external" href="http://tools.ietf.org/html/rfc2119">RFC 2119</a>.</p>
+</div>
+<div class="section" id="announce-parameters">
+<h1>Announce Parameters</h1>
+<p>This BEP defines a new UDP Option-Type:</p>
+<blockquote>
+<dl class="docutils">
+<dt><em>IPv6</em>: <em>&lt;Option-Type 0x3&gt;</em>, <em>&lt;16 byte IPv6 address&gt;</em>, <em>&lt;2 byte IPv6 port&gt;</em></dt>
+<dd>A <strong>fixed-length</strong> option, composed of the peer's IPv6 address and
+port. If the IPv6 port is 0x0000, it is assumed to be the same as the
+mandatory port parameter at offset 96.</dd>
+</dl>
+</blockquote>
+<p>The client MAY set the IPv6 option as described, which the tracker SHOULD treat
+in the same way as the <tt class="docutils literal">&amp;ipv6=</tt> parameter in BEP-7 <a class="footnote-reference" href="#id6" id="id4">[2]</a>. In this case, the
+IPv4 address at offset 84 MUST be treated in the same way as the <tt class="docutils literal">&amp;ipv4=</tt>
+parameter in BEP-7.</p>
+</div>
+<div class="section" id="announce-response">
+<h1>Announce Response</h1>
+<p>If a value is set for the IPv6 option, or the client is announcing via an IPv6
+source address, the tracker MUST return a dual-stack response packet. If the
+old announce response packet is returned (action #1), the client can assume the
+tracker does not support IPv6.</p>
+<p>The dual-stack response packet is a slight modification of the original packet,
+with the addition of the number of peers returned in each address family.</p>
+<p>dual-stack announce response:</p>
+<pre class="literal-block">
+Offset               Size            Name            Value
+0                    32-bit integer  action          4
+4                    32-bit integer  transaction_id
+8                    32-bit integer  interval
+12                   32-bit integer  leechers
+16                   32-bit integer  seeders
+20                   32-bit integer  IPv4 peers (X)
+24                   32-bit integer  IPv6 peers (Y)
+20 + 6 * x           32-bit integer  IPv4 address
+24 + 6 * x           16-bit integer  TCP port
+20 + 6 * X + 18 * y  128-bit integer IPv6 address
+24 + 6 * X + 18 * y  16-bit integer  TCP port
+20 + 6 * X + 18 * Y
+</pre>
+</div>
+<div class="section" id="references-and-footnotes">
+<h1>References and Footnotes</h1>
+<table class="docutils footnote" frame="void" id="id5" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td><a class="reference external" href="http://bittorrent.org/beps/bep_0015.html">http://bittorrent.org/beps/bep_0015.html</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id6" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[2]</td><td><em>(<a class="fn-backref" href="#id2">1</a>, <a class="fn-backref" href="#id4">2</a>)</em> <a class="reference external" href="http://bittorrent.org/beps/bep_0007.html">http://bittorrent.org/beps/bep_0007.html</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id7" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[3]</td><td><a class="reference external" href="http://bittorrent.org/beps/bep_0041.html">http://bittorrent.org/beps/bep_0041.html</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id8" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[4]</a></td><td><a class="reference external" href="http://opentracker.blog.h3q.com/2007/12/28/the-ipv6-situation/">http://opentracker.blog.h3q.com/2007/12/28/the-ipv6-situation/</a></td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="copyright">
+<h1>Copyright</h1>
+<p>This document has been placed in the public domain.</p>
+<!-- Local Variables:
+mode: indented-text
+indent-tabs-mode: nil
+sentence-end-double-space: t
+fill-column: 70
+coding: utf-8
+End: -->
+</div>
+
+</div>
+	<div id="footer">
+<hr/>
+</div>
+
+</div>
+</body>
+</html>

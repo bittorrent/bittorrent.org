@@ -72,7 +72,7 @@ Normal announce::
   t = 0: connect request
   t = 1: connect response
   t = 2: announce request
-  t = 3: annonce response
+  t = 3: announce response
 
 Connect times out::
 
@@ -99,11 +99,11 @@ Multiple requests::
   t = 0: connect request
   t = 1: connect response
   t = 2: announce request
-  t = 3: annonce response
+  t = 3: announce response
   t = 4: announce request
-  t = 5: annonce response
+  t = 5: announce response
   t = 60: announce request
-  t = 61: annonce response
+  t = 61: announce response
   t = 62: connect request
   t = 63: connect response
   t = 64: announce request

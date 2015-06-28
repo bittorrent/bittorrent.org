@@ -2,7 +2,7 @@
 :Title: Multiple-address operation for the BitTorrent DHT
 :Version: $Revision$
 :Last-Modified: $Date$
-:Author:  The 8472 <the8472@infinite-source.de>
+:Author:  The 8472 <the8472.bep@infinite-source.de>
 :Status:  Draft
 :Type:  Informational
 :Content-Type: text/x-rst
@@ -13,7 +13,7 @@
 Multiple-address operation for the BitTorrent DHT
 =================================================
 
-This BEP provides implementation advice for clients that wish to operate a DHT (BEP 5) node on a host that has multiple globally routable unicast addresses.
+This BEP provides implementation advice for clients that wish to operate a DHT node (BEP 5) on a host that has multiple globally routable unicast addresses.
 
 In large parts it is based on practical experience operating such a node with 256+ IPv4 and IPv6 addresses.
 
@@ -38,7 +38,7 @@ In general any DHT node using multiple socket addresses should appear to the out
 
 This spares other implementations from having to deal with any idiosyncrasies that might otherwise arise from a single node sending from multiple socket addresses.
 
-The easiest approach to achieve this is to simply run multiple independent DHT nodes, each bound to a separate address and, if neeeded, perform separate announces through each of them.
+The easiest approach to achieve this is to simply run multiple independent DHT nodes, each bound to a separate address and, if needed, perform separate announces through each of them.
 
 Mandatory
 '''''''''
@@ -47,11 +47,11 @@ The most important constraints are as follows:
 
 Each socket address must have a distinct Node ID.
 
-    **Rationale**: To an external observer shared node IDs would look like a node constantly changing its IPs (e.g. unreliable domestic internet connection) or port (pathological NAT implementations) and thus deem them as unreliable and evict them from their routing table. 
+    **Rationale**: To an external observer shared node IDs would look like a node constantly changing its IPs (e.g. unreliable domestic internet connection or a spoofing attack) or port (pathological NAT implementations) and thus deem them as unreliable and evict them from their routing table.
 
 Node IDs should not only be distinct but also vastly separated by XOR distance, i.e. differ in some of their high order bits. This can be most easily achieved by generating a random node ID for each socket address. Alternatively an implementation can derive new IDs from a base ID by incrementing the base ID in reverse bit order, i.e. by flipping the high order bits first. Care should be taken to avoid counter reuse across multiple active sockets.
 
-    **Rationale**: Failure of a multi-homed node which only differ in low-order bits could take a small slice of the keyspace with it into oblivion, thus violating redundancy of the DHT.
+    **Rationale**: Failure of a multi-homed node whose IDs only differ in low-order bits could take a small slice of the keyspace with it into oblivion, thus violating redundancy of the DHT.
 
 Responses must be sent from the same socket address on which the corresponding request was received.
 
@@ -67,7 +67,7 @@ Nodes should avoid utilizing multiple ports on a single IP address.
 
     **Rationale**: Other nodes might throttle or implement other sanitizing behavior based on IP.
 
-Stipulations regarding socket binding from BEP 32 apply, i.e. nodes should avoid binding sockets to the "unspecified address" (0.0.0.0 or ::/128).
+Stipulations regarding socket binding from BEP 32 apply, i.e. nodes should avoid binding sockets to the *unspecified address* (0.0.0.0 or ::/128).
 
 For IPv4 autoconfiguration an implementation may choose the following strategies:
 
@@ -76,13 +76,13 @@ B) if no global unicast address is available determine a local address which is 
 
    Optionally, once bootstrapping has completed and nodes supporting BEP 42 ``ip`` fields have been found they can be used to determine the external address of other available local addresses and then switch to multi-address mode if additional external addresses are available.
    
-   *Implementation Note:* A routed local address can be obtained by using ``connect()``ing an unbound UDP socket to a global unicast address and then reading the local bind address via ``getsockname()``.      
+   *Implementation Note:* A routed local address can be obtained by calling ``connect()`` on an unbound UDP socket with a global unicast address as target and then reading the local bind address via ``getsockname()``.
   
 
 
 For IPv6 autoconfiguration nodes should space IPv6 addresses as widely as they can reasonably afford.
 
-* if multiple prefix routes are available then socket address should use at least one socket address from each
+* if multiple prefix routes are available then at least one from each should be used
 * alternatively, if path/routing information can be obtained an implementation should use at least one address per path
 * if multiple addresses within a single larger prefix are available it should avoid picking more than one per /64
 * if multiple choices per /64 are available the current address generated by IPv6 privacy extensions (RFC 4941) is preferable.
@@ -147,6 +147,8 @@ But it can reuse the set of responding nodes from a lookup on one socket address
 
 As mentioned earlier, individual lookups should be performed with some delay between each to avoid hammering the same nodes from multiple sockets.
 
+Of course the announced addresses should be consistent with the ones on which the underlying bittorrent client can accept connections. The easiest way to achieve that is to have the bittorrent client listen for peer connections on the unspecified address.
+
 
 Other write operations
 ''''''''''''''''''''''
@@ -176,4 +178,5 @@ References
 .. [#multi-source] "Source-specific routing", Boutier, Chroboczek
    (http://arxiv.org/pdf/1403.0445.pdf)
 
-.. [#Kademlia] http://pdos.csail.mit.edu/~petar/papers/maymounkov-kademlia-lncs.pdf
+.. [#Kademlia] "Kademlia: A peer-to-peer information system based on the xor metric", Maymounkov, Mazieres 
+   (http://pdos.csail.mit.edu/~petar/papers/maymounkov-kademlia-lncs.pdf)

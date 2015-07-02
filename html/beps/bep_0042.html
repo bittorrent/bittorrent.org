@@ -38,8 +38,8 @@
 <tr class="field"><th class="docinfo-name">Title:</th><td class="field-body">DHT Security extension</td>
 </tr>
 <tr><th class="docinfo-name">Version:</th>
-<td>f0566968f6e55c3a1b00a3111ed4e2991a31e5fd</td></tr>
-<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Wed Jan 15 17:21:25 2014 -0800</td>
+<td>af142ddbd27b609e1c8f5b772a3633652ac49b6e</td></tr>
+<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Wed Jul 1 18:51:15 2015 -0700</td>
 </tr>
 <tr><th class="docinfo-name">Author:</th>
 <td>Arvid Norberg &lt;<a class="reference external" href="mailto:arvid&#37;&#52;&#48;bittorrent&#46;com">arvid<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;</td></tr>
@@ -49,7 +49,7 @@
 </tr>
 <tr class="field"><th class="docinfo-name">Created:</th><td class="field-body">15-January-2014</td>
 </tr>
-<tr class="field"><th class="docinfo-name">Post-History:</th><td class="field-body"></td>
+<tr class="field"><th class="docinfo-name">Post-History:</th><td class="field-body">2-July-2015: Clarify enforcement behaviour</td>
 </tr>
 </tbody>
 </table>
@@ -223,12 +223,17 @@ instruction.</p>
 </div>
 <div class="section" id="enforcement">
 <h1>Enforcement</h1>
-<p>Once enforced, write tokens from peers whose node ID does not match its external
-IP should be considered dropped. In other words, a peer that uses a non-matching
-ID MUST never be used to store information on, regardless of which request. In the
-original DHT specification only <tt class="docutils literal">announce_peer</tt> stores data in the network,
-but any future extension which stores data in the network SHOULD use the same
-restriction.</p>
+<p>Once enforced, responses to get_peers requests whose node ID does not match its
+external IP should be considered to not contain a token and thus not be
+eligible as storage target. Implementations should take care that they find the
+closest set of nodes which return a token <em>and</em> whose IDs matches their IPs
+before sending a store request to those nodes. In the original DHT specification
+only <tt class="docutils literal">announce_peer</tt> stores data in the network, but any future extension
+which stores data in the network SHOULD use the same restriction.</p>
+<p>Non-compliant nodes also must not be considered to have sent a valid response
+when checking the termination condition of a lookup. For example, if a lookup
+stops sending requests after good responses have been received from the closest
+8 peers then non-compliant nodes must not be included in that count.</p>
 <p>Any peer on a local network address is exempt from this node ID verification.
 This includes the following IP blocks:</p>
 <dl class="docutils">
@@ -252,6 +257,9 @@ should not be blocked.</p>
 <p>Requests from peers whose node ID does not match their external IP should
 always be serviced, even after the transition period. The attack this protects
 from is storing data on an attacker's node, not servicing an attackers request.</p>
+<p>Even after the transition period, enforcing nodes MAY also announce to
+non-compliant nodes as long as they also announce to the closest set of
+compliant nodes.</p>
 </div>
 <div class="section" id="forward-compatibility">
 <h1>Forward Compatibility</h1>

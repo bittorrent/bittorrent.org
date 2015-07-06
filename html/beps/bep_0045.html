@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
+<title></title>
+<meta name="author" content="The 8472 &lt;the8472.bep&#64;infinite-source.de&gt;" />
+<link rel="stylesheet" href="../css/bep.css" type="text/css" />
+</head>
+<body>
+<div class="document">
+
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="../index.html">BitTorrent<span>.org</span></a></h1>
+</div>
+<div id="nav">
+<ul>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../introduction.html">For Users</a></li>
+<li><a href="bep_0000.html"><span>For Developers</span></a></li>
+<li><a href="../mailing_list.html">Developer mailing list</a> </li>
+<li><a href="http://forum.bittorrent.org"> Forums (archive) </a></li>
+</ul>
+</div> <!-- nav -->
+<!-- ### Begin Content ### -->
+<div id="second">
+
+
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
+<tbody valign="top">
+<tr class="field"><th class="docinfo-name">BEP:</th><td class="field-body">45</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Title:</th><td class="field-body">Multiple-address operation for the BitTorrent DHT</td>
+</tr>
+<tr><th class="docinfo-name">Version:</th>
+<td>7b288cf016cd1b3e0116c26844feae8f4791364d</td></tr>
+<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Sun Jun 28 08:02:40 2015 +0200</td>
+</tr>
+<tr><th class="docinfo-name">Author:</th>
+<td>The 8472 &lt;<a class="reference external" href="mailto:the8472&#46;bep&#37;&#52;&#48;infinite-source&#46;de">the8472<span>&#46;</span>bep<span>&#64;</span>infinite-source<span>&#46;</span>de</a>&gt;</td></tr>
+<tr><th class="docinfo-name">Status:</th>
+<td>Draft</td></tr>
+<tr class="field"><th class="docinfo-name">Type:</th><td class="field-body">Informational</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Content-Type:</th><td class="field-body">text/x-rst</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Created:</th><td class="field-body">26-Jun-2015</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Post-History:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="multiple-address-operation-for-the-bittorrent-dht">
+<h1>Multiple-address operation for the BitTorrent DHT</h1>
+<p>This BEP provides implementation advice for clients that wish to operate a DHT node (BEP 5) on a host that has multiple globally routable unicast addresses.</p>
+<p>In large parts it is based on practical experience operating such a node with 256+ IPv4 and IPv6 addresses.</p>
+</div>
+<div class="section" id="nomenclature">
+<h1>Nomenclature</h1>
+<p><strong>socket address</strong>: in this document generally refers to a socket bound to a distinct, specific address and port and thus is used interchangeably with <tt class="docutils literal">&lt;IP:Port&gt;</tt> pair and the DHT state/behavior associated with it.</p>
+<p><strong>node</strong>: a DHT peer, which uses one or more socket addresses. Remote nodes are assumed to be interchangeable with a single socket address on their end.</p>
+</div>
+<div class="section" id="motivation">
+<h1>Motivation</h1>
+<p>A node operator might choose to run a DHT node on multiple addresses for the purpose of source-specific multi-path routing <a class="footnote-reference" href="#multi-source" id="id1">[1]</a> or for research purposes to sample a larger fraction of DHT traffic.</p>
+</div>
+<div class="section" id="node-behavior">
+<h1>Node Behavior</h1>
+<p>In general any DHT node using multiple socket addresses should appear to the outside world as separate, independent DHT nodes. Exceptions to this rule will be outlined in a later section.</p>
+<p>This spares other implementations from having to deal with any idiosyncrasies that might otherwise arise from a single node sending from multiple socket addresses.</p>
+<p>The easiest approach to achieve this is to simply run multiple independent DHT nodes, each bound to a separate address and, if needed, perform separate announces through each of them.</p>
+<div class="section" id="mandatory">
+<h2>Mandatory</h2>
+<p>The most important constraints are as follows:</p>
+<p>Each socket address must have a distinct Node ID.</p>
+<blockquote>
+<strong>Rationale</strong>: To an external observer shared node IDs would look like a node constantly changing its IPs (e.g. unreliable domestic internet connection or a spoofing attack) or port (pathological NAT implementations) and thus deem them as unreliable and evict them from their routing table.</blockquote>
+<p>Node IDs should not only be distinct but also vastly separated by XOR distance, i.e. differ in some of their high order bits. This can be most easily achieved by generating a random node ID for each socket address. Alternatively an implementation can derive new IDs from a base ID by incrementing the base ID in reverse bit order, i.e. by flipping the high order bits first. Care should be taken to avoid counter reuse across multiple active sockets.</p>
+<blockquote>
+<strong>Rationale</strong>: Failure of a multi-homed node whose IDs only differ in low-order bits could take a small slice of the keyspace with it into oblivion, thus violating redundancy of the DHT.</blockquote>
+<p>Responses must be sent from the same socket address on which the corresponding request was received.</p>
+<p>Write-tokens must only be sent from the same socket on which they were received.</p>
+<p>Implementations should avoid querying the same targets from multiple sockets at once as it may cause unnecessary load spikes for remote nodes. This becomes more important as the number of socket addresses increases. Temporally spacing lookups to the same target keys may accomplish this.</p>
+</div>
+<div class="section" id="recommended-optional">
+<h2>Recommended/Optional</h2>
+<p>Nodes should avoid utilizing multiple ports on a single IP address.</p>
+<blockquote>
+<strong>Rationale</strong>: Other nodes might throttle or implement other sanitizing behavior based on IP.</blockquote>
+<p>Stipulations regarding socket binding from BEP 32 apply, i.e. nodes should avoid binding sockets to the <em>unspecified address</em> (0.0.0.0 or ::/128).</p>
+<p>For IPv4 autoconfiguration an implementation may choose the following strategies:</p>
+<ol class="upperalpha">
+<li><p class="first">if available bind to all available global unicast addresses</p>
+</li>
+<li><p class="first">if no global unicast address is available determine a local address which is usable to connect to a randomly chosen global unicast address and then bind to that. Then bootstrap in single-address mode.</p>
+<p>Optionally, once bootstrapping has completed and nodes supporting BEP 42 <tt class="docutils literal">ip</tt> fields have been found they can be used to determine the external address of other available local addresses and then switch to multi-address mode if additional external addresses are available.</p>
+<p><em>Implementation Note:</em> A routed local address can be obtained by calling <tt class="docutils literal">connect()</tt> on an unbound UDP socket with a global unicast address as target and then reading the local bind address via <tt class="docutils literal">getsockname()</tt>.</p>
+</li>
+</ol>
+<p>For IPv6 autoconfiguration nodes should space IPv6 addresses as widely as they can reasonably afford.</p>
+<ul class="simple">
+<li>if multiple prefix routes are available then at least one from each should be used</li>
+<li>alternatively, if path/routing information can be obtained an implementation should use at least one address per path</li>
+<li>if multiple addresses within a single larger prefix are available it should avoid picking more than one per /64</li>
+<li>if multiple choices per /64 are available the current address generated by IPv6 privacy extensions (RFC 4941) is preferable.</li>
+</ul>
+<!--  -->
+<blockquote>
+<p><strong>Rationale</strong>: Other nodes might treat IPv6 /64 subnets as a single entity for the purpose of spam / malicious behavior detection and thus impose limits on the services they offer to nodes within such a block or how many entries they permit in their routing table</p>
+<p><strong>Rationale 2</strong>: If source-based multi-path routing is the goal then it is unlikely that multiple addresses within a /64 will be routed differently.</p>
+</blockquote>
+<p>Ultimately the exact network configuration of a multi-homed setup is hard to predict, therefore a user should be able to explicitly configure which network interfaces/prefixes/socket addresses a node should bind to.
+Documentation mirroring these guidelines may also aid the user in configuring his network.</p>
+</div>
+</div>
+<div class="section" id="implementation-guidance">
+<h1>Implementation Guidance</h1>
+<div class="section" id="determining-connectivity">
+<h2>Determining Connectivity</h2>
+<p>Implementations may want to apply some heuristic based on responses and incoming unsolicited requests to determine whether individual socket addresses are reachable.
+This information can be used to ignore timeouts which occur on non-connected socket addresses for the purpose of routing table maintenance. In other words routing table entries should not be penalized for timeouts on a link known to be down when they are still reachable over other links.</p>
+<p>Additionally nodes may preferentially schedule data lookups on known-good socket addresses while performing maintenance pings on all socket addresses - including bad ones - in the hope that they eventually become reachable again.</p>
+</div>
+<div class="section" id="shared-routing-table">
+<h2>Shared Routing Table</h2>
+<p>BEP 5 describes a fixed-size routing table of 160 buckets which are ordered relative to a Node ID. Since a multi-address node has multiple IDs it will have to use one routing table for each of its socket addresses.</p>
+<p>Alternatively a multi-address node may implement a modified version of the variable-size, tree-like routing table, ordered by the natural distance of the buckets, as described in the original Kademlia paper <a class="footnote-reference" href="#kademlia" id="id2">[2]</a>. Careful study of the paper, especially the bucket splitting algorithms, is recommended since they are more complex than the naive approach of BEP 5.
+The only necessary modification to make it work in a multi-address environment is to consider multiple home buckets  - each corresponding to a node ID - on which split operations may be performed instead of one.</p>
+<p>A node may use the shared routing table to</p>
+<ul>
+<li><p class="first">return better node lists to incoming queries</p>
+</li>
+<li><p class="first">spread traffic caused by active routing table maintenance over multiple sockets</p>
+</li>
+<li><p class="first">slightly accelerate lookups by having a finer-grained routing table due to increased bucket splitting</p>
+</li>
+<li><p class="first">verify that remote nodes' IDs are observer-independent, i.e. that they present the same ID to everyone. Remote nodes that present different IDs depending on who contacts them either are buggy or they are executing an attack attempting to insert themselves into the local routing table.</p>
+<p>when receiving a valid response, verified through its transaction ID, from a remote node whose <em>socket address</em> is found in the routing table but whose ID does not match the entry in the routing table then this entry may be evicted immediately.</p>
+</li>
+</ul>
+<p>When performing maintenance lookups which target a local ID or home bucket - e.g. bootstrap lookups - then those should be performed on the socket address corresponding to that particular target ID. This is necessary to make the presence of this particular socket address known to immediate neighbors in the keyspace.</p>
+<p>Other types of maintenance traffic can be distributed freely among socket addresses.</p>
+</div>
+<div class="section" id="shared-storage">
+<h2>Shared Storage</h2>
+<p>It makes little difference whether storage for incoming <tt class="docutils literal">announce_peer</tt>, <tt class="docutils literal">put</tt> and similar write requests is shared among multiple socket addresses or not. It is unlikely that remote nodes will query for a specific key on anything but the socket address closest to it.</p>
+</div>
+<div class="section" id="multi-addresses-announce-peer">
+<h2>Multi addresses <tt class="docutils literal">announce_peer</tt></h2>
+<p>Since remote nodes may restrict the validity of write tokens to the IP address to which they have been issued, a node cannot simply announce to other nodes from multiple socket addresses. It has to perform new lookups to obtain new tokens for each of them.</p>
+<p>But it can reuse the set of responding nodes from a lookup on one socket address as candidate set for a lookup on another socket address, that may significantly accelerate a lookup.</p>
+<p>As mentioned earlier, individual lookups should be performed with some delay between each to avoid hammering the same nodes from multiple sockets.</p>
+<p>Of course the announced addresses should be consistent with the ones on which the underlying bittorrent client can accept connections. The easiest way to achieve that is to have the bittorrent client listen for peer connections on the unspecified address.</p>
+</div>
+<div class="section" id="other-write-operations">
+<h2>Other write operations</h2>
+<p>Other types of write operations, such as BEP 44 <tt class="docutils literal">put</tt> may not benefit from being performed on more than one socket address at a given time.</p>
+<p>It is therefore sufficient to schedule them on a randomly selected (active) socket address each time they are to be performed.</p>
+</div>
+</div>
+<div class="section" id="user-guidance">
+<h1>User Guidance</h1>
+<p>The traffic a DHT node receives is roughly proportional to its number of socket addresses and also grows with uptime, especially once reaching 24 hours of uptime.</p>
+<p>At some point various stateful network components (i.e. firewalls, NATs) may become overwhelmed by the UDP traffic flowing to potentially millions of different remote addresses and lead to packet drops.</p>
+<p>To prevent these issues they should be put into a stateless configuration, at least for any traffic flowing from and to the <em>local</em> ports used by the DHT node.</p>
+<p>For firewalls this requires exempting those ports from connection tracking, for NATs additional static forwarding rules may be required.</p>
+</div>
+<div class="section" id="references">
+<h1>References</h1>
+<table class="docutils footnote" frame="void" id="multi-source" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>&quot;Source-specific routing&quot;, Boutier, Chroboczek
+(<a class="reference external" href="http://arxiv.org/pdf/1403.0445.pdf">http://arxiv.org/pdf/1403.0445.pdf</a>)</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="kademlia" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td>&quot;Kademlia: A peer-to-peer information system based on the xor metric&quot;, Maymounkov, Mazieres
+(<a class="reference external" href="http://pdos.csail.mit.edu/~petar/papers/maymounkov-kademlia-lncs.pdf">http://pdos.csail.mit.edu/~petar/papers/maymounkov-kademlia-lncs.pdf</a>)</td></tr>
+</tbody>
+</table>
+</div>
+
+</div>
+	<div id="footer">
+<hr/>
+</div>
+
+</div>
+</body>
+</html>

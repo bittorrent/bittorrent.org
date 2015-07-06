@@ -91,6 +91,7 @@ Num        Title
 |42|       :raw-html:`<A HREF="bep_0042.html">DHT Security Extension</A>`
 |43|       :raw-html:`<A HREF="bep_0043.html">Read-only DHT Nodes</A>`
 |44|       :raw-html:`<A HREF="bep_0044.html">Storing arbitrary data in the DHT</A>`
+|45|       :raw-html:`<A HREF="bep_0045.html">Multiple-address operation for the BitTorrent DHT</A>`
 ======     ===================
 
 
@@ -160,4 +161,5 @@ At this time, no BEPs have been rejected.
 .. |42| replace:: :raw-html:`<A HREF="bep_0042.html">42</A>`
 .. |43| replace:: :raw-html:`<A HREF="bep_0043.html">43</A>`
 .. |44| replace:: :raw-html:`<A HREF="bep_0044.html">44</A>`
+.. |45| replace:: :raw-html:`<A HREF="bep_0045.html">45</A>`
 .. |1000| replace:: :raw-html:`<A HREF="bep_1000.html">1000</A>`

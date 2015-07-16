@@ -322,7 +322,7 @@ refers to a field in the packet header.
 	     |             c.send_conn_id = pkt.conn_id      | 
 	     |             c.seq_nr = rand()                 | 
 	     |             c.ack_nr = pkt.seq_nr             |
-	     |             c.state = CS_CONNECTED            |
+	     |             c.state = CS_SYN_RECV             |
 	     |                                               |
 	     |                                               |
 	     |                                               |
@@ -344,8 +344,8 @@ refers to a field in the packet header.
 	     |   ack_nr=c.ack_nr                             |
 	     |   conn_id=c.conn_id_send                      |
 	     | >-------------------------------------------> | 
-	     |                         c.ack_nr = pkt.seq_nr |
-	     |                                               |
+	     |                        c.ack_nr = pkt.seq_nr  |
+	     |                        c.state = CS_CONNECTED |
 	     |                                               |
 	     |                                               |
 	     |                     ST_DATA                   |

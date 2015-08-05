@@ -38,8 +38,8 @@
 <tr class="field"><th class="docinfo-name">Title:</th><td class="field-body">uTorrent transport protocol</td>
 </tr>
 <tr><th class="docinfo-name">Version:</th>
-<td>becdd9a11e68ace72751306b3d59146ed648e6fe</td></tr>
-<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Sat Oct 20 09:12:06 2012 -0700</td>
+<td>c168b24850eae2dfaf0caeb0c490bc23b79f4e59</td></tr>
+<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Wed Aug 5 10:23:13 2015 -0700</td>
 </tr>
 <tr><th class="docinfo-name">Author:</th>
 <td>Arvid Norberg &lt;<a class="reference external" href="mailto:arvid&#37;&#52;&#48;bittorrent&#46;com">arvid<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;</td></tr>
@@ -321,7 +321,7 @@ initiating endpoint                           accepting endpoint
           |             c.send_conn_id = pkt.conn_id      |
           |             c.seq_nr = rand()                 |
           |             c.ack_nr = pkt.seq_nr             |
-          |             c.state = CS_CONNECTED            |
+          |             c.state = CS_SYN_RECV             |
           |                                               |
           |                                               |
           |                                               |
@@ -334,8 +334,6 @@ initiating endpoint                           accepting endpoint
           | c.state = CS_CONNECTED                        |
           | c.ack_nr = pkt.seq_nr                         |
           |                                               |
-          |                                               | connection established
-     .. ..|.. .. .. .. .. .. .. .. .. .. .. .. .. .. .. ..|.. ..
           |                                               |
           |                                               |
           | ST_DATA                                       |
@@ -343,9 +341,11 @@ initiating endpoint                           accepting endpoint
           |   ack_nr=c.ack_nr                             |
           |   conn_id=c.conn_id_send                      |
           | &gt;-------------------------------------------&gt; |
-          |                         c.ack_nr = pkt.seq_nr |
+          |                        c.ack_nr = pkt.seq_nr  |
+          |                        c.state = CS_CONNECTED |
           |                                               |
-          |                                               |
+          |                                               | connection established
+     .. ..|.. .. .. .. .. .. .. .. .. .. .. .. .. .. .. ..|.. ..
           |                                               |
           |                     ST_DATA                   |
           |                       seq_nr=c.seq_nr++       |

@@ -335,8 +335,6 @@ refers to a field in the packet header.
 	     | c.state = CS_CONNECTED                        |
 	     | c.ack_nr = pkt.seq_nr                         |
 	     |                                               |
-	     |                                               | connection established
-	.. ..|.. .. .. .. .. .. .. .. .. .. .. .. .. .. .. ..|.. ..
 	     |                                               |
 	     |                                               |
 	     | ST_DATA                                       |
@@ -347,6 +345,8 @@ refers to a field in the packet header.
 	     |                        c.ack_nr = pkt.seq_nr  |
 	     |                        c.state = CS_CONNECTED |
 	     |                                               |
+	     |                                               | connection established
+	.. ..|.. .. .. .. .. .. .. .. .. .. .. .. .. .. .. ..|.. ..
 	     |                                               |
 	     |                     ST_DATA                   |
 	     |                       seq_nr=c.seq_nr++       |

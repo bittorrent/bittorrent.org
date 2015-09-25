@@ -67,6 +67,7 @@ Request:
         "a":
         {
             "id": *<20 byte id of sending node (string)>*,
+            "token": *<write-token (string)>*,
             "v": *<any bencoded type, whose encoded size <= 1000>*
         },
         "t": *<transaction-id (string)>*,

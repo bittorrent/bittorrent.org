@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.8.1: http://docutils.sourceforge.net/" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
 <title></title>
 <meta name="author" content="Arvid Norberg &lt;arvid&#64;bittorrent.com&gt;, Steven Siloti &lt;ssiloti&#64;bittorrent.com&gt;" />
 <link rel="stylesheet" href="../css/bep.css" type="text/css" />
@@ -38,8 +38,8 @@
 <tr class="field"><th class="docinfo-name">Title:</th><td class="field-body">Storing arbitrary data in the DHT</td>
 </tr>
 <tr><th class="docinfo-name">Version:</th>
-<td>8ebb197b6e402daa6d0d927def8dc38f86adac3b</td></tr>
-<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Tue Jan 6 15:52:45 2015 -0800</td>
+<td>4f525c8ab9f1c4f5499468ca08f1452bbef82537</td></tr>
+<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Fri Sep 25 08:53:22 2015 -0700</td>
 </tr>
 <tr><th class="docinfo-name">Author:</th>
 <td>Arvid Norberg &lt;<a class="reference external" href="mailto:arvid&#37;&#52;&#48;bittorrent&#46;com">arvid<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;, Steven Siloti &lt;<a class="reference external" href="mailto:ssiloti&#37;&#52;&#48;bittorrent&#46;com">ssiloti<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;</td></tr>
@@ -90,6 +90,7 @@
     &quot;a&quot;:
     {
         &quot;id&quot;: <em>&lt;20 byte id of sending node (string)&gt;</em>,
+        &quot;token&quot;: <em>&lt;write-token (string)&gt;</em>,
         &quot;v&quot;: <em>&lt;any bencoded type, whose encoded size &lt;= 1000&gt;</em>
     },
     &quot;t&quot;: <em>&lt;transaction-id (string)&gt;</em>,

@@ -1,0 +1,65 @@
+:BEP: 14
+:Title: Local Service Discovery
+:Version: $Revision$
+:Last-Modified: $Date$
+:Author:  The 8472 <the8472.bep@infinite-source.de>
+:Status:  Draft
+:Type:    Standards Track
+:Created: 29-Oct-2015
+:Post-History:
+
+
+Local Service Discovery (LSD) provides a SSDP-like (http over udp-multicast) mechanism to announce the presence in specific swarms to local neighbors.
+
+It can be used either as primary peer source for local transfers or to complement other sources which only operate on global unicast addresses.
+
+Protocol
+========
+
+LSD uses the following multicast groups: *A)* ``239.192.152.143:6771`` (org-local) and *B)* ``[ff15::efc0:988f]:6771`` (site-local)
+
+    **Implementation note**: Since the multicast groups have a broader scope than lan-local implementations may want to set the ``IP_MULTICAST_TTL`` socket option to a value above 1
+
+A LSD announce is formatted as follows:
+
+.. parsed-literal::
+
+    BT-SEARCH * HTTP/1.1\\r\\n
+    Host: *<host>*\\r\\n
+    Port: *<port>*\\r\\n
+    Infohash: *<ihash>*\\r\\n
+    cookie: *<cookie (optional)>*\\r\\n
+    \\r\\n
+    \\r\\n
+
+    
+``host``
+  RFC 2616 section 14.23 and RFC 2732 compliant ``Host`` header specifying the multicast group to which the announce is sent. In other words, strings *A)* or *B)*, as appropriate.
+  
+``port``
+  port on which the bittorrent client is listening in base-10, ascii 
+
+``ihash``
+  hex-encoded (40 character) infohash
+  
+  An announce may contain multiple, consecutive ``Infohash`` headers to announce the participation in more than one torrent. This may not be supported by older implementations. When sending multiple infohashes the packet length should not exceed 1400 bytes to avoid MTU/fragmentation problems.
+  
+``cookie``
+  opaque value, allowing the sending client to filter out its own announces if it receives them via multicast loopback
+  
+
+As with any HTTP request to ensure forwards-compatibility any additional headers that not understood by a client should be ignored.
+  
+Usage
+=====
+
+As long as a client is participating in a swarm it should send a LSD announce every 5 minutes on each interface on which it is listening for bittorrent connections. To avoid causing multicast storms on large networks a client should send no more than 1 announce per minute.
+
+If more than 5 torrents are active a client may either round-robin announce the active torrents or include multiple infohashes per announce.    
+
+On receiving a LSD announce a client will have to determine the IP address on which the remote client can be contacted based on the UDP source address. 
+
+Copyright
+=========
+
+This document has been placed in the public domain.

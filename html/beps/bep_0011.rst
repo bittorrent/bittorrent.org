@@ -58,7 +58,7 @@ Flags are defined as follows:
  0x02 seed/upload_only
  0x04 supports uTP
  0x08 peer indicated ``ut_holepunch`` support in extension handshake 
- 0x0F outgoing connection, peer is reachable
+ 0x10 outgoing connection, peer is reachable
  ==== ======================================================================
  
 Other bits are reserved for future use. Implementors should submit a request to amend this BEP if they intend to introduce a new flag.

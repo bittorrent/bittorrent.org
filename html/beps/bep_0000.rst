@@ -48,8 +48,18 @@ They await the blessing of the BDFL before they can be considered Final.
 ======     ===================  
 Num        Title              
 ======     ===================
+|5|        :raw-html:`<A HREF="bep_0005.html">DHT Protocol</A>`
+|6|        :raw-html:`<A HREF="bep_0006.html">Fast Extension</A>`
 |9|        :raw-html:`<A HREF="bep_0009.html">Extension for Peers to Send Metadata Files </A>`
+|10|       :raw-html:`<A HREF="bep_0010.html">Extension Protocol</A>`
+|11|       :raw-html:`<A HREF="bep_0011.html">Peer Exchange (PEX)</A>`
+|12|       :raw-html:`<A HREF="bep_0012.html">Multitracker Metadata Extension</A>`
+|14|       :raw-html:`<A HREF="bep_0014.html">Local Service Discovery</A>`
+|15|       :raw-html:`<A HREF="bep_0015.html">UDP Tracker Protocol</A>`
+|19|       :raw-html:`<A HREF="bep_0019.html">HTTP/FTP Seeding (GetRight-style)</A>`
 |23|       :raw-html:`<A HREF="bep_0023.html">Tracker Returns Compact Peer Lists</A>`
+|27|       :raw-html:`<A HREF="bep_0027.html">Private Torrents</A>`
+|29|       :raw-html:`<A HREF="bep_0029.html">uTorrent transport protocol</A>`
 ======     ===================
 
 Draft BEPs
@@ -60,25 +70,15 @@ The following BEPs are under consideration for standardization.
 ======     ===================  
 Num        Title              
 ======     ===================
-|5|        :raw-html:`<A HREF="bep_0005.html">DHT Protocol </A>`
-|6|        :raw-html:`<A HREF="bep_0006.html">Fast Extension </A>`
 |7|        :raw-html:`<A HREF="bep_0007.html">IPv6 Tracker Extension   </A>`
-|10|       :raw-html:`<A HREF="bep_0010.html">Extension Protocol </A>`
-|11|       :raw-html:`<A HREF="bep_0011.html">Peer Exchange (PEX)</A>`
-|12|       :raw-html:`<A HREF="bep_0012.html">Multitracker Metadata Extension</A>`
-|14|       :raw-html:`<A HREF="bep_0014.html">Local Service Discovery</A>`
-|15|       :raw-html:`<A HREF="bep_0015.html">UDP Tracker Protocol</A>`
 |16|       :raw-html:`<A HREF="bep_0016.html">Superseeding</A>`
 |17|       :raw-html:`<A HREF="bep_0017.html">HTTP Seeding (Hoffman-style) </A>`
 |18|       :raw-html:`<A HREF="bep_0018.html">Search Engine Specification</A>`
-|19|       :raw-html:`<A HREF="bep_0019.html">HTTP/FTP Seeding (GetRight-style) </A>`
 |21|       :raw-html:`<A HREF="bep_0021.html">Extension for Partial Seeds</A>`
 |22|       :raw-html:`<A HREF="bep_0022.html">BitTorrent Local Tracker Discovery Protocol</A>`
 |24|       :raw-html:`<A HREF="bep_0024.html">Tracker Returns External IP</A>`
 |26|       :raw-html:`<A HREF="bep_0026.html">Zeroconf Peer Advertising and Discovery</A>`
-|27|       :raw-html:`<A HREF="bep_0027.html">Private Torrents</A>`
 |28|       :raw-html:`<A HREF="bep_0028.html">Tracker exchange</A>`
-|29|       :raw-html:`<A HREF="bep_0029.html">uTorrent transport protocol</A>`
 |30|       :raw-html:`<A HREF="bep_0030.html">Merkle tree torrent extension</A>`
 |31|       :raw-html:`<A HREF="bep_0031.html">Tracker Failure Retry Extension</A>`
 |32|       :raw-html:`<A HREF="bep_0032.html">IPv6 extension for DHT</A>`

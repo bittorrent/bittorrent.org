@@ -16,9 +16,7 @@ the formal standards track document.
 =====  =========================================  
 Num    Title                                     
 =====  =========================================
-11     Peer Exchange
 13     Protocol Encryption
-14     Local Service Discovery
 =====  ========================================= 
 
 

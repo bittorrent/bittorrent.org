@@ -1,0 +1,122 @@
+:BEP: 11
+:Title: Peer Exchange (PEX)
+:Version: $Revision$
+:Last-Modified: $Date$
+:Author:  The 8472 <the8472.bep@infinite-source.de>
+:Status:  Draft
+:Type:    Standards Track
+:Created: 29-Oct-2015
+:Depends: 10
+:Post-History:
+
+
+Peer Exchange (PEX) provides an alternative peer discovery mechanism for swarms once peers have bootstrapped via other mechanisms such as DHT or Tracker announces.
+
+It provides a more up-to-date view of the swarm than most other sources and also reduces the need to query other sources frequently.
+
+When combined with BEP 40 [#BEP-40]_ it provides a way to quickly randomize the connection graph of a swarm. 
+
+
+Protocol Extension
+==================
+
+PEX introduces a new message ``ut_pex`` via the extension protocol [#BEP-10]_.
+
+added message negotiated in the handshake:
+
+.. parsed-literal::
+
+    {
+      m: {
+        ut_pex: *<implementation-dependent local message ID (positive integer)>*,
+        ...
+      },
+      ...
+    } 
+    
+    
+The extension message itself consists of the bittorrent/extension message header and the following bencoded payload: 
+
+.. parsed-literal::    
+    
+    {
+      added: *<one or more contacts in IPv4 compact format (string)>*
+      added.f: *<optional, bit-flags, 1 byte per added IPv4 peer (string)>*
+      added6: *<one or more contacts IPv6 compact format (string)>*,
+      added6.f: *<optional, bit-flags, 1 byte per added IPv6 peer (string)>*,
+      dropped: *<one or more contacts in IPv6 compact format (string)>*,
+      dropped6: *<one or more contacts in IPv6 compact format (string)>*
+    } 
+
+
+Flags are defined as follows:
+
+ ==== ======================================================================
+ Bit  when set
+ ==== ======================================================================
+ 0x01 prefers encryption, as indicated by ``e`` field in extension handshake
+ 0x02 seed/upload_only
+ 0x04 supports uTP
+ 0x08 peer indicated ``ut_holepunch`` support in extension handshake 
+ 0x10 outgoing connection, peer is reachable
+ ==== ======================================================================
+ 
+Other bits are reserved for future use. Implementors should submit a request to amend this BEP if they intend to introduce a new flag.
+
+
+
+
+A peer must only be included in an ``added`` field once a connection is successfully established and included in the ``dropped`` field once it is disconnected.
+Once a peer has been ``added`` a client must ensure to send the corresponding ``dropped`` event when appropriate. Only signaling added peers without ever dropping them is non-compliant behavior.
+
+    **Rationale**: PEX is intended to reflect which peers a client is *currently connected to*, this ensures that PEX provides better liveness information than other peer discovery mechanisms.
+
+    **Rationale 2**: Only propagating verified peers reduces the opportunity for attackers to abuse bittorrent swarms for distributed denial-of-service attacks.
+    
+Clients must batch updates to send no more than 1 PEX message per minute.
+
+It is not required to send a PEX message immediately after a handshake, e.g. during torrent startup a client may wait until it has established enough connections to make sending pex messages worthwhile.
+
+Added or removed contacts must not contain duplicates.
+
+Transient connect-disconnect or disconnect-reconnect events may be elided between update messages as long as it does not affect the correctness.
+
+    **Implementation Note**: A simple approach is to queue up not-yet-sent connect/disconnect events for each connected peer and performing elision when generating the message. An slightly more complex but more memory-efficient approach is to keep a per-torrent timeline of connect/disconnect events and simply store a pointer for the point in time up to which events have already been sent for each peer. When creating a PEX message they only need to advance the pointer, take care to eliminate duplicates and to elide transient connections.
+
+An added contact must not be dropped in the same message.
+
+Except for the initial PEX message the combined amount of added v4/v6 contacts should not exceed 50 entries. The same applies to dropped entries.
+
+Messages must contain at least one of the following fields: ``added, added6, dropped, dropped6``.
+
+Clients may disconnect peers that egregiously violate these constraints.  
+
+
+Security Considerations
+=======================
+
+Data exchanged via PEX messages should be considered untrusted and potentially malicious.
+
+An attacker might try to sabotage a swarm by flooding it with bogus or other uncooperative peers. 
+
+PEX may also be used to cause a distributed denial of service attack by inducing bittorrent clients to perform connection attempts to victim IP ranges.
+
+To mitigate these a client should avoid taking all its connection candidates from a single PEX source. Duplicate IP addresses (e.g. with different ports) should be ignored. Additionally Canonical Peer Priority [#BEP-40]_ can help spreading connection attempts over many subnets, thus reducing the impact on any potential victim subnet.     
+
+References
+==========
+
+
+.. [#BEP-40] BEP 40, "Canonical Peer Priority"
+
+   http://bittorrent.org/beps/bep_0040.html
+
+.. [#BEP-10] BEP 10, "Extension Protocol"
+
+   http://bittorrent.org/beps/bep_0010.html
+
+
+Copyright
+=========
+
+This document has been placed in the public domain.

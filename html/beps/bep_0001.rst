@@ -89,7 +89,7 @@ for Life, Bram Cohen) can be consulted during the approval phase, and
 is the final arbiter of the draft's BEP-ability.
 
 If a pre-BEP is rejected, the author may elect to take the pre-BEP to
-the BEP forum seeking feedback and consesnsus from the community at large.  
+the BEP forum seeking feedback and consensus from the community at large.  
 A proposal may be re-submitted after it has been revised.
 
 The champion is then responsible for marshaling community support for

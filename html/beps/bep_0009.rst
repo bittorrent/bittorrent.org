@@ -119,7 +119,7 @@ magnet URI format
 
 The magnet URI format is::
 
-	magnet:?xt=urn:btih:<info-hash>&dn=<name>&tr=<tracker-url>&peer=<peer-address>
+	magnet:?xt=urn:btih:<info-hash>&dn=<name>&tr=<tracker-url>&x.pe=<peer-address>
 
 <info-hash>
 	Is the info-hash hex encoded, for a total of 40 characters. For
@@ -136,9 +136,9 @@ The magnet URI format is::
 ``xt`` is the only mandatory parameter. ``dn`` is the display name that may be
 used by the client to display while waiting for metadata. ``tr`` is a tracker
 url, if there is one. If there are multiple trackers, multiple ``tr`` entries
-may be included. The same applies for ``peer`` entries.
+may be included. The same applies for ``x.pe`` entries.
 
-``dn``, ``tr`` and ``peer`` are all optional.
+``dn``, ``tr`` and ``x.pe`` are all optional.
 
 If no tracker is specified, the client SHOULD use the DHT (`BEP 0005`_) to acquire peers.
 

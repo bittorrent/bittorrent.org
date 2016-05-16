@@ -38,8 +38,8 @@
 <tr class="field"><th class="docinfo-name">Title:</th><td class="field-body">Extension for Peers to Send Metadata Files</td>
 </tr>
 <tr><th class="docinfo-name">Version:</th>
-<td>c8b416395ccb84fb6e31c6ae1220cd46a696bfe5</td></tr>
-<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Mon Oct 15 16:11:51 2012 -0700</td>
+<td>fcbc19394ad90886649146c43ac1a509d766c6fd</td></tr>
+<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Mon May 16 18:57:22 2016 +0200</td>
 </tr>
 <tr><th class="docinfo-name">Author:</th>
 <td>Greg Hazel &lt;<a class="reference external" href="mailto:greg&#37;&#52;&#48;bittorrent&#46;com">greg<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;, Arvid Norberg &lt;<a class="reference external" href="mailto:arvid&#37;&#52;&#48;bittorrent&#46;com">arvid<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;</td></tr>
@@ -49,7 +49,8 @@
 </tr>
 <tr class="field"><th class="docinfo-name">Created:</th><td class="field-body">31-Jan-2008</td>
 </tr>
-<tr class="field"><th class="docinfo-name">Post-History:</th><td class="field-body">14-Oct-2012: point out that unrecognized message types should be ignored</td>
+<tr class="field"><th class="docinfo-name">Post-History:</th><td class="field-body">14-Oct-2012: point out that unrecognized message types should be ignored
+16-May-2016: added peer source parameter to magnets</td>
 </tr>
 </tbody>
 </table>
@@ -146,19 +147,24 @@ d8:msg_typei1e5:piecei0ee
 <h1>magnet URI format</h1>
 <p>The magnet URI format is:</p>
 <pre class="literal-block">
-magnet:?xt=urn:btih:&lt;info-hash&gt;&amp;dn=&lt;name&gt;&amp;tr=&lt;tracker-url&gt;
+magnet:?xt=urn:btih:&lt;info-hash&gt;&amp;dn=&lt;name&gt;&amp;tr=&lt;tracker-url&gt;&amp;x.pe=&lt;peer-address&gt;
 </pre>
 <dl class="docutils">
 <dt>&lt;info-hash&gt;</dt>
 <dd>Is the info-hash hex encoded, for a total of 40 characters. For
 compatability with existing links in the wild, clients should also
 support the 32 character <a class="reference external" href="http://www.ietf.org/rfc/rfc3548.txt">base32</a> encoded info-hash.</dd>
+<dt>&lt;peer-address&gt;</dt>
+<dd>A peer address expressed as <tt class="docutils literal">hostname:port</tt>, <tt class="docutils literal"><span class="pre">ipv4-literal:port</span></tt> or <tt class="docutils literal"><span class="pre">[ipv6-literal]:port</span></tt>.
+This parameter can be included to initiate a direct metadata transfer between two clients while reducing the need for external peer sources.
+It should only be included if the client can discover its public IP address and determine its reachability.
+Note: Since no URI scheme identifier has been allocated for bittorrent <tt class="docutils literal">xs=</tt> is not used for this purpose.</dd>
 </dl>
 <p><tt class="docutils literal">xt</tt> is the only mandatory parameter. <tt class="docutils literal">dn</tt> is the display name that may be
 used by the client to display while waiting for metadata. <tt class="docutils literal">tr</tt> is a tracker
 url, if there is one. If there are multiple trackers, multiple <tt class="docutils literal">tr</tt> entries
-may be included.</p>
-<p>Both <tt class="docutils literal">dn</tt> and <tt class="docutils literal">tr</tt> are optional.</p>
+may be included. The same applies for <tt class="docutils literal">x.pe</tt> entries.</p>
+<p><tt class="docutils literal">dn</tt>, <tt class="docutils literal">tr</tt> and <tt class="docutils literal">x.pe</tt> are all optional.</p>
 <p>If no tracker is specified, the client SHOULD use the DHT (<a class="reference external" href="http://www.bittorrent.org/beps/bep_0005.html">BEP 0005</a>) to acquire peers.</p>
 </div>
 <div class="section" id="references">

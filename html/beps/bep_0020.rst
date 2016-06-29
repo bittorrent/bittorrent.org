@@ -81,6 +81,7 @@ Known clients that use this encoding style are
      'UL' - uLeecher!
      'UT' - µTorrent
      'VG' - Vagaa
+     'WD' - WebTorrent Desktop
      'WT' - BitLet
      'WW' - WebTorrent
      'WY' - FireTorrent

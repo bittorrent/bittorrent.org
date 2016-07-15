@@ -1,0 +1,101 @@
+:BEP: 46
+:Title: UDP Tracker Dual-IP-Stack Extension
+:Version: $Revision$
+:Last-Modified: $Date$
+:Author: Justin Li <jli@j-li.net>, Jimmy Zelinskie <jimmyzelinskie@gmail.com>, Cooper Lees <me@cooperlees.com>
+:Status: Draft
+:Type: Standards Track
+:Created: 24-Mar-2015
+:Post-History:
+
+Introduction
+============
+
+The original UDP Tracker Protocol (BEP-15) [1]_ deferred IPv6 support to
+a future extension due to the immaturity of IPv6 deployments at the
+time. After several years, IPv6 has become widespread, and is replacing
+IPv4 completely in many contexts. This BEP defines the standard way of
+handling IPv6 in the UDP tracker protocol.
+
+The IPv6 Tracker Extension protocol for HTTP (BEP-7) [2]_ defines a simple
+method for indicating a peer's IPv6 address. To simplify implementation and
+encourage adoption, BEP-45 takes a similar approach for UDP, allowing both an
+IPv4 and IPv6 address to be specified.
+
+In 2007, Dirk Engling (erdgeist) proposed a method of handling IPv6 [4]_,
+however his approach did not address support for dual-stacked peers. In order
+to improve the efficacy of the swarm, dual-stacked peers can be essential to
+bridging the gap between networks.
+
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
+"SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be
+interpreted as described in IETF `RFC 2119`_.
+
+.. _`RFC 2119`: http://tools.ietf.org/html/rfc2119
+
+Announce Parameters
+===================
+
+This BEP defines a new UDP Option-Type:
+
+	*IPv6*: *<Option-Type 0x3>*, *<16 byte IPv6 address>*, *<2 byte IPv6 port>*
+		A **fixed-length** option, composed of the peer's IPv6 address and
+		port. If the IPv6 port is 0x0000, it is assumed to be the same as the
+		mandatory port parameter at offset 96.
+
+The client MAY set the IPv6 option as described, which the tracker SHOULD treat
+in the same way as the ``&ipv6=`` parameter in BEP-7 [2]_. In this case, the
+IPv4 address at offset 84 MUST be treated in the same way as the ``&ipv4=``
+parameter in BEP-7.
+
+Announce Response
+=================
+
+If a value is set for the IPv6 option, or the client is announcing via an IPv6
+source address, the tracker MUST return a dual-stack response packet. If the
+old announce response packet is returned (action #1), the client can assume the
+tracker does not support IPv6.
+
+The dual-stack response packet is a slight modification of the original packet,
+with the addition of the number of peers returned in each address family.
+
+dual-stack announce response::
+
+  Offset               Size            Name            Value
+  0                    32-bit integer  action          4
+  4                    32-bit integer  transaction_id
+  8                    32-bit integer  interval
+  12                   32-bit integer  leechers
+  16                   32-bit integer  seeders
+  20                   32-bit integer  IPv4 peers (X)
+  24                   32-bit integer  IPv6 peers (Y)
+  20 + 6 * x           32-bit integer  IPv4 address
+  24 + 6 * x           16-bit integer  TCP port
+  20 + 6 * X + 18 * y  128-bit integer IPv6 address
+  24 + 6 * X + 18 * y  16-bit integer  TCP port
+  20 + 6 * X + 18 * Y
+
+
+References and Footnotes
+========================
+
+.. [1] http://bittorrent.org/beps/bep_0015.html
+.. [2] http://bittorrent.org/beps/bep_0007.html
+.. [3] http://bittorrent.org/beps/bep_0041.html
+.. [4] http://opentracker.blog.h3q.com/2007/12/28/the-ipv6-situation/
+
+Copyright
+=========
+
+This document has been placed in the public domain.
+
+
+..
+   Local Variables:
+   mode: indented-text
+   indent-tabs-mode: nil
+   sentence-end-double-space: t
+   fill-column: 70
+   coding: utf-8
+   End:
+

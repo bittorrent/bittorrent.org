@@ -7,7 +7,7 @@
 :Type:    Standards Track
 :Content-Type: text/x-rst
 :Created: 24-Jul-2016
-:Post-History: 
+:Post-History:
 
 
 Abstract
@@ -15,15 +15,15 @@ Abstract
 
 This extension enables torrents to update based on data stored in the BitTorrent DHT [#BEP-44]_, rather than an HTTP server. The publisher has control over when the torrent is updated, and which content it contains, via mutable DHT items. It is similar to BEP 39 [#BEP-39]_, with the difference being that it uses the DHT to notify and be notified about updates of a torrent, hence should provide more decentralized capabilities to both publishers and consumers.
 
-The intention is to allow publishers to serve content that might change over time in a more decentralized fashion. Consumers interested in publishers content only needs to remember their public key + optiona salt. For instance, entities like Archive.org could publish their database dumps using decentralized mutable torrents, and benefit from not having to maintain a central HTTP feed server to notify consumers about updates.  
+The intention is to allow publishers to serve content that might change over time in a more decentralized fashion. Consumers interested in publishers content only needs to know their public key + optional salt. For instance, entities like Archive.org could publish their database dumps using decentralized mutable torrents, and benefit from not having to maintain a central HTTP feed server to notify consumers about updates.
 
 Rationale
 =========
 
-BEP 39 [#BEP-39]_ allows to automatically update torrents based on HTTP URLs. With DHT storing capabilities [#BEP-44]_, we can implement similar functionality in a more decentralized fashion without resorting to central HTTP servers, and using features already present in the BitTorrent network (mainly DHT store). 
+BEP 39 [#BEP-39]_ allows to automatically update torrents based on HTTP URLs. With DHT storing capabilities [#BEP-44]_, we can implement similar functionality in a more decentralized fashion without resorting to central HTTP servers, and using features already present in the BitTorrent network (mainly DHT store).
 
 
-Publishing
+Publishing content
 =========
 
 Publishers should issue a mutable ``put`` request to the DHT when they want to notify consumers about an update of a torrent. The value ``v`` is the infohash of such torrent. Note that there is a 1-to-1 mapping between a mutable item and a torrent, hence a mutable torrent can only ever map to a single torrent.
@@ -51,10 +51,10 @@ Request:
 
 Response: refer to BEP 44 [#BEP-44]_.
 
-Consuming
+Consuming content
 ========
 
-Consumers issue a ``get`` request using the ID of the mutable torrent they are interested in downloading. Periodically polling such ID by issuing ``get`` requests to see whether the ``v`` of the response has updated; hence the new torrent can be downloaded.
+Consumers issue a ``get`` request using the ID of the mutable torrent they are interested in downloading. Periodically polling such ID by issuing ``get`` requests to see whether the ``v`` property of the response has updated. If an update is found, the torrent can be updated using the new infohash.
 
 Both publisher and consumer should periodically ``put`` the mutable items they have active to keep them alive in the DHT.
 
@@ -62,13 +62,14 @@ Magnet link
 ===========
 
 
+
 References
 ==========
 
-.. [#BEP-44] BEP_0044. DHT Store
+.. [#BEP-44] BEP_0044. Storing arbitrary data in the DHT.
    (http://www.bittorrent.org/beps/bep_0044.html)
 
-.. [#BEP-39] ChNAGE
+.. [#BEP-39] BEP_0039. Updating Torrents Via Feed URL.
    (http://www.bittorrent.org/beps/bep_0039.html)
 
 
@@ -87,4 +88,3 @@ This document has been placed in the public domain.
    fill-column: 70
    coding: utf-8
    End:
-

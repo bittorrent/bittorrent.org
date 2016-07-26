@@ -40,7 +40,7 @@ Both publisher and consumer should periodically ``put`` the mutable items they h
 Magnet link
 ===========
 
-``?xt=urn:btpk:[ BitTorrent Info Hash (Hex) ]&st=`` where ``btpk`` contains the hex hash of the public key, and ``st`` the raw salt (ex. ``foobar``).
+``?xt=urn:btpk:[ Public Key (Hex) ]&st=[ Salt ]`` where ``btpk`` contains the hex hash of the public key, and ``st`` the optional raw salt (ex. ``foobar``).
 
 
 References

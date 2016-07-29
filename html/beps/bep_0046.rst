@@ -40,7 +40,12 @@ Both publisher and consumer should periodically ``put`` the mutable items they h
 Magnet link
 ===========
 
-``?xt=urn:btpk:[ Public Key (Hex) ]&st=[ Salt ]`` where ``btpk`` contains the hex hash of the public key, and ``st`` the optional raw salt (ex. ``foobar``).
+``?xs=urn:btpk:[ Public Key (Hex) ]&s=[ Salt ]``
+
+Reference implementation
+====================
+
+https://github.com/lmatteis/dmt
 
 
 References

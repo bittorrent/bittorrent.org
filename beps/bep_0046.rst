@@ -24,14 +24,14 @@ BEP 39 [#BEP-39]_ allows to automatically update torrents based on HTTP URLs. Wi
 
 
 Publishing content
-=========
+==================
 
 Publishers should issue a mutable ``put`` request to the DHT when they want to notify consumers about an update of a torrent. The value of the payload ``v`` is the 20 byte infohash of such torrent. Note that there is a 1-to-1 mapping between a mutable item and a torrent, hence a mutable torrent can only ever map to a single torrent.
 
 For request and response details refer to BEP 44 [#BEP-44]_.
 
 Consuming content
-========
+=================
 
 Consumers issue a ``get`` request using the ID of the mutable torrent they are interested in downloading. Periodically polling such ID by issuing ``get`` requests to see whether the ``v`` property of the response has updated. If an update is found, the torrent can be updated using the new infohash.
 
@@ -43,7 +43,7 @@ Magnet link
 ``?xs=urn:btpk:[ Public Key (Hex) ]&s=[ Salt ]``
 
 Reference implementation
-====================
+========================
 
 https://github.com/lmatteis/dmt
 

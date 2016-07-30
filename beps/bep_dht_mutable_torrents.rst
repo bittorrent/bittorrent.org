@@ -1,4 +1,4 @@
-:BEP: 46
+:BEP: ??
 :Title: Decentralized Mutable Torrents
 :Version: $Revision$
 :Last-Modified: $Date$

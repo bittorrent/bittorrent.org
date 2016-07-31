@@ -13,34 +13,56 @@
 Abstract
 ========
 
-This extension enables torrents to update based on data stored in the BitTorrent DHT [#BEP-44]_, rather than an HTTP server. The publisher has control over when the torrent is updated, and which content it contains, via mutable DHT items. It is similar to BEP 39 [#BEP-39]_, with the difference being that it uses the DHT to notify and be notified about updates of a torrent, hence should provide more decentralized capabilities to both publishers and consumers.
+This extension enables torrents to update based on data stored in the BitTorrent
+DHT [#BEP-44]_, rather than an HTTP server. The publisher has control over when
+the torrent is updated, and which content it contains, via mutable DHT items. It
+is similar to BEP 39 [#BEP-39]_, with the difference being that it uses the DHT
+to notify and be notified about updates of a torrent, hence should provide more
+decentralized capabilities to both publishers and consumers.
 
-The intention is to allow publishers to serve content that might change over time in a more decentralized fashion. Consumers interested in publishers content only need to know their public key + optional salt. For instance, entities like Archive.org could publish their database dumps using decentralized mutable torrents, and benefit from not having to maintain a central HTTP feed server to notify consumers about updates.
+The intention is to allow publishers to serve content that might change over
+time in a more decentralized fashion. Consumers interested in publishers content
+only need to know their public key + optional salt. For instance, entities like
+Archive.org could publish their database dumps using decentralized mutable
+torrents, and benefit from not having to maintain a central HTTP feed server to
+notify consumers about updates.
 
 Rationale
 =========
 
-BEP 39 [#BEP-39]_ allows to automatically update torrents based on HTTP URLs. With DHT storing capabilities [#BEP-44]_, we can implement similar functionality in a more decentralized fashion without resorting to central HTTP servers, and using features already present in the BitTorrent network (mainly DHT store).
+BEP 39 [#BEP-39]_ allows to automatically update torrents based on HTTP URLs.
+With DHT storing capabilities [#BEP-44]_, we can implement similar functionality
+in a more decentralized fashion without resorting to central HTTP servers, and
+using features already present in the BitTorrent network (mainly DHT store).
 
 
 Publishing content
 ==================
 
-Publishers should issue a mutable ``put`` request to the DHT when they want to notify consumers about an update of a torrent. The value of the payload ``v`` is the 20 byte infohash of such torrent. Note that there is a 1-to-1 mapping between a mutable item and a torrent, hence a mutable torrent can only ever map to a single torrent.
+Publishers should issue a mutable ``put`` request to the DHT when they want to
+notify consumers about an update of a torrent. The value of the payload ``v`` is
+the 20 byte infohash of such torrent. Note that there is a 1-to-1 mapping
+between a mutable item and a torrent, hence a mutable torrent can only ever map
+to a single torrent.
 
 For request and response details refer to BEP 44 [#BEP-44]_.
 
 Consuming content
 =================
 
-Consumers issue a ``get`` request using the ID of the mutable torrent they are interested in downloading. Periodically polling such ID by issuing ``get`` requests to see whether the ``v`` property of the response has updated. If an update is found, the torrent can be updated using the new infohash.
+Consumers issue a ``get`` request using the ID of the mutable torrent they are
+interested in downloading. Periodically polling such ID by issuing ``get``
+requests to see whether the ``v`` property of the response has updated. If an
+update is found, the torrent can be updated using the new infohash.
 
-Both publisher and consumer should periodically ``put`` the mutable items they have active to keep them alive in the DHT.
+Both publisher and consumer should periodically ``put`` the mutable items they
+have active to keep them alive in the DHT. For details on the republish
+algorithm see [#BEP-44]_.
 
 Magnet link
 ===========
 
-``?xs=urn:btpk:[ Public Key (Hex) ]&s=[ Salt ]``
+``magnet:?xs=urn:btpk:[ Public Key (Hex) ]&s=[ Salt (URL encoded) ]``
 
 Reference implementation
 ========================

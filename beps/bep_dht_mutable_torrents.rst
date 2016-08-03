@@ -1,5 +1,5 @@
 :BEP: ??
-:Title: DHT Mutable Torrents
+:Title: Updating Torrents Via DHT Mutable Items
 :Version: $Revision$
 :Last-Modified: $Date$
 :Author:  Luca Matteis <lmatteis@gmail.com>
@@ -39,10 +39,10 @@ using features already present in the BitTorrent network (mainly DHT store).
 Publishing content
 ==================
 
-Publishers should issue a mutable ``put`` request to the DHT when they want to
-notify consumers about an update of a torrent. The value of the payload ``v`` is
-the 20 byte infohash of such torrent. Note that there is a 1-to-1 mapping
-between a mutable DHT item and a torrent.
+Publishers should issue a mutable ``put`` request when they want to notify
+consumers about an update of a torrent. The value of the payload ``v`` is the 20
+byte infohash of such torrent. Note that there is a 1-to-1 mapping between a
+mutable DHT item and a torrent.
 
 For request and response details refer to BEP 44 [#BEP-44]_.
 
@@ -62,6 +62,38 @@ Magnet link
 ===========
 
 ``magnet:?xs=urn:btpk:[ Public Key (Hex) ]&s=[ Salt (Hex) ]``
+
+Note that ``xs`` ("exact source") is used instead of ``xt``, and that the salt
+``s`` is optional.
+
+Test Vectors
+============
+
+test 1 (magnet to target ID)
+----------------------------
+
+public key::
+
+  8543d3e6115f0f98c944077a4493dcd543e49c739fd998550a1f614ab36ed63e
+
+**target ID**::
+
+  cc3f9d90b572172053626f9980ce261a850d050b
+
+test 2 (magnet to targetID, with salt)
+--------------------------------------
+
+public key::
+
+  8543d3e6115f0f98c944077a4493dcd543e49c739fd998550a1f614ab36ed63e
+
+salt::
+
+  6e
+
+**target ID**::
+
+  59ee7c2cb9b4f7eb1986ee2d18fd2fdb8a56554f
 
 
 Reference implementation

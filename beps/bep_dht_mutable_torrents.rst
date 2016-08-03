@@ -1,5 +1,5 @@
 :BEP: ??
-:Title: Decentralized Mutable Torrents
+:Title: DHT Mutable Torrents
 :Version: $Revision$
 :Last-Modified: $Date$
 :Author:  Luca Matteis <lmatteis@gmail.com>
@@ -42,18 +42,17 @@ Publishing content
 Publishers should issue a mutable ``put`` request to the DHT when they want to
 notify consumers about an update of a torrent. The value of the payload ``v`` is
 the 20 byte infohash of such torrent. Note that there is a 1-to-1 mapping
-between a mutable item and a torrent, hence a mutable torrent can only ever map
-to a single torrent.
+between a mutable DHT item and a torrent.
 
 For request and response details refer to BEP 44 [#BEP-44]_.
 
 Consuming content
 =================
 
-Consumers issue a ``get`` request using the ID of the mutable torrent they are
-interested in downloading. Periodically polling such ID by issuing ``get``
-requests to see whether the ``v`` property of the response has updated. If an
-update is found, the torrent can be updated using the new infohash.
+Consumers issue a ``get`` request using the target ID of the mutable item they
+are interested in. Periodically polling such ID by issuing ``get`` requests to
+see whether the ``v`` property of the response has updated. If an update is
+found, the torrent can be updated using the new infohash.
 
 Both publisher and consumer should periodically ``put`` the mutable items they
 have active to keep them alive in the DHT. For details on the republish
@@ -62,7 +61,8 @@ algorithm see [#BEP-44]_.
 Magnet link
 ===========
 
-``magnet:?xs=urn:btpk:[ Public Key (Hex) ]&s=[ Salt (URL encoded) ]``
+``magnet:?xs=urn:btpk:[ Public Key (Hex) ]&s=[ Salt (Hex) ]``
+
 
 Reference implementation
 ========================

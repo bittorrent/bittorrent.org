@@ -72,26 +72,26 @@ Test Vectors
 test 1 (magnet to target ID)
 ----------------------------
 
-public key::
+public key (hex)::
 
   8543d3e6115f0f98c944077a4493dcd543e49c739fd998550a1f614ab36ed63e
 
-**target ID**::
+**target ID** (hex)::
 
   cc3f9d90b572172053626f9980ce261a850d050b
 
 test 2 (magnet to targetID, with salt)
 --------------------------------------
 
-public key::
+public key (hex)::
 
   8543d3e6115f0f98c944077a4493dcd543e49c739fd998550a1f614ab36ed63e
 
-salt::
+salt (hex)::
 
   6e
 
-**target ID**::
+**target ID** (hex)::
 
   59ee7c2cb9b4f7eb1986ee2d18fd2fdb8a56554f
 

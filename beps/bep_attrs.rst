@@ -84,7 +84,7 @@ Padding files
 
 Padding files are synthetic files inserted into the file list to let the following file start at a piece boundary. That means their length should fill up the remainder of the piece length of the file that is supposed to be padded. For the calculation of piece hashes the content of padding file is all zeros.
 
-Clients aware of this extension don't need to write the padding files to disk and should also avoid requesting their contents in ``BT_REQUEST`` messages, but for backwards-compatibility they must service such requests.
+Clients aware of this extension don't need to write the padding files to disk and should also avoid requesting byte-ranges covering their contents, e.g. via ``request`` messages. But for backwards-compatibility they must service such requests.
 
 While clients implementing this extensions will have no use for the ``path`` of a padding file it should be included for backwards compatibility since it is a mandatory field in BEP 3 [#BEP-3]_.
 The recommended path is ``[".pad", "N"]`` where N is the length of the padding file in base10. This way clients not aware of this extension will write the padding files into a single directory, potentially re-using padding files from other torrents also stored in that directory.

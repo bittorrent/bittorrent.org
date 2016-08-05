@@ -1,4 +1,4 @@
-:BEP: ??
+:BEP: 44
 :Title: Updating Torrents Via DHT Mutable Items
 :Version: $Revision$
 :Last-Modified: $Date$

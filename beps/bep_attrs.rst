@@ -13,7 +13,7 @@
 Padding files and extended file attributes
 ==========================================
 
-This BEP specifies some additional file properties beyond those described those in BEP 3 [#BEP-3]_.
+This BEP specifies some additional file properties beyond those described in BEP 3 [#BEP-3]_.
 
 
 Multi-file format
@@ -63,6 +63,7 @@ Single-file format
   
 ``sha1``
   20 bytes. The SHA1 digest calculated over the contents of the file itself, without any additional padding. Can be used to aid file deduplication [#BEP-38]_.
+  The hash should only be considered as a hint, ``pieces`` hashes are the canonical reference for integrity checking.
   
 ``symlink path``
   An array of strings. Path of the symlink target relative to the torrent root directory.
@@ -75,7 +76,7 @@ When the ``l`` attribute flag is present then the ``symlink path`` represents th
   
 The ``length`` field of the symlink file should be zero. A non-zero length identical with the target file would improve backwards-compatibility but significantly complicate the management of piece hashing and duplicate pieces.
   
-The target should be another file within the torrent, otherwise a dangling symlink will be created.
+Just like the regular path the symlink path is relative to the torrent root and must not contain ``..`` elements. It should also target another file within the torrent, otherwise a dangling symlink will be created.
   
   
 Padding files
@@ -98,7 +99,9 @@ The presence of padding files does not imply that all files are piece-aligned.
 Internally inconsistent torrents
 ================================
 
-If used incorrectly or maliciously symlinks and padding files can result in internally inconsistent torrents which cannot finish downloading because they contain conflicting hash information. Similarly the ``sha1`` fields may in fact be inconsistent with the piece data and lead to failures after deduplication.
+If used incorrectly or maliciously symlinks and padding files can result in internally inconsistent torrents which cannot finish downloading because they contain conflicting hash information.
+
+Similarly the ``sha1`` fields may be inconsistent with the piece data and lead to failures after deduplication.
 
 Clients should ensure that adding and deduplicating such a torrent does not lead to loss of already existing data. 
 

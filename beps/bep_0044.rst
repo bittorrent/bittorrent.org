@@ -7,7 +7,7 @@
 :Type:    Standards Track
 :Content-Type: text/x-rst
 :Created: 19-Dec-2014
-:Post-History: 
+:Post-History: 06-Aug-2016 (the8472.bep@infinite-source.de), added backoff algorithm for republishing 
 
 
 Abstract

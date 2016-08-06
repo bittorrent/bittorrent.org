@@ -1,4 +1,4 @@
-:BEP: ??
+:BEP: 47
 :Title: Padding files and extended file attributes 
 :Version: $Revision$
 :Last-Modified: $Date$

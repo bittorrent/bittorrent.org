@@ -74,7 +74,7 @@ Symlinks
 
 When the ``l`` attribute flag is present then the ``symlink path`` represents the *target* of the symlink while ``path`` indicates the location of the symlink itself.
   
-The ``length`` field of the symlink file should be zero. A non-zero length identical with the target file would improve backwards-compatibility but significantly complicate the management of piece hashing and duplicate pieces.
+The ``length`` of a symlink is always zero since it just points to another file already present in the piece space. For backwards compatibility the length=0 should be included when creating a torrent but clients implementing with this BEP should not require their presence on symlink files when parsing it so it can be omitted at some point in the future.
   
 Just like the regular path the symlink path is relative to the torrent root and must not contain ``..`` elements. It should also target another file within the torrent, otherwise a dangling symlink will be created.
   

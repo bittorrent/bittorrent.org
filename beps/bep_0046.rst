@@ -21,7 +21,7 @@ to notify and be notified about updates of a torrent, hence should provide more
 decentralized capabilities to both publishers and consumers.
 
 The intention is to allow publishers to serve content that might change over
-time in a more decentralized fashion. Consumers interested in publishers
+time in a more decentralized fashion. Consumers interested in the publisher's
 content only need to know their public key + optional salt. For instance,
 entities like Archive.org could publish their database dumps, and benefit from
 not having to maintain a central HTTP feed server to notify consumers about
@@ -41,9 +41,9 @@ Publishing content
 
 Publishers should issue a mutable ``put`` request when they want to notify
 consumers about an update of a torrent. The value of the payload ``v`` contains
-a bencoded dict with key ``ih`` (info hash) and value the 20 byte infohash of
-such torrent. Note that there is a 1-to-1 mapping between a mutable DHT item
-and a torrent.
+a dictonary with key ``ih`` (info hash) and value the 20 byte infohash of such
+torrent. Note that there is a 1-to-1 mapping between a mutable DHT item and a
+torrent.
 
 .. parsed-literal::
 

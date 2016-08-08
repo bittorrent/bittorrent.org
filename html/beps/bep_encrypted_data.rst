@@ -30,7 +30,7 @@ and non-goals:
 Rationale
 =========
 
-BitTorrent swarms are mostly an open system well-suited for mass-distribution of data to the public.
+In general BitTorrent swarms are an open system well-suited for mass-distribution of data to the public.
 
 Some use-cases require that the data is only distributed to a closed, trusted group of peers.
 In other cases the content may be meant for open distribution within a community without intent of announcing the content to the whole world. This is analogous to web content that is open to human visitors but requests via robots.txt[robots]_ that it should not be announced to the world by web crawlers.   
@@ -73,16 +73,16 @@ Metadata format
   The protocol version used to encrypt the torrent, currently *1*. New versions may be introduced by updates to this BEP if cryptographic weaknesses necessitate incompatible changes. Implementations should check if they support the version indicated in the metadata file and otherwise inform the user that they can download the data but not decrypt it.
 
 ``shadow``
-  bencoded-then-encrypted dictionary of key-value pairs that shadow entries in the info dictionary.
-  If it is absent only the payload is encrypted and all info dictionary entries are non-shadowed.
-  Implementations should only shadow a whitelist of keys which they have a shadowing strategy and ignore other keys.
-  Shadowable keys suggested by this BEP: ``length, files, name, comment``.
+  bencoded-then-encrypted dictionary whose key-value pairs shadow entries in the info dictionary.
+  If it is absent only the payload is encrypted and no info dictionary entries are shadowed.
+  Implementations should only shadow a whitelist of keys for which they have a shadowing strategy and ignore other keys.
+  Shadowable keys suggested by this BEP: ``length``, ``files``, ``name``, ``comment``.
 
 ``mac``
   message authentication code covering the info dictionary
 
 ``name``
-  the name field is a mandatory part of [BEP 3]_, therefore a placeholder MUST be provided if a shadow name is used. An implementation may either generate a random string consisting of filesystem-friendly characters or allow the user to choose a public name that reveals less information than the shadow name.
+  the name field is a mandatory part of [BEP 3]_. If a shadow name is used then a placeholder MUST be provided. An implementation may either generate a random string consisting of filesystem-friendly characters or allow the user to choose a public name that reveals less information than the shadow name.
 
 ``files``, ``length``
   The shadow dictionary MAY override the single/multifile nature indicated by the public info dictionary. If it does not shadow either key then the public information is canonical.
@@ -96,7 +96,9 @@ To protect privacy an implementation should use shadowing for any additional key
 Encryption
 ==========
 
-Building blocks used:  SHA2-256[rfc6234]_, ChaCha20[rfc7539]_, HMAC[rfc2104]_, PBKDF2[rfc2898]_  
+Building blocks used in version 1:  SHA2-256[rfc6234]_, ChaCha20[rfc7539]_, HMAC[rfc2104]_, PBKDF2[rfc2898]_
+
+``||`` is the concat operator   
 
 .. parsed-literal::
 
@@ -106,7 +108,7 @@ Building blocks used:  SHA2-256[rfc6234]_, ChaCha20[rfc7539]_, HMAC[rfc2104]_, P
 
     Key.shadow =  sha256(Key.payload || "shadow")
     
-    mac = HMAC−SHA256(info-dict without mac, Key.shadow)
+    mac = HMAC−SHA256(info-dict with mac placeholder, Key.shadow)
 
     IV.payload = truncate_64(sha256(salt || "payload"))
 
@@ -118,13 +120,13 @@ ChaCha20 is used to both encrypt the shadow dictionary and the torrent payload.
 
 The optional ``shadow`` dictionary is encrypted after bencoding with ``Key.shadow`` and ``IV.shadow``.
 
-The ``mac`` is calculated over the bencoded info-dictionary including the ``bepXX`` dictionary but excluding the ``mac`` key value pair.
+The ``mac`` is calculated over the bencoded info-dictionary with an 32 zero bytes as placeholder for the ``mac`` value itself. If other extensions perform similar hashing over intermediate representations of the metadata the order in which they are applied needs to be specified.
 
-Before calculating the ``pieces`` hashes all files are concatenated in ``files`` order (if there is more than one) and encrypted with ``Key.payload`` and ``IV.payload``.
+The encryption is applied when file data is loaded into the piece address space. Which means the ``pieces`` hashes are calculated over the encrypted data using ``Key.payload`` and ``IV.payload``.
+The key stream of the cipher applied according ot the position  of the data in the piece space. I.e. any padding, holes or alignment of piece data also affects which part of the key stream is used.
+This BEP only covers pieces representing file entries. Should future extensions put other data into the piece address space the interaction with this BEP will need to be defined.   
 
-Encryption/Decryption of the payload happens at a lower layer than the ``pieces`` hash calculation. I.e. ``files -(concat)-> pieces`` has been replaced with ``files -(concat)-> encryption -> pieces``.
-
-An implementation unaware of this BEP would simply store the ciphertext to the disk in a ``length``-sized file with the public name.
+An implementation unaware of this BEP will simply store the ciphertext to the disk in a ``length``-sized file with the public name.
 
 This scheme only provides integrity verification for the ciphertext through the ``pieces`` hashes, i.e. correct decryption is not verified. An incorrect key could result in garbage plaintext, but this does not introduce a new problem since bittorrent never guaranteed that the files contain what the metadata claims.
 
@@ -198,8 +200,8 @@ This BEP does not mandate how an implementation should store encrypted or decryp
 However, if a client wants to be more flexible than either ignoring this BEP (thus storing ciphertext on disk) or always requiring the keys before starting a torrent it will have to consider the following:
 
 * clients can be in 3 states regarding key knowledge: no keys, shadow key only, keys that decrypt plaintext; two encryption states: encrypted, decrypted; 3 file layout 3 states: encrypted, multi-file, single-file
-* a user may start downloading a torrent before he has access to the keys. this requires a way to input keys and to convert between encrypted and decrypted storage
-* to reduce the amount of data that a compromised system could reveal a seeder may want to import plaintext data, convert it to encrypted form and request that the client discards the keys.
+* a user may start downloading a torrent before keys are available. this requires a way to input keys and to convert between encrypted and decrypted storage
+* for performance or security reasons a seeder may want to import plaintext data, encrypt it and then discard the keys to directly seed the encrypted data from disk.
 
 Since encrypted torrents may contain confidential / private data implementations may also want to set more restrictive file permissions when decrypting data to reduce exposure in multi-user environments.
 

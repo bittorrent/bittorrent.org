@@ -1,0 +1,138 @@
+:BEP: 46
+:Title: Updating Torrents Via DHT Mutable Items
+:Version: $Revision$
+:Last-Modified: $Date$
+:Author:  Luca Matteis <lmatteis@gmail.com>
+:Status:  Draft
+:Type:    Standards Track
+:Content-Type: text/x-rst
+:Created: 24-Jul-2016
+:Post-History:
+
+
+Abstract
+========
+
+This extension enables torrents to update based on data stored in the BitTorrent
+DHT [#BEP-44]_, rather than an HTTP server. The publisher has control over when
+the torrent is updated, and which content it contains, via mutable DHT items. It
+is similar to BEP 39 [#BEP-39]_, with the difference being that it uses the DHT
+to notify and be notified about updates of a torrent, hence should provide more
+decentralized capabilities to both publishers and consumers.
+
+The intention is to allow publishers to serve content that might change over
+time in a more decentralized fashion. Consumers interested in the publisher's
+content only need to know their public key + optional salt. For instance,
+entities like Archive.org could publish their database dumps, and benefit from
+not having to maintain a central HTTP feed server to notify consumers about
+updates.
+
+Rationale
+=========
+
+BEP 39 [#BEP-39]_ allows to automatically update torrents based on HTTP URLs.
+With DHT storing capabilities [#BEP-44]_, we can implement similar functionality
+in a more decentralized fashion without resorting to central HTTP servers, and
+using features already present in the BitTorrent network (mainly DHT store).
+
+
+Publishing content
+==================
+
+Publishers should issue a mutable ``put`` request when they want to notify
+consumers about an update of a torrent. The value of the payload ``v`` contains
+a dictionary with key ``ih`` (info hash) and value the 20 byte infohash of such
+torrent. Note that there is a 1-to-1 mapping between a mutable DHT item and a
+torrent.
+
+.. parsed-literal::
+
+  {
+    ...
+    "v": {
+      "ih": "<20-byte infohash of target torrent>"
+    }
+  }
+
+For request and response details refer to BEP 44 [#BEP-44]_.
+
+Consuming content
+=================
+
+Consumers issue a ``get`` request using the target ID of the mutable item they
+are interested in. Periodically polling such ID by issuing ``get`` requests to
+see whether the ``v`` property of the response has updated. If an update is
+found, the torrent can be updated using the infohash found in the response.
+
+Both publisher and consumer should periodically ``put`` the mutable items they
+have active to keep them alive in the DHT. For details on the republish
+algorithm see [#BEP-44]_.
+
+Magnet link
+===========
+
+``magnet:?xs=urn:btpk:[ Public Key (Hex) ]&s=[ Salt (Hex) ]``
+
+Note that ``xs`` ("exact source") is used instead of ``xt``, and that the salt
+``s`` is optional.
+
+Test Vectors
+============
+
+test 1 (magnet to target ID)
+----------------------------
+
+public key (hex)::
+
+  8543d3e6115f0f98c944077a4493dcd543e49c739fd998550a1f614ab36ed63e
+
+**target ID** (hex)::
+
+  cc3f9d90b572172053626f9980ce261a850d050b
+
+test 2 (magnet to targetID, with salt)
+--------------------------------------
+
+public key (hex)::
+
+  8543d3e6115f0f98c944077a4493dcd543e49c739fd998550a1f614ab36ed63e
+
+salt (hex)::
+
+  6e
+
+**target ID** (hex)::
+
+  59ee7c2cb9b4f7eb1986ee2d18fd2fdb8a56554f
+
+Reference implementation
+========================
+
+https://github.com/lmatteis/dmt
+
+
+References
+==========
+
+.. [#BEP-44] BEP_0044. Storing arbitrary data in the DHT.
+   (http://www.bittorrent.org/beps/bep_0044.html)
+
+.. [#BEP-39] BEP_0039. Updating Torrents Via Feed URL.
+   (http://www.bittorrent.org/beps/bep_0039.html)
+
+
+Copyright
+=========
+
+This document has been placed in the public domain.
+
+
+
+..
+   Local Variables:
+   mode: indented-text
+   indent-tabs-mode: nil
+   sentence-end-double-space: t
+   fill-column: 70
+   coding: utf-8
+   End:

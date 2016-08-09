@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
+<title></title>
+<meta name="author" content="The 8472 &lt;the8472.bep&#64;infinite-source.de&gt;" />
+<link rel="stylesheet" href="../css/bep.css" type="text/css" />
+</head>
+<body>
+<div class="document">
+
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="../index.html">BitTorrent<span>.org</span></a></h1>
+</div>
+<div id="nav">
+<ul>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../introduction.html">For Users</a></li>
+<li><a href="bep_0000.html"><span>For Developers</span></a></li>
+<li><a href="../mailing_list.html">Developer mailing list</a> </li>
+<li><a href="http://forum.bittorrent.org"> Forums (archive) </a></li>
+</ul>
+</div> <!-- nav -->
+<!-- ### Begin Content ### -->
+<div id="second">
+
+
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
+<tbody valign="top">
+<tr class="field"><th class="docinfo-name">BEP:</th><td class="field-body">47</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Title:</th><td class="field-body">Padding files and extended file attributes</td>
+</tr>
+<tr><th class="docinfo-name">Version:</th>
+<td>62b836671fe222554523d37211f4944565f455cf</td></tr>
+<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Sun Aug 7 18:27:20 2016 +0200</td>
+</tr>
+<tr><th class="docinfo-name">Author:</th>
+<td>The 8472 &lt;<a class="reference external" href="mailto:the8472&#46;bep&#37;&#52;&#48;infinite-source&#46;de">the8472<span>&#46;</span>bep<span>&#64;</span>infinite-source<span>&#46;</span>de</a>&gt;</td></tr>
+<tr><th class="docinfo-name">Status:</th>
+<td>Draft</td></tr>
+<tr class="field"><th class="docinfo-name">Type:</th><td class="field-body">Standards Track</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Content-Type:</th><td class="field-body">text/x-rst</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Created:</th><td class="field-body">05-Aug-2016</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Post-History:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="padding-files-and-extended-file-attributes">
+<h1>Padding files and extended file attributes</h1>
+<p>This BEP specifies some additional file properties beyond those described in BEP 3 <a class="footnote-reference" href="#bep-3" id="id1">[1]</a>.</p>
+<p>Multi-file format</p>
+<pre class="literal-block">
+{
+  &quot;info&quot;:
+  {
+    &quot;files&quot;:
+    {[
+      {
+        &quot;attr&quot;: &quot;phxl&quot;,
+        &quot;sha1&quot;: <em>&lt;20 bytes&gt;</em>,
+        &quot;symlink path&quot;: [&quot;dir1&quot;, &quot;dir2&quot;, &quot;target.ext&quot;],
+        ...
+      },
+      {
+        ...
+      }
+    ]},
+    ...
+  },
+  ...
+}
+</pre>
+<p>Single-file format</p>
+<pre class="literal-block">
+{
+  &quot;info&quot;:
+  {
+    &quot;attr&quot;: &quot;hx&quot;,
+    &quot;sha1&quot;: <em>&lt;20 bytes&gt;</em>,
+    ...
+  },
+  ...
+}
+</pre>
+<dl class="docutils">
+<dt><tt class="docutils literal">attr</tt></dt>
+<dd>A variable-length string. When present the characters each represent a file attribute. l = symlink, x = executable, h = hidden, p = padding file. Characters appear in no particular order and unknown characters should be ignored.</dd>
+<dt><tt class="docutils literal">sha1</tt></dt>
+<dd>20 bytes. The SHA1 digest calculated over the contents of the file itself, without any additional padding. Can be used to aid file deduplication <a class="footnote-reference" href="#bep-38" id="id2">[2]</a>.
+The hash should only be considered as a hint, <tt class="docutils literal">pieces</tt> hashes are the canonical reference for integrity checking.</dd>
+<dt><tt class="docutils literal">symlink path</tt></dt>
+<dd>An array of strings. Path of the symlink target relative to the torrent root directory.</dd>
+</dl>
+</div>
+<div class="section" id="symlinks">
+<h1>Symlinks</h1>
+<p>When the <tt class="docutils literal">l</tt> attribute flag is present then the <tt class="docutils literal">symlink path</tt> represents the <em>target</em> of the symlink while <tt class="docutils literal">path</tt> indicates the location of the symlink itself.</p>
+<p>The <tt class="docutils literal">length</tt> of a symlink is always zero since it just points to another file already present in the piece space. For backwards compatibility the length=0 should be included when creating a torrent but clients implementing with this BEP should not require their presence on symlink files when parsing it so it can be omitted at some point in the future.</p>
+<p>Just like the regular path the symlink path is relative to the torrent root and must not contain <tt class="docutils literal">..</tt> elements. It should also target another file within the torrent, otherwise a dangling symlink will be created.</p>
+</div>
+<div class="section" id="padding-files">
+<h1>Padding files</h1>
+<p>Padding files are synthetic files inserted into the file list to let the following file start at a piece boundary. That means their length should fill up the remainder of the piece length of the file that is supposed to be padded. For the calculation of piece hashes the content of padding file is all zeros.</p>
+<p>Clients aware of this extension don't need to write the padding files to disk and should also avoid requesting byte-ranges covering their contents, e.g. via <tt class="docutils literal">request</tt> messages. But for backwards-compatibility they must service such requests.</p>
+<p>While clients implementing this extensions will have no use for the <tt class="docutils literal">path</tt> of a padding file it should be included for backwards compatibility since it is a mandatory field in BEP 3 <a class="footnote-reference" href="#bep-3" id="id3">[1]</a>.
+The recommended path is <tt class="docutils literal"><span class="pre">[&quot;.pad&quot;,</span> &quot;N&quot;]</tt> where N is the length of the padding file in base10. This way clients not aware of this extension will write the padding files into a single directory, potentially re-using padding files from other torrents also stored in that directory.</p>
+<p>To eventually allow the path field to be omitted clients implementing this BEP should not require it to be present on padding files.</p>
+<p>Piece-aligned files simplify deduplication <a class="footnote-reference" href="#bep-38" id="id4">[2]</a> and the operations on mutable torrents <a class="footnote-reference" href="#bep-39" id="id5">[3]</a>.</p>
+<p>The presence of padding files does not imply that all files are piece-aligned.</p>
+</div>
+<div class="section" id="internally-inconsistent-torrents">
+<h1>Internally inconsistent torrents</h1>
+<p>If used incorrectly or maliciously symlinks and padding files can result in internally inconsistent torrents which cannot finish downloading because they contain conflicting hash information.</p>
+<p>Similarly the <tt class="docutils literal">sha1</tt> fields may be inconsistent with the piece data and lead to failures after deduplication.</p>
+<p>Clients should ensure that adding and deduplicating such a torrent does not lead to loss of already existing data.</p>
+</div>
+<div class="section" id="references">
+<h1>References</h1>
+<table class="docutils footnote" frame="void" id="bep-3" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[1]</td><td><em>(<a class="fn-backref" href="#id1">1</a>, <a class="fn-backref" href="#id3">2</a>)</em> BEP_0003. The BitTorrent Protocol Specification.
+(<a class="reference external" href="http://www.bittorrent.org/beps/bep_0003.html">http://www.bittorrent.org/beps/bep_0003.html</a>)</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="bep-38" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[2]</td><td><em>(<a class="fn-backref" href="#id2">1</a>, <a class="fn-backref" href="#id4">2</a>)</em> BEP_0038. Finding Local Data Via Torrent File Hints.
+(<a class="reference external" href="http://www.bittorrent.org/beps/bep_0038.html">http://www.bittorrent.org/beps/bep_0038.html</a>)</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="bep-39" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id5">[3]</a></td><td>BEP_0039. Updating Torrents Via Feed URL.
+(<a class="reference external" href="http://www.bittorrent.org/beps/bep_0039.html">http://www.bittorrent.org/beps/bep_0039.html</a>)</td></tr>
+</tbody>
+</table>
+</div>
+
+</div>
+	<div id="footer">
+<hr/>
+</div>
+
+</div>
+</body>
+</html>

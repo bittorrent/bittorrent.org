@@ -38,8 +38,8 @@
 <tr class="field"><th class="docinfo-name">Title:</th><td class="field-body">Storing arbitrary data in the DHT</td>
 </tr>
 <tr><th class="docinfo-name">Version:</th>
-<td>4f525c8ab9f1c4f5499468ca08f1452bbef82537</td></tr>
-<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Fri Sep 25 08:53:22 2015 -0700</td>
+<td>b13d4e0f52da7808c46a61f473b10db076d1cabb</td></tr>
+<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Sat Aug 6 19:48:16 2016 +0200</td>
 </tr>
 <tr><th class="docinfo-name">Author:</th>
 <td>Arvid Norberg &lt;<a class="reference external" href="mailto:arvid&#37;&#52;&#48;bittorrent&#46;com">arvid<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;, Steven Siloti &lt;<a class="reference external" href="mailto:ssiloti&#37;&#52;&#48;bittorrent&#46;com">ssiloti<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;</td></tr>
@@ -51,7 +51,7 @@
 </tr>
 <tr class="field"><th class="docinfo-name">Created:</th><td class="field-body">19-Dec-2014</td>
 </tr>
-<tr class="field"><th class="docinfo-name">Post-History:</th><td class="field-body"></td>
+<tr class="field"><th class="docinfo-name">Post-History:</th><td class="field-body">06-Aug-2016 (<a class="reference external" href="mailto:the8472&#46;bep&#37;&#52;&#48;infinite-source&#46;de">the8472<span>&#46;</span>bep<span>&#64;</span>infinite-source<span>&#46;</span>de</a>), added backoff algorithm for republishing</td>
 </tr>
 </tbody>
 </table>
@@ -298,7 +298,15 @@ current.</td>
 <div class="section" id="expiration">
 <h1>Expiration</h1>
 <p>Without re-announcement, these items MAY expire in 2 hours. In order to keep items alive, they SHOULD be re-announced once an hour.</p>
-<p>Any node that's interested in keeping a blob in the DHT alive may announce it.  It would simply repeat the signature for a mutable put without having the private key.</p>
+<p>Any node that's interested in keeping a blob in the DHT alive may announce it.  It would simply repeat the signature for a mutable put without having the private key. This allows data to persist even when the initial publisher goes away or only comes online when replacing it with new data.</p>
+<p>To reduce write traffic subscribers do not need to republish the value if all of the following conditions are met during a get lookup:</p>
+<ol class="arabic simple">
+<li>They find more than 8 copies of the data</li>
+<li>The 8 nodes closest to the target key which are eligible for a store all have indicated they have the data, either by returning it or through the <tt class="docutils literal">seq</tt> number.</li>
+<li>For mutable items only nodes holding values with the most recent known sequence number count towards meeting these conditions</li>
+</ol>
+<p>The assumption here is that implementation inaccuracies, churn and packet drops lead different nodes seeing slightly different sets of closest nodes and thus publish to different nodes. Therefore an up-to-date set of closest nodes plus an excess of stored values beyond that set indicates that there are multiple republishers.</p>
+<p>Subscribers may also persist the values to permanent storage to republish them after restarts.</p>
 </div>
 <div class="section" id="test-vectors">
 <h1>Test Vectors</h1>

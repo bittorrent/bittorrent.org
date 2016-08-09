@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
+<title></title>
+<meta name="author" content="Luca Matteis &lt;lmatteis&#64;gmail.com&gt;" />
+<link rel="stylesheet" href="../css/bep.css" type="text/css" />
+</head>
+<body>
+<div class="document">
+
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="../index.html">BitTorrent<span>.org</span></a></h1>
+</div>
+<div id="nav">
+<ul>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../introduction.html">For Users</a></li>
+<li><a href="bep_0000.html"><span>For Developers</span></a></li>
+<li><a href="../mailing_list.html">Developer mailing list</a> </li>
+<li><a href="http://forum.bittorrent.org"> Forums (archive) </a></li>
+</ul>
+</div> <!-- nav -->
+<!-- ### Begin Content ### -->
+<div id="second">
+
+
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
+<tbody valign="top">
+<tr class="field"><th class="docinfo-name">BEP:</th><td class="field-body">46</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Title:</th><td class="field-body">Updating Torrents Via DHT Mutable Items</td>
+</tr>
+<tr><th class="docinfo-name">Version:</th>
+<td>116c36836c8161f555b7ad4502e85c0f19951bb7</td></tr>
+<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Tue Aug 9 01:10:57 2016 +0200</td>
+</tr>
+<tr><th class="docinfo-name">Author:</th>
+<td>Luca Matteis &lt;<a class="reference external" href="mailto:lmatteis&#37;&#52;&#48;gmail&#46;com">lmatteis<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;</td></tr>
+<tr><th class="docinfo-name">Status:</th>
+<td>Draft</td></tr>
+<tr class="field"><th class="docinfo-name">Type:</th><td class="field-body">Standards Track</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Content-Type:</th><td class="field-body">text/x-rst</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Created:</th><td class="field-body">24-Jul-2016</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Post-History:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="abstract">
+<h1>Abstract</h1>
+<p>This extension enables torrents to update based on data stored in the BitTorrent
+DHT <a class="footnote-reference" href="#bep-44" id="id1">[1]</a>, rather than an HTTP server. The publisher has control over when
+the torrent is updated, and which content it contains, via mutable DHT items. It
+is similar to BEP 39 <a class="footnote-reference" href="#bep-39" id="id2">[2]</a>, with the difference being that it uses the DHT
+to notify and be notified about updates of a torrent, hence should provide more
+decentralized capabilities to both publishers and consumers.</p>
+<p>The intention is to allow publishers to serve content that might change over
+time in a more decentralized fashion. Consumers interested in the publisher's
+content only need to know their public key + optional salt. For instance,
+entities like Archive.org could publish their database dumps, and benefit from
+not having to maintain a central HTTP feed server to notify consumers about
+updates.</p>
+</div>
+<div class="section" id="rationale">
+<h1>Rationale</h1>
+<p>BEP 39 <a class="footnote-reference" href="#bep-39" id="id3">[2]</a> allows to automatically update torrents based on HTTP URLs.
+With DHT storing capabilities <a class="footnote-reference" href="#bep-44" id="id4">[1]</a>, we can implement similar functionality
+in a more decentralized fashion without resorting to central HTTP servers, and
+using features already present in the BitTorrent network (mainly DHT store).</p>
+</div>
+<div class="section" id="publishing-content">
+<h1>Publishing content</h1>
+<p>Publishers should issue a mutable <tt class="docutils literal">put</tt> request when they want to notify
+consumers about an update of a torrent. The value of the payload <tt class="docutils literal">v</tt> contains
+a dictionary with key <tt class="docutils literal">ih</tt> (info hash) and value the 20 byte infohash of such
+torrent. Note that there is a 1-to-1 mapping between a mutable DHT item and a
+torrent.</p>
+<pre class="literal-block">
+{
+  ...
+  &quot;v&quot;: {
+    &quot;ih&quot;: &quot;&lt;20-byte infohash of target torrent&gt;&quot;
+  }
+}
+</pre>
+<p>For request and response details refer to BEP 44 <a class="footnote-reference" href="#bep-44" id="id5">[1]</a>.</p>
+</div>
+<div class="section" id="consuming-content">
+<h1>Consuming content</h1>
+<p>Consumers issue a <tt class="docutils literal">get</tt> request using the target ID of the mutable item they
+are interested in. Periodically polling such ID by issuing <tt class="docutils literal">get</tt> requests to
+see whether the <tt class="docutils literal">v</tt> property of the response has updated. If an update is
+found, the torrent can be updated using the infohash found in the response.</p>
+<p>Both publisher and consumer should periodically <tt class="docutils literal">put</tt> the mutable items they
+have active to keep them alive in the DHT. For details on the republish
+algorithm see <a class="footnote-reference" href="#bep-44" id="id6">[1]</a>.</p>
+</div>
+<div class="section" id="magnet-link">
+<h1>Magnet link</h1>
+<p><tt class="docutils literal"><span class="pre">magnet:?xs=urn:btpk:[</span> Public Key (Hex) ]&amp;s=[ Salt (Hex) ]</tt></p>
+<p>Note that <tt class="docutils literal">xs</tt> (&quot;exact source&quot;) is used instead of <tt class="docutils literal">xt</tt>, and that the salt
+<tt class="docutils literal">s</tt> is optional.</p>
+</div>
+<div class="section" id="test-vectors">
+<h1>Test Vectors</h1>
+<div class="section" id="test-1-magnet-to-target-id">
+<h2>test 1 (magnet to target ID)</h2>
+<p>public key (hex):</p>
+<pre class="literal-block">
+8543d3e6115f0f98c944077a4493dcd543e49c739fd998550a1f614ab36ed63e
+</pre>
+<p><strong>target ID</strong> (hex):</p>
+<pre class="literal-block">
+cc3f9d90b572172053626f9980ce261a850d050b
+</pre>
+</div>
+<div class="section" id="test-2-magnet-to-targetid-with-salt">
+<h2>test 2 (magnet to targetID, with salt)</h2>
+<p>public key (hex):</p>
+<pre class="literal-block">
+8543d3e6115f0f98c944077a4493dcd543e49c739fd998550a1f614ab36ed63e
+</pre>
+<p>salt (hex):</p>
+<pre class="literal-block">
+6e
+</pre>
+<p><strong>target ID</strong> (hex):</p>
+<pre class="literal-block">
+59ee7c2cb9b4f7eb1986ee2d18fd2fdb8a56554f
+</pre>
+</div>
+</div>
+<div class="section" id="reference-implementation">
+<h1>Reference implementation</h1>
+<p><a class="reference external" href="https://github.com/lmatteis/dmt">https://github.com/lmatteis/dmt</a></p>
+</div>
+<div class="section" id="references">
+<h1>References</h1>
+<table class="docutils footnote" frame="void" id="bep-44" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[1]</td><td><em>(<a class="fn-backref" href="#id1">1</a>, <a class="fn-backref" href="#id4">2</a>, <a class="fn-backref" href="#id5">3</a>, <a class="fn-backref" href="#id6">4</a>)</em> BEP_0044. Storing arbitrary data in the DHT.
+(<a class="reference external" href="http://www.bittorrent.org/beps/bep_0044.html">http://www.bittorrent.org/beps/bep_0044.html</a>)</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="bep-39" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[2]</td><td><em>(<a class="fn-backref" href="#id2">1</a>, <a class="fn-backref" href="#id3">2</a>)</em> BEP_0039. Updating Torrents Via Feed URL.
+(<a class="reference external" href="http://www.bittorrent.org/beps/bep_0039.html">http://www.bittorrent.org/beps/bep_0039.html</a>)</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="copyright">
+<h1>Copyright</h1>
+<p>This document has been placed in the public domain.</p>
+<!-- Local Variables:
+mode: indented-text
+indent-tabs-mode: nil
+sentence-end-double-space: t
+fill-column: 70
+coding: utf-8
+End: -->
+</div>
+
+</div>
+	<div id="footer">
+<hr/>
+</div>
+
+</div>
+</body>
+</html>

@@ -42,8 +42,8 @@ Publishing content
 Publishers should issue a mutable ``put`` request when they want to notify
 consumers about an update of a torrent. The value of the payload ``v`` contains
 a dictionary with key ``ih`` (info hash) and value the 20 byte infohash of such
-torrent. Note that there is a 1-to-1 mapping between a mutable DHT item and a
-torrent.
+torrent. Note that while a DHT entry under a particular key maps to a single torrent
+at any given moment, many different keys can point to the same torrent.
 
 .. parsed-literal::
 

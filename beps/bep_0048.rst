@@ -1,0 +1,186 @@
+:BEP: 48
+:Title: Distributed Torrent Feeds 
+:Version: $Revision$
+:Last-Modified: $Date$
+:Author:   The 8472 <the8472.bep@infinite-source.de>
+:Status:  Draft
+:Type:    Standards Track
+:Content-Type: text/x-rst
+:Created: 14-Aug-2016
+:Post-History:
+
+
+Abstract
+========
+
+This document specifies conventions for content feeds represented as torrents within torrents, i.e. metadata files which in turn list metadata files describing the actual content.
+
+The goal is to provide functionality comparable to RSS Feeds _[#BEP 36] but in a distributed fashion by using the bittorrent protocol itself.
+
+
+Intended Use
+============
+
+This BEP should be used when the distribution of torrent files themselves is the goal, especially when subscribers may only be interested in a subset of the data or may wish to search through the metadata before selecting torrents to download.
+
+In cases where the publisher can reasonably assume that subscribers will want *all* content of a foreseeably small set of files then BEP 46 should be used directly by adding content to a multi-file torrent. 
+
+
+Design
+======
+
+Feeds can be used in many different ways, from publishing a small feed of individual items at irregular intervals to regular incremental snapshots of very large datasets for archiving purposes. Some may need append-only semantics, others may also wish to replicate deletions.
+
+Subscribers may have different interests such as wanting access to the most recent items quickly with little overhead or having a complete copy of data at any time.
+
+To cover these differing needs the feed is split into a HEAD element containing most recent items and an optional tail of one or more large archives for older items to which HEAD items are eventually retired.
+
+Metadata files are used instead of a list of magnet links is to remove a layer of indirection where subscribers would have to perform a large amount of DHT lookups and metadata exchanges to obtain the data they need to make a decision about which torrent to download. Unlike the metadata exchange this also preserves the outer dictionary, which is used by some BEPs.
+
+  
+
+
+Basic Conventions
+=================
+
+
+1. The info dictionary contains an entry ``"bep48": {}`` with zero or more entries in the sub map.
+
+2. Feed torrents always are multi-file torrents
+
+3. All files in the root directory of the torrent are feed items. Unless specified otherwise files contained in subdirectories are metadata describing the feed itself or part of future extensions
+
+4. All feed items MUST have a ``sha1`` field in their file list entry, as defined by BEP 47 [#BEP-47]_. This is to make it simple for subscribers to reuse as much data as possible when retrieving an updated feed and thus avoid wasted bandwidth. 
+
+5. The ``files`` list SHOULD NOT be sorted lexicographically. Instead new files should be appended at the end when updating the feed.
+
+6. When creating or updating a feed torrent an additional padding file SHOULD be inserted at the end to pad it to a full piece boundary. This way items can be appended without recomputing previous piece hashes. Future BEP that offer piece-aligned files through other means may be used instead.
+
+7. It is RECOMMENDED that the filename of a feed item is the same as name field of its contents. Publishers MAY shorten the names to reduce overhead on very large archives containing many small torrents.
+
+   Additionally publishers SHOULD avoid using duplicate names for files with different content. Subscribers MUST NOT rely on that. 
+
+   Similarly the ``.torrent`` extension should be used for all feed items.
+   
+8. Feed items SHOULD be torrents themselves, but specialized applications using this specification MAY put other types of files directly into the feed if the indirection is too costly. Therefore subscribers MUST NOT assume that every feed item is a valid torrent file  
+
+
+
+Updates and Chain of Trust
+==========================
+
+This BEP mostly covers the semantics of creating and processing feed torrents. Establishing trust and acquiring updates is handled by other specifications.
+
+Feeds can either be signed and updated via BEPs 35 and 39 or, the recommended way, via BEP 46.
+
+Since BEP 46 is a N:1 mapping the chain of trust is established based on the pubkey used to perform the DHT lookup. I.e. a feed could be published by multiple sources and eventually be forked when they publish diverging updates.
+
+Optionally ``"bep48": {"bep46 source": <bep 46 magnet link (string)>}`` can be embedded in the info dictionary to inform subscribers where to obtain updates when they obtained a feed torrent by other means.   
+
+
+Archives
+========
+
+Publishers MAY move items - from the beginning of the ``files`` list - to additional torrents to keep the HEAD small.
+
+To indicate archives are present ``"bep48": {"archive next": <bep 9 magnet link (string)>}`` should be merged to the info dictionary.
+
+To indicate that a feed torrent is not the head but part of the archive ``"bep48": {"archive": 1}``. Additionally archive feed torrents can point to even older archives. Archives MUST NOT contain ``prev`` or ``bep46 source`` fields. 
+
+Since torrents are usually fairly small this mechanism will only be needed for feeds exceeding thousands of items. The need for multiple archives should be even less common.
+
+  **Implementation note**: Assuming that appends to the HEAD were done in a piece-aligned manner and the HEAD and archives share the same piece size then the publisher can move batches of items and their ``pieces`` hashes to the archive by exploiting that alignment.
+  
+  Subscribers MUST NOT rely on this property.
+
+Note that archives can be reused since it is not necessary to retire items to the archives every time new ones are added to the feed HEAD.
+
+
+Revisions
+=========
+
+Since the feed implicitly goes through multiple revisions publishers MAY make them explicit by pointing to the previous version of the feed head by merging ``"bep48": {"prev": <bep9 magnet link (string)>}`` into the info dictionary.
+
+This BEP does not specify any semantics about the differences in file content between the current and previous revisions. I.e. how absent or overwritten files should be handled. It is left to the subscriber implementation whether to operate in append-only mode or honor removals and replacements. 
+
+
+On disk layout
+==============
+
+*This section is advisory.*
+
+The file names should only be seen as a hint and implementations should be prepared to remap them to a different directory layout due to potential file name collisions.
+
+This already is the case with regular torrents, but when managing multiple feed revisions and archives in a shared directory structure extra care has to be taken to avoid accidental content loss, e.g. when an updated feed contains a feed item of the same name but with different content. 
+
+ 
+  
+
+
+Examples
+========
+
+
+The following graph shows how a feed might evolve over time:
+
+
+.. parsed-literal::
+
+     +---------------+
+     | Rev 1: 0 - 30 |
+     +---------------+
+             ^
+             |  
+     +-----------------+          
+     | Rev 2: 0 - 1000 |
+     +-----------------+
+             ^
+             |  
+     +-------------------+   +------------------+
+     | Rev 3: 501 - 1500 |-->| Archive 0 - 500  |
+     +-------------------+   +------------------+
+             ^                      ^
+             |                      |
+     +-------------------+          |  
+     | Rev 4: 501 - 2000 |----------+
+     +-------------------+
+             ^          
+             |
+             .
+             .
+             .
+             |          
+     +----------------------+   +-----------------------+   +-------------------+
+     | Rev N: 50000 - 51000 |-->| Archive 25000 - 49999 |-->| Archive 0 - 24999 |
+     +----------------------+   +-----------------------+   +-------------------+
+
+
+
+
+
+References
+==========
+
+.. [#BEP-36] BEP_0036. Torrent RSS feeds
+   (http://www.bittorrent.org/beps/bep_0036.html)
+
+.. [#BEP-39] BEP_0039. Updating Torrents Via Feed URL.
+   (http://www.bittorrent.org/beps/bep_0039.html)
+
+
+
+Copyright
+=========
+
+This document has been placed in the public domain.
+
+
+
+..
+   Local Variables:
+   mode: indented-text
+   indent-tabs-mode: nil
+   sentence-end-double-space: t
+   fill-column: 70
+   coding: utf-8
+   End:

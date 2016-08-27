@@ -25,6 +25,7 @@ This BEP should be used when the distribution of torrent files themselves is the
 
 In cases where the publisher can reasonably assume that subscribers will want *all* content of a foreseeably small set of files then BEP 46 should be used directly by adding content to a multi-file torrent. 
 
+This BEP is specified in terms of torrents as feed items as that is its primary goal, but in principle it may also be used to distribute other types of feed items.
 
 Design
 ======
@@ -44,7 +45,7 @@ Basic Conventions
 =================
 
 
-1. The info dictionary contains an entry ``"bep48": {}`` with zero or more entries in the sub map.
+1. The info dictionary contains an entry ``"bep48": {}`` with zero or more entries in the sub-dictionary.
 
 2. Feed torrents always are multi-file torrents
 
@@ -60,7 +61,7 @@ Basic Conventions
 
    Additionally publishers SHOULD avoid using duplicate names for files with different content. Subscribers MUST NOT rely on that. 
 
-   Similarly the ``.torrent`` extension should be used for all feed items.
+   Similarly the ``.torrent`` extension should be used for all feed items, assuming that they are torrents.
    
 8. Feed items SHOULD be torrents themselves, but specialized applications using this specification MAY put other types of files directly into the feed if the indirection is too costly. Therefore subscribers MUST NOT assume that every feed item is a valid torrent file  
 
@@ -75,13 +76,13 @@ Feeds can either be signed and updated via BEPs 35 and 39 or, the recommended wa
 
 Since BEP 46 is a N:1 mapping the chain of trust is established based on the pubkey used to perform the DHT lookup. I.e. a feed could be published by multiple sources and eventually be forked when they publish diverging updates.
 
-Optionally ``"bep48": {"bep46 source": <bep 46 magnet link (string)>}`` can be embedded in the info dictionary to inform subscribers where to obtain updates when they obtained a feed torrent by other means.   
+Optionally ``"bep48": {"bep46 source": <bep 46 magnet link (string)>}`` can be embedded in the info dictionary to inform subscribers where to obtain updates. If a feed has been obtained through a BEP 46 magnet then that takes precedence over the embedded magnet.
 
 
 Archives
 ========
 
-Publishers MAY move items - from the beginning of the ``files`` list - to additional torrents to keep the HEAD small.
+Publishers MAY move older items - from the beginning of the ``files`` list - to additional torrents to keep the HEAD small.
 
 To indicate archives are present ``"bep48": {"archive next": <bep 9 magnet link (string)>}`` should be merged to the info dictionary.
 
@@ -113,6 +114,10 @@ The file names should only be seen as a hint and implementations should be prepa
 
 This already is the case with regular torrents, but when managing multiple feed revisions and archives in a shared directory structure extra care has to be taken to avoid accidental content loss, e.g. when an updated feed contains a feed item of the same name but with different content. 
 
+Feeds of Feeds
+==============
+
+Feed items themselves may be feed torrents. This allows feeds to act as updatable index of more specialized feeds. In other words, it's possible for feeds to link to each other.
  
   
 

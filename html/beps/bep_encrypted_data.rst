@@ -55,10 +55,10 @@ Metadata format
         bepXX: {
           mac: *<32bytes of hmac output (string)>*,
           salt: *<32bytes of random binary data (string)>*,
-          shadow: *<optional, bencoded-then-encrypted dictionary (string)>*
+          shadow: *<bencoded-then-encrypted dictionary (string)>*,
           v: *<version (integer)>*,
         },
-        length *or* files: *<unchanged>*,
+        length: *<unchanged>*,
         name: *<public name (string)>*,
         piece length: *<unchanged>*
         pieces: *<N*20 bytes, piece hashes of the payload ciphertext (string)>*
@@ -74,23 +74,51 @@ Metadata format
 
 ``shadow``
   bencoded-then-encrypted dictionary whose key-value pairs shadow entries in the info dictionary.
-  If it is absent only the payload is encrypted and no info dictionary entries are shadowed.
-  Implementations should only shadow a whitelist of keys for which they have a shadowing strategy and ignore other keys.
-  Shadowable keys suggested by this BEP: ``length``, ``files``, ``name``, ``comment``.
 
 ``mac``
   message authentication code covering the info dictionary
 
 ``name``
-  the name field is a mandatory part of [BEP 3]_. If a shadow name is used then a placeholder MUST be provided. An implementation may either generate a random string consisting of filesystem-friendly characters or allow the user to choose a public name that reveals less information than the shadow name.
+  the name field is a mandatory part of [BEP 3]_. A placeholder MUST be provided. An implementation may either generate a random string consisting of filesystem-friendly characters or allow the user to choose a public name that reveals less information than the shadow name.
 
-``files``, ``length``
-  The shadow dictionary MAY override the single/multifile nature indicated by the public info dictionary. If it does not shadow either key then the public information is canonical.
-  If the ``files`` or ``length`` are shadowed then the overall payload length MUST be consistent with the public version.
-  If a shadow dictionary is present the public information should be treated as decorative / advisory until it can be determined whether it has been shadowed, i.e. until the shadow data can be decrypted. 
+``length``
+  The info dictionary describes the piece space layout in its ciphertext form. Currently there is no need for anything but a contiguous range of pieces, therefore the info dictionary MUST be created in single file mode.
+  Future revisions of this BEP may change this requirement if non-contiguous ciphertext representations become necessary.
+  
+Shadow Dictionary
+-----------------
+
+While the info dictionary represents the torrent in its ciphertext form the shadow dictionary represents the plaintext.
+In general entries in the shadow dictionary have the same semantics as keys in the info dictionary and take precedence over them,
+with the restriction that implementations should only shadow a whitelist of keys for which they have a shadowing strategy and ignore other keys.
+
+At a minimum clients should support shadowing of the following info dictionary keys: ``length``, ``files``, ``name``, ``comment``.
+To protect privacy shadowing should also be used for any implementation-specific keys that reveal information about the payload.
 
 
-To protect privacy an implementation should use shadowing for any additional keys that reveal information about the payload
+.. parsed-literal::
+
+    {
+      comment: *<optional, string>*,
+      length: *<integer>*,
+      name: *<string>*,
+      files: *<list of dictionaries>*,
+      ...
+    }
+
+``length`` or ``files``
+  These fields represent the plaintext file layout in single or multi-file layout. This means that while the ciphertext is represented as a single file the plaintext can have a different layout.
+  The overall length of the plaintext MUST be consistent with the ciphertext length. To obfuscate file sizes BEP 47 padding files can be used.
+  
+Interaction with padding files
+------------------------------
+
+Since the public representation is single-file there is no padding in the ciphertext.
+
+The shadow file layout can contain padding files, which consist of zeroes in the *plaintext*.
+
+A client that has access to the shadow data should still download the padding data at least up to the next piece boundary (allowing paddings larger than a single piece to be partially skipped) to avoid leaking information about actual file sizes or knowledge of the file metadata.
+Similarly clients should avoid prioritizing individual pieces or sequential downloading because they would otherwise reveal their knowledge of the file layout.
 
 
 Encryption
@@ -114,16 +142,16 @@ Building blocks used in version 1:  SHA2-256[rfc6234]_, ChaCha20[rfc7539]_, HMAC
 
     IV.shadow = truncate_64(sha256(salt || "shadow"))
 
-PBKDF2 key derivation is used in case root keys with less entropy than the recommended are used, e.g. for password-based schemes. But for general use this BEP assumes that the root key consists of random binary data and hence mandates hexadecimal encoding when the keys need to be displayed in a human-readable format.
+PBKDF2 key derivation is used in case root keys with less entropy than recommended is used, e.g. for password-based schemes. But for general use this BEP assumes that the root key consists of random binary data and hence mandates hexadecimal encoding when the keys need to be displayed in a human-readable format.
 
 ChaCha20 is used to both encrypt the shadow dictionary and the torrent payload.
 
 The optional ``shadow`` dictionary is encrypted after bencoding with ``Key.shadow`` and ``IV.shadow``.
 
-The ``mac`` is calculated over the bencoded info-dictionary with an 32 zero bytes as placeholder for the ``mac`` value itself. If other extensions perform similar hashing over intermediate representations of the metadata the order in which they are applied needs to be specified.
+The ``mac`` is calculated over the bencoded info-dictionary with 32 zero bytes as placeholder for the ``mac`` value itself. If other extensions perform similar hashing operations over incomplete representations of the metadata the order in which they are applied needs to be specified.
 
-The encryption is applied when file data is loaded into the piece address space. Which means the ``pieces`` hashes are calculated over the encrypted data using ``Key.payload`` and ``IV.payload``.
-The key stream of the cipher applied according ot the position  of the data in the piece space. I.e. any padding, holes or alignment of piece data also affects which part of the key stream is used.
+The encryption is applied while file data is loaded into the piece address space. Which means the ``pieces`` hashes are calculated over the ciphertext using ``Key.payload`` and ``IV.payload``.
+The key stream of the cipher applied according to the position  of the data in the piece space. I.e. any padding, holes or alignment of piece data also affects which part of the key stream is used.
 This BEP only covers pieces representing file entries. Should future extensions put other data into the piece address space the interaction with this BEP will need to be defined.   
 
 An implementation unaware of this BEP will simply store the ciphertext to the disk in a ``length``-sized file with the public name.
@@ -133,7 +161,7 @@ This scheme only provides integrity verification for the ciphertext through the 
 Key reuse and hierarchy
 -----------------------
 
-The usage of a salt to derive the payload key from the root key allows the root key to be reused across several torrents while still generating distinct payload keys for each. But UI design SHOULD encourage random key generation for each new torrent and require explicit user action for key reuse.
+The salt in the payload key derivation allows the root key to be reused across several torrents while still generating distinct payload keys for each. But UI design SHOULD encourage random key generation for each new torrent and require explicit user action for key reuse.
 
 An implementation may provide the option to attempt to decrypt a torrent with the same key as another torrent in case a key is only communicated once and individual torrents are later distributed without explicitly providing keys.
 
@@ -199,11 +227,12 @@ This BEP does not mandate how an implementation should store encrypted or decryp
 
 However, if a client wants to be more flexible than either ignoring this BEP (thus storing ciphertext on disk) or always requiring the keys before starting a torrent it will have to consider the following:
 
-* clients can be in 3 states regarding key knowledge: no keys, shadow key only, keys that decrypt plaintext; two encryption states: encrypted, decrypted; 3 file layout 3 states: encrypted, multi-file, single-file
+* clients can be in 3 states regarding key knowledge: no keys, shadow key only, keys that can decrypt the payload; two encryption states: encrypted, decrypted; 3 file layout states: encrypted, multi-file, single-file
 * a user may start downloading a torrent before keys are available. this requires a way to input keys and to convert between encrypted and decrypted storage
 * for performance or security reasons a seeder may want to import plaintext data, encrypt it and then discard the keys to directly seed the encrypted data from disk.
 
 Since encrypted torrents may contain confidential / private data implementations may also want to set more restrictive file permissions when decrypting data to reduce exposure in multi-user environments.
+
 
 
 Security Properties
@@ -246,7 +275,6 @@ Torrent creation
    
    * generate a random key. user may instead opt to reuse a key from another torrent
    * provide a meaningful public name distinct from the shadow name
-   * only encrypt the payload and not shadow any metadata 
 
  
 Key input
@@ -264,7 +292,7 @@ Magnet/Key export
 Provide option to
 
 * not include key [default]
-* include shadow key only, if there is any shadowed metadata
+* include shadow key.
 * include payload key.
 * include root key. if the client knows that the key has been reused for other torrents it should indicate this to the user
 

@@ -1,0 +1,81 @@
+:BEP: 48
+:Title: Tracker Protocol Extension: Scrape
+:Version: $Revision$
+:Last-Modified: $Date$
+:Author:  Jimmy Zelinskie <jimmyzelinskie@gmail.com>
+:Status:  Draft
+:Type:    Standards Track
+:Content-Type: text/x-rst
+:Created: 08-Sep-2016
+:Post-History:
+
+
+Abstract
+--------
+
+The original BitTorrent Protocol Specification (BEP 003) [#BEP_003]_ defines an exchange between a client and a tracker referred to as an Announce.
+An Announce has two objectives: update a peer's presence in the Swarm and discover other peers in the Swarm.
+As a result of dealing with multiple objectives, this exchange is computationally expensive when exercised at scale.
+In order to prevent trackers from becoming overloaded, Announces are specified to be sent on an interval dictated by the tracker's Announce response or when a client event occurs.
+However, in order to build responsive user interfaces, clients desired a way to query metadata about Swarms in bulk in the least computationally expensive way.
+The exchange that fetches this metadata for the clients is referred to as a Scrape.
+
+
+Implementation
+--------------
+
+As the UDP Tracker Protocol Specification (BEP 015) [#BEP_015]_ already defines the implementation of Scrape using the UDP protocol, the following will document the implementation for the HTTP Protocol.
+
+Changes to Announce
+...................
+
+The URL at which the Announce endpoint lives is now expected to contain the word ``announce`` somewhere on its path.
+This has been modified so that clients can rewrite this section of the path to ``scrape`` in order to determine the endpoint for Scrape requests.
+The standard URL query parameters defined in BEP 003 [#BEP_003]_ still follow.
+There are no changes to Announce responses.
+
+Scrape Request
+..............
+
+As per the previous section, clients should rewrite the portion of the Announce URL path containing the word ``announce`` to ``scrape`` in order to determine the endpoint to send Scrape requests.
+A scrape request contains only one key, the ``info_hash`` key specified in BEP 003 [#BEP_003]_, that can be appended multiple times to the subsequent URL via HTTP query parameters:
+
+Scrape Response
+...............
+
+A successful response is a bencoded dictionary containing one key-value pair: ``file`` paired with a dictionary of Swarm metadata.
+This dictionary is keyed by infohash and yet another dictionary with the keys "complete", "incomplete", and "downloaded".
+The values of these keys are integers with the number of active peers that have completed downloading, the number of active peers that have not completed downloading, and the number of peers that have ever completed downloading.
+An unsuccessful response is the standard bencoded dictionary with a key "failure_reason" and a string value as described in BEP 003 [#BEP_003]_.
+
+
+Example
+........
+
+Request:
+
+::
+
+  http://tracker/scrape?info_hash=xxxxxxxxxxxxxxxxxxxx&info_hash=yyyyyyyyyyyyyyyyyyyy&info_hash=zzzzzzzzzzzzzzzzzzzz
+
+Response:
+
+::
+
+  d
+    5:files
+    d
+      20:xxxxxxxxxxxxxxxxxxxxd8:completei11e10:downloadedi13772e10:incompletei19e
+      20:yyyyyyyyyyyyyyyyyyyyd8:completei21e10:downloadedi206e10:incompletei20e
+      20:zzzzzzzzzzzzzzzzzzzzd8:completei14e10:downloadedi12191e10:incompletei9e
+    e
+  e
+
+References
+----------
+
+.. [#BEP_003] BEP 0003. The BitTorrent Protocol Specification.
+   (http://www.bittorrent.org/beps/bep_0003.html)
+
+.. [#BEP_015] BEP 0015. UDP Tracker Protocol for BitTorrent.
+   (http://www.bittorrent.org/beps/bep_0015.html)

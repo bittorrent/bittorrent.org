@@ -24,19 +24,16 @@ Implementation
 
 As the UDP Tracker Protocol Specification (BEP 015) [#BEP_015]_ already defines the implementation of Scrape using the UDP protocol, the following will document the implementation for the HTTP Protocol.
 
-Changes to Announce
-...................
-
-The URL at which the Announce endpoint lives is now expected to contain the word ``announce`` somewhere on its path.
-This has been modified so that clients can rewrite this section of the path to ``scrape`` in order to determine the endpoint for Scrape requests.
-The standard URL query parameters defined in BEP 003 [#BEP_003]_ still follow.
-There are no changes to Announce responses.
-
 Scrape Request
 ..............
 
-As per the previous section, clients should rewrite the portion of the Announce URL path containing the word ``announce`` to ``scrape`` in order to determine the endpoint to send Scrape requests.
-A scrape request contains only one key, the ``info_hash`` key specified in BEP 003 [#BEP_003]_, that can be appended multiple times to the subsequent URL via HTTP query parameters:
+In order for a client to create a Scrape request, it must first determine the HTTP URL for the Scrape endpoint.
+This is done by locating the string ``announce`` in the Path section [#URL_Syntax]_ of the Announce URL and replacing it with the string ``scrape``.
+Performing a Scrape request to URLs that are not determined by this method are outside of the scope of this specification.
+
+A Scrape request contains no HTTP Body, but instead uses HTTP Query Parameters [#URL_Syntax]_ to encode its key-value pairs.
+There is only one key, the ``info_hash`` key specified in BEP 003 [#BEP_003]_.
+This key can be appended multiple times with different values for collecting data about multiple Swarms in one request.
 
 Scrape Response
 ...............

@@ -13,12 +13,10 @@
 Abstract
 --------
 
-The original BitTorrent Protocol Specification (BEP 003) [#BEP_003]_ defines an exchange between a client and a tracker referred to as an Announce.
-An Announce has two objectives: update a peer's presence in the Swarm and discover other peers in the Swarm.
-As a result of dealing with multiple objectives, this exchange is computationally expensive when exercised at scale.
-In order to prevent trackers from becoming overloaded, Announces are specified to be sent on an interval dictated by the tracker's Announce response or when a client event occurs.
-However, in order to build responsive user interfaces, clients desired a way to query metadata about Swarms in bulk in the least computationally expensive way.
+The original BitTorrent Protocol Specification (BEP 003) [#BEP_003]_ defines one exchange between a client and a tracker referred to as an Announce.
+In order to build responsive user interfaces, clients desired an additional way to query metadata about Swarms in bulk.
 The exchange that fetches this metadata for the clients is referred to as a Scrape.
+It should be noted that Scrape exchanges have no effect on a peer's participating in a Swarm.
 
 
 Implementation

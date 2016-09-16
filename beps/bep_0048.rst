@@ -59,20 +59,26 @@ Request:
 
 ::
 
-  http://tracker/scrape?info_hash=xxxxxxxxxxxxxxxxxxxx&info_hash=yyyyyyyyyyyyyyyyyyyy&info_hash=zzzzzzzzzzzzzzzzzzzz
+  http://tracker/scrape?info_hash=xxxxxxxxxxxxxxxxxxxx&info_hash=yyyyyyyyyyyyyyyyyyyy
 
 Response:
 
 ::
 
-  d
-    5:files
-    d
-      20:xxxxxxxxxxxxxxxxxxxxd8:completei11e10:downloadedi13772e10:incompletei19e
-      20:yyyyyyyyyyyyyyyyyyyyd8:completei21e10:downloadedi206e10:incompletei20e
-      20:zzzzzzzzzzzzzzzzzzzzd8:completei14e10:downloadedi12191e10:incompletei9e
-    e
-  e
+  d5:filesd20:xxxxxxxxxxxxxxxxxxxxd8:completei11e10:downloadedi13772e10:incompletei19e
+  20:yyyyyyyyyyyyyyyyyyyyd8:completei21e10:downloadedi206e10:incompletei20eee
+
+Response (JSON encoded for readability):
+
+::
+
+  {
+    'files': {
+      'xxxxxxxxxxxxxxxxxxxx': {'complete': 11, 'downloaded': 13772, 'incomplete': 19},
+      'yyyyyyyyyyyyyyyyyyyy': {'complete': 21, 'downloaded': 206, 'incomplete': 20}
+    }
+  }
+
 
 References
 ----------

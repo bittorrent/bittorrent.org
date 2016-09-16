@@ -38,11 +38,19 @@ This key can be appended multiple times with different values for collecting dat
 Scrape Response
 ...............
 
-A successful response is a bencoded dictionary containing one key-value pair: ``file`` paired with a dictionary of Swarm metadata.
-This dictionary is keyed by infohash and yet another dictionary with the keys "complete", "incomplete", and "downloaded".
-The values of these keys are integers with the number of active peers that have completed downloading, the number of active peers that have not completed downloading, and the number of peers that have ever completed downloading.
-An unsuccessful response is the standard bencoded dictionary with a key "failure_reason" and a string value as described in BEP 003 [#BEP_003]_.
+The response to a successful request is a bencoded dictionary containing one key-value pair: the key ``files`` with the value being a dictionary of the 20-byte string representation of an infohash paired with a dictionary of Swarm metadata.
+The fields found in the Swarm metadata dictionary are as follows:
 
+complete
+  The number of active peers that have completed downloading.
+
+incomplete
+  The number of active peers that have not completed downloading.
+
+downloaded
+  The number of peers that have ever completed downloading.
+
+The response to an unsuccessful request is a bencoded dictionary with the key ``failure_reason`` and a string value as described in BEP 003 [#BEP_003]_.
 
 Example
 ........

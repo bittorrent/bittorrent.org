@@ -16,7 +16,7 @@ Abstract
 The original BitTorrent Protocol Specification (BEP 003) [#BEP_003]_ defines one exchange between a client and a tracker referred to as an Announce.
 In order to build responsive user interfaces, clients desired an additional way to query metadata about Swarms in bulk.
 The exchange that fetches this metadata for the clients is referred to as a Scrape.
-It should be noted that Scrape exchanges have no effect on a peer's participating in a Swarm.
+It should be noted that Scrape exchanges have no effect on a peer's participation in a Swarm.
 
 
 Implementation

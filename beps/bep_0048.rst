@@ -88,3 +88,6 @@ References
 
 .. [#BEP_015] BEP 0015. UDP Tracker Protocol for BitTorrent.
    (http://www.bittorrent.org/beps/bep_0015.html)
+
+.. [#URL_Syntax] URL Syntax. Wikipedia.
+   (https://en.wikipedia.org/wiki/Uniform_Resource_Identifier#Syntax)

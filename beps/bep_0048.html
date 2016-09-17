@@ -38,8 +38,8 @@
 <tr class="field"><th class="docinfo-name">Title:</th><td class="field-body">Tracker Protocol Extension: Scrape</td>
 </tr>
 <tr><th class="docinfo-name">Version:</th>
-<td>fc9e3530b196bc58a0df77d63e10b7b5e277bcb5</td></tr>
-<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Tue Sep 13 20:06:01 2016 -0400</td>
+<td>676afdae9a36f305bca94cd9b5f88ae5b4e5b78b</td></tr>
+<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Fri Sep 16 20:00:44 2016 -0400</td>
 </tr>
 <tr><th class="docinfo-name">Author:</th>
 <td>Jimmy Zelinskie &lt;<a class="reference external" href="mailto:jimmyzelinskie&#37;&#52;&#48;gmail&#46;com">jimmyzelinskie<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;</td></tr>
@@ -57,51 +57,56 @@
 </table>
 <div class="section" id="abstract">
 <h1>Abstract</h1>
-<p>The original BitTorrent Protocol Specification (BEP 003) <a class="footnote-reference" href="#bep-003" id="id1">[1]</a> defines an exchange between a client and a tracker referred to as an Announce.
-An Announce has two objectives: update a peer's presence in the Swarm and discover other peers in the Swarm.
-As a result of dealing with multiple objectives, this exchange is computationally expensive when exercised at scale.
-In order to prevent trackers from becoming overloaded, Announces are specified to be sent on an interval dictated by the tracker's Announce response or when a client event occurs.
-However, in order to build responsive user interfaces, clients desired a way to query metadata about Swarms in bulk in the least computationally expensive way.
-The exchange that fetches this metadata for the clients is referred to as a Scrape.</p>
+<p>The original BitTorrent Protocol Specification (BEP 003) <a class="footnote-reference" href="#bep-003" id="id1">[1]</a> defines one exchange between a client and a tracker referred to as an Announce.
+In order to build responsive user interfaces, clients desired an additional way to query metadata about Swarms in bulk.
+The exchange that fetches this metadata for the clients is referred to as a Scrape.
+It should be noted that Scrape exchanges have no effect on a peer's participating in a Swarm.</p>
 </div>
 <div class="section" id="implementation">
 <h1>Implementation</h1>
 <p>As the UDP Tracker Protocol Specification (BEP 015) <a class="footnote-reference" href="#bep-015" id="id2">[2]</a> already defines the implementation of Scrape using the UDP protocol, the following will document the implementation for the HTTP Protocol.</p>
-<div class="section" id="changes-to-announce">
-<h2>Changes to Announce</h2>
-<p>The URL at which the Announce endpoint lives is now expected to contain the word <tt class="docutils literal">announce</tt> somewhere on its path.
-This has been modified so that clients can rewrite this section of the path to <tt class="docutils literal">scrape</tt> in order to determine the endpoint for Scrape requests.
-The standard URL query parameters defined in BEP 003 <a class="footnote-reference" href="#bep-003" id="id3">[1]</a> still follow.
-There are no changes to Announce responses.</p>
-</div>
 <div class="section" id="scrape-request">
 <h2>Scrape Request</h2>
-<p>As per the previous section, clients should rewrite the portion of the Announce URL path containing the word <tt class="docutils literal">announce</tt> to <tt class="docutils literal">scrape</tt> in order to determine the endpoint to send Scrape requests.
-A scrape request contains only one key, the <tt class="docutils literal">info_hash</tt> key specified in BEP 003 <a class="footnote-reference" href="#bep-003" id="id4">[1]</a>, that can be appended multiple times to the subsequent URL via HTTP query parameters:</p>
+<p>In order for a client to create a Scrape request, it must first determine the HTTP URL for the Scrape endpoint.
+This is done by locating the string <tt class="docutils literal">announce</tt> in the Path section <a class="footnote-reference" href="#url-syntax" id="id3">[3]</a> of the Announce URL and replacing it with the string <tt class="docutils literal">scrape</tt>.
+Performing a Scrape request to URLs that are not determined by this method are outside of the scope of this specification.</p>
+<p>A Scrape request contains no HTTP Body, but instead uses HTTP Query Parameters <a class="footnote-reference" href="#url-syntax" id="id4">[3]</a> to encode its key-value pairs.
+There is only one key, the <tt class="docutils literal">info_hash</tt> key specified in BEP 003 <a class="footnote-reference" href="#bep-003" id="id5">[1]</a>.
+This key can be appended multiple times with different values for collecting data about multiple Swarms in one request.</p>
 </div>
 <div class="section" id="scrape-response">
 <h2>Scrape Response</h2>
-<p>A successful response is a bencoded dictionary containing one key-value pair: <tt class="docutils literal">file</tt> paired with a dictionary of Swarm metadata.
-This dictionary is keyed by infohash and yet another dictionary with the keys &quot;complete&quot;, &quot;incomplete&quot;, and &quot;downloaded&quot;.
-The values of these keys are integers with the number of active peers that have completed downloading, the number of active peers that have not completed downloading, and the number of peers that have ever completed downloading.
-An unsuccessful response is the standard bencoded dictionary with a key &quot;failure_reason&quot; and a string value as described in BEP 003 <a class="footnote-reference" href="#bep-003" id="id5">[1]</a>.</p>
+<p>The response to a successful request is a bencoded dictionary containing one key-value pair: the key <tt class="docutils literal">files</tt> with the value being a dictionary of the 20-byte string representation of an infohash paired with a dictionary of Swarm metadata.
+The fields found in the Swarm metadata dictionary are as follows:</p>
+<dl class="docutils">
+<dt>complete</dt>
+<dd>The number of active peers that have completed downloading.</dd>
+<dt>incomplete</dt>
+<dd>The number of active peers that have not completed downloading.</dd>
+<dt>downloaded</dt>
+<dd>The number of peers that have ever completed downloading.</dd>
+</dl>
+<p>The response to an unsuccessful request is a bencoded dictionary with the key <tt class="docutils literal">failure_reason</tt> and a string value as described in BEP 003 <a class="footnote-reference" href="#bep-003" id="id6">[1]</a>.</p>
 </div>
 <div class="section" id="example">
 <h2>Example</h2>
 <p>Request:</p>
 <pre class="literal-block">
-http://tracker/scrape?info_hash=xxxxxxxxxxxxxxxxxxxx&amp;info_hash=yyyyyyyyyyyyyyyyyyyy&amp;info_hash=zzzzzzzzzzzzzzzzzzzz
+http://tracker/scrape?info_hash=xxxxxxxxxxxxxxxxxxxx&amp;info_hash=yyyyyyyyyyyyyyyyyyyy
 </pre>
 <p>Response:</p>
 <pre class="literal-block">
-d
-  5:files
-  d
-    20:xxxxxxxxxxxxxxxxxxxxd8:completei11e10:downloadedi13772e10:incompletei19e
-    20:yyyyyyyyyyyyyyyyyyyyd8:completei21e10:downloadedi206e10:incompletei20e
-    20:zzzzzzzzzzzzzzzzzzzzd8:completei14e10:downloadedi12191e10:incompletei9e
-  e
-e
+d5:filesd20:xxxxxxxxxxxxxxxxxxxxd8:completei11e10:downloadedi13772e10:incompletei19e
+20:yyyyyyyyyyyyyyyyyyyyd8:completei21e10:downloadedi206e10:incompletei20eee
+</pre>
+<p>Response (JSON encoded for readability):</p>
+<pre class="literal-block">
+{
+  'files': {
+    'xxxxxxxxxxxxxxxxxxxx': {'complete': 11, 'downloaded': 13772, 'incomplete': 19},
+    'yyyyyyyyyyyyyyyyyyyy': {'complete': 21, 'downloaded': 206, 'incomplete': 20}
+  }
+}
 </pre>
 </div>
 </div>
@@ -110,7 +115,7 @@ e
 <table class="docutils footnote" frame="void" id="bep-003" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label">[1]</td><td><em>(<a class="fn-backref" href="#id1">1</a>, <a class="fn-backref" href="#id3">2</a>, <a class="fn-backref" href="#id4">3</a>, <a class="fn-backref" href="#id5">4</a>)</em> BEP 0003. The BitTorrent Protocol Specification.
+<tr><td class="label">[1]</td><td><em>(<a class="fn-backref" href="#id1">1</a>, <a class="fn-backref" href="#id5">2</a>, <a class="fn-backref" href="#id6">3</a>)</em> BEP 0003. The BitTorrent Protocol Specification.
 (<a class="reference external" href="http://www.bittorrent.org/beps/bep_0003.html">http://www.bittorrent.org/beps/bep_0003.html</a>)</td></tr>
 </tbody>
 </table>
@@ -119,6 +124,13 @@ e
 <tbody valign="top">
 <tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td>BEP 0015. UDP Tracker Protocol for BitTorrent.
 (<a class="reference external" href="http://www.bittorrent.org/beps/bep_0015.html">http://www.bittorrent.org/beps/bep_0015.html</a>)</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="url-syntax" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[3]</td><td><em>(<a class="fn-backref" href="#id3">1</a>, <a class="fn-backref" href="#id4">2</a>)</em> URL Syntax. Wikipedia.
+(<a class="reference external" href="https://en.wikipedia.org/wiki/Uniform_Resource_Identifier#Syntax">https://en.wikipedia.org/wiki/Uniform_Resource_Identifier#Syntax</a>)</td></tr>
 </tbody>
 </table>
 </div>

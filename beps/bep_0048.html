@@ -38,8 +38,8 @@
 <tr class="field"><th class="docinfo-name">Title:</th><td class="field-body">Tracker Protocol Extension: Scrape</td>
 </tr>
 <tr><th class="docinfo-name">Version:</th>
-<td>676afdae9a36f305bca94cd9b5f88ae5b4e5b78b</td></tr>
-<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Fri Sep 16 20:00:44 2016 -0400</td>
+<td>879de8e9c290a33be874b567cd1c8ec4df0900f4</td></tr>
+<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Mon Sep 19 09:46:58 2016 -0700</td>
 </tr>
 <tr><th class="docinfo-name">Author:</th>
 <td>Jimmy Zelinskie &lt;<a class="reference external" href="mailto:jimmyzelinskie&#37;&#52;&#48;gmail&#46;com">jimmyzelinskie<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;</td></tr>
@@ -57,27 +57,27 @@
 </table>
 <div class="section" id="abstract">
 <h1>Abstract</h1>
-<p>The original BitTorrent Protocol Specification (BEP 003) <a class="footnote-reference" href="#bep-003" id="id1">[1]</a> defines one exchange between a client and a tracker referred to as an Announce.
-In order to build responsive user interfaces, clients desired an additional way to query metadata about Swarms in bulk.
-The exchange that fetches this metadata for the clients is referred to as a Scrape.
-It should be noted that Scrape exchanges have no effect on a peer's participation in a Swarm.</p>
+<p>The original BitTorrent Protocol Specification <a class="footnote-reference" href="#bep-003" id="id1">[1]</a> defines one exchange between a client and a tracker referred to as an announce.
+In order to build responsive user interfaces, clients desired an additional way to query metadata about swarms in bulk.
+The exchange that fetches this metadata for the clients is referred to as a scrape.
+It should be noted that scrape exchanges have no effect on a peer's participation in a swarm.</p>
 </div>
 <div class="section" id="implementation">
 <h1>Implementation</h1>
-<p>As the UDP Tracker Protocol Specification (BEP 015) <a class="footnote-reference" href="#bep-015" id="id2">[2]</a> already defines the implementation of Scrape using the UDP protocol, the following will document the implementation for the HTTP Protocol.</p>
+<p>As the UDP Tracker Protocol Specification <a class="footnote-reference" href="#bep-015" id="id2">[2]</a> already defines the implementation of scrape using the UDP protocol, the following will document the implementation for the HTTP protocol.</p>
 <div class="section" id="scrape-request">
 <h2>Scrape Request</h2>
-<p>In order for a client to create a Scrape request, it must first determine the HTTP URL for the Scrape endpoint.
-This is done by locating the string <tt class="docutils literal">announce</tt> in the Path section <a class="footnote-reference" href="#url-syntax" id="id3">[3]</a> of the Announce URL and replacing it with the string <tt class="docutils literal">scrape</tt>.
-Performing a Scrape request to URLs that are not determined by this method are outside of the scope of this specification.</p>
-<p>A Scrape request contains no HTTP Body, but instead uses HTTP Query Parameters <a class="footnote-reference" href="#url-syntax" id="id4">[3]</a> to encode its key-value pairs.
+<p>In order for a client to create a scrape request, it must first determine the HTTP URL for the scrape endpoint.
+This is done by locating the string <tt class="docutils literal">announce</tt> in the path section <a class="footnote-reference" href="#url-syntax" id="id3">[3]</a> of the announce URL and replacing it with the string <tt class="docutils literal">scrape</tt>.
+Performing a scrape request to URLs that are not determined by this method are outside of the scope of this specification.</p>
+<p>A scrape request contains no HTTP body, but instead uses HTTP query parameters <a class="footnote-reference" href="#url-syntax" id="id4">[3]</a> to encode its key-value pairs.
 There is only one key, the <tt class="docutils literal">info_hash</tt> key specified in BEP 003 <a class="footnote-reference" href="#bep-003" id="id5">[1]</a>.
-This key can be appended multiple times with different values for collecting data about multiple Swarms in one request.</p>
+This key can be appended multiple times with different values for collecting data about multiple swarms in one request.</p>
 </div>
 <div class="section" id="scrape-response">
 <h2>Scrape Response</h2>
-<p>The response to a successful request is a bencoded dictionary containing one key-value pair: the key <tt class="docutils literal">files</tt> with the value being a dictionary of the 20-byte string representation of an infohash paired with a dictionary of Swarm metadata.
-The fields found in the Swarm metadata dictionary are as follows:</p>
+<p>The response to a successful request is a bencoded dictionary containing one key-value pair: the key <tt class="docutils literal">files</tt> with the value being a dictionary of the 20-byte string representation of an infohash paired with a dictionary of swarm metadata.
+The fields found in the swarm metadata dictionary are as follows:</p>
 <dl class="docutils">
 <dt>complete</dt>
 <dd>The number of active peers that have completed downloading.</dd>

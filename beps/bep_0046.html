@@ -38,8 +38,8 @@
 <tr class="field"><th class="docinfo-name">Title:</th><td class="field-body">Updating Torrents Via DHT Mutable Items</td>
 </tr>
 <tr><th class="docinfo-name">Version:</th>
-<td>116c36836c8161f555b7ad4502e85c0f19951bb7</td></tr>
-<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Tue Aug 9 01:10:57 2016 +0200</td>
+<td>baadc751e455b5d58a153088c42c4831013a92df</td></tr>
+<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Sun Aug 14 22:16:29 2016 +0200</td>
 </tr>
 <tr><th class="docinfo-name">Author:</th>
 <td>Luca Matteis &lt;<a class="reference external" href="mailto:lmatteis&#37;&#52;&#48;gmail&#46;com">lmatteis<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;</td></tr>
@@ -82,8 +82,8 @@ using features already present in the BitTorrent network (mainly DHT store).</p>
 <p>Publishers should issue a mutable <tt class="docutils literal">put</tt> request when they want to notify
 consumers about an update of a torrent. The value of the payload <tt class="docutils literal">v</tt> contains
 a dictionary with key <tt class="docutils literal">ih</tt> (info hash) and value the 20 byte infohash of such
-torrent. Note that there is a 1-to-1 mapping between a mutable DHT item and a
-torrent.</p>
+torrent. Note that while a DHT entry under a particular key maps to a single torrent
+at any given moment, many different keys can point to the same torrent.</p>
 <pre class="literal-block">
 {
   ...

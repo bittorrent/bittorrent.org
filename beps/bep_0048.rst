@@ -1,0 +1,93 @@
+:BEP: 48
+:Title: Tracker Protocol Extension: Scrape
+:Version: $Revision$
+:Last-Modified: $Date$
+:Author:  Jimmy Zelinskie <jimmyzelinskie@gmail.com>
+:Status:  Draft
+:Type:    Standards Track
+:Content-Type: text/x-rst
+:Created: 08-Sep-2016
+:Post-History:
+
+
+Abstract
+--------
+
+The original BitTorrent Protocol Specification (BEP 003) [#BEP_003]_ defines one exchange between a client and a tracker referred to as an Announce.
+In order to build responsive user interfaces, clients desired an additional way to query metadata about Swarms in bulk.
+The exchange that fetches this metadata for the clients is referred to as a Scrape.
+It should be noted that Scrape exchanges have no effect on a peer's participation in a Swarm.
+
+
+Implementation
+--------------
+
+As the UDP Tracker Protocol Specification (BEP 015) [#BEP_015]_ already defines the implementation of Scrape using the UDP protocol, the following will document the implementation for the HTTP Protocol.
+
+Scrape Request
+..............
+
+In order for a client to create a Scrape request, it must first determine the HTTP URL for the Scrape endpoint.
+This is done by locating the string ``announce`` in the Path section [#URL_Syntax]_ of the Announce URL and replacing it with the string ``scrape``.
+Performing a Scrape request to URLs that are not determined by this method are outside of the scope of this specification.
+
+A Scrape request contains no HTTP Body, but instead uses HTTP Query Parameters [#URL_Syntax]_ to encode its key-value pairs.
+There is only one key, the ``info_hash`` key specified in BEP 003 [#BEP_003]_.
+This key can be appended multiple times with different values for collecting data about multiple Swarms in one request.
+
+Scrape Response
+...............
+
+The response to a successful request is a bencoded dictionary containing one key-value pair: the key ``files`` with the value being a dictionary of the 20-byte string representation of an infohash paired with a dictionary of Swarm metadata.
+The fields found in the Swarm metadata dictionary are as follows:
+
+complete
+  The number of active peers that have completed downloading.
+
+incomplete
+  The number of active peers that have not completed downloading.
+
+downloaded
+  The number of peers that have ever completed downloading.
+
+The response to an unsuccessful request is a bencoded dictionary with the key ``failure_reason`` and a string value as described in BEP 003 [#BEP_003]_.
+
+Example
+........
+
+Request:
+
+::
+
+  http://tracker/scrape?info_hash=xxxxxxxxxxxxxxxxxxxx&info_hash=yyyyyyyyyyyyyyyyyyyy
+
+Response:
+
+::
+
+  d5:filesd20:xxxxxxxxxxxxxxxxxxxxd8:completei11e10:downloadedi13772e10:incompletei19e
+  20:yyyyyyyyyyyyyyyyyyyyd8:completei21e10:downloadedi206e10:incompletei20eee
+
+Response (JSON encoded for readability):
+
+::
+
+  {
+    'files': {
+      'xxxxxxxxxxxxxxxxxxxx': {'complete': 11, 'downloaded': 13772, 'incomplete': 19},
+      'yyyyyyyyyyyyyyyyyyyy': {'complete': 21, 'downloaded': 206, 'incomplete': 20}
+    }
+  }
+
+
+References
+----------
+
+.. [#BEP_003] BEP 0003. The BitTorrent Protocol Specification.
+   (http://www.bittorrent.org/beps/bep_0003.html)
+
+.. [#BEP_015] BEP 0015. UDP Tracker Protocol for BitTorrent.
+   (http://www.bittorrent.org/beps/bep_0015.html)
+
+.. [#URL_Syntax] URL Syntax. Wikipedia.
+   (https://en.wikipedia.org/wiki/Uniform_Resource_Identifier#Syntax)

@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
+<title></title>
+<meta name="author" content="Jimmy Zelinskie &lt;jimmyzelinskie&#64;gmail.com&gt;" />
+<link rel="stylesheet" href="../css/bep.css" type="text/css" />
+</head>
+<body>
+<div class="document">
+
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="../index.html">BitTorrent<span>.org</span></a></h1>
+</div>
+<div id="nav">
+<ul>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../introduction.html">For Users</a></li>
+<li><a href="bep_0000.html"><span>For Developers</span></a></li>
+<li><a href="../mailing_list.html">Developer mailing list</a> </li>
+<li><a href="http://forum.bittorrent.org"> Forums (archive) </a></li>
+</ul>
+</div> <!-- nav -->
+<!-- ### Begin Content ### -->
+<div id="second">
+
+
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
+<tbody valign="top">
+<tr class="field"><th class="docinfo-name">BEP:</th><td class="field-body">48</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Title:</th><td class="field-body">Tracker Protocol Extension: Scrape</td>
+</tr>
+<tr><th class="docinfo-name">Version:</th>
+<td>676afdae9a36f305bca94cd9b5f88ae5b4e5b78b</td></tr>
+<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Fri Sep 16 20:00:44 2016 -0400</td>
+</tr>
+<tr><th class="docinfo-name">Author:</th>
+<td>Jimmy Zelinskie &lt;<a class="reference external" href="mailto:jimmyzelinskie&#37;&#52;&#48;gmail&#46;com">jimmyzelinskie<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;</td></tr>
+<tr><th class="docinfo-name">Status:</th>
+<td>Draft</td></tr>
+<tr class="field"><th class="docinfo-name">Type:</th><td class="field-body">Standards Track</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Content-Type:</th><td class="field-body">text/x-rst</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Created:</th><td class="field-body">08-Sep-2016</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Post-History:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="abstract">
+<h1>Abstract</h1>
+<p>The original BitTorrent Protocol Specification (BEP 003) <a class="footnote-reference" href="#bep-003" id="id1">[1]</a> defines one exchange between a client and a tracker referred to as an Announce.
+In order to build responsive user interfaces, clients desired an additional way to query metadata about Swarms in bulk.
+The exchange that fetches this metadata for the clients is referred to as a Scrape.
+It should be noted that Scrape exchanges have no effect on a peer's participation in a Swarm.</p>
+</div>
+<div class="section" id="implementation">
+<h1>Implementation</h1>
+<p>As the UDP Tracker Protocol Specification (BEP 015) <a class="footnote-reference" href="#bep-015" id="id2">[2]</a> already defines the implementation of Scrape using the UDP protocol, the following will document the implementation for the HTTP Protocol.</p>
+<div class="section" id="scrape-request">
+<h2>Scrape Request</h2>
+<p>In order for a client to create a Scrape request, it must first determine the HTTP URL for the Scrape endpoint.
+This is done by locating the string <tt class="docutils literal">announce</tt> in the Path section <a class="footnote-reference" href="#url-syntax" id="id3">[3]</a> of the Announce URL and replacing it with the string <tt class="docutils literal">scrape</tt>.
+Performing a Scrape request to URLs that are not determined by this method are outside of the scope of this specification.</p>
+<p>A Scrape request contains no HTTP Body, but instead uses HTTP Query Parameters <a class="footnote-reference" href="#url-syntax" id="id4">[3]</a> to encode its key-value pairs.
+There is only one key, the <tt class="docutils literal">info_hash</tt> key specified in BEP 003 <a class="footnote-reference" href="#bep-003" id="id5">[1]</a>.
+This key can be appended multiple times with different values for collecting data about multiple Swarms in one request.</p>
+</div>
+<div class="section" id="scrape-response">
+<h2>Scrape Response</h2>
+<p>The response to a successful request is a bencoded dictionary containing one key-value pair: the key <tt class="docutils literal">files</tt> with the value being a dictionary of the 20-byte string representation of an infohash paired with a dictionary of Swarm metadata.
+The fields found in the Swarm metadata dictionary are as follows:</p>
+<dl class="docutils">
+<dt>complete</dt>
+<dd>The number of active peers that have completed downloading.</dd>
+<dt>incomplete</dt>
+<dd>The number of active peers that have not completed downloading.</dd>
+<dt>downloaded</dt>
+<dd>The number of peers that have ever completed downloading.</dd>
+</dl>
+<p>The response to an unsuccessful request is a bencoded dictionary with the key <tt class="docutils literal">failure_reason</tt> and a string value as described in BEP 003 <a class="footnote-reference" href="#bep-003" id="id6">[1]</a>.</p>
+</div>
+<div class="section" id="example">
+<h2>Example</h2>
+<p>Request:</p>
+<pre class="literal-block">
+http://tracker/scrape?info_hash=xxxxxxxxxxxxxxxxxxxx&amp;info_hash=yyyyyyyyyyyyyyyyyyyy
+</pre>
+<p>Response:</p>
+<pre class="literal-block">
+d5:filesd20:xxxxxxxxxxxxxxxxxxxxd8:completei11e10:downloadedi13772e10:incompletei19e
+20:yyyyyyyyyyyyyyyyyyyyd8:completei21e10:downloadedi206e10:incompletei20eee
+</pre>
+<p>Response (JSON encoded for readability):</p>
+<pre class="literal-block">
+{
+  'files': {
+    'xxxxxxxxxxxxxxxxxxxx': {'complete': 11, 'downloaded': 13772, 'incomplete': 19},
+    'yyyyyyyyyyyyyyyyyyyy': {'complete': 21, 'downloaded': 206, 'incomplete': 20}
+  }
+}
+</pre>
+</div>
+</div>
+<div class="section" id="references">
+<h1>References</h1>
+<table class="docutils footnote" frame="void" id="bep-003" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[1]</td><td><em>(<a class="fn-backref" href="#id1">1</a>, <a class="fn-backref" href="#id5">2</a>, <a class="fn-backref" href="#id6">3</a>)</em> BEP 0003. The BitTorrent Protocol Specification.
+(<a class="reference external" href="http://www.bittorrent.org/beps/bep_0003.html">http://www.bittorrent.org/beps/bep_0003.html</a>)</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="bep-015" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td>BEP 0015. UDP Tracker Protocol for BitTorrent.
+(<a class="reference external" href="http://www.bittorrent.org/beps/bep_0015.html">http://www.bittorrent.org/beps/bep_0015.html</a>)</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="url-syntax" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[3]</td><td><em>(<a class="fn-backref" href="#id3">1</a>, <a class="fn-backref" href="#id4">2</a>)</em> URL Syntax. Wikipedia.
+(<a class="reference external" href="https://en.wikipedia.org/wiki/Uniform_Resource_Identifier#Syntax">https://en.wikipedia.org/wiki/Uniform_Resource_Identifier#Syntax</a>)</td></tr>
+</tbody>
+</table>
+</div>
+
+</div>
+	<div id="footer">
+<hr/>
+</div>
+
+</div>
+</body>
+</html>

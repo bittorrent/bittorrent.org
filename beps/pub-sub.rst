@@ -29,6 +29,8 @@ The pub/sub protocol is based on the DHT protocol [#BEP-5]_ with the following m
 
 The value of K is set to one.
 
+The routing table's home bucket and its sibling SHOULD have a capacity of at least 8 nodes each. When the home bucket is split all but one node from the former home bucket's sibling SHOULD be evicted from the routing table.
+
 Every query MUST contain a key ``c`` with a 20-byte string value. The value is used to identify which topic the message is intended for. The value MUST be set to the target hash of the mutable item associated with the topic.
 
 The ``get_peers`` and ``announce_peer`` queries are prohibited.

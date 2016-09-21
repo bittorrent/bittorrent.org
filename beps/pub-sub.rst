@@ -37,8 +37,6 @@ The ``get_peers`` and ``announce_peer`` queries are prohibited.
 
 Mutable ``get`` and ``put`` queries [#BEP-44]_ are only permitted for the mutable item associated with the topic.
 
-The response to ``get`` queries SHOULD NOT contain a ``nodes`` or ``nodes6`` [#BEP-32]_ key.
-
 If a ``put`` query contains a valid update it SHOULD be forwarded to all nodes in the routing table for the topic. An update is valid if the query is valid per BEP 44 [#BEP-44]_ and the value has a sequence number greater than the client's currently stored value. The query SHOULD be forwarded by generating new queries as if the client originated the request.
 
 
@@ -59,17 +57,14 @@ References
 
 .. [#BEP-5] BEP_0005. DHT Protocol.
    (http://www.bittorrent.org/beps/bep_0005.html)
-   
-.. [#BEP-32] BEP_0032. BitTorrent DHT Extensions for IPv6.
-   (http://www.bittorrent.org/beps/bep_0032.html)
 
 .. [#BEP-44] BEP_0044. Storing arbitrary data in the DHT.
    (http://www.bittorrent.org/beps/bep_0044.html)
-   
+
 .. [#BEP-46] BEP_0046. Updating Torrents Via DHT Mutable Items.
    (http://www.bittorrent.org/beps/bep_0046.html)
 
-   
+
 Copyright
 =========
 

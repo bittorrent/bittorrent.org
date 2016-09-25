@@ -31,13 +31,52 @@ The value of K is set to one.
 
 The routing table's home bucket and its sibling SHOULD have a capacity of at least 8 nodes each. When the home bucket is split the sibling of the previous home bucket (now an uncle of the new home bucket) SHOULD be resized to one node per the setting of K=1.
 
-Every query MUST contain a key ``c`` with a 20-byte string value. The value is used to identify which topic the message is intended for. The value MUST be set to the target hash of the mutable item associated with the topic.
+All messages MUST contain a key ``c`` with a 20-byte string value. The value is used to identify which topic the message is intended for. The value MUST be set to the target hash of the mutable item associated with the topic.
 
 The ``get_peers`` and ``announce_peer`` queries are prohibited.
 
 Mutable ``get`` and ``put`` queries [#BEP-44]_ are only permitted for the mutable item associated with the topic.
 
 If a ``put`` query contains a valid update it SHOULD be forwarded to all nodes in the routing table for the topic. An update is valid if the query is valid per BEP 44 [#BEP-44]_ and the value has a sequence number greater than the client's currently stored value. The query SHOULD be forwarded by generating new queries as if the client originated the request.
+
+
+Example Transaction
+-------------------
+A ``get`` request on a topic network would look like:
+
+.. parsed-literal::
+
+    {
+        "a":
+        {
+            "id": *<20 byte id of sending node (string)>*,
+            "seq": *<optional sequence number (integer)>*,
+            "target": *<20 byte SHA-1 hash of public key and salt (string)>*
+        },
+        "c": *<20 byte SHA-1 hash of public key and salt (string)>*,
+        "t": *<transaction-id (string)>*,
+        "y": "q",
+        "q": "get"
+    }
+
+The ``seq`` key SHOULD always be included in ``get`` requests unless the node is joining the topic and doesn't have a value for the item yet. The response:
+
+.. parsed-literal::
+
+    {
+        "c": *<20 byte SHA-1 hash of public key and salt (string)>*,
+        "r":
+        {
+            "id": *<20 byte id of sending node (string)>*,
+            "nodes": *<IPv4 nodes close to 'target'>*,
+            "seq": *<monotonically increasing sequence number (integer)>*,
+            "token": *<write-token (string)>*
+        },
+        "t": *<transaction-id (string)>*,
+        "y": "r"
+    }
+
+Here we're assuming the requester included the ``seq`` key and the responder did not have a newer value so it was omitted from the response.
 
 
 Subscribing to topics

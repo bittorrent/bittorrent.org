@@ -1,4 +1,4 @@
-:BEP: XXX
+:BEP: 50
 :Title: Publish/Subscribe Protocol
 :Version: $Revision$
 :Last-Modified: $Date$

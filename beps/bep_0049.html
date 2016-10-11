@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
+<title></title>
+<meta name="author" content="The 8472 &lt;the8472.bep&#64;infinite-source.de&gt;" />
+<link rel="stylesheet" href="../css/bep.css" type="text/css" />
+</head>
+<body>
+<div class="document">
+
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="../index.html">BitTorrent<span>.org</span></a></h1>
+</div>
+<div id="nav">
+<ul>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../introduction.html">For Users</a></li>
+<li><a href="bep_0000.html"><span>For Developers</span></a></li>
+<li><a href="../mailing_list.html">Developer mailing list</a> </li>
+<li><a href="http://forum.bittorrent.org"> Forums (archive) </a></li>
+</ul>
+</div> <!-- nav -->
+<!-- ### Begin Content ### -->
+<div id="second">
+
+
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
+<tbody valign="top">
+<tr class="field"><th class="docinfo-name">BEP:</th><td class="field-body">49</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Title:</th><td class="field-body">Distributed Torrent Feeds</td>
+</tr>
+<tr><th class="docinfo-name">Version:</th>
+<td>ff3365f62b5a398b4fc00525af3fd943211e0dec</td></tr>
+<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Mon Oct 3 01:03:39 2016 +0200</td>
+</tr>
+<tr><th class="docinfo-name">Author:</th>
+<td>The 8472 &lt;<a class="reference external" href="mailto:the8472&#46;bep&#37;&#52;&#48;infinite-source&#46;de">the8472<span>&#46;</span>bep<span>&#64;</span>infinite-source<span>&#46;</span>de</a>&gt;</td></tr>
+<tr><th class="docinfo-name">Status:</th>
+<td>Draft</td></tr>
+<tr class="field"><th class="docinfo-name">Type:</th><td class="field-body">Standards Track</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Content-Type:</th><td class="field-body">text/x-rst</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Created:</th><td class="field-body">14-Aug-2016</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Post-History:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="abstract">
+<h1>Abstract</h1>
+<p>This document specifies conventions for content feeds represented as torrents within torrents, i.e. metadata files which in turn list metadata files describing the actual content.</p>
+<p>The goal is to provide functionality comparable to RSS Feeds <a class="footnote-reference" href="#bep-36" id="id1">[2]</a> but in a distributed fashion by using the bittorrent protocol itself.</p>
+</div>
+<div class="section" id="intended-use">
+<h1>Intended Use</h1>
+<p>This BEP should be used when the distribution of torrent files themselves is the goal, especially when subscribers may only be interested in a subset of the data or may wish to search through the metadata before selecting torrents to download.</p>
+<p>In cases where the publisher can reasonably assume that subscribers will want almost all content of a foreseeably small set of files then BEP 46 should be used directly by adding content to a multi-file torrent.</p>
+<p>This BEP is specified in terms of torrents as feed items as that is its primary goal, but in principle it may also be used to distribute other types of feed items.</p>
+</div>
+<div class="section" id="design">
+<h1>Design</h1>
+<p>Feeds can be used in many different ways, from publishing a small feed of individual items at irregular intervals to regular incremental snapshots of very large datasets for archiving purposes. Some may need append-only semantics, others may also wish to replicate deletions.</p>
+<p>Subscribers may have different interests such as wanting access to the most recent items quickly with little overhead or having a complete copy of data at any time.</p>
+<p>To cover these differing needs the feed is split into a HEAD element containing most recent items and an optional tail of one or more large archives for older items to which HEAD items are eventually retired.</p>
+<p>Metadata files are used instead of a list of magnet links to remove a layer of indirection where subscribers would have to perform a large amount of DHT lookups and metadata exchanges to obtain the data they need to make a decision about which torrent to download. Unlike the metadata exchange this also preserves the outer dictionary, which is used by some BEPs.</p>
+</div>
+<div class="section" id="basic-conventions">
+<h1>Basic Conventions</h1>
+<ol class="arabic">
+<li><p class="first">The info dictionary contains an entry <tt class="docutils literal">&quot;bep49&quot;: {}</tt> with zero or more entries in the sub-dictionary.</p>
+</li>
+<li><p class="first">Feed torrents always are multi-file torrents</p>
+</li>
+<li><p class="first">All files in the root directory of the torrent are feed items. Unless specified otherwise files contained in subdirectories are metadata describing the feed itself or part of future extensions</p>
+</li>
+<li><p class="first">All feed items MUST have a <tt class="docutils literal">sha1</tt> field in their file list entry, as defined by BEP 47 <a class="footnote-reference" href="#bep-47" id="id2">[5]</a>. This is to make it simple for subscribers to reuse as much data as possible when retrieving an updated feed and thus avoid wasted bandwidth.</p>
+</li>
+<li><p class="first">The <tt class="docutils literal">files</tt> list SHOULD NOT be sorted lexicographically. Instead new files should be appended at the end when updating the feed. Any content that is not ordered by insertion time should be put into a separate piece-aligned block so it does not interfere with appends or archival operations.</p>
+</li>
+<li><p class="first">When creating or updating a feed torrent an additional padding file <a class="footnote-reference" href="#bep-47" id="id3">[5]</a> SHOULD be inserted at the end to pad it to a full piece boundary. This way append and archive operations can be performed without recomputing hashes. Future BEPs that offer piece-aligned files through other means may be used instead.</p>
+</li>
+<li><p class="first">It is RECOMMENDED that the filename of a feed item is the same as name field of its contents. Publishers MAY shorten the names to reduce overhead on very large archives containing many small torrents.</p>
+<p>Additionally publishers SHOULD avoid using duplicate names for files with different content. Subscribers MUST NOT rely on that.</p>
+<p>Similarly the <tt class="docutils literal">.torrent</tt> extension should be used for all feed items, assuming that they are torrents.</p>
+</li>
+<li><p class="first">Feed items SHOULD be torrents themselves, but specialized applications using this specification MAY put other types of files directly into the feed if the indirection is too costly. Therefore subscribers MUST NOT assume that every feed item is a valid torrent file</p>
+</li>
+</ol>
+</div>
+<div class="section" id="updates-and-chain-of-trust">
+<h1>Updates and Chain of Trust</h1>
+<p>This BEP mostly covers the semantics of creating and processing feed torrents. Establishing trust and acquiring updates is handled by other specifications.</p>
+<p>Feeds can either be signed and updated via BEPs 35 <a class="footnote-reference" href="#bep-35" id="id4">[1]</a> and 39 <a class="footnote-reference" href="#bep-39" id="id5">[3]</a> or, the recommended way, via BEP 46 <a class="footnote-reference" href="#bep-46" id="id6">[4]</a>.</p>
+<p>Since BEP 46 is a N:1 mapping the chain of trust is established based on the pubkey used to perform the DHT lookup. I.e. a feed could be published by multiple sources and eventually be forked when they publish diverging updates.</p>
+<p>Optionally <tt class="docutils literal">&quot;bep49&quot;: {&quot;bep46 source&quot;: &lt;bep 46 magnet link <span class="pre">(string)&gt;}</span></tt> can be embedded in the info dictionary to inform subscribers where to obtain updates. If a feed has been obtained through a BEP 46 magnet then that takes precedence over the embedded magnet.</p>
+</div>
+<div class="section" id="archives">
+<h1>Archives</h1>
+<p>Publishers MAY move older items - from the beginning of the <tt class="docutils literal">files</tt> list - to additional torrents to keep the HEAD small.</p>
+<p>To indicate archives are present <tt class="docutils literal">&quot;bep49&quot;: {&quot;archive next&quot;: &lt;bep 9 magnet link <span class="pre">(string)&gt;}</span></tt> should be merged into the info dictionary.</p>
+<p>To indicate that a feed torrent is not the head but part of the archive <tt class="docutils literal">&quot;bep49&quot;: {&quot;archive&quot;: 1}</tt>. Additionally archive feed torrents can point to even older archives. Archives MUST NOT contain <tt class="docutils literal">prev</tt> or <tt class="docutils literal">bep46 source</tt> fields.</p>
+<p>Since torrents are usually fairly small this mechanism will only be needed for feeds exceeding thousands of items. The need for multiple archives should be even less common.</p>
+<blockquote>
+<p><strong>Implementation note</strong>: Assuming that appends to the HEAD were done in a piece-aligned manner and the HEAD and archives share the same piece size then the publisher can move batches of items and their <tt class="docutils literal">pieces</tt> hashes to the archive by exploiting that alignment.</p>
+<p>Subscribers MUST NOT rely on this property.</p>
+</blockquote>
+<p>Note that archives can be reused since it is not necessary to retire items to the archives every time new ones are added to the feed HEAD.</p>
+</div>
+<div class="section" id="revisions">
+<h1>Revisions</h1>
+<p>Since the feed implicitly goes through multiple revisions publishers MAY make them explicit by pointing to the previous version of the feed head by merging <tt class="docutils literal">&quot;bep49&quot;: {&quot;prev&quot;: &lt;bep9 magnet link <span class="pre">(string)&gt;}</span></tt> into the info dictionary.</p>
+<p>This BEP does not specify any semantics about the differences in file content between the current and previous revisions. I.e. how absent or overwritten files should be handled. It is left to the subscriber implementation whether to operate in append-only mode or honor removals and replacements.</p>
+</div>
+<div class="section" id="on-disk-layout">
+<h1>On disk layout</h1>
+<p><em>This section is advisory.</em></p>
+<p>The file names should only be seen as a hint and implementations should be prepared to remap them to a different directory layout due to potential file name collisions.</p>
+<p>This already is the case with regular torrents, but when managing multiple feed revisions and archives in a shared directory structure extra care has to be taken to avoid accidental content loss, e.g. when an updated feed contains a feed item of the same name but with different content.</p>
+</div>
+<div class="section" id="feeds-of-feeds">
+<h1>Feeds of Feeds</h1>
+<p>Feed items themselves may be feed torrents. This allows feeds to act as updatable index of more specialized feeds. In other words, it's possible for feeds to link to each other.</p>
+</div>
+<div class="section" id="examples">
+<h1>Examples</h1>
+<p>The following graph shows how a feed might evolve over time:</p>
+<pre class="literal-block">
++---------------+
+| Rev 1: 0 - 30 |
++---------------+
+        ^
+        |
++-----------------+
+| Rev 2: 0 - 1000 |
++-----------------+
+        ^
+        |
++-------------------+   +------------------+
+| Rev 3: 501 - 1500 |--&gt;| Archive 0 - 500  |
++-------------------+   +------------------+
+        ^                      ^
+        |                      |
++-------------------+          |
+| Rev 4: 501 - 2000 |----------+
++-------------------+
+        ^
+        |
+        .
+        .
+        .
+        |
++----------------------+   +-----------------------+   +-------------------+
+| Rev N: 50000 - 51000 |--&gt;| Archive 25000 - 49999 |--&gt;| Archive 0 - 24999 |
++----------------------+   +-----------------------+   +-------------------+
+</pre>
+</div>
+<div class="section" id="references">
+<h1>References</h1>
+<table class="docutils footnote" frame="void" id="bep-35" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id4">[1]</a></td><td>BEP_0035. Torrent Signing
+(<a class="reference external" href="http://www.bittorrent.org/beps/bep_0035.html">http://www.bittorrent.org/beps/bep_0035.html</a>)</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="bep-36" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[2]</a></td><td>BEP_0036. Torrent RSS feeds
+(<a class="reference external" href="http://www.bittorrent.org/beps/bep_0036.html">http://www.bittorrent.org/beps/bep_0036.html</a>)</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="bep-39" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id5">[3]</a></td><td>BEP_0039. Updating Torrents Via Feed URL.
+(<a class="reference external" href="http://www.bittorrent.org/beps/bep_0039.html">http://www.bittorrent.org/beps/bep_0039.html</a>)</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="bep-46" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id6">[4]</a></td><td>BEP_0046. Updating Torrents Via DHT Mutable Items.
+(<a class="reference external" href="http://www.bittorrent.org/beps/bep_0046.html">http://www.bittorrent.org/beps/bep_0046.html</a>)</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="bep-47" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[5]</td><td><em>(<a class="fn-backref" href="#id2">1</a>, <a class="fn-backref" href="#id3">2</a>)</em> BEP_0047. Padding files and extended file attributes.
+(<a class="reference external" href="http://www.bittorrent.org/beps/bep_0047.html">http://www.bittorrent.org/beps/bep_0047.html</a>)</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="copyright">
+<h1>Copyright</h1>
+<p>This document has been placed in the public domain.</p>
+<!-- Local Variables:
+mode: indented-text
+indent-tabs-mode: nil
+sentence-end-double-space: t
+fill-column: 70
+coding: utf-8
+End: -->
+</div>
+
+</div>
+	<div id="footer">
+<hr/>
+</div>
+
+</div>
+</body>
+</html>

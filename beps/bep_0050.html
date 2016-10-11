@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
+<title></title>
+<meta name="author" content="Steven Siloti &lt;ssiloti&#64;gmail.com&gt;" />
+<link rel="stylesheet" href="../css/bep.css" type="text/css" />
+</head>
+<body>
+<div class="document">
+
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="../index.html">BitTorrent<span>.org</span></a></h1>
+</div>
+<div id="nav">
+<ul>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../introduction.html">For Users</a></li>
+<li><a href="bep_0000.html"><span>For Developers</span></a></li>
+<li><a href="../mailing_list.html">Developer mailing list</a> </li>
+<li><a href="http://forum.bittorrent.org"> Forums (archive) </a></li>
+</ul>
+</div> <!-- nav -->
+<!-- ### Begin Content ### -->
+<div id="second">
+
+
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
+<tbody valign="top">
+<tr class="field"><th class="docinfo-name">BEP:</th><td class="field-body">50</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Title:</th><td class="field-body">Publish/Subscribe Protocol</td>
+</tr>
+<tr><th class="docinfo-name">Version:</th>
+<td>8c4c48d9d89124fef2e28e8d2efb79b0cef83943</td></tr>
+<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Sun Oct 2 21:25:19 2016 -0700</td>
+</tr>
+<tr><th class="docinfo-name">Author:</th>
+<td>Steven Siloti &lt;<a class="reference external" href="mailto:ssiloti&#37;&#52;&#48;gmail&#46;com">ssiloti<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;</td></tr>
+<tr><th class="docinfo-name">Status:</th>
+<td>Draft</td></tr>
+<tr class="field"><th class="docinfo-name">Type:</th><td class="field-body">Standards Track</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Content-Type:</th><td class="field-body">text/x-rst</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Created:</th><td class="field-body">27-Aug-2016</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Post-History:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="abstract">
+<h1>Abstract</h1>
+<p>This BEP defines a modification of the DHT protocol <a class="footnote-reference" href="#bep-5" id="id1">[1]</a> to provide a topic based publish/subscribe service rather than a key/value store. Each topic is associated with a mutable item <a class="footnote-reference" href="#bep-44" id="id2">[2]</a>. Messages are published as new values for the mutable item. A separate overlay network is maintained for each topic.</p>
+</div>
+<div class="section" id="rationale">
+<h1>Rationale</h1>
+<p>BEP 46 <a class="footnote-reference" href="#bep-46" id="id3">[3]</a> defines a standard format for publishing a torrent which can later be updated by its publisher using a mutable item. A downside of this method is that it relies on polling the DHT to receive updates. The DHT must be polled at a relatively low rate to avoid putting excessive load on the network. This limitation means there may be a significant delay between an update being published and a client receiving it. This BEP aims to provide a means of propagating updates with minimal delay by using push messages rather than polling.</p>
+</div>
+<div class="section" id="protocol">
+<h1>Protocol</h1>
+<p>The pub/sub protocol is based on the DHT protocol <a class="footnote-reference" href="#bep-5" id="id4">[1]</a> with the following modifications:</p>
+<p>The value of K is set to one.</p>
+<p>The routing table's home bucket and its sibling SHOULD have a capacity of at least 8 nodes each. When the home bucket is split the sibling of the previous home bucket (now an uncle of the new home bucket) SHOULD be resized to one node per the setting of K=1.</p>
+<p>All messages MUST contain a key <tt class="docutils literal">c</tt> with a 20-byte string value. The value is used to identify which topic the message is intended for. The value MUST be set to the target hash of the mutable item associated with the topic.</p>
+<p>The <tt class="docutils literal">get_peers</tt> and <tt class="docutils literal">announce_peer</tt> queries are prohibited.</p>
+<p>Mutable <tt class="docutils literal">get</tt> and <tt class="docutils literal">put</tt> queries <a class="footnote-reference" href="#bep-44" id="id5">[2]</a> are only permitted for the mutable item associated with the topic.</p>
+<p>If a <tt class="docutils literal">put</tt> query contains a valid update it SHOULD be forwarded to all nodes in the routing table for the topic. An update is valid if the query is valid per BEP 44 <a class="footnote-reference" href="#bep-44" id="id6">[2]</a> and the value has a sequence number greater than the client's currently stored value. The query SHOULD be forwarded by generating new queries as if the client originated the request.</p>
+<div class="section" id="example-transaction">
+<h2>Example Transaction</h2>
+<p>A <tt class="docutils literal">get</tt> request on a topic network would look like:</p>
+<pre class="literal-block">
+{
+    &quot;a&quot;:
+    {
+        &quot;id&quot;: <em>&lt;20 byte id of sending node (string)&gt;</em>,
+        &quot;seq&quot;: <em>&lt;optional sequence number (integer)&gt;</em>,
+        &quot;target&quot;: <em>&lt;20 byte SHA-1 hash of public key and salt (string)&gt;</em>
+    },
+    &quot;c&quot;: <em>&lt;20 byte SHA-1 hash of public key and salt (string)&gt;</em>,
+    &quot;t&quot;: <em>&lt;transaction-id (string)&gt;</em>,
+    &quot;y&quot;: &quot;q&quot;,
+    &quot;q&quot;: &quot;get&quot;
+}
+</pre>
+<p>The <tt class="docutils literal">seq</tt> key SHOULD always be included in <tt class="docutils literal">get</tt> requests unless the node is joining the topic and doesn't have a value for the item yet. The response:</p>
+<pre class="literal-block">
+{
+    &quot;c&quot;: <em>&lt;20 byte SHA-1 hash of public key and salt (string)&gt;</em>,
+    &quot;r&quot;:
+    {
+        &quot;id&quot;: <em>&lt;20 byte id of sending node (string)&gt;</em>,
+        &quot;nodes&quot;: <em>&lt;IPv4 nodes close to 'target'&gt;</em>,
+        &quot;seq&quot;: <em>&lt;monotonically increasing sequence number (integer)&gt;</em>,
+        &quot;token&quot;: <em>&lt;write-token (string)&gt;</em>
+    },
+    &quot;t&quot;: <em>&lt;transaction-id (string)&gt;</em>,
+    &quot;y&quot;: &quot;r&quot;
+}
+</pre>
+<p>Here we're assuming the requester included the <tt class="docutils literal">seq</tt> key and the responder did not have a newer value so it was omitted from the response.</p>
+</div>
+</div>
+<div class="section" id="subscribing-to-topics">
+<h1>Subscribing to topics</h1>
+<p>Clients subscribe to a topic by joining that topic's overlay network. Clients bootstrap into a network by sending a <tt class="docutils literal">get_peers</tt> query to the DHT with the <tt class="docutils literal">info_hash</tt> field set to the target hash of the mutable item associated with the topic. Clients SHOULD also announce themselves to this infohash with the port they are listening for DHT messages on. Clients MUST treat each topic as a separate node with its own routing table and transaction state. Nodes for different topics with the same listen address SHOULD use the same node id. Clients SHOULD store the latest value of the mutable item associated with the topic at all times.</p>
+</div>
+<div class="section" id="publishing-messages">
+<h1>Publishing messages</h1>
+<p>A client which intends to publish messages to a topic SHOULD also subscribe to the topic. When a new message is generated it SHOULD be sent to all peers in the client's routing table for the topic. Clients SHOULD NOT attempt to send a new value to all nodes subscribed to the topic.</p>
+</div>
+<div class="section" id="references">
+<h1>References</h1>
+<table class="docutils footnote" frame="void" id="bep-5" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[1]</td><td><em>(<a class="fn-backref" href="#id1">1</a>, <a class="fn-backref" href="#id4">2</a>)</em> BEP_0005. DHT Protocol.
+(<a class="reference external" href="http://www.bittorrent.org/beps/bep_0005.html">http://www.bittorrent.org/beps/bep_0005.html</a>)</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="bep-44" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[2]</td><td><em>(<a class="fn-backref" href="#id2">1</a>, <a class="fn-backref" href="#id5">2</a>, <a class="fn-backref" href="#id6">3</a>)</em> BEP_0044. Storing arbitrary data in the DHT.
+(<a class="reference external" href="http://www.bittorrent.org/beps/bep_0044.html">http://www.bittorrent.org/beps/bep_0044.html</a>)</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="bep-46" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[3]</a></td><td>BEP_0046. Updating Torrents Via DHT Mutable Items.
+(<a class="reference external" href="http://www.bittorrent.org/beps/bep_0046.html">http://www.bittorrent.org/beps/bep_0046.html</a>)</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="copyright">
+<h1>Copyright</h1>
+<p>This document has been placed in the public domain.</p>
+<!-- Local Variables:
+mode: indented-text
+indent-tabs-mode: nil
+sentence-end-double-space: t
+fill-column: 70
+coding: utf-8
+End: -->
+</div>
+
+</div>
+	<div id="footer">
+<hr/>
+</div>
+
+</div>
+</body>
+</html>

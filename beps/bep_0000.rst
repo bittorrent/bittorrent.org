@@ -97,6 +97,8 @@ Num        Title
 |46|       :raw-html:`<A HREF="bep_0046.html">Updating Torrents Via DHT Mutable Items</A>`
 |47|       :raw-html:`<A HREF="bep_0047.html">Padding files and extended file attributes</A>`
 |48|       :raw-html:`<A HREF="bep_0048.html">Tracker Protocol Extension: Scrape</A>`
+|49|       :raw-html:`<A HREF="bep_0049.html">Distributed Torrent Feeds</A>`
+|50|       :raw-html:`<A HREF="bep_0050.html">Publish/Subscribe Protocol</A>`
 ======     ===================
 
 
@@ -172,4 +174,6 @@ At this time, no BEPs have been rejected.
 .. |46| replace:: :raw-html:`<A HREF="bep_0046.html">46</A>`
 .. |47| replace:: :raw-html:`<A HREF="bep_0047.html">47</A>`
 .. |48| replace:: :raw-html:`<A HREF="bep_0048.html">48</A>`
+.. |49| replace:: :raw-html:`<A HREF="bep_0049.html">49</A>`
+.. |50| replace:: :raw-html:`<A HREF="bep_0050.html">50</A>`
 .. |1000| replace:: :raw-html:`<A HREF="bep_1000.html">1000</A>`

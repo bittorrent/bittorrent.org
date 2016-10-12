@@ -48,6 +48,7 @@ Known clients that use this encoding style are
      'EB' - EBit
      'ES' - electric sheep
      'FT' - FoxTorrent
+     'FX' - Freebox BitTorrent
      'GS' - GSTorrent
      'HL' - Halite
      'HN' - Hydranode

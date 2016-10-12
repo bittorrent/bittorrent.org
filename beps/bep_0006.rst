@@ -134,7 +134,7 @@ Allowed Fast
 
 ::
 
-* Allowed Fast: <len=0x0005><op=0x11><index>*
+*Allowed Fast*: <len=0x0005><op=0x11><index>
 
 With the BitTorrent protocol specified in `BEP 0003`_, new peers take
 several minutes to ramp up before they can effectively engage in

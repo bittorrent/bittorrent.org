@@ -70,15 +70,11 @@ The following BEPs are under consideration for standardization.
 ======     ===================  
 Num        Title              
 ======     ===================
-|7|        :raw-html:`<A HREF="bep_0007.html">IPv6 Tracker Extension   </A>`
+|7|        :raw-html:`<A HREF="bep_0007.html">IPv6 Tracker Extension</A>`
 |16|       :raw-html:`<A HREF="bep_0016.html">Superseeding</A>`
-|17|       :raw-html:`<A HREF="bep_0017.html">HTTP Seeding (Hoffman-style) </A>`
-|18|       :raw-html:`<A HREF="bep_0018.html">Search Engine Specification</A>`
+|17|       :raw-html:`<A HREF="bep_0017.html">HTTP Seeding (Hoffman-style)</A>`
 |21|       :raw-html:`<A HREF="bep_0021.html">Extension for Partial Seeds</A>`
-|22|       :raw-html:`<A HREF="bep_0022.html">BitTorrent Local Tracker Discovery Protocol</A>`
 |24|       :raw-html:`<A HREF="bep_0024.html">Tracker Returns External IP</A>`
-|26|       :raw-html:`<A HREF="bep_0026.html">Zeroconf Peer Advertising and Discovery</A>`
-|28|       :raw-html:`<A HREF="bep_0028.html">Tracker exchange</A>`
 |30|       :raw-html:`<A HREF="bep_0030.html">Merkle tree torrent extension</A>`
 |31|       :raw-html:`<A HREF="bep_0031.html">Tracker Failure Retry Extension</A>`
 |32|       :raw-html:`<A HREF="bep_0032.html">IPv6 extension for DHT</A>`
@@ -108,10 +104,14 @@ Deferred BEPs
 The editor(s) deem that the following BEPs are not progressing toward standardization, 
 but they have not yet been withdrawn.
 
-======     ===================  
+======     ===================
 Num        Title              
 ======     ===================
-|8|        :raw-html:`<A HREF="bep_0008.html">Tracker Peer Obfuscation </A>`
+|8|        :raw-html:`<A HREF="bep_0008.html">Tracker Peer Obfuscation</A>`
+|18|       :raw-html:`<A HREF="bep_0018.html">Search Engine Specification</A>`
+|22|       :raw-html:`<A HREF="bep_0022.html">BitTorrent Local Tracker Discovery Protocol</A>`
+|26|       :raw-html:`<A HREF="bep_0026.html">Zeroconf Peer Advertising and Discovery</A>`
+|28|       :raw-html:`<A HREF="bep_0028.html">Tracker exchange</A>`
 ======     ===================
 
 

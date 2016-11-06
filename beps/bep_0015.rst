@@ -6,7 +6,7 @@
 :Status:  Draft
 :Type:    Standards Track
 :Created: 13-Feb-2008
-:Post-History:
+:Post-History: 06-Nov-2016 (the8472.bep@infinite-source.de), specified IPv6 format.
 
 Introduction
 ============
@@ -122,6 +122,10 @@ All values are send in network byte order (big endian). Do not expect
 packets to be exactly of a certain size. Future extensions could
 increase the size of packets.
 
+
+Connect
+--------
+
 Before announcing or scraping, you have to obtain a connection ID.
 
 1. Choose a random transaction ID.
@@ -131,7 +135,7 @@ Before announcing or scraping, you have to obtain a connection ID.
 connect request::
 
   Offset  Size            Name            Value
-  0       64-bit integer  connection_id   0x41727101980
+  0       64-bit integer  protocol_id     0x41727101980 // magic constant
   8       32-bit integer  action          0 // connect
   12      32-bit integer  transaction_id
   16
@@ -150,11 +154,14 @@ connect response::
   8       64-bit integer  connection_id
   16
 
+Announce
+--------
+
 1. Choose a random transaction ID.
 2. Fill the announce request structure.
 3. Send the packet.
 
-announce request::
+IPv4 announce request::
 
   Offset  Size    Name    Value
   0       64-bit integer  connection_id
@@ -178,7 +185,10 @@ announce request::
 4. Check whether the action is announce.
 5. Do not announce again until interval seconds have passed or an event has occurred.
 
-announce response::
+Do note that most trackers will only honor the ``IP address`` field under limited circumstances.
+
+
+IPv4 announce response::
 
   Offset      Size            Name            Value
   0           32-bit integer  action          1 // announce
@@ -189,6 +199,20 @@ announce response::
   20 + 6 * n  32-bit integer  IP address
   24 + 6 * n  16-bit integer  TCP port
   20 + 6 * N
+  
+
+IPv6
+''''
+
+IPv6 announces have the same structure as v4 ones, including the used ``action`` number, but the ``IP address`` request field is 16 bytes wide and the stride size of ``<IP address, TCP port>`` pairs is 18 bytes.
+
+Which format is used is determined by the address family of the underlying UDP packet. I.e. packets from a v4 address use the v4 format, those from a v6 address use the v6 format.
+
+Clients that resolve hostnames to v4 and v6 and then announce to both should use the same ``key`` for both so that trackers that care about accurate statistics-keeping can match the two announces.   
+  
+
+Scrape
+------
 
 Up to about 74 torrents can be scraped at once. A full scrape can't be done with this protocol.
 
@@ -226,6 +250,9 @@ If the tracker encounters an error, it might send an error packet.
 2. Check whether the packet is at least 8 bytes.
 3. Check whether the transaction ID is equal to the one you chose.
 
+Errors
+------
+
 error response::
 
   Offset  Size            Name            Value
@@ -239,13 +266,6 @@ Existing implementations
 Azureus, libtorrent [2], opentracker [3], XBT Client and XBT Tracker
 support this protocol.
 
-IPv6
-====
-
-IPv6 is not supported at the moment. A simple way to support IPv6
-would be to increase the size of all IP addresses to 128 bits when the
-request is done over IPv6.  However, I think more experience with IPv6
-and discussion is needed before including it.
 
 Extensions
 ==========
@@ -254,12 +274,15 @@ Extension bits or a version field are not included. Clients and
 trackers should not assume packets to be of a certain size. This way,
 additional fields can be added without breaking compatibility.
 
+See BEP 41 [4] for an extension negotiation protocol.
+
 References and Footnotes
 ========================
 
 .. [1] http://xbtt.sourceforge.net/udp_tracker_protocol.html
 .. [2] http://www.rasterbar.com/products/libtorrent/udp_tracker_protocol.html
 .. [3] http://opentracker.blog.h3q.com/
+.. [4] http://bittorrent.org/beps/bep_0041.html
 
 
 ..

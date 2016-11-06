@@ -204,7 +204,9 @@ IPv4 announce response::
 IPv6
 ''''
 
-IPv6 announces have the same structure as v4 ones, including the used ``action`` number, but the ``IP address`` request field is 16 bytes wide and the stride size of ``<IP address, TCP port>`` pairs is 18 bytes.
+IPv6 announces have the same structure as v4 ones, including the used ``action`` number except that the stride size of ``<IP address, TCP port>`` pairs in the response is 18 bytes instead of 6.
+
+That means the ``IP address`` field in the request remains 32bits wide which makes this field not usable under IPv6 and thus should always be set to 0.
 
 Which format is used is determined by the address family of the underlying UDP packet. I.e. packets from a v4 address use the v4 format, those from a v6 address use the v6 format.
 

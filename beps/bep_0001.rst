@@ -6,7 +6,7 @@
 :Status:  Active 
 :Type:    Process
 :Created: 10-Jan-2008
-:Post-History:
+:Post-History: 4-Nov-2016 (ssiloti@bittorrent.com), updated to reflect the current github based workflow
 
 What is a BEP
 =============
@@ -25,7 +25,7 @@ documenting dissenting opinions.
 
 Because the BEPs are maintained as reStructured text files in a versioned
 repository, their revision history is the historical record of the
-feature proposal [#svn]_.
+feature proposal [#github]_.
 
 BEP Types
 =========
@@ -57,9 +57,8 @@ BEP Work Flow
 =============
 
 The BEP editors assign BEP numbers and change their status. The
-current BEP editors are David Harrison and Arvid Norberg. Please send
-all BEP-related email to <editor@bittorrent.org>.  Also see BEP Editor
-Responsibilities & Workflow below.
+current BEP editor is Steven Siloti <ssiloti@bittorrent.com>. Also
+see BEP Editor Responsibilities & Workflow below.
 
 The BEP process begins with a new idea for the BitTorrent
 protocols. It is highly recommended that a single BEP contain a single
@@ -71,31 +70,29 @@ Each BEP must have a champion -- someone who writes the BEP using the
 style and format described below, shepherds the discussions in the
 appropriate forums, and attempts to build community consensus around
 the idea. The BEP champion should first post a description of the idea
-to the BEPs forum at forum.bittorrent.org.
+as an issue in the bittorrent.org github repository [#github]_.
 
 If the champion believes the idea warrants a BEP then the champion
-emails the BEP editor <editor@bittorrent.org> with a proposed title
-and a draft of the BEP. This draft must be written in BEP style as
-described below.
+posts a pull request to github with a draft of the BEP. This draft
+must be written in BEP style as described below.
 
 If the BEP editor approves, he assigns the BEP a number, labels it as
-Standards Track, Informational, or Process, gives it status "Draft",
-and creates and checks-in the initial draft of the BEP to the
-subversion repository. The BEP editor will not unreasonably
-deny a BEP. Reasons for denying BEP status include duplication of
-effort, being technically unsound, not providing proper motivation or
-not addressing backwards compatibility. The BDFL (Benevolent Dictator
-for Life, Bram Cohen) can be consulted during the approval phase, and
-is the final arbiter of the draft's BEP-ability.
+Standards Track, Informational, or Process, and gives it status "Draft".
+Once the pull request is updated accordingly, the editor will merge it.
+Reasons for denying BEP status include duplication of effort, being
+technically unsound, not providing proper motivation or not addressing
+backwards compatibility. The BDFL (Benevolent Dictator for Life, Bram
+Cohen) can be consulted during the approval phase, and is the final
+arbiter of the draft's BEP-ability.
 
-If a pre-BEP is rejected, the author may elect to take the pre-BEP to
-the BEP forum seeking feedback and consensus from the community at large.  
+If a pre-BEP is rejected, the author may elect to open an issue in
+github seeking feedback and consensus from the community at large.
 A proposal may be re-submitted after it has been revised.
 
 The champion is then responsible for marshaling community support for
 it. As updates are necessary, the BEP author can check in new versions
-if they have SVN commit permissions, or can email new BEP versions to
-the BEP editor for committing.
+if they have git commit permissions, or can post a pull request for
+the BEP editor to merge.
 
 Standards Track BEPs consist of two parts, a design document and a
 reference implementation. The reference implementation need not be
@@ -105,13 +102,12 @@ client with publicy available code before it can be considered Final.
 
 BEP champions are responsible for collecting community feedback on a
 BEP before submitting it for review. A BEP that has not been discussed
-in the BEPs forum on forum.bittorrent.org will not be
-accepted. However, wherever possible, long open-ended discussions in
-the BEP forum should be avoided. Strategies to keep the discussions
-efficient include: setting up a separate SIG forum for the topic,
-having the BEP author accept private comments in the early design
-phases, setting up a wiki page, etc. BEP authors should use their
-discretion here.
+in a github issue or pull request will not be accepted. However,
+wherever possible, long open-ended discussions in github should be
+avoided. Strategies to keep the discussions efficient include: setting
+up a separate SIG forum for the topic, having the BEP author accept
+private comments in the early design phases, setting up a wiki page,
+etc. BEP authors should use their discretion here.
 
 Once the authors have completed a BEP, they must inform the BEP editor
 that it is ready for review. BEPs are reviewed by the BDFL and his
@@ -189,8 +185,7 @@ was written by Barry Warsaw, Jeremy Hylton, and David Goodger, they
 are not responsible for its use in the BitTorent Enhancement Process,
 and should not be bothered with technical questions specific to
 BitTorrent or the BEP process.  Please direct all comments to the
-BitTorrent editors <editor@bittorrent.org> or the forums at
-forum.bittorrent.org.
+github repository.
 
 
 Acknowledgements
@@ -203,10 +198,8 @@ guidance.
 References and Footnotes
 ========================
 
-.. [#svn] This historical record is available by the normal SVN
-          commands for retrieving older revisions. For those without direct
-          access to the SVN tree, you can browse the current and past BEP
-          revisions here: http://bittorrent.org/trac/
+.. [#github] bittorrent.org github repository
+   (https://github.com/bittorrent/bittorrent.org)
 
 .. [#PEP-1] PEP-001: PEP Purposes and Guidelines, Warsaw, Hylton, Goodger.
    (http://www.python.org/dev/peps/pep-0001)

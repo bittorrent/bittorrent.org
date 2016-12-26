@@ -1,0 +1,105 @@
+:BEP: 51
+:Title: DHT Infohash Indexing
+:Version: $Revision$
+:Last-Modified: $Date$
+:Author:  The 8472 <the8472.bep@infinite-source.de>
+:Status:  Draft
+:Type:    Standards Track
+:Content-Type: text/x-rst
+:Created: 20-Dec-2016
+:Post-History:  
+
+
+Abstract
+========
+
+This extension enables DHT nodes to retrieve a sample of the infohashes that other nodes currently have in their storage. 
+
+
+Rationale
+=========
+
+DHT indexing already is possible and done in practice by passively observing ``get_peers`` queries. But that approach is inefficient, favoring indexers with lots of unique IP addresses at their disposal. It also incentivizes bad behavior such as spoofing node IDs and attempting to pollute other nodes' routing tables [#HORIZONTAL-ATTACK]_. 
+
+With this extension a single node should be able to survey the entire DHT within a few hours without having to resort to non-compliant behavior.
+
+Since it cannot be directly used to search for specific torrents it is not expected that average clients actually *use* this RPC, they only need to support replying to it. Instead the intended use is that a few specialized indexers in the network use it as building block to create and curate a database of available torrents and then make it available to endusers through other means, e.g. as a web service or through torrent feeds.  
+
+
+Sampling RPC
+============
+
+The new ``sample_infohashes`` remote procedure call requests that a remote node return a string of multiple concatenated infohashes (20 bytes each) for which it holds ``get_peers`` values.  
+
+When a node tracks more infohashes than would fit into a packet it should return a randomly sampled subset instead.
+After that size limit is reached nodes may occasionally precompute a subset and return that instead of calculating it upon each request. This disincentivizes indexing nodes from sending multiple queries to obtain more samples. 
+
+Nodes supporting this extension should always include the ``samples`` field in the response, even when it is zero-length. This lets indexing nodes to distinguish nodes supporting this extension from those that respond to unknown query types which contain a ``target`` field [#FORWARD-COMPAT]_.
+
+The ``target`` and ``nodes``/``nodes6`` mechanic for iterative lookups is included so that indexing nodes can perform a keyspace traversal with a single RPC per node by adjusting the target value for each RPC.
+It has no effect on the returned ``sample`` value.
+
+
+message format
+--------------
+
+Request:
+
+.. parsed-literal::
+
+    {
+        "a":
+        {
+            "id": *<20 byte id of sending node (string)>*,
+            "target": *<20 byte ID for nodes>*,
+        },
+        "t": *<transaction-id (string)>*,
+        "y": "q",
+        "q": "sample_infohashes"
+    }
+
+Response:
+
+.. parsed-literal::
+
+    {
+        "r":
+        {
+            "id": *<20 byte id of sending node (string)>*,
+            "nodes": *<nodes close to 'target'>*,
+            "samples": *<stored infohashes, N × 20 bytes (string)>*
+        },
+        "t": *<transaction-id (string)>*,
+        "y": "r"
+    }
+    
+    
+As usual, additional fields may be defined by other BEPs.
+
+
+References
+==========
+
+.. [#HORIZONTAL-ATTACK] *Real-World Sybil Attacks in BitTorrent Mainline DHT*, Liang Wang and Jussi Kangasharju
+   (https://www.cl.cam.ac.uk/~lw525/publications/security.pdf)
+
+.. [#FORWARD-COMPAT] Libtorrent DHT extensions, Forward Compatibility
+   (http://libtorrent.org/dht_extensions.html#forward-compatibility)
+
+
+Copyright
+=========
+
+This document has been placed in the public domain.
+
+
+
+..
+   Local Variables:
+   mode: indented-text
+   indent-tabs-mode: nil
+   sentence-end-double-space: t
+   fill-column: 70
+   coding: utf-8
+   End:
+

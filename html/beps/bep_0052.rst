@@ -1,4 +1,4 @@
-:BEP: ??
+:BEP: 52
 :Title: Encrypted Torrent Payload
 :Version: $Revision$
 :Last-Modified: $Date$
@@ -24,6 +24,9 @@ and non-goals:
 * anonymity
 * signature-based authentication, already covered by BEP 35 [#BEP-35]_
 * authentication of peer connections
+
+
+.. contents::
   
 
 

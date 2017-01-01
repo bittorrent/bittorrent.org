@@ -396,8 +396,6 @@ References
 .. [#chacha] ChaCha20 by Daniel J. Bernstein
    (https://cr.yp.to/chacha.html)
    
-.. [#RFC-2119] RFC-2119. http://www.ietf.org/rfc/rfc2119.txt
-
 .. [#rfc6234] RFC 6234. http://www.ietf.org/rfc/rfc2119.txt
 
 .. [#rfc2104] RFC 2104. http://www.ietf.org/rfc/rfc2104.txt

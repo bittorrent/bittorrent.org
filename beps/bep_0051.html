@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.13.1: http://docutils.sourceforge.net/" />
+<title></title>
+<meta name="author" content="The 8472 &lt;the8472.bep&#64;infinite-source.de&gt;" />
+<link rel="stylesheet" href="../css/bep.css" type="text/css" />
+</head>
+<body>
+<div class="document">
+
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="../index.html">BitTorrent<span>.org</span></a></h1>
+</div>
+<div id="nav">
+<ul>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../introduction.html">For Users</a></li>
+<li><a href="bep_0000.html"><span>For Developers</span></a></li>
+<li><a href="../mailing_list.html">Developer mailing list</a> </li>
+<li><a href="http://forum.bittorrent.org"> Forums (archive) </a></li>
+</ul>
+</div> <!-- nav -->
+<!-- ### Begin Content ### -->
+<div id="second">
+
+
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
+<tbody valign="top">
+<tr class="bep field"><th class="docinfo-name">BEP:</th><td class="field-body">51</td>
+</tr>
+<tr class="title field"><th class="docinfo-name">Title:</th><td class="field-body">DHT Infohash Indexing</td>
+</tr>
+<tr><th class="docinfo-name">Version:</th>
+<td>889bd955b276e76fe40d926dcb09bf82502a6439</td></tr>
+<tr class="last-modified field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Tue Jan 3 03:35:40 2017 +0100</td>
+</tr>
+<tr><th class="docinfo-name">Author:</th>
+<td>The 8472 &lt;<a class="reference external" href="mailto:the8472&#46;bep&#37;&#52;&#48;infinite-source&#46;de">the8472<span>&#46;</span>bep<span>&#64;</span>infinite-source<span>&#46;</span>de</a>&gt;</td></tr>
+<tr><th class="docinfo-name">Status:</th>
+<td>Draft</td></tr>
+<tr class="type field"><th class="docinfo-name">Type:</th><td class="field-body">Standards Track</td>
+</tr>
+<tr class="content-type field"><th class="docinfo-name">Content-Type:</th><td class="field-body">text/x-rst</td>
+</tr>
+<tr class="created field"><th class="docinfo-name">Created:</th><td class="field-body">20-Dec-2016</td>
+</tr>
+<tr class="post-history field"><th class="docinfo-name">Post-History:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="abstract">
+<h1>Abstract</h1>
+<p>This extension enables DHT nodes to retrieve a sample of the infohashes that other nodes currently have in their storage.</p>
+</div>
+<div class="section" id="rationale">
+<h1>Rationale</h1>
+<p>DHT indexing already is possible and done in practice by passively observing <tt class="docutils literal">get_peers</tt> queries. But that approach is inefficient, favoring indexers with lots of unique IP addresses at their disposal. It also incentivizes bad behavior such as spoofing node IDs and attempting to pollute other nodes' routing tables <a class="footnote-reference" href="#horizontal-attack" id="id1">[1]</a>.</p>
+<p>With this extension a single node should be able to survey the entire DHT within a few hours without having to resort to non-compliant behavior.</p>
+<p>Since it cannot be directly used to search for specific torrents it is not expected that average clients actually <em>use</em> this RPC, they only need to support replying to it. Instead the intended use is that a few specialized indexers in the network use it as building block to create and curate a database of available torrents and then make it available to endusers through other means, e.g. as a web service or through torrent feeds.</p>
+</div>
+<div class="section" id="sampling-rpc">
+<h1>Sampling RPC</h1>
+<p>The new <tt class="docutils literal">sample_infohashes</tt> remote procedure call requests that a remote node return a string of multiple concatenated infohashes (20 bytes each) for which it holds <tt class="docutils literal">get_peers</tt> values.</p>
+<p>When a node tracks more infohashes than would fit into a packet it should return a randomly sampled subset instead.
+After that size limit is reached nodes may occasionally precompute a subset and return that instead of calculating it upon each request.
+The recomputation interval is indicated by the <tt class="docutils literal">interval</tt> field in the response. An indexer should not send a new sampling request to this node for that period of time. The fact that the precomputed set will not change within that interval should discourage them from doing that since they will not gain any new data.
+The the permissible range is between 0 and 21600 seconds (inclusive). Since the maximum is 6 hours an indexer that sweeps over the keyspace only once every 6 hours will not have to perform bookkeeping of backoff intervals.</p>
+<p>The <tt class="docutils literal">num</tt> field indicates how many infohash keys are currently in the node's storage. If the value is larger than the number of returned samples it indicates that the indexer may obtain additional samples after waiting out the interval.</p>
+<p>Nodes supporting this extension should always include the <tt class="docutils literal">samples</tt> field in the response, even when it is zero-length. This lets indexing nodes to distinguish nodes supporting this extension from those that respond to unknown query types which contain a <tt class="docutils literal">target</tt> field <a class="footnote-reference" href="#forward-compat" id="id2">[2]</a>.</p>
+<p>The <tt class="docutils literal">target</tt> and <tt class="docutils literal">nodes</tt>/<tt class="docutils literal">nodes6</tt> mechanic for iterative lookups is included so that indexing nodes can perform a keyspace traversal with a single RPC per node by adjusting the target value for each RPC.
+It has no effect on the returned <tt class="docutils literal">sample</tt> value.</p>
+<div class="section" id="message-format">
+<h2>message format</h2>
+<p>Request:</p>
+<pre class="literal-block">
+{
+    &quot;a&quot;:
+    {
+        &quot;id&quot;: <em>&lt;20 byte id of sending node (string)&gt;</em>,
+        &quot;target&quot;: <em>&lt;20 byte ID for nodes&gt;</em>,
+    },
+    &quot;t&quot;: <em>&lt;transaction-id (string)&gt;</em>,
+    &quot;y&quot;: &quot;q&quot;,
+    &quot;q&quot;: &quot;sample_infohashes&quot;
+}
+</pre>
+<p>Response:</p>
+<pre class="literal-block">
+{
+    &quot;r&quot;:
+    {
+        &quot;id&quot;: <em>&lt;20 byte id of sending node (string)&gt;</em>,
+        &quot;interval&quot;: &lt;the subset refresh interval in seconds (integer)&gt;,
+        &quot;nodes&quot;: <em>&lt;nodes close to 'target'&gt;</em>,
+        &quot;num&quot;: <em>&lt;number of infohashes in storage (integer)&gt;</em>,
+        &quot;samples&quot;: <em>&lt;subset of stored infohashes, N × 20 bytes (string)&gt;</em>
+    },
+    &quot;t&quot;: <em>&lt;transaction-id (string)&gt;</em>,
+    &quot;y&quot;: &quot;r&quot;
+}
+</pre>
+<p>As usual, additional fields may be defined by other BEPs.</p>
+</div>
+</div>
+<div class="section" id="references">
+<h1>References</h1>
+<table class="docutils footnote" frame="void" id="horizontal-attack" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td><em>Real-World Sybil Attacks in BitTorrent Mainline DHT</em>, Liang Wang and Jussi Kangasharju
+(<a class="reference external" href="https://www.cl.cam.ac.uk/~lw525/publications/security.pdf">https://www.cl.cam.ac.uk/~lw525/publications/security.pdf</a>)</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="forward-compat" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td>Libtorrent DHT extensions, Forward Compatibility
+(<a class="reference external" href="http://libtorrent.org/dht_extensions.html#forward-compatibility">http://libtorrent.org/dht_extensions.html#forward-compatibility</a>)</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="copyright">
+<h1>Copyright</h1>
+<p>This document has been placed in the public domain.</p>
+<!-- Local Variables:
+mode: indented-text
+indent-tabs-mode: nil
+sentence-end-double-space: t
+fill-column: 70
+coding: utf-8
+End: -->
+</div>
+
+</div>
+	<div id="footer">
+<hr/>
+</div>
+
+</div>
+</body>
+</html>

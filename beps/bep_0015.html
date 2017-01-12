@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
+<meta name="generator" content="Docutils 0.13.1: http://docutils.sourceforge.net/" />
 <title></title>
 <meta name="author" content="Olaf van der Spek &lt;olafvdspek&#64;gmail.com&gt;" />
 <link rel="stylesheet" href="../css/bep.css" type="text/css" />
@@ -33,23 +33,23 @@
 <col class="docinfo-name" />
 <col class="docinfo-content" />
 <tbody valign="top">
-<tr class="field"><th class="docinfo-name">BEP:</th><td class="field-body">15</td>
+<tr class="bep field"><th class="docinfo-name">BEP:</th><td class="field-body">15</td>
 </tr>
-<tr class="field"><th class="docinfo-name">Title:</th><td class="field-body">UDP Tracker Protocol for BitTorrent</td>
+<tr class="title field"><th class="docinfo-name">Title:</th><td class="field-body">UDP Tracker Protocol for BitTorrent</td>
 </tr>
 <tr><th class="docinfo-name">Version:</th>
-<td>b860d07d5ce496192b6c818bada8a2ace69cd773</td></tr>
-<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Wed Mar 25 00:36:59 2015 -0400</td>
+<td>023256c7581a4bed356e47caf8632be2834211bd</td></tr>
+<tr class="last-modified field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Thu Jan 12 12:29:12 2017 -0800</td>
 </tr>
 <tr><th class="docinfo-name">Author:</th>
 <td>Olaf van der Spek &lt;<a class="reference external" href="mailto:olafvdspek&#37;&#52;&#48;gmail&#46;com">olafvdspek<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;</td></tr>
 <tr><th class="docinfo-name">Status:</th>
-<td>Draft</td></tr>
-<tr class="field"><th class="docinfo-name">Type:</th><td class="field-body">Standards Track</td>
+<td>Accepted</td></tr>
+<tr class="type field"><th class="docinfo-name">Type:</th><td class="field-body">Standards Track</td>
 </tr>
-<tr class="field"><th class="docinfo-name">Created:</th><td class="field-body">13-Feb-2008</td>
+<tr class="created field"><th class="docinfo-name">Created:</th><td class="field-body">13-Feb-2008</td>
 </tr>
-<tr class="field"><th class="docinfo-name">Post-History:</th><td class="field-body"></td>
+<tr class="post-history field"><th class="docinfo-name">Post-History:</th><td class="field-body">06-Nov-2016 (<a class="reference external" href="mailto:the8472&#46;bep&#37;&#52;&#48;infinite-source&#46;de">the8472<span>&#46;</span>bep<span>&#64;</span>infinite-source<span>&#46;</span>de</a>), specified IPv6 format.</td>
 </tr>
 </tbody>
 </table>
@@ -161,6 +161,8 @@ t = 68: scrape response
 <p>All values are send in network byte order (big endian). Do not expect
 packets to be exactly of a certain size. Future extensions could
 increase the size of packets.</p>
+<div class="section" id="connect">
+<h2>Connect</h2>
 <p>Before announcing or scraping, you have to obtain a connection ID.</p>
 <ol class="arabic simple">
 <li>Choose a random transaction ID.</li>
@@ -170,7 +172,7 @@ increase the size of packets.</p>
 <p>connect request:</p>
 <pre class="literal-block">
 Offset  Size            Name            Value
-0       64-bit integer  connection_id   0x41727101980
+0       64-bit integer  protocol_id     0x41727101980 // magic constant
 8       32-bit integer  action          0 // connect
 12      32-bit integer  transaction_id
 16
@@ -190,12 +192,15 @@ Offset  Size            Name            Value
 8       64-bit integer  connection_id
 16
 </pre>
+</div>
+<div class="section" id="announce">
+<h2>Announce</h2>
 <ol class="arabic simple">
 <li>Choose a random transaction ID.</li>
 <li>Fill the announce request structure.</li>
 <li>Send the packet.</li>
 </ol>
-<p>announce request:</p>
+<p>IPv4 announce request:</p>
 <pre class="literal-block">
 Offset  Size    Name    Value
 0       64-bit integer  connection_id
@@ -220,7 +225,8 @@ Offset  Size    Name    Value
 <li>Check whether the action is announce.</li>
 <li>Do not announce again until interval seconds have passed or an event has occurred.</li>
 </ol>
-<p>announce response:</p>
+<p>Do note that most trackers will only honor the <tt class="docutils literal">IP address</tt> field under limited circumstances.</p>
+<p>IPv4 announce response:</p>
 <pre class="literal-block">
 Offset      Size            Name            Value
 0           32-bit integer  action          1 // announce
@@ -232,6 +238,16 @@ Offset      Size            Name            Value
 24 + 6 * n  16-bit integer  TCP port
 20 + 6 * N
 </pre>
+<div class="section" id="ipv6">
+<h3>IPv6</h3>
+<p>IPv6 announces have the same structure as v4 ones, including the used <tt class="docutils literal">action</tt> number except that the stride size of <tt class="docutils literal">&lt;IP address, TCP port&gt;</tt> pairs in the response is 18 bytes instead of 6.</p>
+<p>That means the <tt class="docutils literal">IP address</tt> field in the request remains 32bits wide which makes this field not usable under IPv6 and thus should always be set to 0.</p>
+<p>Which format is used is determined by the address family of the underlying UDP packet. I.e. packets from a v4 address use the v4 format, those from a v6 address use the v6 format.</p>
+<p>Clients that resolve hostnames to v4 and v6 and then announce to both should use the same <tt class="docutils literal">key</tt> for both so that trackers that care about accurate statistics-keeping can match the two announces.</p>
+</div>
+</div>
+<div class="section" id="scrape">
+<h2>Scrape</h2>
 <p>Up to about 74 torrents can be scraped at once. A full scrape can't be done with this protocol.</p>
 <ol class="arabic simple">
 <li>Choose a random transaction ID.</li>
@@ -269,6 +285,9 @@ Offset      Size            Name            Value
 <li>Check whether the packet is at least 8 bytes.</li>
 <li>Check whether the transaction ID is equal to the one you chose.</li>
 </ol>
+</div>
+<div class="section" id="errors">
+<h2>Errors</h2>
 <p>error response:</p>
 <pre class="literal-block">
 Offset  Size            Name            Value
@@ -277,23 +296,18 @@ Offset  Size            Name            Value
 8       string  message
 </pre>
 </div>
+</div>
 <div class="section" id="existing-implementations">
 <h1>Existing implementations</h1>
 <p>Azureus, libtorrent [2], opentracker [3], XBT Client and XBT Tracker
 support this protocol.</p>
-</div>
-<div class="section" id="ipv6">
-<h1>IPv6</h1>
-<p>IPv6 is not supported at the moment. A simple way to support IPv6
-would be to increase the size of all IP addresses to 128 bits when the
-request is done over IPv6.  However, I think more experience with IPv6
-and discussion is needed before including it.</p>
 </div>
 <div class="section" id="extensions">
 <h1>Extensions</h1>
 <p>Extension bits or a version field are not included. Clients and
 trackers should not assume packets to be of a certain size. This way,
 additional fields can be added without breaking compatibility.</p>
+<p>See BEP 41 [4] for an extension negotiation protocol.</p>
 </div>
 <div class="section" id="references-and-footnotes">
 <h1>References and Footnotes</h1>
@@ -313,6 +327,12 @@ additional fields can be added without breaking compatibility.</p>
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
 <tr><td class="label">[3]</td><td><a class="reference external" href="http://opentracker.blog.h3q.com/">http://opentracker.blog.h3q.com/</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id4" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[4]</td><td><a class="reference external" href="http://bittorrent.org/beps/bep_0041.html">http://bittorrent.org/beps/bep_0041.html</a></td></tr>
 </tbody>
 </table>
 <!-- Local Variables:

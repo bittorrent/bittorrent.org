@@ -3,7 +3,7 @@
 :Version: $Revision$
 :Last-Modified: $Date$
 :Author:  David Harrison <dave@bittorrent.com>
-:Status:  Draft
+:Status:  Accepted
 :Type:    Standards Track
 :Content-Type: text/x-rst
 :Created: 3-Aug-2008

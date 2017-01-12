@@ -3,7 +3,7 @@
 :Version: $Revision$
 :Last-Modified: $Date$
 :Author:  Greg Hazel <greg@bittorrent.com>, Arvid Norberg <arvid@bittorrent.com>
-:Status:  Draft
+:Status:  Accepted
 :Type:    Standards Track
 :Created: 31-Jan-2008
 :Post-History: 14-Oct-2012: point out that unrecognized message types should be ignored

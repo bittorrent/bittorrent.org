@@ -3,7 +3,7 @@
 :Version: $Revision$
 :Last-Modified: $Date$
 :Author:  Arvid Norberg <arvid@bittorrent.com>
-:Status:  Draft
+:Status:  Accepted
 :Type:    Standards Track
 :Content-Type: text/x-rst
 :Created: 22-Jun-2009

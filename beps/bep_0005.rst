@@ -3,7 +3,7 @@
 :Version: $Revision$
 :Last-Modified: $Date$
 :Author:  Andrew Loewenstern <drue@bittorrent.com>, Arvid Norberg <arvid@bittorrent.com>
-:Status:  Draft
+:Status:  Accepted
 :Type:    Standards Track
 :Created: 31-Jan-2008
 :Post-History: 22-March-2013: Add "implied_port" to announce_peer message, to improve NAT support

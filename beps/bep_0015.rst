@@ -3,7 +3,7 @@
 :Version: $Revision$
 :Last-Modified: $Date$
 :Author:  Olaf van der Spek <olafvdspek@gmail.com>
-:Status:  Draft
+:Status:  Accepted
 :Type:    Standards Track
 :Created: 13-Feb-2008
 :Post-History: 06-Nov-2016 (the8472.bep@infinite-source.de), specified IPv6 format.

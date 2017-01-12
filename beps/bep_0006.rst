@@ -3,7 +3,7 @@
 :Version: $Revision$
 :Last-Modified: $Date$
 :Author:  David Harrison <dave@bittorrent.com>, Bram Cohen <bram@bittorrent.com>
-:Status:  Draft
+:Status:  Accepted
 :Type:    Standards Track
 :Created: 01-Feb-2008
 :Post-History:

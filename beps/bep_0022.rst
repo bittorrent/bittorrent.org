@@ -3,7 +3,7 @@
 :Version: $Revision$
 :Last-Modified: $Date$
 :Author:  David Harrison <dave@bittorrent.com>, Stanislav Shalunov <shalunov@bittorrent.com>, Greg Hazel <greg@bittorrent.com>
-:Status:  Draft
+:Status:  Deferred
 :Type:    Standards track
 :Content-Type: text/x-rst
 :Created: 12-May-2008

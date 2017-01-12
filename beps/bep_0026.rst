@@ -3,7 +3,7 @@
 :Version: $Revision$
 :Last-Modified: $Date$
 :Author:  Robin Perkins <robin DOT perkins AT internode DOT on DOT net>
-:Status:  Draft
+:Status:  Deferred
 :Type:    Standards Track
 :Content-Type: text/x-rst
 :Created: 10-May-2008

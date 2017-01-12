@@ -3,7 +3,7 @@
 :Version: $Revision$
 :Last-Modified: $Date$
 :Author:  Arvid Norberg <arvid@bittorrent.com>, Ludvig Strigeus <bittorrent@strigeus.com>, Greg Hazel <greg@bittorrent.com>
-:Status:  Draft
+:Status:  Accepted
 :Type:    Standards Track
 :Created: 31-Jan-2008
 :Post-History:

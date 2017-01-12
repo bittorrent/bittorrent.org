@@ -3,7 +3,7 @@
 :Version: $Revision$
 :Last-Modified: $Date$
 :Author:  The 8472 <the8472.bep@infinite-source.de>
-:Status:  Draft
+:Status:  Accepted
 :Type:    Standards Track
 :Created: 29-Oct-2015
 :Depends: 10

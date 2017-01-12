@@ -3,7 +3,7 @@
 :Version: $Revision$
 :Last-Modified: $Date$
 :Author:  Michael Burford <michael @at@ getright.com>
-:Status:  Draft
+:Status:  Accepted
 :Type:    Standards Track
 :Content-Type: text/x-rst
 :Created: 21-Feb-2008

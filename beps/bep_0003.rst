@@ -10,6 +10,7 @@
 	20-Oct-2012 (arvid@bittorrent.com), clarified that info-hash is the digest of en bencoding found in .torrent file.
 	Introduced some references to new BEPs and cleaned up formatting.
 	11-Oct-2013 (arvid@bittorrent.com), correct the accepted and de-facto sizes for request messages
+	04-Feb-2017 (the8472.bep@infinite-source.de), further info-hash clarifications, added resources for new implementors
 
 BitTorrent is a protocol for distributing files. It identifies content
 by URL and is designed to integrate seamlessly with the web. Its
@@ -138,10 +139,18 @@ Tracker GET requests have the following keys:
 
 info_hash
   The 20 byte sha1 hash of the bencoded form of the info value from the
-  metainfo file. Note that this is a substring of the metainfo
-  file. The info-hash must be the hash of the encoded form as found
-  in the .torrent file, regardless of it being invalid. This value
-  will almost certainly have to be escaped.
+  metainfo file. This value will almost certainly have to be escaped.
+  
+  Note that this is a substring of the metainfo file.
+  The info-hash must be the hash of the encoded form as found
+  in the .torrent file, which is identical to bdecoding the metainfo file,
+  extracting the info dictionary and encoding it *if and only if* the
+  bdecoder fully validated the input (e.g. key ordering, absence of leading zeros).
+  Conversely that means clients must either reject invalid metainfo files 
+  or extract the substring directly.
+  They must not perform a decode-encode roundtrip on invalid data.
+    
+  
 
 peer_id
   A string of length 20 which this downloader uses as its id. Each
@@ -370,6 +379,22 @@ optimistically unchoked rotates every 30 seconds. To give them a
 decent chance of getting a complete piece to upload, new connections
 are three times as likely to start as the current optimistic unchoke
 as anywhere else in the rotation.
+
+Resources
+---------
+
+* The `BitTorrent Economics Paper`__ outlines some request and choking
+  algorithms clients should implement for optimal performance 
+
+  __ http://bittorrent.org/bittorrentecon.pdf
+  
+* When developing a new implementation the Wireshark protocol analyzer and
+  its `dissectors for bittorrent`__ can be useful to debug and compare with
+  existing ones. 
+
+  __ https://wiki.wireshark.org/BitTorrent
+ 
+
 
 Copyright
 ---------

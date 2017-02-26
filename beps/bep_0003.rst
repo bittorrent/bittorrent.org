@@ -1,4 +1,4 @@
-:BEP: 3
+:BEP: XX
 :Title: The BitTorrent Protocol Specification
 :Version: $Revision$
 :Last-Modified: $Date$
@@ -19,6 +19,7 @@ file happen concurrently, the downloaders upload to each other, making
 it possible for the file source to support very large numbers of
 downloaders with only a modest increase in its load.
 
+----------------------------------------------------------
 A BitTorrent file distribution consists of these entities:
 ----------------------------------------------------------
 
@@ -31,6 +32,7 @@ A BitTorrent file distribution consists of these entities:
 
 There are ideally many end users for a single file.
 
+----------------------------------------------------------
 To start serving, a host goes through the following steps:
 ----------------------------------------------------------
 
@@ -42,6 +44,7 @@ To start serving, a host goes through the following steps:
 #. Link to the metainfo (.torrent) file from some other web page.
 #. Start a downloader which already has the complete file (the 'origin').
 
+------------------------------------------------
 To start downloading, a user does the following:
 ------------------------------------------------
 
@@ -52,6 +55,7 @@ To start downloading, a user does the following:
 #. Wait for download to complete.
 #. Tell downloader to exit (it keeps uploading until this happens).
 
+---------
 bencoding
 ---------
 
@@ -76,6 +80,7 @@ bencoding
   (sorted as raw strings, not alphanumerics).
 
 
+--------------
 metainfo files
 --------------
 
@@ -87,70 +92,115 @@ announce
 
 info
   This maps to a dictionary, with keys described below.
+  
+``piece layer``
+  A list of strings. Each string consists of concatenated hashes
+  of an intermediate merkle tree layer for each file. The layer is chosen so that
+  one hash represents one piece. For example if a piece size of 128KiB is used
+  then 3rd layer up from the leaf hashes is used.
+  Files smaller or equal to the piece size are represented by an empty string.
+  
 
 All strings in a .torrent file that contains text must be UTF-8
 encoded.
 
 info dictionary
-...............
+===============
 
-The ``name`` key maps to a UTF-8 encoded string which is the
-suggested name to save the file (or directory) as. It is purely advisory.
+``name``
+  a UTF-8 encoded string which is the suggested name to save the file (or directory) as.
+  It is purely advisory.
 
-``piece length`` maps to the number of bytes in each piece
-the file is split into. For the purposes of transfer, files are
-split into fixed-size pieces which are all the same length except for
-possibly the last one which may be truncated. ``piece
-length`` is almost always a power of two, most commonly 2 18 =
-256 K (BitTorrent prior to version 3.2 uses 2 20 = 1 M as
-default).
+``piece length``
+  the number of bytes that each logical piece in the peer protocol refers to.
+  I.e. it sets the granularity of ``piece``, ``request``, ``bitfield`` and ``have``
+  messages. It must be a power of two and at least 16KiB.
+  
+  Files are mapped into this piece address space so that each non-empty file starts
+  at a piece boundary and occur in the same order as in the file tree.
+  The last piece of each file may be shorter than the specified piece length.
 
-``pieces`` maps to a string whose length is a multiple of
-20. It is to be subdivided into strings of length 20, each of which is
-the SHA1 hash of the piece at the corresponding index.
+``digest func``
+  the digest used for the calculation of merkle trees and the infohash.
+  Currently valid values are ``sha3-256`` and ``blake2s``.
+  Implementations must reject torrents if they encounter an unknown value.
+  Future revisions may allow additional algorithms if new vulnerabilities are discovered.
 
-There is also a key ``length`` or a key ``files``,
-but not both or neither. If ``length`` is present then the
-download represents a single file, otherwise it represents a set of
-files which go in a directory structure.
+The remaining fields differ depending on whether the torrent represents
+one or more files.
 
-In the single file case, ``length`` maps to the length of
-the file in bytes.
+single-file
+-----------
 
-For the purposes of the other keys, the multi-file case is treated as
-only having a single file by concatenating the files in the order they
-appear in the files list. The files list is the value
-``files`` maps to, and is a list of dictionaries containing
-the following keys:
+``length``
+  Length of the file in bytes.
+  
+``pieces root``
+  The root hash of a merkle tree with a branching factor of 2,
+  constructed from 16KiB blocks of the file.
+  The last block of the file may be smaller than 16KiB.
+  The remaining leaf hashes beyond the end of the file required
+  to construct upper layers of the merkle tree are set to zero.   
 
-``length`` - The length of the file, in bytes.
+multi-file
+----------
 
-``path`` - A list of UTF-8 encoded strings corresponding to subdirectory
-names, the last of which is the actual file name (a zero length list
-is an error case).
+``files``
+  is a list of dictionaries which represent files or directories
+  containing additional files or directories.
+  
+  Each dictionary contains
+  
+  ``path``
+    A list of UTF-8 encoded strings corresponding to subdirectory names.
+    If this dictionary represents a file then the last of entry is the actual file name.
+    A zero length list is an error case.
+	
+  ``files``
+    A list of directory entries nested within this directory.
+    Mutually exclusive with ``length`` and ``pieces root``.
+    
+  ``length``
+  	The length of the file, in bytes.
+  	Presence indicates that this is a file, not a directory.
+  	Mutually exclusive with ``files``.
+  	
+  ``pieces root``
+  	The merkle tree for this file if the file has a non-zero length.
+  	Its construction is identical to the single-file case.
+  	Mutually exclusive with ``files``.
+  	
+  	
+  A file's full path consists of the torrent's ``name``, the ``path``
+  elements of the directory tree and file's own ``path`` elements. 
+  
+  
+--------
+infohash
+--------
 
-In the single file case, the name key is the name of a file, in the 
-muliple file case, it's the name of a directory.
+The infohash is calculated by applying ``digest func`` to the bencoded form of the info dictionary,
+which is a substring of the metainfo file.
 
+The info-hash must be the hash of the encoded form as found
+in the .torrent file, which is identical to bdecoding the metainfo file,
+extracting the info dictionary and encoding it *if and only if* the
+bdecoder fully validated the input (e.g. key ordering, absence of leading zeros).
+Conversely that means implementations must either reject invalid metainfo files 
+or extract the substring directly.
+They must not perform a decode-encode roundtrip on invalid data.
+
+For some uses as torrent identifier it is truncated to 20 bytes.
+
+--------
 trackers
 --------
 
 Tracker GET requests have the following keys:
 
 info_hash
-  The 20 byte sha1 hash of the bencoded form of the info value from the
-  metainfo file. This value will almost certainly have to be escaped.
-  
-  Note that this is a substring of the metainfo file.
-  The info-hash must be the hash of the encoded form as found
-  in the .torrent file, which is identical to bdecoding the metainfo file,
-  extracting the info dictionary and encoding it *if and only if* the
-  bdecoder fully validated the input (e.g. key ordering, absence of leading zeros).
-  Conversely that means clients must either reject invalid metainfo files 
-  or extract the substring directly.
-  They must not perform a decode-encode roundtrip on invalid data.
-    
-  
+  The 20byte truncated infohash as described above.
+  This value will almost certainly have to be escaped.
 
 peer_id
   A string of length 20 which this downloader uses as its id. Each
@@ -217,6 +267,7 @@ It is common to announce over a `UDP tracker protocol`_ as well.
 
 .. _`UDP tracker protocol`: bep_0015.html
 
+-------------
 peer protocol
 -------------
 
@@ -256,7 +307,7 @@ they can all be thrown out when a choke happens.
 
 The peer wire protocol consists of a handshake followed by a
 never-ending stream of length-prefixed messages. The handshake starts
-with character ninteen (decimal) followed by the string 'BitTorrent
+with character nineteen (decimal) followed by the string 'BitTorrent
 protocol'. The leading character is a length prefix, put there in the
 hope that other new protocols may do the same and thus be trivially
 distinguishable from each other.
@@ -269,11 +320,8 @@ zero in all current implementations. If you wish to extend the
 protocol using these bytes, please coordinate with Bram Cohen to make
 sure all extensions are done compatibly.
 
-Next comes the 20 byte sha1 hash of the bencoded form of the info
-value from the metainfo file. (This is the same value which is
-announced as ``info_hash`` to the tracker, only here it's raw
-instead of quoted here). If both sides don't send the same value, they
-sever the connection. The one possible exception is if a downloader
+Next comes the 20 byte truncated infohash. If both sides don't send the same value,
+they sever the connection. The one possible exception is if a downloader
 wants to do multiple downloads over a single port, they may wait for
 incoming connections to give a download hash first, and respond with
 the same one if it's in their list.
@@ -289,6 +337,7 @@ and ignored. Keepalives are generally sent once every two minutes, but
 note that timeouts can be done much more quickly when data is
 expected.
 
+-------------
 peer messages
 -------------
 
@@ -320,7 +369,7 @@ that downloader just completed and checked the hash of.
 
 'request' messages contain an index, begin, and length. The last
 two are byte offsets. Length is generally a power of two unless it
-gets truncated by the end of the file. All current implementations use
+gets truncated by the end of a file. All current implementations use
 2^14 (16 kiB), and close connections which request an amount greater than
 that.
 
@@ -380,6 +429,24 @@ decent chance of getting a complete piece to upload, new connections
 are three times as likely to start as the current optimistic unchoke
 as anywhere else in the rotation.
 
+
+------------
+Upgrade Path
+------------
+
+## TODO ##
+
+* restrict file layout. no nested directories for hybrid torrents
+* padding or different piece-space layout?
+* pieces field
+* double announce behavior
+* safe hashing. avoid downgrade attacks
+* changes to BEP 9. magnets. send merkle layers.
+* incorporate BEP 6 state machine (reject messages)? 
+
+
+
+---------
 Resources
 ---------
 
@@ -393,6 +460,7 @@ Resources
   existing ones. 
 
   __ https://wiki.wireshark.org/BitTorrent
+
  
 
 

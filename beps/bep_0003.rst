@@ -93,12 +93,14 @@ announce
 info
   This maps to a dictionary, with keys described below.
   
-``piece layer``
-  A list of strings. Each string consists of concatenated hashes
-  of an intermediate merkle tree layer for each file. The layer is chosen so that
-  one hash represents one piece. For example if a piece size of 128KiB is used
-  then 3rd layer up from the leaf hashes is used.
-  Files smaller or equal to the piece size are represented by an empty string.
+``piece layers``
+  A list of strings. The list contains one string for each file in the ``file tree``.
+  Each string consists of concatenated hashes of one merkle tree layer.
+  The layer is chosen so that one hash covers ``piece length`` bytes.
+  For example if the piece size is 16KiB then the leaf hashes are used.
+  If a piece size of 128KiB is used then 3rd layer up from the leaf hashes is used.
+  Files smaller or equal to the piece size are represented by an empty string since
+  the root hash is sufficient to cover the piece.
   
 
 All strings in a .torrent file that contains text must be UTF-8
@@ -108,8 +110,7 @@ info dictionary
 ===============
 
 ``name``
-  a UTF-8 encoded string which is the suggested name to save the file (or directory) as.
-  It is purely advisory.
+  A display name for the torrent. It is purely advisory.
 
 ``piece length``
   the number of bytes that each logical piece in the peer protocol refers to.
@@ -125,55 +126,76 @@ info dictionary
   Currently valid values are ``sha3-256`` and ``blake2s``.
   Implementations must reject torrents if they encounter an unknown value.
   Future revisions may allow additional algorithms if new vulnerabilities are discovered.
+  
+``file tree``
+  A tree of dictionaries where dictionary keys represent utf-8 encoded path elements
+  Entries with zero-length keys describe the properties of the composed path at that point
+  The ``file tree`` root dictionary itself must not be a file, i.e. it must not contain
+  a zero-length key with a dictionary containing a ``length`` key.
 
-The remaining fields differ depending on whether the torrent represents
-one or more files.
 
-single-file
------------
+File tree layout
+----------------
+
+Example:
+
+.. parsed-literal::
+
+    {
+      info: {
+        file tree: {
+          dir1: {
+            dir2: {
+              fileA.txt: {
+                "": {
+                  length: *<length of file in bytes (integer)>*,
+                  pieces root: *<optional, merkle tree root (string)>*,
+                  ...
+                }
+              },
+              fileB.txt: {
+                "": {
+                  ...
+                }
+              }
+            },
+            dir3: {
+              ...
+            }
+          }
+        }
+      }
+    }
+    
+Bencoded for fileA only::
+
+    d4:infod9:file treed4:dir1d4:dir2d9:fileA.txtd0:d5:lengthi1024e11:pieces root32:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaeeeeeee
+
 
 ``length``
-  Length of the file in bytes.
+  Length of the file in bytes. Presence of this field indicates
+  that the dictionary describes a file, not a directory. Which means
+  it must not have any sibling entries.
   
 ``pieces root``
-  The root hash of a merkle tree with a branching factor of 2,
-  constructed from 16KiB blocks of the file.
-  The last block of the file may be smaller than 16KiB.
+  For non-empty files this is the the root hash of a merkle tree
+  with a branching factor of 2, constructed from 16KiB blocks of the file.
+  If necessary the last block of the file must be zero-padded to 16KiB.
   The remaining leaf hashes beyond the end of the file required
-  to construct upper layers of the merkle tree are set to zero.   
+  to construct upper layers of the merkle tree are set to zero.
 
-multi-file
-----------
 
-``files``
-  is a list of dictionaries which represent files or directories
-  containing additional files or directories.
-  
-  Each dictionary contains
-  
-  ``path``
-    A list of UTF-8 encoded strings corresponding to subdirectory names.
-    If this dictionary represents a file then the last of entry is the actual file name.
-    A zero length list is an error case.
-	
-  ``files``
-    A list of directory entries nested within this directory.
-    Mutually exclusive with ``length`` and ``pieces root``.
-    
-  ``length``
-  	The length of the file, in bytes.
-  	Presence indicates that this is a file, not a directory.
-  	Mutually exclusive with ``files``.
-  	
-  ``pieces root``
-  	The merkle tree for this file if the file has a non-zero length.
-  	Its construction is identical to the single-file case.
-  	Mutually exclusive with ``files``.
-  	
-  	
-  A file's full path consists of the torrent's ``name``, the ``path``
-  elements of the directory tree and file's own ``path`` elements. 
-  
+Interpreting paths:
+
+``file tree: {name.ext: {"": {length: ...}}}``
+  a single-file torrent
+``file tree: {nameA.ext: {"": {length: ...}}, nameB.ext: {"": {length: ...}}, dir: {...}}``
+  a rootless multifile torrent, i.e. a list of files and directories without a named common directory containing them.
+  implementations may offer users to optionally prepend the torrent name as root to avoid file name collisions. 
+``file tree: {dir: {nameA.ext: {"": {length: ...}}, nameB.ext: {"": {length: ...}}}}``
+  multiple files rooted in a single directory
+
+
   
 --------
 infohash
@@ -436,9 +458,8 @@ Upgrade Path
 
 ## TODO ##
 
-* restrict file layout. no nested directories for hybrid torrents
+* how to generate ``pieces`` and ``files`` for hybrid torrents so that they yield the same results
 * padding or different piece-space layout?
-* pieces field
 * double announce behavior
 * safe hashing. avoid downgrade attacks
 * changes to BEP 9. magnets. send merkle layers.

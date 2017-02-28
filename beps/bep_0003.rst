@@ -102,6 +102,9 @@ info
   Files smaller or equal to the piece size are represented by an empty string since
   the root hash is sufficient to cover the piece.
   
+  A torrent is not valid if this field is absent or the contained hashes do not match
+  the merkle roots.
+  
 
 All strings in a .torrent file that contains text must be UTF-8
 encoded.
@@ -118,15 +121,17 @@ info dictionary
   messages. It must be a power of two and at least 16KiB.
   
   Files are mapped into this piece address space so that each non-empty file starts
-  at a piece boundary and occur in the same order as in the file tree.
+  at a piece boundary and occurs in the same order as in the file tree.
   The last piece of each file may be shorter than the specified piece length.
-
-``digest func``
-  the digest used for the calculation of merkle trees and the infohash.
-  Currently valid values are ``sha3-256`` and ``blake2s``.
-  Implementations must reject torrents if they encounter an unknown value.
-  Future revisions may allow additional algorithms if new vulnerabilities are discovered.
   
+``meta version``
+  an integer value, set to 1 to indicate compatibility with the current revision of this
+  specification. Future revisions will only increment this value to indicate an incompatible
+  change has been made, for example that hash algorithms were changed due to newly discovered
+  vulnerabilities. Implementations must check this field first and indicate that a torrent
+  is of a newer version than they can handle before performing other validations which may
+  result in more general messages about invalid files.
+
 ``file tree``
   A tree of dictionaries where dictionary keys represent utf-8 encoded path elements
   Entries with zero-length keys describe the properties of the composed path at that point
@@ -183,6 +188,7 @@ Bencoded for fileA only::
   If necessary the last block of the file must be zero-padded to 16KiB.
   The remaining leaf hashes beyond the end of the file required
   to construct upper layers of the merkle tree are set to zero.
+  As of version 1 **TODO** is used as digest function for the merkle tree.
 
 
 Interpreting paths:
@@ -201,7 +207,7 @@ Interpreting paths:
 infohash
 --------
 
-The infohash is calculated by applying ``digest func`` to the bencoded form of the info dictionary,
+The infohash is calculated by applying **TODO** to the bencoded form of the info dictionary,
 which is a substring of the metainfo file.
 
 The info-hash must be the hash of the encoded form as found
@@ -213,6 +219,10 @@ or extract the substring directly.
 They must not perform a decode-encode roundtrip on invalid data.
 
 For some uses as torrent identifier it is truncated to 20 bytes.
+
+When verifying an infohash implementations must also check that the ``piece layers``
+hashes outside the info dictionary match the ``pieces root`` fields, without them
+a torrent cannot be completed and thus is invalid.
 
 --------
 trackers
@@ -277,9 +287,11 @@ that downloaders may rerequest on nonscheduled times if an event
 happens or they need more peers.
 
 More commonly is that trackers return a compact representation of
-the peer list, see `BEP 23`_.
+the peer list, see `BEP 23`_ and `BEP 7`_.
 
 .. _`BEP 23`: bep_0023.html
+
+.. _`BEP 7`: bep_0007.html
 
 If you want to make any extensions to metainfo files or tracker
 queries, please coordinate with Bram Cohen to make sure that all
@@ -376,6 +388,7 @@ The possible values are:
 - 6 - request
 - 7 - piece
 - 8 - cancel
+- 16 - reject
 
 'choke', 'unchoke', 'interested', and 'not interested' have no payload.
 
@@ -405,11 +418,18 @@ downloader doesn't have yet are currently pending, it sends requests
 for everything to everyone it's downloading from. To keep this from
 becoming horribly inefficient, it sends cancels to everyone else every
 time a piece arrives.
+cancel messages do not relieve the other side from the duty of responding
+to a request. They must either send a piece or a reject message as response. 
+
+'reject' messages have the  same payload as request messages. They
+indicate that a peer will not service a request. They must
+be sent after a choke message to cancel all pending requests.
 
 'piece' messages contain an index, begin, and piece. Note that they
-are correlated with request messages implicitly. It's possible for an
-unexpected piece to arrive if choke and unchoke messages are sent in
-quick succession and/or transfer is going very slowly.
+are correlated with request messages must be explicitly rejected
+by the remote after an unchoke. This means a request is answered
+with either a piece or reject messages. If an unsolicited request
+is received a peer MUST close the connection.
 
 Downloaders generally download pieces in random order, which does a
 reasonably good job of keeping them from having a strict subset or
@@ -451,6 +471,12 @@ decent chance of getting a complete piece to upload, new connections
 are three times as likely to start as the current optimistic unchoke
 as anywhere else in the rotation.
 
+Note that the original version of the peer protocol had no reject message.
+That message has been adopted from the `Fast Extension`_ which specifies
+further optional messages.
+
+.. _Fast Extension: bep_0006.html
+
 
 ------------
 Upgrade Path
@@ -463,7 +489,6 @@ Upgrade Path
 * double announce behavior
 * safe hashing. avoid downgrade attacks
 * changes to BEP 9. magnets. send merkle layers.
-* incorporate BEP 6 state machine (reject messages)? 
 
 
 

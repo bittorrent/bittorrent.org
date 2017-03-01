@@ -1,5 +1,5 @@
 :BEP: XX
-:Title: The BitTorrent Protocol Specification
+:Title: The BitTorrent Protocol Specification v2
 :Version: $Revision$
 :Last-Modified: $Date$
 :Author:  Bram Cohen <bram@bittorrent.com>
@@ -189,6 +189,8 @@ Bencoded for fileA only::
   The remaining leaf hashes beyond the end of the file required
   to construct upper layers of the merkle tree are set to zero.
   As of version 1 **TODO** is used as digest function for the merkle tree.
+  
+  Note that identical files always result in the same root hash.
 
 
 Interpreting paths:
@@ -482,15 +484,18 @@ further optional messages.
 Upgrade Path
 ------------
 
-## TODO ##
+For interoperability with BEP 3 a torrent can be created to contain the necessary
+data for both formats. To do so the 'pieces' field and 'files' or 'length' in the info
+dictionary must be generated to describe the same data in the same order.
+Since the old format did not align files to piece boundaries a multifile torrent
+must use BEP 47 padding files to achieve identical alignment.
 
-* how to generate ``pieces`` and ``files`` for hybrid torrents so that they yield the same results
-* padding or different piece-space layout?
-* double announce behavior
-* safe hashing. avoid downgrade attacks
-* changes to BEP 9. magnets. send merkle layers.
-
-
+Implementations supporting both formats can join both swarms by calculating
+the new and old infohashes and downloading them to the same storage. Before
+doing so they must validate that the content (file names, order, piece alignment)
+is identical and also verify that pieces match both piece hash formats.
+If any inconsistency is detected they may either abort or fall back to
+downloading one of the two formats as if the other were not present. 
 
 ---------
 Resources

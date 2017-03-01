@@ -101,6 +101,8 @@ info
   If a piece size of 128KiB is used then 3rd layer up from the leaf hashes is used.
   Files smaller or equal to the piece size are represented by an empty string since
   the root hash is sufficient to cover the piece.
+  Layer hashes which exclusively cover data beyond the end of file,
+  i.e. are only needed to balance the tree, are omitted.
   
   A torrent is not valid if this field is absent or the contained hashes do not match
   the merkle roots.

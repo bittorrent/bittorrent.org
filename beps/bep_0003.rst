@@ -94,18 +94,19 @@ info
   This maps to a dictionary, with keys described below.
   
 ``piece layers``
-  A list of strings. The list contains one string for each file in the ``file tree``.
-  Each string consists of concatenated hashes of one merkle tree layer.
+  A dictionary of strings. For each file in the file tree that is larger than the piece size
+  it contains one string value.
+  The keys are the merkle roots while the values consist of concatenated hashes
+  of one layer within that merkle tree.
   The layer is chosen so that one hash covers ``piece length`` bytes.
   For example if the piece size is 16KiB then the leaf hashes are used.
   If a piece size of 128KiB is used then 3rd layer up from the leaf hashes is used.
-  Files smaller or equal to the piece size are represented by an empty string since
-  the root hash is sufficient to cover the piece.
   Layer hashes which exclusively cover data beyond the end of file,
   i.e. are only needed to balance the tree, are omitted.
+  All hashes are stored in their binary format.
   
-  A torrent is not valid if this field is absent or the contained hashes do not match
-  the merkle roots.
+  A torrent is not valid if this field is absent, the contained hashes do not match
+  the merkle roots or are not from the correct layer.
   
 
 All strings in a .torrent file that contains text must be UTF-8
@@ -190,7 +191,8 @@ Bencoded for fileA only::
   If necessary the last block of the file must be zero-padded to 16KiB.
   The remaining leaf hashes beyond the end of the file required
   to construct upper layers of the merkle tree are set to zero.
-  As of version 1 **TODO** is used as digest function for the merkle tree.
+  As of ``meta version`` 1 SHA2-256 is used as digest function for the merkle tree.
+  The hash is stored in its binary form, not as human-readable string.
   
   Note that identical files always result in the same root hash.
 
@@ -211,8 +213,8 @@ Interpreting paths:
 infohash
 --------
 
-The infohash is calculated by applying **TODO** to the bencoded form of the info dictionary,
-which is a substring of the metainfo file.
+The infohash is calculated by applying a hash function to the bencoded form of the info dictionary,
+which is a substring of the metainfo file. For ``meta version`` 1 SHA2-256 is used.
 
 The info-hash must be the hash of the encoded form as found
 in the .torrent file, which is identical to bdecoding the metainfo file,

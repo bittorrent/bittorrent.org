@@ -434,7 +434,7 @@ be sent after a choke message to cancel all pending requests.
 'piece' messages contain an index, begin, and piece. Note that they
 are correlated with request messages must be explicitly rejected
 by the remote after an unchoke. This means a request is answered
-with either a piece or reject messages. If an unsolicited request
+with either a piece or reject messages. If an unsolicited piece
 is received a peer MUST close the connection.
 
 Downloaders generally download pieces in random order, which does a

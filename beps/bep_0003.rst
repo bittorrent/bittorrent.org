@@ -395,6 +395,9 @@ The possible values are:
 - 7 - piece
 - 8 - cancel
 - 16 - reject
+- 17 - hash request
+- 18 - hashes
+- 19 - hash reject
 
 'choke', 'unchoke', 'interested', and 'not interested' have no payload.
 
@@ -407,6 +410,31 @@ indices 0 - 7 from high bit to low bit, respectively. The next one
 
 The 'have' message's payload is a single number, the index which
 that downloader just completed and checked the hash of.
+
+'hash request' messages contain a pieces root, base layer, index, length,
+and proof layers. The pieces root is the root hash of a file.
+The base layer defines the lowest requested layer of the
+hash tree. It is the number of layers above the leaf layer that the hash list
+should start at. A value of zero indicates that leaf hashes are
+requested. Clients are only required to support setting the base layer
+to the leaf and piece layers. Index is the offset within the base layer
+of the first requested hash. Length is the number of hashes to include
+from the base layer. Proof layers is the number of ancestor layers to include.
+Hash requests MUST be anwered with either a 'hashes' or 'hash reject' message.
+
+Clients must be able to service requests for hash blocks covering pieces which they
+have announced through bitfield or have messages. They may be able to service
+additional requests if they have access to the full layers from a metadata file
+but requesting implementations should try to prioritize requests where they can be certain
+that the other party can must have the necessary data.
+
+'hashes' messages contain a pieces root, base layer, index, length,
+proof layers, and hashes. This message MUST correlate with a 'hash request'
+message. Hashes is in breadth first order starting with the base layer.
+Only ancestor hashes required to verify the base layer hashes are included.
+
+'hash reject' messages have the same payload as 'hash request' messages.
+They indicate that a peer will not service a hash request.
 
 'request' messages contain an index, begin, and length. The last
 two are byte offsets. Length is generally a power of two unless it

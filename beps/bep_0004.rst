@@ -84,6 +84,11 @@ Reserved Message IDs
  Additional IDs used in deployed clients:
  0x14   LTEP Handshake (implemented in libtorrent, uTorrent,...)
 
+ Hash Transfer Protocol:
+ 0x15   hash request
+ 0x16   hashes
+ 0x17	hash reject
+
 References
 ==========
 

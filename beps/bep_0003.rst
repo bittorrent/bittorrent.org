@@ -395,6 +395,9 @@ The possible values are:
 - 7 - piece
 - 8 - cancel
 - 16 - reject
+- 21 - hash request
+- 22 - hashes
+- 23 - hash reject
 
 'choke', 'unchoke', 'interested', and 'not interested' have no payload.
 
@@ -407,6 +410,49 @@ indices 0 - 7 from high bit to low bit, respectively. The next one
 
 The 'have' message's payload is a single number, the index which
 that downloader just completed and checked the hash of.
+
+'hash request' messages contain a pieces root, base layer, index, length,
+and proof layers. The pieces root is the root hash of a file.
+The base layer defines the lowest requested layer of the
+hash tree. It is the number of layers above the leaf layer that the hash list
+should start at. A value of zero indicates that leaf hashes are
+requested. Clients are only required to support setting the base layer
+to the leaf and piece layers. Index is the offset in hashes
+of the first requested hash in the base layer.
+Index MUST be a multiple of length, this includes zero.
+Length is the number of hashes to include from the base layer.
+Length MUST be equal-to-or-greater-than two and a power of two.
+Length SHOULD NOT be greater than 512. Proof layers is the
+number of ancestor layers to include. Note that the limits imposed on
+index and length above mean that at-most one uncle hash is needed
+from each proof layer.
+Hash requests MUST be answered with either a 'hashes' or 'hash reject' message.
+
+Clients must be able to service requests for hash blocks covering pieces which they
+have announced through bitfield or have messages. They may be able to service
+additional requests if they have access to the full layers from a metadata file
+but requesting implementations should try to prioritize requests where they can be certain
+that the other party can must have the necessary data.
+
+Hash requests may be sent to a peer regardless of its choke state.
+For unchoked peers, hash requests should be subject to the same rate
+limiting policy as piece requests, except that all hash requests are not
+necessarily rejected after a peer is choked. Clients may impose a separate
+rate limit on hash requests received from choked peers.
+Clients MUST NOT reject a hash request with a base layer of zero if it
+immediately follows a request for one of the chunks in the requested range
+and the client services the chunk request with a piece message.
+
+'hashes' messages contain a pieces root, base layer, index, length,
+proof layers, and hashes. This message MUST correlate with a 'hash request'
+message. Hashes starts with the base layer and ends with the uncle hash
+closest to the root. A proof layer is omitted if the requested hashes
+include the entire child layer. In other words, the first log2(length)-1
+proof layers are ommitted. The ommitted layers are still counted towards
+the requested proof layers.
+
+'hash reject' messages have the same payload as 'hash request' messages.
+They indicate that a peer will not service a hash request.
 
 'request' messages contain an index, begin, and length. The last
 two are byte offsets. Length is generally a power of two unless it

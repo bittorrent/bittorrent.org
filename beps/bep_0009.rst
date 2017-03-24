@@ -114,26 +114,6 @@ Example::
 	{'msg_type': 2, 'piece': 0}
 	d8:msg_typei1e5:piecei0ee
 
-requesting merkle tree layers
------------------------------
-
-Torrents in the v2 format contain essential metadata outside the info dictionary.
-To transfer the ``pieces layers`` content implementations supporting the new format
-and this BEP must also support additional request, data and reject message semantics.
-
-All messages can optionally contain a ``pieces root`` field which has a hash as its value.
-If present the messages refer to the associated ``piece layers`` string for a specific file
-instead of the info dictionary. Piece indices then refer to 16KiB blocks within that string.
-Data messages can also contain a 'chain' field which contains the ancestor-sibling hashes
-needed to verify the 16KiB chunk of that layer against the root hash. The ancestor-siblings are ordered
-from closest to the layer to closest to the root. That field is not necessary if the 16KiB block
-contains the entire layer, i.e. when there are no ancestors-siblings needed to verify it.
-
-Clients must be able to service requests for hash blocks covering pieces which they
-have announced through bitfield or have messages. They may be able to service
-additional requests if they have access to the full layers from a metadata file
-but requesting implementations should try to prioritize requests where they can be certain
-that the other party can must have the necessary data.
 
 magnet URI format
 =================

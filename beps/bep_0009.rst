@@ -129,7 +129,7 @@ The magnet URI format is::
 	support the 32 character `base32`_ encoded info-hash.
 
 <tagged-info-hash>
-	Is the `multihash` formatted, hex encoded full infohash
+	Is the `multihash`_ formatted, hex encoded full infohash
 	for torrents in the new metadata format. 'btmh' and 'btih'
 	exact topics may exist in the same magnet if they describe
 	the same hybrid torrent.

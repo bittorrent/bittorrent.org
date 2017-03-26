@@ -123,13 +123,14 @@ info dictionary
   I.e. it sets the granularity of ``piece``, ``request``, ``bitfield`` and ``have``
   messages. It must be a power of two and at least 16KiB.
   
-  Files are mapped into this piece address space so that each non-empty file starts
-  at a piece boundary and occurs in the same order as in the file tree.
+  Files are mapped into this piece address space so that each non-empty is
+  aligned to a piece boundary and occurs in the same order as in the file tree.
   The last piece of each file may be shorter than the specified piece length.
   
 ``meta version``
-  an integer value, set to 1 to indicate compatibility with the current revision of this
-  specification. Future revisions will only increment this value to indicate an incompatible
+  an integer value, set to 2 to indicate compatibility with the current revision of this
+  specification. Version 1 is not assigned to avoid confusion with BEP3.
+  Future revisions will only increment this value to indicate an incompatible
   change has been made, for example that hash algorithms were changed due to newly discovered
   vulnerabilities. Implementations must check this field first and indicate that a torrent
   is of a newer version than they can handle before performing other validations which may
@@ -188,10 +189,10 @@ Bencoded for fileA only::
 ``pieces root``
   For non-empty files this is the the root hash of a merkle tree
   with a branching factor of 2, constructed from 16KiB blocks of the file.
-  If necessary the last block of the file must be zero-padded to 16KiB.
+  The last block may be shorter than 16KiB.
   The remaining leaf hashes beyond the end of the file required
   to construct upper layers of the merkle tree are set to zero.
-  As of ``meta version`` 1 SHA2-256 is used as digest function for the merkle tree.
+  As of ``meta version`` 2 SHA2-256 is used as digest function for the merkle tree.
   The hash is stored in its binary form, not as human-readable string.
   
   Note that identical files always result in the same root hash.
@@ -214,7 +215,7 @@ infohash
 --------
 
 The infohash is calculated by applying a hash function to the bencoded form of the info dictionary,
-which is a substring of the metainfo file. For ``meta version`` 1 SHA2-256 is used.
+which is a substring of the metainfo file. For ``meta version`` 2 SHA2-256 is used.
 
 The info-hash must be the hash of the encoded form as found
 in the .torrent file, which is identical to bdecoding the metainfo file,
@@ -227,8 +228,7 @@ They must not perform a decode-encode roundtrip on invalid data.
 For some uses as torrent identifier it is truncated to 20 bytes.
 
 When verifying an infohash implementations must also check that the ``piece layers``
-hashes outside the info dictionary match the ``pieces root`` fields, without them
-a torrent cannot be completed and thus is invalid.
+hashes outside the info dictionary match the ``pieces root`` fields.
 
 --------
 trackers
@@ -529,6 +529,11 @@ further optional messages.
 
 .. _Fast Extension: bep_0006.html
 
+------------
+Test Vectors
+------------
+
+TODO
 
 ------------
 Upgrade Path
@@ -543,9 +548,16 @@ must use BEP 47 padding files to achieve identical alignment.
 Implementations supporting both formats can join both swarms by calculating
 the new and old infohashes and downloading them to the same storage. Before
 doing so they must validate that the content (file names, order, piece alignment)
-is identical and also verify that pieces match both piece hash formats.
-If any inconsistency is detected they may either abort or fall back to
-downloading one of the two formats as if the other were not present. 
+is identical. During the download thez must also verify that pieces match both piece
+hash formats. If any inconsistency is detected they may either abort or fall back to
+downloading one of the two formats as if the other were not present.
+
+When initiating a connection and sending the sha1 infohash of such a hybrid torrent
+a peer can set the 4th most significant bit in the last byte of the reserved bitfield
+to indicate that it also supports the new format. The remote peer may then respond
+with the new infohash to upgrade the connect to the new format.   
+
+
 
 ---------
 Resources

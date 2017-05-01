@@ -198,7 +198,8 @@ character value describing the type of message. The value
 of the "y" key is one of "q" for query, "r" for response, or "e" for
 error. A key "v" should be included in every message with a client version
 string. The string should be a two character client identifier registered
-in BEP 20 [#BEP-20]_ followed by a two character version identifier.
+in BEP 20 [#BEP-20]_ followed by a two character version identifier. Not all
+implementations include a "v" key so clients should not assume its presence.
 
 Contact Encoding
 ----------------

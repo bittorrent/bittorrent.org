@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
+<meta name="generator" content="Docutils 0.13.1: http://docutils.sourceforge.net/" />
 <title></title>
 <meta name="author" content="Bram Cohen &lt;bram&#64;bittorrent.com&gt;" />
 <link rel="stylesheet" href="../css/bep.css" type="text/css" />
@@ -33,26 +33,27 @@
 <col class="docinfo-name" />
 <col class="docinfo-content" />
 <tbody valign="top">
-<tr class="field"><th class="docinfo-name">BEP:</th><td class="field-body">3</td>
+<tr class="bep field"><th class="docinfo-name">BEP:</th><td class="field-body">3</td>
 </tr>
-<tr class="field"><th class="docinfo-name">Title:</th><td class="field-body">The BitTorrent Protocol Specification</td>
+<tr class="title field"><th class="docinfo-name">Title:</th><td class="field-body">The BitTorrent Protocol Specification</td>
 </tr>
 <tr><th class="docinfo-name">Version:</th>
-<td>f61df4010379f5c40090a9b77b73e57db7045dee</td></tr>
-<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Fri Oct 11 15:00:20 2013 -0700</td>
+<td>0e08ddf84d8d3bf101cdf897fc312f2774588c9e</td></tr>
+<tr class="last-modified field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Sat Feb 4 12:58:40 2017 +0100</td>
 </tr>
 <tr><th class="docinfo-name">Author:</th>
 <td>Bram Cohen &lt;<a class="reference external" href="mailto:bram&#37;&#52;&#48;bittorrent&#46;com">bram<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;</td></tr>
 <tr><th class="docinfo-name">Status:</th>
 <td>Final</td></tr>
-<tr class="field"><th class="docinfo-name">Type:</th><td class="field-body">Standard</td>
+<tr class="type field"><th class="docinfo-name">Type:</th><td class="field-body">Standard</td>
 </tr>
-<tr class="field"><th class="docinfo-name">Created:</th><td class="field-body">10-Jan-2008</td>
+<tr class="created field"><th class="docinfo-name">Created:</th><td class="field-body">10-Jan-2008</td>
 </tr>
-<tr class="field"><th class="docinfo-name">Post-History:</th><td class="field-body">24-Jun-2009 (<a class="reference external" href="mailto:arvid&#37;&#52;&#48;bittorrent&#46;com">arvid<span>&#64;</span>bittorrent<span>&#46;</span>com</a>), clarified the encoding of strings in torrent files.
+<tr class="post-history field"><th class="docinfo-name">Post-History:</th><td class="field-body">24-Jun-2009 (<a class="reference external" href="mailto:arvid&#37;&#52;&#48;bittorrent&#46;com">arvid<span>&#64;</span>bittorrent<span>&#46;</span>com</a>), clarified the encoding of strings in torrent files.
 20-Oct-2012 (<a class="reference external" href="mailto:arvid&#37;&#52;&#48;bittorrent&#46;com">arvid<span>&#64;</span>bittorrent<span>&#46;</span>com</a>), clarified that info-hash is the digest of en bencoding found in .torrent file.
 Introduced some references to new BEPs and cleaned up formatting.
-11-Oct-2013 (<a class="reference external" href="mailto:arvid&#37;&#52;&#48;bittorrent&#46;com">arvid<span>&#64;</span>bittorrent<span>&#46;</span>com</a>), correct the accepted and de-facto sizes for request messages</td>
+11-Oct-2013 (<a class="reference external" href="mailto:arvid&#37;&#52;&#48;bittorrent&#46;com">arvid<span>&#64;</span>bittorrent<span>&#46;</span>com</a>), correct the accepted and de-facto sizes for request messages
+04-Feb-2017 (<a class="reference external" href="mailto:the8472&#46;bep&#37;&#52;&#48;infinite-source&#46;de">the8472<span>&#46;</span>bep<span>&#64;</span>infinite-source<span>&#46;</span>de</a>), further info-hash clarifications, added resources for new implementors</td>
 </tr>
 </tbody>
 </table>
@@ -168,11 +169,17 @@ muliple file case, it's the name of a directory.</p>
 <p>Tracker GET requests have the following keys:</p>
 <dl class="docutils">
 <dt>info_hash</dt>
-<dd>The 20 byte sha1 hash of the bencoded form of the info value from the
-metainfo file. Note that this is a substring of the metainfo
-file. The info-hash must be the hash of the encoded form as found
-in the .torrent file, regardless of it being invalid. This value
-will almost certainly have to be escaped.</dd>
+<dd><p class="first">The 20 byte sha1 hash of the bencoded form of the info value from the
+metainfo file. This value will almost certainly have to be escaped.</p>
+<p class="last">Note that this is a substring of the metainfo file.
+The info-hash must be the hash of the encoded form as found
+in the .torrent file, which is identical to bdecoding the metainfo file,
+extracting the info dictionary and encoding it <em>if and only if</em> the
+bdecoder fully validated the input (e.g. key ordering, absence of leading zeros).
+Conversely that means clients must either reject invalid metainfo files
+or extract the substring directly.
+They must not perform a decode-encode roundtrip on invalid data.</p>
+</dd>
 <dt>peer_id</dt>
 <dd>A string of length 20 which this downloader uses as its id. Each
 downloader generates its own id at random at the start of a new
@@ -359,6 +366,16 @@ optimistically unchoked rotates every 30 seconds. To give them a
 decent chance of getting a complete piece to upload, new connections
 are three times as likely to start as the current optimistic unchoke
 as anywhere else in the rotation.</p>
+</div>
+<div class="section" id="resources">
+<h1>Resources</h1>
+<ul class="simple">
+<li>The <a class="reference external" href="http://bittorrent.org/bittorrentecon.pdf">BitTorrent Economics Paper</a> outlines some request and choking
+algorithms clients should implement for optimal performance</li>
+<li>When developing a new implementation the Wireshark protocol analyzer and
+its <a class="reference external" href="https://wiki.wireshark.org/BitTorrent">dissectors for bittorrent</a> can be useful to debug and compare with
+existing ones.</li>
+</ul>
 </div>
 <div class="section" id="copyright">
 <h1>Copyright</h1>

@@ -59,8 +59,9 @@ To start downloading, a user does the following:
 bencoding
 ---------
 
-- Strings are length-prefixed base ten followed by a colon and the string. For example ``4:spam`` corresponds to 'spam'.
-
+- Strings are length-prefixed base ten followed by a colon and the string.
+  For example ``4:spam`` corresponds to 'spam'.
+  
 - Integers are represented by an 'i' followed by the number in base 10
   followed by an 'e'. For example ``i3e`` corresponds to 3 and
   ``i-3e`` corresponds to -3. Integers have no size
@@ -78,6 +79,13 @@ bencoding
   'spam': 'eggs'} and ``d4:spaml1:a1:bee`` corresponds to
   {'spam': ['a', 'b']}. Keys must be strings and appear in sorted order
   (sorted as raw strings, not alphanumerics).
+  
+
+Note that in the context of bencoding strings including dictionary keys
+are arbitrary byte sequences (``uint8_t[]``).
+
+BEP authors are encouraged to use ASCII-compatible strings for dictionary keys
+and UTF-8 for human-readable data. Implementations must not rely on this.
 
 
 --------------
@@ -137,8 +145,16 @@ info dictionary
   result in more general messages about invalid files.
 
 ``file tree``
-  A tree of dictionaries where dictionary keys represent utf-8 encoded path elements
-  Entries with zero-length keys describe the properties of the composed path at that point
+  A tree of dictionaries where dictionary keys represent UTF-8 encoded path elements.
+  Entries with zero-length keys describe the properties of the composed path at that point.
+  Keys that contain ``/`` or a null character are reserved and do not represent entries in
+  the file tree since they do not represent valid path components on most platforms.
+  Keys that exactly match ``.`` or ``..`` are reserved and must be ignored since they
+  would result in non-unique path representations.
+  'UTF-8 encoded' in this context means that if the actual encoding is known at creation time
+  it must be converted to UTF-8.
+  Keys may contain invalid UTF-8 sequences or characters that are reserved on specific
+  filesystems. Implementations must be prepared to map such names to valid alternatives.
   The ``file tree`` root dictionary itself must not be a file, i.e. it must not contain
   a zero-length key with a dictionary containing a ``length`` key.
 

@@ -127,16 +127,17 @@ info dictionary
   A display name for the torrent. It is purely advisory.
 
 ``piece length``
-  the number of bytes that each logical piece in the peer protocol refers to.
+  The number of bytes that each logical piece in the peer protocol refers to.
   I.e. it sets the granularity of ``piece``, ``request``, ``bitfield`` and ``have``
   messages. It must be a power of two and at least 16KiB.
   
-  Files are mapped into this piece address space so that each non-empty is
+  Files are mapped into this piece address space so that each non-empty file is
   aligned to a piece boundary and occurs in the same order as in the file tree.
-  The last piece of each file may be shorter than the specified piece length.
+  The last piece of each file may be shorter than the specified piece length, resulting
+  in an alignment gap.
   
 ``meta version``
-  an integer value, set to 2 to indicate compatibility with the current revision of this
+  An integer value, set to 2 to indicate compatibility with the current revision of this
   specification. Version 1 is not assigned to avoid confusion with BEP3.
   Future revisions will only increment this value to indicate an incompatible
   change has been made, for example that hash algorithms were changed due to newly discovered

@@ -566,7 +566,7 @@ must use BEP 47 padding files to achieve identical alignment.
 Implementations supporting both formats can join both swarms by calculating
 the new and old infohashes and downloading them to the same storage. Before
 doing so they must validate that the content (file names, order, piece alignment)
-is identical. During the download thez must also verify that pieces match both piece
+is identical. During the download they must also verify that pieces match both piece
 hash formats. If any inconsistency is detected they may either abort or fall back to
 downloading one of the two formats as if the other were not present.
 

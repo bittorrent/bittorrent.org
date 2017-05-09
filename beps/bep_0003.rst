@@ -148,14 +148,15 @@ info dictionary
 ``file tree``
   A tree of dictionaries where dictionary keys represent UTF-8 encoded path elements.
   Entries with zero-length keys describe the properties of the composed path at that point.
-  Keys that contain ``/`` or a null character are reserved and do not represent entries in
-  the file tree since they do not represent valid path components on most platforms.
-  Keys that exactly match ``.`` or ``..`` are reserved and must be ignored since they
-  would result in non-unique path representations.
-  'UTF-8 encoded' in this context means that if the actual encoding is known at creation time
-  it must be converted to UTF-8.
-  Keys may contain invalid UTF-8 sequences or characters that are reserved on specific
-  filesystems. Implementations must be prepared to map such names to valid alternatives.
+  'UTF-8 encoded' in this context only means that if the native encoding is known at creation
+  time it must be converted to UTF-8.
+  Keys may contain invalid UTF-8 sequences or characters and names that are reserved on
+  specific  filesystems. Implementations must be prepared to sanitize them.
+  On most platforms path components exactly matching '.' and '..' must be sanitized
+  since they could lead to directory traversal  attacks and conflicting path descriptions.
+  On platforms that require valid UTF-8 path components this sanitizing step must happen
+  after normalizing overlong UTF-8 encodings.
+  
   The ``file tree`` root dictionary itself must not be a file, i.e. it must not contain
   a zero-length key with a dictionary containing a ``length`` key.
 

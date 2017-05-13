@@ -145,10 +145,6 @@ class FileHasher:
                 # balance the tree by padding with zero hashes to the next power of two
                 pad_piece_hash = root_hash([bytes(32)] * blocks_per_piece)
                 layer_hashes.extend([pad_piece_hash for i in range((1<<(len(layer_hashes)-1).bit_length()) - len(layer_hashes))])
-            else:
-                # if there is only one piece then its hash is the root hash
-                # remove the piece list to make sure it doesn't show up in 'piece layers'
-                delattr(self, 'piecesv2')
             self.root = root_hash(layer_hashes)
 
     def append_padding(self):
@@ -223,7 +219,7 @@ class Torrent:
             info[b'pieces'] = self.pieces
             try: info[b'files'] = self.files
             except AttributeError: info[b'length'] = self.length
-        return {b'announce': tracker, b'info': info, b'piece layers': {f.root: f.piecesv2 for f in self.piece_layers if hasattr(f, 'piecesv2')}}
+        return {b'announce': tracker, b'info': info, b'piece layers': {f.root: f.piecesv2 for f in self.piece_layers if f.length > self.piece_length}}
     
 
 if __name__ == "__main__":

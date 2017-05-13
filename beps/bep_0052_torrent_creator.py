@@ -158,13 +158,15 @@ class Torrent:
     def __init__(self, path, piece_length):
         assert piece_length >= BLOCK_SIZE
         assert piece_length & (piece_length - 1) == 0
+
+        path = os.path.normpath(path)
+
         self.piece_length = piece_length
         self.name = os.path.basename(path)
         self.piece_layers = [] # v2 piece hashes
         self.pieces = [] # v1 piece hashes
         self.files = []
 
-        path = os.path.normpath(path)
         self.base_path = path
 
         if os.path.isfile(path):

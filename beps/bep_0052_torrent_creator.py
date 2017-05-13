@@ -179,7 +179,7 @@ class Torrent:
         try:
             if len(self.files) > 1:
                 self.pieces.append(self.residue_hasher.append_padding())
-                self.files.append({b'length': self.residue_hasher.pad_length, b'path': ['.pad', str(self.residue_hasher.pad_length)]})
+                self.files.append({b'attr': b'p', b'length': self.residue_hasher.pad_length, b'path': ['.pad', str(self.residue_hasher.pad_length)]})
             else:
                 self.pieces.append(self.residue_hasher.discard_padding())
             delattr(self, 'residue_hasher')
@@ -195,7 +195,7 @@ class Torrent:
         if os.path.isfile(path):
             try:
                 self.pieces.append(self.residue_hasher.append_padding())
-                self.files.append({b'length': self.residue_hasher.pad_length, b'path': ['.pad', str(self.residue_hasher.pad_length)]})
+                self.files.append({b'attr': b'p', b'length': self.residue_hasher.pad_length, b'path': ['.pad', str(self.residue_hasher.pad_length)]})
                 delattr(self, 'residue_hasher')
             except AttributeError:
                 pass

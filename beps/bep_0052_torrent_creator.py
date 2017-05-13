@@ -175,7 +175,11 @@ class Torrent:
             self.file_tree = self.walk_path(path)
 
         try:
-            self.pieces.append(self.residue_hasher.discard_padding())
+            if len(self.files) > 1:
+                self.pieces.append(self.residue_hasher.append_padding())
+                self.files.append({b'length': self.residue_hasher.pad_length, b'path': ['.pad', str(self.residue_hasher.pad_length)]})
+            else:
+                self.pieces.append(self.residue_hasher.discard_padding())
             delattr(self, 'residue_hasher')
         except AttributeError:
             pass

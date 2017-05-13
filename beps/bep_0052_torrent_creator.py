@@ -209,7 +209,11 @@ class Torrent:
             else:
                 return {b'': {b'length': hashes.length, b'pieces root': hashes.root}}
         if os.path.isdir(path):
-            return {p.name.encode(): self.walk_path(p.path) for p in os.scandir(path)}
+            # the directory entries must be processed in lexicographic order so that
+            # the files list matches the bencoded ordering of the file tree
+            dentries = [(p.name.encode(), p.path) for p in os.scandir(path)]
+            dentries.sort()
+            return {p[0]: self.walk_path(p[1]) for p in dentries}
 
         raise ValueError('Unsupported dentry type')
               

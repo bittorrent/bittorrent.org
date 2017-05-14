@@ -11,6 +11,7 @@
 	Introduced some references to new BEPs and cleaned up formatting.
 	11-Oct-2013 (arvid@bittorrent.com), correct the accepted and de-facto sizes for request messages
 	04-Feb-2017 (the8472.bep@infinite-source.de), further info-hash clarifications, added resources for new implementors
+	14-May-2017 (ssiloti@gmail.com, the8472.bep@infinite-source.de), v2 wire protocol and torrent format
 
 BitTorrent is a protocol for distributing files. It identifies content
 by URL and is designed to integrate seamlessly with the web. Its
@@ -117,8 +118,12 @@ info
   the merkle roots or are not from the correct layer.
   
 
-All strings in a .torrent file that contains text must be UTF-8
-encoded.
+All strings in a .torrent file defined by this BEP that contain human-readable text
+are UTF-8 encoded.
+
+An example torrent creator implementation can be found here_.
+
+.. _here: bep_0052_torrent_creator.py
 
 info dictionary
 ===============
@@ -547,11 +552,6 @@ further optional messages.
 
 .. _Fast Extension: bep_0006.html
 
-------------
-Test Vectors
-------------
-
-TODO
 
 ------------
 Upgrade Path
@@ -594,7 +594,7 @@ Resources
 
  
 
-
+---------
 Copyright
 ---------
 

@@ -1,9 +1,9 @@
-:BEP: XX
+:BEP: 52
 :Title: The BitTorrent Protocol Specification v2
 :Version: $Revision$
 :Last-Modified: $Date$
 :Author:  Bram Cohen <bram@bittorrent.com>
-:Status:  Final
+:Status:  Draft
 :Type:    Standard
 :Created: 10-Jan-2008
 :Post-History: 24-Jun-2009 (arvid@bittorrent.com), clarified the encoding of strings in torrent files.

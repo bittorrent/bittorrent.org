@@ -114,18 +114,26 @@ Example::
 	{'msg_type': 2, 'piece': 0}
 	d8:msg_typei1e5:piecei0ee
 
+
 magnet URI format
 =================
 
 The magnet URI format is::
 
-	magnet:?xt=urn:btih:<info-hash>&dn=<name>&tr=<tracker-url>&x.pe=<peer-address>
+	v1: magnet:?xt=urn:btih:<info-hash>&dn=<name>&tr=<tracker-url>&x.pe=<peer-address>
+	v2: magnet:?xt=urn:btmh:<tagged-info-hash>&dn=<name>&tr=<tracker-url>&x.pe=<peer-address>
 
 <info-hash>
 	Is the info-hash hex encoded, for a total of 40 characters. For
 	compatability with existing links in the wild, clients should also
 	support the 32 character `base32`_ encoded info-hash.
-	
+
+<tagged-info-hash>
+	Is the `multihash`_ formatted, hex encoded full infohash
+	for torrents in the new metadata format. 'btmh' and 'btih'
+	exact topics may exist in the same magnet if they describe
+	the same hybrid torrent.
+
 <peer-address>
 	A peer address expressed as ``hostname:port``, ``ipv4-literal:port`` or ``[ipv6-literal]:port``.
 	This parameter can be included to initiate a direct metadata transfer between two clients while reducing the need for external peer sources.
@@ -148,6 +156,7 @@ References
 .. _`base32`: http://www.ietf.org/rfc/rfc3548.txt
 .. _`BEP 0010`: http://www.bittorrent.org/beps/bep_0010.html
 .. _`BEP 0005`: http://www.bittorrent.org/beps/bep_0005.html
+.. _`multihash`: https://github.com/multiformats/multihash
 
 
 Copyright

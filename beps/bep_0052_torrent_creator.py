@@ -9,7 +9,9 @@ import re
 import string
 import itertools as it
 import os
+import binascii
 from hashlib import sha1, sha256
+
 
 BLOCK_SIZE = 2**14 # 16KB
 
@@ -166,6 +168,7 @@ class Torrent:
         self.piece_layers = [] # v2 piece hashes
         self.pieces = [] # v1 piece hashes
         self.files = []
+        self.info = []
 
         self.base_path = path
 
@@ -229,8 +232,15 @@ class Torrent:
             info[b'pieces'] = self.pieces
             try: info[b'files'] = self.files
             except AttributeError: info[b'length'] = self.length
+        self.info = info
         return {b'announce': tracker, b'info': info, b'piece layers': {f.root: f.piecesv2 for f in self.piece_layers if f.length > self.piece_length}}
-    
+
+    def info_hash_v2(self):
+        return binascii.hexlify(sha256(encode(self.info)).digest()).decode('ascii')
+
+    def info_hash_v1(self):
+        return binascii.hexlify(sha1(encode(self.info)).digest()).decode('ascii')
+
 
 if __name__ == "__main__":
    import argparse
@@ -243,3 +253,7 @@ if __name__ == "__main__":
    args = parser.parse_args()
    t = Torrent(args.path, args.piece_length)
    open(t.name + '.torrent', 'wb').write(encode(t.create(args.tracker, args.v2_only)))
+   if args.v2_only:
+       print("v1 infohash {0:s}".format(t.info_hash_v1()))
+   print("v2 infohash {0:s}".format(t.info_hash_v2()))
+

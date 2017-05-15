@@ -9,7 +9,6 @@ import re
 import string
 import itertools as it
 import os
-import binascii
 from hashlib import sha1, sha256
 
 
@@ -236,10 +235,10 @@ class Torrent:
         return {b'announce': tracker, b'info': info, b'piece layers': {f.root: f.piecesv2 for f in self.piece_layers if f.length > self.piece_length}}
 
     def info_hash_v2(self):
-        return binascii.hexlify(sha256(encode(self.info)).digest()).decode('ascii')
+        return sha256(encode(self.info)).hexdigest()
 
     def info_hash_v1(self):
-        return binascii.hexlify(sha1(encode(self.info)).digest()).decode('ascii')
+        return sha1(encode(self.info)).hexdigest()
 
 
 if __name__ == "__main__":

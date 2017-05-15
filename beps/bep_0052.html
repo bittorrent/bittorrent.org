@@ -1,0 +1,552 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.13.1: http://docutils.sourceforge.net/" />
+<title></title>
+<meta name="author" content="Bram Cohen &lt;bram&#64;bittorrent.com&gt;" />
+<link rel="stylesheet" href="../css/bep.css" type="text/css" />
+</head>
+<body>
+<div class="document">
+
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="../index.html">BitTorrent<span>.org</span></a></h1>
+</div>
+<div id="nav">
+<ul>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../introduction.html">For Users</a></li>
+<li><a href="bep_0000.html"><span>For Developers</span></a></li>
+<li><a href="../mailing_list.html">Developer mailing list</a> </li>
+<li><a href="http://forum.bittorrent.org"> Forums (archive) </a></li>
+</ul>
+</div> <!-- nav -->
+<!-- ### Begin Content ### -->
+<div id="second">
+
+
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
+<tbody valign="top">
+<tr class="bep field"><th class="docinfo-name">BEP:</th><td class="field-body">52</td>
+</tr>
+<tr class="title field"><th class="docinfo-name">Title:</th><td class="field-body">The BitTorrent Protocol Specification v2</td>
+</tr>
+<tr><th class="docinfo-name">Version:</th>
+<td>50754e00481995660678cdd39f5ada215daaed95</td></tr>
+<tr class="last-modified field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Mon May 15 10:41:30 2017 -0700</td>
+</tr>
+<tr><th class="docinfo-name">Author:</th>
+<td>Bram Cohen &lt;<a class="reference external" href="mailto:bram&#37;&#52;&#48;bittorrent&#46;com">bram<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;</td></tr>
+<tr><th class="docinfo-name">Status:</th>
+<td>Draft</td></tr>
+<tr class="type field"><th class="docinfo-name">Type:</th><td class="field-body">Standards Track</td>
+</tr>
+<tr class="created field"><th class="docinfo-name">Created:</th><td class="field-body">10-Jan-2008</td>
+</tr>
+<tr class="post-history field"><th class="docinfo-name">Post-History:</th><td class="field-body">24-Jun-2009 (<a class="reference external" href="mailto:arvid&#37;&#52;&#48;bittorrent&#46;com">arvid<span>&#64;</span>bittorrent<span>&#46;</span>com</a>), clarified the encoding of strings in torrent files.
+20-Oct-2012 (<a class="reference external" href="mailto:arvid&#37;&#52;&#48;bittorrent&#46;com">arvid<span>&#64;</span>bittorrent<span>&#46;</span>com</a>), clarified that info-hash is the digest of en bencoding found in .torrent file.
+Introduced some references to new BEPs and cleaned up formatting.
+11-Oct-2013 (<a class="reference external" href="mailto:arvid&#37;&#52;&#48;bittorrent&#46;com">arvid<span>&#64;</span>bittorrent<span>&#46;</span>com</a>), correct the accepted and de-facto sizes for request messages
+04-Feb-2017 (<a class="reference external" href="mailto:the8472&#46;bep&#37;&#52;&#48;infinite-source&#46;de">the8472<span>&#46;</span>bep<span>&#64;</span>infinite-source<span>&#46;</span>de</a>), further info-hash clarifications, added resources for new implementors
+14-May-2017 (<a class="reference external" href="mailto:ssiloti&#37;&#52;&#48;gmail&#46;com">ssiloti<span>&#64;</span>gmail<span>&#46;</span>com</a>, <a class="reference external" href="mailto:the8472&#46;bep&#37;&#52;&#48;infinite-source&#46;de">the8472<span>&#46;</span>bep<span>&#64;</span>infinite-source<span>&#46;</span>de</a>), v2 wire protocol and torrent format</td>
+</tr>
+</tbody>
+</table>
+<p>BitTorrent is a protocol for distributing files. It identifies content
+by URL and is designed to integrate seamlessly with the web. Its
+advantage over plain HTTP is that when multiple downloads of the same
+file happen concurrently, the downloaders upload to each other, making
+it possible for the file source to support very large numbers of
+downloaders with only a modest increase in its load.</p>
+<div class="section" id="a-bittorrent-file-distribution-consists-of-these-entities">
+<h1>A BitTorrent file distribution consists of these entities:</h1>
+<ul class="simple">
+<li>An ordinary web server</li>
+<li>A static 'metainfo' file</li>
+<li>A BitTorrent tracker</li>
+<li>An 'original' downloader</li>
+<li>The end user web browsers</li>
+<li>The end user downloaders</li>
+</ul>
+<p>There are ideally many end users for a single file.</p>
+</div>
+<div class="section" id="to-start-serving-a-host-goes-through-the-following-steps">
+<h1>To start serving, a host goes through the following steps:</h1>
+<ol class="arabic simple">
+<li>Start running a tracker (or, more likely, have one running already).</li>
+<li>Start running an ordinary web server, such as apache, or have one already.</li>
+<li>Associate the extension .torrent with mimetype application/x-bittorrent on their web server (or have done so already).</li>
+<li>Generate a metainfo (.torrent) file using the complete file to be served and the URL of the tracker.</li>
+<li>Put the metainfo file on the web server.</li>
+<li>Link to the metainfo (.torrent) file from some other web page.</li>
+<li>Start a downloader which already has the complete file (the 'origin').</li>
+</ol>
+</div>
+<div class="section" id="to-start-downloading-a-user-does-the-following">
+<h1>To start downloading, a user does the following:</h1>
+<ol class="arabic simple">
+<li>Install BitTorrent (or have done so already).</li>
+<li>Surf the web.</li>
+<li>Click on a link to a .torrent file.</li>
+<li>Select where to save the file locally, or select a partial download to resume.</li>
+<li>Wait for download to complete.</li>
+<li>Tell downloader to exit (it keeps uploading until this happens).</li>
+</ol>
+</div>
+<div class="section" id="bencoding">
+<h1>bencoding</h1>
+<ul class="simple">
+<li>Strings are length-prefixed base ten followed by a colon and the string.
+For example <tt class="docutils literal">4:spam</tt> corresponds to 'spam'.</li>
+<li>Integers are represented by an 'i' followed by the number in base 10
+followed by an 'e'. For example <tt class="docutils literal">i3e</tt> corresponds to 3 and
+<tt class="docutils literal"><span class="pre">i-3e</span></tt> corresponds to -3. Integers have no size
+limitation. <tt class="docutils literal"><span class="pre">i-0e</span></tt> is invalid. All encodings with a leading
+zero, such as <tt class="docutils literal">i03e</tt>, are invalid, other than
+<tt class="docutils literal">i0e</tt>, which of course corresponds to 0.</li>
+<li>Lists are encoded as an 'l' followed by their elements (also
+bencoded) followed by an 'e'. For example <tt class="docutils literal">l4:spam4:eggse</tt>
+corresponds to ['spam', 'eggs'].</li>
+<li>Dictionaries are encoded as a 'd' followed by a list of alternating
+keys and their corresponding values followed by an 'e'. For example,
+<tt class="docutils literal">d3:cow3:moo4:spam4:eggse</tt> corresponds to {'cow': 'moo',
+'spam': 'eggs'} and <tt class="docutils literal">d4:spaml1:a1:bee</tt> corresponds to
+{'spam': ['a', 'b']}. Keys must be strings and appear in sorted order
+(sorted as raw strings, not alphanumerics).</li>
+</ul>
+<p>Note that in the context of bencoding strings including dictionary keys
+are arbitrary byte sequences (<tt class="docutils literal">uint8_t[]</tt>).</p>
+<p>BEP authors are encouraged to use ASCII-compatible strings for dictionary keys
+and UTF-8 for human-readable data. Implementations must not rely on this.</p>
+</div>
+<div class="section" id="metainfo-files">
+<h1>metainfo files</h1>
+<p>Metainfo files (also known as .torrent files) are bencoded dictionaries
+with the following keys:</p>
+<dl class="docutils">
+<dt>announce</dt>
+<dd>The URL of the tracker.</dd>
+<dt>info</dt>
+<dd>This maps to a dictionary, with keys described below.</dd>
+<dt><tt class="docutils literal">piece layers</tt></dt>
+<dd><p class="first">A dictionary of strings. For each file in the file tree that is larger than the piece size
+it contains one string value.
+The keys are the merkle roots while the values consist of concatenated hashes
+of one layer within that merkle tree.
+The layer is chosen so that one hash covers <tt class="docutils literal">piece length</tt> bytes.
+For example if the piece size is 16KiB then the leaf hashes are used.
+If a piece size of 128KiB is used then 3rd layer up from the leaf hashes is used.
+Layer hashes which exclusively cover data beyond the end of file,
+i.e. are only needed to balance the tree, are omitted.
+All hashes are stored in their binary format.</p>
+<p class="last">A torrent is not valid if this field is absent, the contained hashes do not match
+the merkle roots or are not from the correct layer.</p>
+</dd>
+</dl>
+<p>All strings in a .torrent file defined by this BEP that contain human-readable text
+are UTF-8 encoded.</p>
+<p>An example torrent creator implementation can be found <a class="reference external" href="bep_0052_torrent_creator.py">here</a>.</p>
+<div class="section" id="info-dictionary">
+<h2>info dictionary</h2>
+<dl class="docutils">
+<dt><tt class="docutils literal">name</tt></dt>
+<dd>A display name for the torrent. It is purely advisory.</dd>
+<dt><tt class="docutils literal">piece length</tt></dt>
+<dd><p class="first">The number of bytes that each logical piece in the peer protocol refers to.
+I.e. it sets the granularity of <tt class="docutils literal">piece</tt>, <tt class="docutils literal">request</tt>, <tt class="docutils literal">bitfield</tt> and <tt class="docutils literal">have</tt>
+messages. It must be a power of two and at least 16KiB.</p>
+<p class="last">Files are mapped into this piece address space so that each non-empty file is
+aligned to a piece boundary and occurs in the same order as in the file tree.
+The last piece of each file may be shorter than the specified piece length, resulting
+in an alignment gap.</p>
+</dd>
+<dt><tt class="docutils literal">meta version</tt></dt>
+<dd>An integer value, set to 2 to indicate compatibility with the current revision of this
+specification. Version 1 is not assigned to avoid confusion with BEP3.
+Future revisions will only increment this value to indicate an incompatible
+change has been made, for example that hash algorithms were changed due to newly discovered
+vulnerabilities. Implementations must check this field first and indicate that a torrent
+is of a newer version than they can handle before performing other validations which may
+result in more general messages about invalid files.</dd>
+<dt><tt class="docutils literal">file tree</tt></dt>
+<dd><p class="first">A tree of dictionaries where dictionary keys represent UTF-8 encoded path elements.
+Entries with zero-length keys describe the properties of the composed path at that point.
+'UTF-8 encoded' in this context only means that if the native encoding is known at creation
+time it must be converted to UTF-8.
+Keys may contain invalid UTF-8 sequences or characters and names that are reserved on
+specific  filesystems. Implementations must be prepared to sanitize them.
+On most platforms path components exactly matching '.' and '..' must be sanitized
+since they could lead to directory traversal  attacks and conflicting path descriptions.
+On platforms that require valid UTF-8 path components this sanitizing step must happen
+after normalizing overlong UTF-8 encodings.</p>
+<p class="last">The <tt class="docutils literal">file tree</tt> root dictionary itself must not be a file, i.e. it must not contain
+a zero-length key with a dictionary containing a <tt class="docutils literal">length</tt> key.</p>
+</dd>
+</dl>
+<div class="section" id="file-tree-layout">
+<h3>File tree layout</h3>
+<p>Example:</p>
+<pre class="literal-block">
+{
+  info: {
+    file tree: {
+      dir1: {
+        dir2: {
+          fileA.txt: {
+            &quot;&quot;: {
+              length: <em>&lt;length of file in bytes (integer)&gt;</em>,
+              pieces root: <em>&lt;optional, merkle tree root (string)&gt;</em>,
+              ...
+            }
+          },
+          fileB.txt: {
+            &quot;&quot;: {
+              ...
+            }
+          }
+        },
+        dir3: {
+          ...
+        }
+      }
+    }
+  }
+}
+</pre>
+<p>Bencoded for fileA only:</p>
+<pre class="literal-block">
+d4:infod9:file treed4:dir1d4:dir2d9:fileA.txtd0:d5:lengthi1024e11:pieces root32:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaeeeeeee
+</pre>
+<dl class="docutils">
+<dt><tt class="docutils literal">length</tt></dt>
+<dd>Length of the file in bytes. Presence of this field indicates
+that the dictionary describes a file, not a directory. Which means
+it must not have any sibling entries.</dd>
+<dt><tt class="docutils literal">pieces root</tt></dt>
+<dd><p class="first">For non-empty files this is the the root hash of a merkle tree
+with a branching factor of 2, constructed from 16KiB blocks of the file.
+The last block may be shorter than 16KiB.
+The remaining leaf hashes beyond the end of the file required
+to construct upper layers of the merkle tree are set to zero.
+As of <tt class="docutils literal">meta version</tt> 2 SHA2-256 is used as digest function for the merkle tree.
+The hash is stored in its binary form, not as human-readable string.</p>
+<p class="last">Note that identical files always result in the same root hash.</p>
+</dd>
+</dl>
+<p>Interpreting paths:</p>
+<dl class="docutils">
+<dt><tt class="docutils literal">file tree: {name.ext: <span class="pre">{&quot;&quot;:</span> {length: <span class="pre">...}}}</span></tt></dt>
+<dd>a single-file torrent</dd>
+<dt><tt class="docutils literal">file tree: {nameA.ext: <span class="pre">{&quot;&quot;:</span> {length: <span class="pre">...}},</span> nameB.ext: <span class="pre">{&quot;&quot;:</span> {length: <span class="pre">...}},</span> dir: <span class="pre">{...}}</span></tt></dt>
+<dd>a rootless multifile torrent, i.e. a list of files and directories without a named common directory containing them.
+implementations may offer users to optionally prepend the torrent name as root to avoid file name collisions.</dd>
+<dt><tt class="docutils literal">file tree: {dir: {nameA.ext: <span class="pre">{&quot;&quot;:</span> {length: <span class="pre">...}},</span> nameB.ext: <span class="pre">{&quot;&quot;:</span> {length: <span class="pre">...}}}}</span></tt></dt>
+<dd>multiple files rooted in a single directory</dd>
+</dl>
+</div>
+</div>
+</div>
+<div class="section" id="infohash">
+<h1>infohash</h1>
+<p>The infohash is calculated by applying a hash function to the bencoded form of the info dictionary,
+which is a substring of the metainfo file. For <tt class="docutils literal">meta version</tt> 2 SHA2-256 is used.</p>
+<p>The info-hash must be the hash of the encoded form as found
+in the .torrent file, which is identical to bdecoding the metainfo file,
+extracting the info dictionary and encoding it <em>if and only if</em> the
+bdecoder fully validated the input (e.g. key ordering, absence of leading zeros).
+Conversely that means implementations must either reject invalid metainfo files
+or extract the substring directly.
+They must not perform a decode-encode roundtrip on invalid data.</p>
+<p>For some uses as torrent identifier it is truncated to 20 bytes.</p>
+<p>When verifying an infohash implementations must also check that the <tt class="docutils literal">piece layers</tt>
+hashes outside the info dictionary match the <tt class="docutils literal">pieces root</tt> fields.</p>
+</div>
+<div class="section" id="trackers">
+<h1>trackers</h1>
+<p>Tracker GET requests have the following keys:</p>
+<dl class="docutils">
+<dt>info_hash</dt>
+<dd>The 20byte truncated infohash as described above.
+This value will almost certainly have to be escaped.</dd>
+<dt>peer_id</dt>
+<dd>A string of length 20 which this downloader uses as its id. Each
+downloader generates its own id at random at the start of a new
+download. This value will also almost certainly have to be escaped.</dd>
+<dt>ip</dt>
+<dd>An optional parameter giving the IP (or dns name) which this peer is
+at. Generally used for the origin if it's on the same machine as the
+tracker.</dd>
+<dt>port</dt>
+<dd>The port number this peer is listening on. Common behavior is for a
+downloader to try to listen on port 6881 and if that port is taken try
+6882, then 6883, etc. and give up after 6889.</dd>
+<dt>uploaded</dt>
+<dd>The total amount uploaded so far, encoded in base ten ascii.</dd>
+<dt>downloaded</dt>
+<dd>The total amount downloaded so far, encoded in base ten ascii.</dd>
+<dt>left</dt>
+<dd>The number of bytes this peer still has to download, encoded in
+base ten ascii. Note that this can't be computed from downloaded and
+the file length since it might be a resume, and there's a chance that
+some of the downloaded data failed an integrity check and had to be
+re-downloaded.</dd>
+<dt>event</dt>
+<dd>This is an optional key which maps to <tt class="docutils literal">started</tt>,
+<tt class="docutils literal">completed</tt>, or <tt class="docutils literal">stopped</tt> (or
+<tt class="docutils literal">empty</tt>, which is the same as not being present). If not
+present, this is one of the announcements done at regular
+intervals. An announcement using <tt class="docutils literal">started</tt> is sent when a
+download first begins, and one using <tt class="docutils literal">completed</tt> is sent
+when the download is complete. No <tt class="docutils literal">completed</tt> is sent if
+the file was complete when started. Downloaders send an announcement
+using <tt class="docutils literal">stopped</tt> when they cease downloading.</dd>
+</dl>
+<p>Tracker responses are bencoded dictionaries. If a tracker response
+has a key <tt class="docutils literal">failure reason</tt>, then that maps to a human
+readable string which explains why the query failed, and no other keys
+are required. Otherwise, it must have two keys: <tt class="docutils literal">interval</tt>,
+which maps to the number of seconds the downloader should wait between
+regular rerequests, and <tt class="docutils literal">peers</tt>. <tt class="docutils literal">peers</tt> maps to
+a list of dictionaries corresponding to <tt class="docutils literal">peers</tt>, each of
+which contains the keys <tt class="docutils literal">peer id</tt>, <tt class="docutils literal">ip</tt>, and
+<tt class="docutils literal">port</tt>, which map to the peer's self-selected ID, IP
+address or dns name as a string, and port number, respectively. Note
+that downloaders may rerequest on nonscheduled times if an event
+happens or they need more peers.</p>
+<p>More commonly is that trackers return a compact representation of
+the peer list, see <a class="reference external" href="bep_0023.html">BEP 23</a> and <a class="reference external" href="bep_0007.html">BEP 7</a>.</p>
+<p>If you want to make any extensions to metainfo files or tracker
+queries, please coordinate with Bram Cohen to make sure that all
+extensions are done compatibly.</p>
+<p>It is common to announce over a <a class="reference external" href="bep_0015.html">UDP tracker protocol</a> as well.</p>
+</div>
+<div class="section" id="peer-protocol">
+<h1>peer protocol</h1>
+<p>BitTorrent's peer protocol operates over TCP or <a class="reference external" href="bep_0029.html">uTP</a>.</p>
+<p>Peer connections are symmetrical. Messages sent in both directions
+look the same, and data can flow in either direction.</p>
+<p>The peer protocol refers to pieces of the file by index as
+described in the metainfo file, starting at zero. When a peer finishes
+downloading a piece and checks that the hash matches, it announces
+that it has that piece to all of its peers.</p>
+<p>Connections contain two bits of state on either end: choked or not,
+and interested or not. Choking is a notification that no data will be
+sent until unchoking happens. The reasoning and common techniques
+behind choking are explained later in this document.</p>
+<p>Data transfer takes place whenever one side is interested and the
+other side is not choking. Interest state must be kept up to date at
+all times - whenever a downloader doesn't have something they
+currently would ask a peer for in unchoked, they must express lack of
+interest, despite being choked. Implementing this properly is tricky,
+but makes it possible for downloaders to know which peers will start
+downloading immediately if unchoked.</p>
+<p>Connections start out choked and not interested.</p>
+<p>When data is being transferred, downloaders should keep several
+piece requests queued up at once in order to get good TCP performance
+(this is called 'pipelining'.) On the other side, requests which can't
+be written out to the TCP buffer immediately should be queued up in
+memory rather than kept in an application-level network buffer, so
+they can all be thrown out when a choke happens.</p>
+<p>The peer wire protocol consists of a handshake followed by a
+never-ending stream of length-prefixed messages. The handshake starts
+with character nineteen (decimal) followed by the string 'BitTorrent
+protocol'. The leading character is a length prefix, put there in the
+hope that other new protocols may do the same and thus be trivially
+distinguishable from each other.</p>
+<p>All later integers sent in the protocol are encoded as four bytes
+big-endian.</p>
+<p>After the fixed headers come eight reserved bytes, which are all
+zero in all current implementations. If you wish to extend the
+protocol using these bytes, please coordinate with Bram Cohen to make
+sure all extensions are done compatibly.</p>
+<p>Next comes the 20 byte truncated infohash. If both sides don't send the same value,
+they sever the connection. The one possible exception is if a downloader
+wants to do multiple downloads over a single port, they may wait for
+incoming connections to give a download hash first, and respond with
+the same one if it's in their list.</p>
+<p>After the download hash comes the 20-byte peer id which is reported
+in tracker requests and contained in peer lists in tracker
+responses. If the receiving side's peer id doesn't match the one the
+initiating side expects, it severs the connection.</p>
+<p>That's it for handshaking, next comes an alternating stream of
+length prefixes and messages. Messages of length zero are keepalives,
+and ignored. Keepalives are generally sent once every two minutes, but
+note that timeouts can be done much more quickly when data is
+expected.</p>
+</div>
+<div class="section" id="peer-messages">
+<h1>peer messages</h1>
+<p>All non-keepalive messages start with a single byte which gives their type.</p>
+<p>The possible values are:</p>
+<ul class="simple">
+<li>0 - choke</li>
+<li>1 - unchoke</li>
+<li>2 - interested</li>
+<li>3 - not interested</li>
+<li>4 - have</li>
+<li>5 - bitfield</li>
+<li>6 - request</li>
+<li>7 - piece</li>
+<li>8 - cancel</li>
+<li>16 - reject</li>
+<li>21 - hash request</li>
+<li>22 - hashes</li>
+<li>23 - hash reject</li>
+</ul>
+<p>'choke', 'unchoke', 'interested', and 'not interested' have no payload.</p>
+<p>'bitfield' is only ever sent as the first message. Its payload is a
+bitfield with each index that downloader has sent set to one and the
+rest set to zero. Downloaders which don't have anything yet may skip
+the 'bitfield' message. The first byte of the bitfield corresponds to
+indices 0 - 7 from high bit to low bit, respectively. The next one
+8-15, etc. Spare bits at the end are set to zero.</p>
+<p>The 'have' message's payload is a single number, the index which
+that downloader just completed and checked the hash of.</p>
+<p>'hash request' messages contain a pieces root, base layer, index, length,
+and proof layers. The pieces root is the root hash of a file.
+The base layer defines the lowest requested layer of the
+hash tree. It is the number of layers above the leaf layer that the hash list
+should start at. A value of zero indicates that leaf hashes are
+requested. Clients are only required to support setting the base layer
+to the leaf and piece layers. Index is the offset in hashes
+of the first requested hash in the base layer.
+Index MUST be a multiple of length, this includes zero.
+Length is the number of hashes to include from the base layer.
+Length MUST be equal-to-or-greater-than two and a power of two.
+Length SHOULD NOT be greater than 512. Proof layers is the
+number of ancestor layers to include. Note that the limits imposed on
+index and length above mean that at-most one uncle hash is needed
+from each proof layer.
+Hash requests MUST be answered with either a 'hashes' or 'hash reject' message.</p>
+<p>Clients must be able to service requests for hash blocks covering pieces which they
+have announced through bitfield or have messages. They may be able to service
+additional requests if they have access to the full layers from a metadata file
+but requesting implementations should try to prioritize requests where they can be certain
+that the other party can must have the necessary data.</p>
+<p>Hash requests may be sent to a peer regardless of its choke state.
+For unchoked peers, hash requests should be subject to the same rate
+limiting policy as piece requests, except that all hash requests are not
+necessarily rejected after a peer is choked. Clients may impose a separate
+rate limit on hash requests received from choked peers.
+Clients MUST NOT reject a hash request with a base layer of zero if it
+immediately follows a request for one of the chunks in the requested range
+and the client services the chunk request with a piece message.</p>
+<p>'hashes' messages contain a pieces root, base layer, index, length,
+proof layers, and hashes. This message MUST correlate with a 'hash request'
+message. Hashes starts with the base layer and ends with the uncle hash
+closest to the root. A proof layer is omitted if the requested hashes
+include the entire child layer. In other words, the first log2(length)-1
+proof layers are ommitted. The ommitted layers are still counted towards
+the requested proof layers.</p>
+<p>'hash reject' messages have the same payload as 'hash request' messages.
+They indicate that a peer will not service a hash request.</p>
+<p>'request' messages contain an index, begin, and length. The last
+two are byte offsets. Length is generally a power of two unless it
+gets truncated by the end of a file. All current implementations use
+2^14 (16 kiB), and close connections which request an amount greater than
+that.</p>
+<p>'cancel' messages have the same payload as request messages. They
+are generally only sent towards the end of a download, during what's
+called 'endgame mode'. When a download is almost complete, there's a
+tendency for the last few pieces to all be downloaded off a single
+hosed modem line, taking a very long time. To make sure the last few
+pieces come in quickly, once requests for all pieces a given
+downloader doesn't have yet are currently pending, it sends requests
+for everything to everyone it's downloading from. To keep this from
+becoming horribly inefficient, it sends cancels to everyone else every
+time a piece arrives.
+cancel messages do not relieve the other side from the duty of responding
+to a request. They must either send a piece or a reject message as response.</p>
+<p>'reject' messages have the  same payload as request messages. They
+indicate that a peer will not service a request. They must
+be sent after a choke message to cancel all pending requests.</p>
+<p>'piece' messages contain an index, begin, and piece. Note that they
+are correlated with request messages must be explicitly rejected
+by the remote after an unchoke. This means a request is answered
+with either a piece or reject messages. If an unsolicited piece
+is received a peer MUST close the connection.</p>
+<p>Downloaders generally download pieces in random order, which does a
+reasonably good job of keeping them from having a strict subset or
+superset of the pieces of any of their peers.</p>
+<p>Choking is done for several reasons. TCP congestion control behaves
+very poorly when sending over many connections at once. Also, choking
+lets each peer use a tit-for-tat-ish algorithm to ensure that they get
+a consistent download rate.</p>
+<p>The choking algorithm described below is the currently deployed
+one. It is very important that all new algorithms work well both in a
+network consisting entirely of themselves and in a network consisting
+mostly of this one.</p>
+<p>There are several criteria a good choking algorithm should meet. It
+should cap the number of simultaneous uploads for good TCP
+performance. It should avoid choking and unchoking quickly, known as
+'fibrillation'. It should reciprocate to peers who let it
+download. Finally, it should try out unused connections once in a
+while to find out if they might be better than the currently used
+ones, known as optimistic unchoking.</p>
+<p>The currently deployed choking algorithm avoids fibrillation by
+only changing who's choked once every ten seconds. It does
+reciprocation and number of uploads capping by unchoking the four
+peers which it has the best download rates from and are
+interested. Peers which have a better upload rate but aren't
+interested get unchoked and if they become interested the worst
+uploader gets choked. If a downloader has a complete file, it uses its
+upload rate rather than its download rate to decide who to
+unchoke.</p>
+<p>For optimistic unchoking, at any one time there is a single peer
+which is unchoked regardless of its upload rate (if interested, it
+counts as one of the four allowed downloaders.) Which peer is
+optimistically unchoked rotates every 30 seconds. To give them a
+decent chance of getting a complete piece to upload, new connections
+are three times as likely to start as the current optimistic unchoke
+as anywhere else in the rotation.</p>
+<p>Note that the original version of the peer protocol had no reject message.
+That message has been adopted from the <a class="reference external" href="bep_0006.html">Fast Extension</a> which specifies
+further optional messages.</p>
+</div>
+<div class="section" id="upgrade-path">
+<h1>Upgrade Path</h1>
+<p>For interoperability with BEP 3 a torrent can be created to contain the necessary
+data for both formats. To do so the 'pieces' field and 'files' or 'length' in the info
+dictionary must be generated to describe the same data in the same order.
+Since the old format did not align files to piece boundaries a multifile torrent
+must use BEP 47 padding files to achieve identical alignment.</p>
+<p>Implementations supporting both formats can join both swarms by calculating
+the new and old infohashes and downloading them to the same storage. Before
+doing so they must validate that the content (file names, order, piece alignment)
+is identical. During the download they must also verify that pieces match both piece
+hash formats. If any inconsistency is detected they may either abort or fall back to
+downloading one of the two formats as if the other were not present.</p>
+<p>When initiating a connection and sending the sha1 infohash of such a hybrid torrent
+a peer can set the 4th most significant bit in the last byte of the reserved bitfield
+to indicate that it also supports the new format. The remote peer may then respond
+with the new infohash to upgrade the connect to the new format.</p>
+</div>
+<div class="section" id="resources">
+<h1>Resources</h1>
+<ul class="simple">
+<li>The <a class="reference external" href="http://bittorrent.org/bittorrentecon.pdf">BitTorrent Economics Paper</a> outlines some request and choking
+algorithms clients should implement for optimal performance</li>
+<li>When developing a new implementation the Wireshark protocol analyzer and
+its <a class="reference external" href="https://wiki.wireshark.org/BitTorrent">dissectors for bittorrent</a> can be useful to debug and compare with
+existing ones.</li>
+</ul>
+</div>
+<div class="section" id="copyright">
+<h1>Copyright</h1>
+<p>This document has been placed in the public domain.</p>
+</div>
+
+</div>
+	<div id="footer">
+<hr/>
+</div>
+
+</div>
+</body>
+</html>

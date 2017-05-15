@@ -55,6 +55,7 @@ BEPS= \
 	bep_0049.html \
 	bep_0050.html \
 	bep_0051.html \
+	bep_0052.html \
 	bep_1000.html \
 
 all:	$(BEPS)

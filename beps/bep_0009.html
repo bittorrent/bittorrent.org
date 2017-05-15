@@ -38,8 +38,8 @@
 <tr class="title field"><th class="docinfo-name">Title:</th><td class="field-body">Extension for Peers to Send Metadata Files</td>
 </tr>
 <tr><th class="docinfo-name">Version:</th>
-<td>023256c7581a4bed356e47caf8632be2834211bd</td></tr>
-<tr class="last-modified field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Thu Jan 12 12:29:12 2017 -0800</td>
+<td>cfd7cd53addbea7e87363ae1a52e2e4b397df3a9</td></tr>
+<tr class="last-modified field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Sun Mar 26 01:05:53 2017 +0100</td>
 </tr>
 <tr><th class="docinfo-name">Author:</th>
 <td>Greg Hazel &lt;<a class="reference external" href="mailto:greg&#37;&#52;&#48;bittorrent&#46;com">greg<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;, Arvid Norberg &lt;<a class="reference external" href="mailto:arvid&#37;&#52;&#48;bittorrent&#46;com">arvid<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;</td></tr>
@@ -147,13 +147,19 @@ d8:msg_typei1e5:piecei0ee
 <h1>magnet URI format</h1>
 <p>The magnet URI format is:</p>
 <pre class="literal-block">
-magnet:?xt=urn:btih:&lt;info-hash&gt;&amp;dn=&lt;name&gt;&amp;tr=&lt;tracker-url&gt;&amp;x.pe=&lt;peer-address&gt;
+v1: magnet:?xt=urn:btih:&lt;info-hash&gt;&amp;dn=&lt;name&gt;&amp;tr=&lt;tracker-url&gt;&amp;x.pe=&lt;peer-address&gt;
+v2: magnet:?xt=urn:btmh:&lt;tagged-info-hash&gt;&amp;dn=&lt;name&gt;&amp;tr=&lt;tracker-url&gt;&amp;x.pe=&lt;peer-address&gt;
 </pre>
 <dl class="docutils">
 <dt>&lt;info-hash&gt;</dt>
 <dd>Is the info-hash hex encoded, for a total of 40 characters. For
 compatability with existing links in the wild, clients should also
 support the 32 character <a class="reference external" href="http://www.ietf.org/rfc/rfc3548.txt">base32</a> encoded info-hash.</dd>
+<dt>&lt;tagged-info-hash&gt;</dt>
+<dd>Is the <a class="reference external" href="https://github.com/multiformats/multihash">multihash</a> formatted, hex encoded full infohash
+for torrents in the new metadata format. 'btmh' and 'btih'
+exact topics may exist in the same magnet if they describe
+the same hybrid torrent.</dd>
 <dt>&lt;peer-address&gt;</dt>
 <dd>A peer address expressed as <tt class="docutils literal">hostname:port</tt>, <tt class="docutils literal"><span class="pre">ipv4-literal:port</span></tt> or <tt class="docutils literal"><span class="pre">[ipv6-literal]:port</span></tt>.
 This parameter can be included to initiate a direct metadata transfer between two clients while reducing the need for external peer sources.

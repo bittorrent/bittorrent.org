@@ -35,6 +35,7 @@ Reserved Bit Allocations
  0x02  XBT Peer Exchange 
  0x04  suggest, haveall, havenone, reject request, and allow fast extensions
  0x08  NAT Traversal
+ 0x10  hybrid torrent legacy to v2 upgrade
 
 There are known collisions::
 
@@ -83,6 +84,11 @@ Reserved Message IDs
 
  Additional IDs used in deployed clients:
  0x14   LTEP Handshake (implemented in libtorrent, uTorrent,...)
+
+ Hash Transfer Protocol:
+ 0x15   hash request
+ 0x16   hashes
+ 0x17	hash reject
 
 References
 ==========

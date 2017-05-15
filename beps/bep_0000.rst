@@ -96,6 +96,7 @@ Num        Title
 |49|       :raw-html:`<A HREF="bep_0049.html">Distributed Torrent Feeds</A>`
 |50|       :raw-html:`<A HREF="bep_0050.html">Publish/Subscribe Protocol</A>`
 |51|       :raw-html:`<A HREF="bep_0051.html">DHT Infohash Indexing</A>`
+|52|       :raw-html:`<A HREF="bep_0052.html">The BitTorrent Protocol Specification v2</A>`
 ======     ===================
 
 
@@ -178,4 +179,5 @@ At this time, no BEPs have been rejected.
 .. |49| replace:: :raw-html:`<A HREF="bep_0049.html">49</A>`
 .. |50| replace:: :raw-html:`<A HREF="bep_0050.html">50</A>`
 .. |51| replace:: :raw-html:`<A HREF="bep_0051.html">51</A>`
+.. |52| replace:: :raw-html:`<A HREF="bep_0052.html">52</A>`
 .. |1000| replace:: :raw-html:`<A HREF="bep_1000.html">1000</A>`

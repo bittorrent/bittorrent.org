@@ -4,7 +4,7 @@
 :Last-Modified: $Date$
 :Author:  Bram Cohen <bram@bittorrent.com>
 :Status:  Draft
-:Type:    Standard
+:Type:    Standards Track
 :Created: 10-Jan-2008
 :Post-History: 24-Jun-2009 (arvid@bittorrent.com), clarified the encoding of strings in torrent files.
 	20-Oct-2012 (arvid@bittorrent.com), clarified that info-hash is the digest of en bencoding found in .torrent file.

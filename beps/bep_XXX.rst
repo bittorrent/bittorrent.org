@@ -17,17 +17,9 @@ This magnet extension introduces the concept of an optional *select-only* file i
 Rationale
 =========
 
-For torrents with many files, it can be difficult to add the specific files you want to download. This extension would allow clients to know which specific files they should download. 
+This extension would allow clients to know which specific file(s) within a torrent they should download, before the metadata has been downloaded. In particular it would allow for creating "deep links" to a specific file, folder, or subset of files within a torrent. A server could then host a magnet link, referring to that specific file or subset of files they wish to serve. This would be particularly useful for library torrents.
 
-Also, many torrent clients have no way to *pause* the torrent after adding the magnet link and fetching the metadata. This means you must:
-
-- Wait until the metadata downloads
-- Pause the torrent
-- And finally select the specific files you want. 
-
-These problems could be eliminated by adding an *optional* array of file indices to the magnet link. 
-
-This extension also creates the possibility of hosting library torrents, and creating magnet links which download subsets of the library. 
+This extension would add an *optional* array of file indices to the magnet link.
 
 URI extension
 ===============

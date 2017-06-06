@@ -4,7 +4,7 @@
 :Last-Modified: $Date$
 :Author: Tyler Houlihan <tchoulihan@gmail.com>
 :Status:  Draft
-:Type:    ??
+:Type:    Standards Track
 :Content-Type: text/x-rst
 :Created: 24-May-2017
 :Post-History: 

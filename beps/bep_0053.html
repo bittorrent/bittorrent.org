@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.13.1: http://docutils.sourceforge.net/" />
+<title></title>
+<meta name="author" content="Tyler Houlihan &lt;tchoulihan&#64;gmail.com&gt;" />
+<link rel="stylesheet" href="../css/bep.css" type="text/css" />
+</head>
+<body>
+<div class="document">
+
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="../index.html">BitTorrent<span>.org</span></a></h1>
+</div>
+<div id="nav">
+<ul>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../introduction.html">For Users</a></li>
+<li><a href="bep_0000.html"><span>For Developers</span></a></li>
+<li><a href="../mailing_list.html">Developer mailing list</a> </li>
+<li><a href="http://forum.bittorrent.org"> Forums (archive) </a></li>
+</ul>
+</div> <!-- nav -->
+<!-- ### Begin Content ### -->
+<div id="second">
+
+
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
+<tbody valign="top">
+<tr class="bep field"><th class="docinfo-name">BEP:</th><td class="field-body">53</td>
+</tr>
+<tr class="title field"><th class="docinfo-name">Title:</th><td class="field-body">Magnet URI extension - Select specific file indices for download</td>
+</tr>
+<tr><th class="docinfo-name">Version:</th>
+<td>8592cc1b13387251af0518a26d307c03e33bc92d</td></tr>
+<tr class="last-modified field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Tue Jun 6 10:02:51 2017 -0700</td>
+</tr>
+<tr><th class="docinfo-name">Author:</th>
+<td>Tyler Houlihan &lt;<a class="reference external" href="mailto:tchoulihan&#37;&#52;&#48;gmail&#46;com">tchoulihan<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;</td></tr>
+<tr><th class="docinfo-name">Status:</th>
+<td>Draft</td></tr>
+<tr class="type field"><th class="docinfo-name">Type:</th><td class="field-body">Standards Track</td>
+</tr>
+<tr class="content-type field"><th class="docinfo-name">Content-Type:</th><td class="field-body">text/x-rst</td>
+</tr>
+<tr class="created field"><th class="docinfo-name">Created:</th><td class="field-body">24-May-2017</td>
+</tr>
+<tr class="post-history field"><th class="docinfo-name">Post-History:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="abstract">
+<h1>Abstract</h1>
+<p>This magnet extension introduces the concept of an optional <em>select-only</em> file index array in the magnet URI, so that torrent clients can automatically select specific file(s) for download after the metadata has been downloaded.</p>
+</div>
+<div class="section" id="rationale">
+<h1>Rationale</h1>
+<p>This extension would allow clients to know which specific file(s) within a torrent they should download, before the metadata has been downloaded. In particular it would allow for creating &quot;deep links&quot; to a specific file, folder, or subset of files within a torrent. A server could then host a magnet link, referring to that specific file or subset of files they wish to serve. This would be particularly useful for library torrents.</p>
+<p>This extension would add an <em>optional</em> array of file indices to the magnet link.</p>
+</div>
+<div class="section" id="uri-extension">
+<h1>URI extension</h1>
+<p>The new URI format would contain the following:</p>
+<p><tt class="docutils literal"><span class="pre">magnet:?xt=urn:btih:HASH&amp;dn=NAME&amp;tr=TRACKER&amp;so=0,2,4,6-8</span></tt></p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">so=0,2,4,6-8</span></tt> means <em>select only</em>, and the numbers are the file indices. Files are zero-indexed. Dashes mean inclusive ranges, so 6,7, and 8 are also added.</li>
+</ul>
+<p>Special case: What if the magnet link is already added?</p>
+<p>Torrent clients that already have added that torrent should add any currently not-downloading file indices, and set their priority to normal.</p>
+</div>
+<div class="section" id="references">
+<h1>References</h1>
+</div>
+<div class="section" id="copyright">
+<h1>Copyright</h1>
+<p>This document has been placed in the public domain.</p>
+<!-- Local Variables:
+mode: indented-text
+indent-tabs-mode: nil
+sentence-end-double-space: t
+fill-column: 70
+coding: utf-8
+End: -->
+</div>
+
+</div>
+	<div id="footer">
+<hr/>
+</div>
+
+</div>
+</body>
+</html>

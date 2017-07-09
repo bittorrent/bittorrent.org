@@ -43,7 +43,7 @@ The distinction between storing mutable and immutable items is the inclusion of 
 
 ``get`` requests for mutable items and immutable items may not be distinguishable from each other.  An implementation can either store mutable and immutable items in the same hash table internally, or in separate ones and potentially do two lookups for ``get`` requests.
 
-The ``v`` field is the *value* to be stored.  It is allowed to be any bencoded type (list, dict, string or integer).  When it's being hashed (for verifying its signature or to calculate its key), its flattened, bencoded, form is used.  It is important to use the verbatim bencoded representation as it appeared in the message.  Decoding and then re-encoding bencoded structures is not necessarily an identity operation.
+The ``v`` field is the *value* to be stored.  It is allowed to be any bencoded type (list, dict, string or integer).  When it's being hashed (for verifying its signature or to calculate its key), its flattened, bencoded, form is used.  If the value in a ``put`` request contains invalid bencoding (e.g. a dictionary with unsorted keys), the storing node MUST reject the request and SHOULD return an error message with code 203.
 
 Storing nodes MAY reject ``put`` requests where the bencoded form of ``v`` is longer than 1000 bytes.  In other words, it's not safe to assume storing more than 1000 bytes will succeed.
 

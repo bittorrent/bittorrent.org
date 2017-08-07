@@ -176,6 +176,11 @@ h5 {
     font-size:1.3em;
     line-height:1.5em;
     }
+    
+#second li p, #second dd p {
+	font-size: inherit;
+	line-height: inherit;
+}
 
 #footer p {
     margin:0;

@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
+<meta name="generator" content="Docutils 0.13.1: http://docutils.sourceforge.net/" />
 <title></title>
 <meta name="author" content="Arvid Norberg &lt;arvid&#64;bittorrent.com&gt;, Steven Siloti &lt;ssiloti&#64;bittorrent.com&gt;" />
 <link rel="stylesheet" href="../css/bep.css" type="text/css" />
@@ -33,25 +33,25 @@
 <col class="docinfo-name" />
 <col class="docinfo-content" />
 <tbody valign="top">
-<tr class="field"><th class="docinfo-name">BEP:</th><td class="field-body">44</td>
+<tr class="bep field"><th class="docinfo-name">BEP:</th><td class="field-body">44</td>
 </tr>
-<tr class="field"><th class="docinfo-name">Title:</th><td class="field-body">Storing arbitrary data in the DHT</td>
+<tr class="title field"><th class="docinfo-name">Title:</th><td class="field-body">Storing arbitrary data in the DHT</td>
 </tr>
 <tr><th class="docinfo-name">Version:</th>
-<td>b13d4e0f52da7808c46a61f473b10db076d1cabb</td></tr>
-<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Sat Aug 6 19:48:16 2016 +0200</td>
+<td>4c187001ec214a60cf86de73ada5a2e53353b9b1</td></tr>
+<tr class="last-modified field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Wed Feb 1 09:41:55 2017 -0800</td>
 </tr>
 <tr><th class="docinfo-name">Author:</th>
 <td>Arvid Norberg &lt;<a class="reference external" href="mailto:arvid&#37;&#52;&#48;bittorrent&#46;com">arvid<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;, Steven Siloti &lt;<a class="reference external" href="mailto:ssiloti&#37;&#52;&#48;bittorrent&#46;com">ssiloti<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;</td></tr>
 <tr><th class="docinfo-name">Status:</th>
 <td>Draft</td></tr>
-<tr class="field"><th class="docinfo-name">Type:</th><td class="field-body">Standards Track</td>
+<tr class="type field"><th class="docinfo-name">Type:</th><td class="field-body">Standards Track</td>
 </tr>
-<tr class="field"><th class="docinfo-name">Content-Type:</th><td class="field-body">text/x-rst</td>
+<tr class="content-type field"><th class="docinfo-name">Content-Type:</th><td class="field-body">text/x-rst</td>
 </tr>
-<tr class="field"><th class="docinfo-name">Created:</th><td class="field-body">19-Dec-2014</td>
+<tr class="created field"><th class="docinfo-name">Created:</th><td class="field-body">19-Dec-2014</td>
 </tr>
-<tr class="field"><th class="docinfo-name">Post-History:</th><td class="field-body">06-Aug-2016 (<a class="reference external" href="mailto:the8472&#46;bep&#37;&#52;&#48;infinite-source&#46;de">the8472<span>&#46;</span>bep<span>&#64;</span>infinite-source<span>&#46;</span>de</a>), added backoff algorithm for republishing</td>
+<tr class="post-history field"><th class="docinfo-name">Post-History:</th><td class="field-body">06-Aug-2016 (<a class="reference external" href="mailto:the8472&#46;bep&#37;&#52;&#48;infinite-source&#46;de">the8472<span>&#46;</span>bep<span>&#64;</span>infinite-source<span>&#46;</span>de</a>), added backoff algorithm for republishing</td>
 </tr>
 </tbody>
 </table>
@@ -75,7 +75,7 @@
 <p>The <tt class="docutils literal">k</tt> field is the 32 byte ed25519 public key, which the signature can be authenticated with.  When looking up a mutable item, the <tt class="docutils literal">target</tt> field MUST be the SHA-1 hash of this key concatenated with the <tt class="docutils literal">salt</tt>, if present.</p>
 <p>The distinction between storing mutable and immutable items is the inclusion of a public key, a sequence number, signature and an optional salt (<tt class="docutils literal">k</tt>, <tt class="docutils literal">seq</tt>, <tt class="docutils literal">sig</tt> and <tt class="docutils literal">salt</tt>).</p>
 <p><tt class="docutils literal">get</tt> requests for mutable items and immutable items may not be distinguishable from each other.  An implementation can either store mutable and immutable items in the same hash table internally, or in separate ones and potentially do two lookups for <tt class="docutils literal">get</tt> requests.</p>
-<p>The <tt class="docutils literal">v</tt> field is the <em>value</em> to be stored.  It is allowed to be any bencoded type (list, dict, string or integer).  When it's being hashed (for verifying its signature or to calculate its key), its flattened, bencoded, form is used.  It is important to use the verbatim bencoded representation as it appeared in the message.  Decoding and then re-encoding bencoded structures is not necessarily an identity operation.</p>
+<p>The <tt class="docutils literal">v</tt> field is the <em>value</em> to be stored.  It is allowed to be any bencoded type (list, dict, string or integer).  When it's being hashed (for verifying its signature or to calculate its key), its flattened, bencoded, form is used.  If the value in a <tt class="docutils literal">put</tt> request contains invalid bencoding (e.g. a dictionary with unsorted keys), the storing node MUST reject the request and SHOULD return an error message with code 203.</p>
 <p>Storing nodes MAY reject <tt class="docutils literal">put</tt> requests where the bencoded form of <tt class="docutils literal">v</tt> is longer than 1000 bytes.  In other words, it's not safe to assume storing more than 1000 bytes will succeed.</p>
 </div>
 <div class="section" id="immutable-items">

@@ -68,16 +68,22 @@ Conceptually an encrypted torrent is created as follows:
 4. ``SIV = H(infohash_plain || salt)``
 5. create a single file ``plaintext_padded`` by padding all non-empty files in the plaintext torrent to a full piece size and then concatenating them in the order specified by the ``file tree``
 6. let ``root_key`` be an arbitrary byte sequence that will be used as base secret to derive additional secrets
-7. ``payload_key = scrypt(N: 2\ :sup:`14`\  , r: 8, p: 1, password: root_key, salt: (SIV || "payload key"))``
-8. ``payload_nonce = H(infohash_plain || salt || "payload")[0..24]
+7. .. parsed-literal::
+
+       payload_key = scrypt(N: 2\ :sup:`14`\  , r: 8, p: 1, password: root_key, salt: (SIV || "payload key"))
+       
+8. ``payload_nonce = H(infohash_plain || salt || "payload")[0..24]``
 9. ``payload_encrypted = E(payload_nonce, payload_key, plaintext_padded)``
 10. choose a filename for the ciphertext file and a public name for the encrypted torrent 
 11. create a BEP 52 (optionally hybrid) torrent for ``payload_encrypted``. its ``meta version`` must match that of the plaintext torrent. its piece size must be the same or smaller than the plaintext torrent's.
-12. ``shadow_nonce = H(SIV || "shadow")[0..24]
-13. ``shadow_key = H(payload_key || "shadow")
+12. ``shadow_nonce = H(SIV || "shadow")[0..24]``
+13. ``shadow_key = H(payload_key || "shadow")``
 14. ``shadow = E(shadow_nonce, shadow_key, salt || bencode(plaintext_torrent["info"]) || padding)`` where padding is a random sequence of 1 to 512 bytes (inclusive).
-15. add the following key value pair to the info dictionary of the encrypted torrent: ``"encrypted": {"siv": SIV, "shadow": shadow, "v": 1}``
-16. ``mac = M(key: shadow_key, message: bencode(encrypted_torrent["info"]["file tree"]) || bencode(encrypted_torrent["info"]["encrypted"]))
+15. add the following key value pair to the info dictionary of the encrypted torrent:
+    
+    ``"encrypted": {"siv": SIV, "shadow": shadow, "v": 1}``
+    
+16. ``mac = M(key: shadow_key, message: bencode(encrypted_torrent["info"]["file tree"]) || bencode(encrypted_torrent["info"]["encrypted"]))``
 17. add the following key value pair to the info dictionary of the encrypted torrent: ``"enc mac": mac``
 
 This construction
@@ -134,7 +140,7 @@ Decryption
 7. calculate ``infohash_plain``
 8. verify ``SIV`` 
 9. derive ``payload_nonce`` from ``infohash_plain`` and ``salt``
-10. if ``payload_key`` is available decrypt ``plaintext_padded`
+10. if ``payload_key`` is available decrypt ``plaintext_padded``
 11. split `plaintext_padded`` according to file layout information in the plaintext info dictionary 
 
 
@@ -307,14 +313,8 @@ References
 .. [#BEP-27] BEP_0027. Private Torrents
    (http://bittorrent.org/beps/bep_0027.html)
 
-.. [#BEP-30] BEP_0030. Merkle tree torrent extension
-   (http://bittorrent.org/beps/bep_0030.html)
-
 .. [#BEP-35] BEP_0035. Torrent Signing
    (http://bittorrent.org/beps/bep_0035.html)
-
-.. [#BEP-47] BEP_0047. Padding files and extended file attributes
-   (http://bittorrent.org/beps/bep_0047.html)
 
 .. [#BEP-52] BEP_0052. The BitTorrent Protocol Specification v2
    (http://bittorrent.org/beps/bep_0052.html)

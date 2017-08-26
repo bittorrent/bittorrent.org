@@ -36,11 +36,11 @@ Rationale
 In general BitTorrent swarms are an open system well-suited for mass-distribution of data to the public.
 
 Some use-cases require that the data is only distributed to a closed, trusted group of peers.
-In other cases the content may be meant for open distribution within a community without intent of announcing the content to the whole world. This is analogous to web content that is open to human visitors but requests via robots.txt that it should not be announced to the world by web crawlers.   
+In other cases the content may be meant for open distribution within a community without intent of announcing the content to the whole world. This is analogous to web content that is open to human visitors but requests via robots.txt that it should not be announced to the world by web crawlers.
 
 
 While the private flag [#BEP-27]_ may be sufficient in a controlled environment to prevent information about the torrent (e.g. its infohash) from escaping and thus preventing others from connecting to the swarm this is a very brittle form of security which also prevents the use of public infrastructure such as open trackers, PEX or the DHT.
-Similarly Message Stream Encryption provides limited protection from passive eavesdroppers on the network layer but does not prevent the infohash from escaping.   
+Similarly Message Stream Encryption provides limited protection from passive eavesdroppers on the network layer but does not prevent the infohash from escaping.
 
 
 Instead of attempting to restrict access to the swarm or metadata this BEP proposes to make all data opaque to 3rd parties by encrypting it with a shared secret that is not available through any torrent-related protocol, i.e. must be obtained separately by the user.
@@ -59,14 +59,14 @@ scrypt [#rfc7914]_,
 ``||`` the concat operator   
 
 
-Conceptually an encrypted torrent is created as follows:
+An encrypted torrent is created as follows:
 
 
 1. create a BEP 52 [#BEP-52]_ (non-hybrid) torrent representing the plaintext
 2. let ``infohash_plain`` be the infohash of the plaintext torrent calculated according to the hashing method appropriate for its ``meta version``
 3. generate a random 32byte salt
 4. ``SIV = H(infohash_plain || salt)``
-5. create a single file ``plaintext_padded`` by padding all non-empty files in the plaintext torrent to a full piece size and then concatenating them in the order specified by the ``file tree``
+5. create a single file ``plaintext_padded`` by zero-padding all non-empty files in the plaintext torrent to a full piece size and then concatenating them in the order specified by the ``file tree``
 6. let ``root_key`` be an arbitrary byte sequence that will be used as base secret to derive additional secrets
 7. .. parsed-literal::
 
@@ -75,7 +75,8 @@ Conceptually an encrypted torrent is created as follows:
 8. ``payload_nonce = H(infohash_plain || salt || "payload")[0..24]``
 9. ``payload_encrypted = E(payload_nonce, payload_key, plaintext_padded)``
 10. choose a filename for the ciphertext file and a public name for the encrypted torrent 
-11. create a BEP 52 (optionally hybrid) torrent for ``payload_encrypted``. its ``meta version`` must match that of the plaintext torrent. its piece size must be the same or smaller than the plaintext torrent's.
+11. create a BEP 52 (optionally hybrid) torrent for ``payload_encrypted``.
+    its ``meta version`` must match that of the plaintext torrent.
 12. ``shadow_nonce = H(SIV || "shadow")[0..24]``
 13. ``shadow_key = H(payload_key || "shadow")``
 14. ``shadow = E(shadow_nonce, shadow_key, salt || bencode(plaintext_torrent["info"]) || padding)`` where padding is a random sequence of 1 to 512 bytes (inclusive).
@@ -87,11 +88,13 @@ Conceptually an encrypted torrent is created as follows:
 17. add the following key value pair to the info dictionary of the encrypted torrent: ``"enc mac": mac``
 
 This construction
+
 * obscures the exact size of the plaintext by rounding to the nearest piece size
 * obscures the size of the plaintext metadata by adding padding
 * uses nonces that are derived from content, making them difficult to misuse
 * does not reveal any hashes of the plaintext that could be crosschecked by outside observers without knowledge of the keys
 * allows clients unaware of this BEP to still share the data and decrypt it through external tools
+* maintains a 1:1 mapping between ciphertext and plaintext offsets in the piece address space, which makes it trivial to apply the encryption at the I/O layer
 
 
 The info dictionary of the encrypted torrent will contain the following additional keys
@@ -137,11 +140,13 @@ Decryption
 4. derive shadow nonce, decrypt the shadow value
 5. extract salt from decrypted shadow value
 6. use a bdecoder that can ignore tail data beyond the end of the root dictionary to extract plaintext torrent info dictionary from the decrypted shadow value
-7. calculate ``infohash_plain``
-8. verify ``SIV`` 
-9. derive ``payload_nonce`` from ``infohash_plain`` and ``salt``
-10. if ``payload_key`` is available decrypt ``plaintext_padded``
-11. split `plaintext_padded`` according to file layout information in the plaintext info dictionary 
+7. validate that ``meta version`` matches and that the ciphertext is at least as long as the padded plaintext length
+8. calculate ``infohash_plain``
+9. verify ``SIV`` 
+10. derive ``payload_nonce`` from ``infohash_plain`` and ``salt``
+11. if ``payload_key`` is available decrypt ``plaintext_padded``
+12. split ``plaintext_padded`` according to file layout information in the plaintext info dictionary
+13. verify plaintext files based on plaintext ``pieces root`` hashes 
 
 
 Shadow Dictionary
@@ -149,9 +154,14 @@ Shadow Dictionary
 
 If a client has access to at least a shadow key it may want to check consistency, such as the length and number of pieces, between the encrypted representation and the plaintext metadata in the shadow dictionary.
 It may also want to display the metadata of the plaintext to the user instead of the encrypted representation.
-Since the shadow dictionary also contains merkle roots for each file correct decryption can also be verified at the file granularity level. Transfer of plaintext merkle layers is not supported, but clients can still use deduplication if they other files with identical plaintext.
+Since the shadow dictionary also contains merkle roots for each file correct decryption can also be verified at the file granularity level.
+Transfer of plaintext merkle layers is not supported, but clients can still use deduplication if they other files with identical plaintext. Note that deduplication may leak information.
 
-Implementations may be tempted to optimize requests based on shadow dictionary information, e.g. skipping parts that are padding in the plaintext or prioritize downloading of specific files, but this may be inadvisable since it would reveal knowledge of the metadata.
+Implementations may be tempted to optimize requests based on shadow dictionary information, e.g. skipping parts that are padding in the plaintext or prioritize downloading of specific files, especially when there is significant padding overhead.
+But such optimizations reveal knowledge of the plain text layout to some participants in the swarm and thus pose a performance-security tradeoff.
+
+Note that the shadow dictionary can be turned into a full-fledged torrent and implementations may do so to reuse existing machinery to process them. But this could leak information if the client were for example to perform DHT lookups for the plaintext torrent.
+So as a precaution they may want to treat it *as if* it were a private torrent until the need to actually connect the plaintext torrent to the network arises.
 
 
 Key sharing

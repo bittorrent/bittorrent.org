@@ -79,7 +79,7 @@ An encrypted torrent is created as follows:
     its ``meta version`` must match that of the plaintext torrent.
 12. ``shadow_nonce = H(SIV || "shadow")[0..24]``
 13. ``shadow_key = H(payload_key || "shadow")``
-14. ``shadow = E(shadow_nonce, shadow_key, salt || bencode(plaintext_torrent["info"]) || padding)`` where padding is a random sequence of 1 to 512 bytes (inclusive).
+14. ``shadow = E(shadow_nonce, shadow_key, salt || bencode(plaintext_torrent["info"]) || padding)`` where padding is a sequence of zero or more random bytes chosen so that the length of ``shadow`` is a power of two.
 15. add the following key value pair to the info dictionary of the encrypted torrent:
     
     ``"encrypted": {"siv": SIV, "shadow": shadow, "v": 1}``
@@ -136,17 +136,18 @@ Decryption
 
 1. obtain a shadow, payload or root key
 2. extract ``SIV`` and ``mac``
-3. test available key against ``mac`` to determine whether it is a shadow key. If the check fails assume it is a payload key and derive the shadow key and test again. If necessary repeat again assuming it is a root key
-4. derive shadow nonce, decrypt the shadow value
-5. extract salt from decrypted shadow value
-6. use a bdecoder that can ignore tail data beyond the end of the root dictionary to extract plaintext torrent info dictionary from the decrypted shadow value
-7. validate that ``meta version`` matches and that the ciphertext is at least as long as the padded plaintext length
-8. calculate ``infohash_plain``
-9. verify ``SIV`` 
-10. derive ``payload_nonce`` from ``infohash_plain`` and ``salt``
-11. if ``payload_key`` is available decrypt ``plaintext_padded``
-12. split ``plaintext_padded`` according to file layout information in the plaintext info dictionary
-13. verify plaintext files based on plaintext ``pieces root`` hashes 
+3. verify that ``shadow`` length is a power of two
+4. test available key against ``mac`` to determine whether it is a shadow key. If the check fails assume it is a payload key and derive the shadow key and test again. If necessary repeat again assuming it is a root key
+5. derive shadow nonce, decrypt the shadow value
+6. extract salt from decrypted shadow value
+7. extract the plaintext info dictionary in the decrypted shadow value between the salt and the padding, this requires a bdecoder that can ignore additional bytes after the root value
+8. validate that ``meta version`` matches and that the ciphertext is at least as long as the padded plaintext length
+9. calculate ``infohash_plain``
+10. verify ``SIV`` 
+11. derive ``payload_nonce`` from ``infohash_plain`` and ``salt``
+12. if ``payload_key`` is available decrypt ``plaintext_padded``
+13. split ``plaintext_padded`` according to file layout information in the plaintext info dictionary
+14. verify plaintext files based on plaintext ``pieces root`` hashes 
 
 
 Shadow Dictionary

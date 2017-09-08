@@ -6,7 +6,8 @@
 :Status:  Draft
 :Type:    Standards Track
 :Created: 31-Jan-2008
-:Post-History:
+:Post-History: 07-Sep-2017 (the8472.bep@infinite-source.de), multi-homed trackers
+	
 
 This extension extends the tracker response to better support IPv6 peers as
 well as defines a way for multi homed machines to announce multiple addresses
@@ -48,6 +49,21 @@ request. i.e. If the client connects to the tracker with an IPv4 source
 address, the tracker MAY ignore any ``&ipv4=`` address and if the client
 connects to the tracker with an IPv6 source address, the tracker MAY ignore
 any ``&ipv6=`` parameter.
+
+Tracker Hostname Resolution
+===========================
+
+When host component of a tracker url resolves to multiple IP addresses
+then a client MAY announce to multiple addresses, one for each address family.
+When doing so the client SHOULD include an additional ``key`` parameter in its requests.
+The key should remain the same for a particular infohash during
+a torrent session. Together with the ``peer_id`` this allows trackers
+to uniquely identify clients for the purpose of statistics-keeping when they
+announce from multiple IPs .
+The key should be generated so it has at least 32bits worth of entropy.
+
+When announcing to multiple address families all request parameters
+should be kept the same.    
 
 Announce Response
 =================

@@ -87,9 +87,37 @@ An added contact must not be dropped in the same message.
 
 Except for the initial PEX message the combined amount of added v4/v6 contacts should not exceed 50 entries. The same applies to dropped entries.
 
+    **Implementation Note**: If these limits conflict with large connection pools then implementations can calculate the canonical peer priorities from the perspective of a remote peer to choose which subset of
+connections to prioritize for inclusion in a message.  
+
 Messages must contain at least one of the following fields: ``added, added6, dropped, dropped6``.
 
-Clients may disconnect peers that egregiously violate these constraints.  
+Clients may disconnect peers that egregiously violate these constraints.
+
+
+Filling underpopulated lists
+============================
+
+A combination of the 
+
+* above liveness requirements
+* disconnecting seeds or partial seeds [#BEP-21]_ while seeding
+* disconnecting duplicate peers based on peer IDs between ipv4 and ipv6
+
+can lead to underpopulated ``added`` or ``added6`` lists. This problem frequently arises in swarms dominated by seeds where the seeds have no live connections to propagate and the peers
+only have seeds they can propagate to other seeds, dramatically reducing PEX's effectiveness. Similarly this can make it difficult to obtain ipv6 peers in an ipv4 dominated swarm because ipv6
+connections will be considered duplicates of already-established v4 ones, thus preventing their propagation via PEX.
+
+To remedy these issues the liveness requirement is relaxed if a client is connected to less than 25 clients for a particular address family. In that situation it may keep a list
+of most recently established connections for that address family and record the disconnect reason for those connections. If a remote client has been disconnected due to
+peer ID deduplication and the duplicate was on a different address family or because the remote was a seed then up to 25 of those may be included in the initial ``added`` or ``added6`` lists.
+Since they do not represent live connections they must be dropped with the next PEX message.
+
+Under the same conditions (fewer than 25 connections on that address family) connect-disconnect elision can be skipped for up to 25 remotes that have been disconnected because they were seeds
+or because peer ID deduplication across address families. I.e. such a transient connection can be included in a added list and then dropped in the next message.
+The restriction that the same address must not be added and dropped within the same message must still be maintained.
+
+The limit of 25 addresses is chosen so that the recently-seen and live contacts could all be dropped within the next PEX message.  
 
 
 Security Considerations
@@ -114,6 +142,11 @@ References
 .. [#BEP-10] BEP 10, "Extension Protocol"
 
    http://bittorrent.org/beps/bep_0010.html
+
+.. [#BEP-21] BEP 21, "Extension for partial seeds"
+
+   http://bittorrent.org/beps/bep_0021.html
+
 
 
 Copyright

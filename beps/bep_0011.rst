@@ -106,29 +106,24 @@ only have seeds they can propagate to other seeds, dramatically reducing PEX's e
 Similarly this can make it difficult to obtain ipv6 peers in an ipv4 dominated swarm because ipv6 connections will be considered duplicates of already-established v4 ones, thus preventing their propagation via PEX.
 
 To remedy these issues the liveness requirement is relaxed if a client is connected to less than 25 clients for a particular address family.
-In that situation it may keep a list of most recently established connections for that address family and record the disconnect reason for those connections.
-When an implementation disconnects a remote client for a reason that does not contraindicate the usefulness of that contact for other peers then it may include up to 25 of such potentially useful recently seen contacts in the initial ``added`` or ``added6`` lists.
-But since they do not represent live connections they must then be dropped with the next PEX message.
-
-Examples for disconnect reasons that exclude peers from the recently seen set:
-
-* IO errors - the peer may have gone offline and thus should not be propagated by gossip
-* handshake failures - a completed handshake is necessary to determine if a peer would be potentially useful to others
-* non-compliant behavior
-
-Examples for disconnect reasons that indicate that a peer is likely to remain useful in the near feature:
+In that situation it may keep a list of up to 25 most recently established and *fully handshaken* connections for that address family and record the disconnect reason for those connections.
+The following reasons for locally initiated disconnects qualify a remote contact for inclusion in the in the ``added`` or ``added6`` lists:
 
 * the same peer ID was already connected under a different address family
-* permanent lack of mutual interest, e.g. inferred from (partial) seed status and information contained in bitfields
-* exceeded local resource limits
+* permanent lack of mutual interest, e.g. inferred from (partial) seed status and piece availability
+* local resource limits such as a global connection counts were exceeded 
 
+When including such a recently disconnected contact in a pex message it must be drained from the recently seen list so it will not be sent again in the next message.
+When the list gets repopulated through transient connect-disconnect events those may be included in the next message if all necessary conditions are fulfilled.
+In other words in addition to populating the initial pex message from the recently seen list a client may effectively also skip some of the connect-disconnect elisions.
 
-Under the same conditions (fewer than 25 live connections on that address family) connect-disconnect elision can be skipped for up to 25 remotes that were disconnected for known-benign reasons.
-I.e. such a transient connection can be included in a added list and then dropped in the next message.
+But since recently seen contacts do not represent live connections they must be dropped with the next PEX message.
+
 The restriction that the same address must not be added and dropped within the same message must still be maintained.
 
-The limit of 25 addresses is chosen so that the recently-seen and live contacts could all be dropped within the next PEX message and that no stale information is sent when there
-are enough live contacts to populate pex messages.
+The requirement of less than 25 live connections and limit of 25 recently seen ones is chosen so that at most two pex messages worth of droppable contacts can accumulate and that no stale information is sent when there are enough live contacts to populate pex messages.
+
+Note that this exemption can be applied separately for IPv4 and IPv6. I.e. even if there are enough v4 live contacts a client may still include recently seen v6 contacts or vice versa if the respective lists would be underpopulated. 
 
 
 Security Considerations

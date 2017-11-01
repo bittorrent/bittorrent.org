@@ -179,14 +179,14 @@ class Torrent:
             self.file_tree = self.walk_path(path)
 
         try:
-            if len(self.files) > 1:
+            if hasattr(self, 'files') and len(self.files) > 1:
                 self.pieces.append(self.residue_hasher.append_padding())
                 self.files.append({b'attr': b'p', b'length': self.residue_hasher.pad_length, b'path': ['.pad', str(self.residue_hasher.pad_length)]})
             else:
                 self.pieces.append(self.residue_hasher.discard_padding())
             delattr(self, 'residue_hasher')
         except AttributeError:
-            pass
+            assert not hasattr(self, 'residue_hasher') or not hasattr(self.residue_hasher, 'pad_hasher')
 
         # flatten the piece hashes into a single bytes object
         self.pieces = bytes([byte for piece in self.pieces for byte in piece])
@@ -200,7 +200,7 @@ class Torrent:
                 self.files.append({b'attr': b'p', b'length': self.residue_hasher.pad_length, b'path': ['.pad', str(self.residue_hasher.pad_length)]})
                 delattr(self, 'residue_hasher')
             except AttributeError:
-                pass
+                assert not hasattr(self, 'residue_hasher') or not hasattr(self.residue_hasher, 'pad_hasher')
             hashes = FileHasher(path, self.piece_length)
             self.residue_hasher = hashes
             self.piece_layers.append(hashes)

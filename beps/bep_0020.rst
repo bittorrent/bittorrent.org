@@ -81,6 +81,7 @@ Known clients that use this encoding style are
      'TT' - TuoTu
      'UL' - uLeecher!
      'UT' - µTorrent
+     'UW' - µTorrent Web
      'VG' - Vagaa
      'WD' - WebTorrent Desktop
      'WT' - BitLet

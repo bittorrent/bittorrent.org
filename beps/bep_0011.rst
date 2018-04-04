@@ -7,7 +7,7 @@
 :Type:    Standards Track
 :Created: 29-Oct-2015
 :Depends: 10
-:Post-History:
+:Post-History: 22-Sep-2017 (the8472.bep@infinite-source.de), add section on handling swarm configurations that lead to underpopulated pex lists
 
 
 Peer Exchange (PEX) provides an alternative peer discovery mechanism for swarms once peers have bootstrapped via other mechanisms such as DHT or Tracker announces.
@@ -89,7 +89,41 @@ Except for the initial PEX message the combined amount of added v4/v6 contacts s
 
 Messages must contain at least one of the following fields: ``added, added6, dropped, dropped6``.
 
-Clients may disconnect peers that egregiously violate these constraints.  
+Clients may disconnect peers that egregiously violate these constraints.
+
+
+Filling underpopulated lists
+============================
+
+A combination of the 
+
+* above liveness requirements
+* disconnecting seeds or partial seeds [#BEP-21]_ while seeding
+* disconnecting duplicate peers based on peer IDs between ipv4 and ipv6
+
+can lead to underpopulated ``added`` or ``added6`` lists. This problem frequently arises in swarms dominated by seeds where the seeds have no live connections to propagate and the peers
+only have seeds they can propagate to other seeds, dramatically reducing PEX's effectiveness.
+Similarly this can make it difficult to obtain ipv6 peers in an ipv4 dominated swarm because ipv6 connections will be considered duplicates of already-established v4 ones, thus preventing their propagation via PEX.
+
+To remedy these issues the liveness requirement is relaxed if a client is connected to less than 25 clients for a particular address family.
+In that situation it may keep a list of up to 25 most recently established and *fully handshaken* connections for that address family and record the disconnect reason for those connections.
+The following reasons for locally initiated disconnects qualify a remote contact for inclusion in the in the ``added`` or ``added6`` lists:
+
+* the same peer ID was already connected under a different address family
+* permanent lack of mutual interest, e.g. inferred from (partial) seed status and piece availability
+* local resource limits such as a global connection counts were exceeded 
+
+When including such a recently disconnected contact in a pex message it must be drained from the recently seen list so it will not be sent again in the next message.
+When the list gets repopulated through transient connect-disconnect events those may be included in the next message if all necessary conditions are fulfilled.
+In other words in addition to populating the initial pex message from the recently seen list a client may effectively also skip some of the connect-disconnect elisions.
+
+But since recently seen contacts do not represent live connections they must be dropped with the next PEX message.
+
+The restriction that the same address must not be added and dropped within the same message must still be maintained.
+
+The requirement of less than 25 live connections and limit of 25 recently seen ones is chosen so that at most two pex messages worth of droppable contacts can accumulate and that no stale information is sent when there are enough live contacts to populate pex messages.
+
+Note that this exemption can be applied separately for IPv4 and IPv6. I.e. even if there are enough v4 live contacts a client may still include recently seen v6 contacts or vice versa if the respective lists would be underpopulated. 
 
 
 Security Considerations
@@ -114,6 +148,11 @@ References
 .. [#BEP-10] BEP 10, "Extension Protocol"
 
    http://bittorrent.org/beps/bep_0010.html
+
+.. [#BEP-21] BEP 21, "Extension for partial seeds"
+
+   http://bittorrent.org/beps/bep_0021.html
+
 
 
 Copyright

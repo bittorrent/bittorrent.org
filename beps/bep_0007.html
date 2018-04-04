@@ -3,8 +3,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
-<title></title>
+<meta name="generator" content="Docutils 0.14: http://docutils.sourceforge.net/" />
+<title>bep_0007.rst_post</title>
 <meta name="author" content="Greg Hazel &lt;greg&#64;bittorrent.com&gt;, Arvid Norberg &lt;arvid&#64;bittorrent.com&gt;" />
 <link rel="stylesheet" href="../css/bep.css" type="text/css" />
 </head>
@@ -33,23 +33,23 @@
 <col class="docinfo-name" />
 <col class="docinfo-content" />
 <tbody valign="top">
-<tr class="field"><th class="docinfo-name">BEP:</th><td class="field-body">7</td>
+<tr class="bep field"><th class="docinfo-name">BEP:</th><td class="field-body">7</td>
 </tr>
-<tr class="field"><th class="docinfo-name">Title:</th><td class="field-body">IPv6 Tracker Extension</td>
+<tr class="title field"><th class="docinfo-name">Title:</th><td class="field-body">IPv6 Tracker Extension</td>
 </tr>
 <tr><th class="docinfo-name">Version:</th>
-<td>9c5c1dd1b372016e05af84fb34fccac6752ef54a</td></tr>
-<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Thu Jul 21 10:45:38 2016 -0400</td>
+<td>0977f19c332ef7b9562a889b60a003d2821b03e8</td></tr>
+<tr class="last-modified field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Fri Sep 8 19:23:05 2017 +0200</td>
 </tr>
 <tr><th class="docinfo-name">Author:</th>
 <td>Greg Hazel &lt;<a class="reference external" href="mailto:greg&#37;&#52;&#48;bittorrent&#46;com">greg<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;, Arvid Norberg &lt;<a class="reference external" href="mailto:arvid&#37;&#52;&#48;bittorrent&#46;com">arvid<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;</td></tr>
 <tr><th class="docinfo-name">Status:</th>
 <td>Draft</td></tr>
-<tr class="field"><th class="docinfo-name">Type:</th><td class="field-body">Standards Track</td>
+<tr class="type field"><th class="docinfo-name">Type:</th><td class="field-body">Standards Track</td>
 </tr>
-<tr class="field"><th class="docinfo-name">Created:</th><td class="field-body">31-Jan-2008</td>
+<tr class="created field"><th class="docinfo-name">Created:</th><td class="field-body">31-Jan-2008</td>
 </tr>
-<tr class="field"><th class="docinfo-name">Post-History:</th><td class="field-body"></td>
+<tr class="post-history field"><th class="docinfo-name">Post-History:</th><td class="field-body">07-Sep-2017 (<a class="reference external" href="mailto:the8472&#46;bep&#37;&#52;&#48;infinite-source&#46;de">the8472<span>&#46;</span>bep<span>&#64;</span>infinite-source<span>&#46;</span>de</a>), multi-homed trackers</td>
 </tr>
 </tbody>
 </table>
@@ -80,6 +80,19 @@ request. i.e. If the client connects to the tracker with an IPv4 source
 address, the tracker MAY ignore any <tt class="docutils literal">&amp;ipv4=</tt> address and if the client
 connects to the tracker with an IPv6 source address, the tracker MAY ignore
 any <tt class="docutils literal">&amp;ipv6=</tt> parameter.</p>
+</div>
+<div class="section" id="tracker-hostname-resolution">
+<h1>Tracker Hostname Resolution</h1>
+<p>When host component of a tracker url resolves to multiple IP addresses
+then a client MAY announce to multiple addresses, one for each address family.
+When doing so the client SHOULD include an additional <tt class="docutils literal">key</tt> parameter in its requests.
+The key should remain the same for a particular infohash during
+a torrent session. Together with the <tt class="docutils literal">peer_id</tt> this allows trackers
+to uniquely identify clients for the purpose of statistics-keeping when they
+announce from multiple IPs .
+The key should be generated so it has at least 32bits worth of entropy.</p>
+<p>When announcing to multiple address families all request parameters
+should be kept the same.</p>
 </div>
 <div class="section" id="announce-response">
 <h1>Announce Response</h1>

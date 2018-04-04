@@ -3,8 +3,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.13.1: http://docutils.sourceforge.net/" />
-<title></title>
+<meta name="generator" content="Docutils 0.14: http://docutils.sourceforge.net/" />
+<title>bep_0005.rst_post</title>
 <meta name="author" content="Andrew Loewenstern &lt;drue&#64;bittorrent.com&gt;, Arvid Norberg &lt;arvid&#64;bittorrent.com&gt;" />
 <link rel="stylesheet" href="../css/bep.css" type="text/css" />
 </head>
@@ -38,8 +38,8 @@
 <tr class="title field"><th class="docinfo-name">Title:</th><td class="field-body">DHT Protocol</td>
 </tr>
 <tr><th class="docinfo-name">Version:</th>
-<td>369b2bc90d29397f18f6a51ce517f65780cc0b13</td></tr>
-<tr class="last-modified field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Mon May 1 15:42:08 2017 -0700</td>
+<td>d7976ebbd42e46e3a14a5b7fa50b1cc89a7c568d</td></tr>
+<tr class="last-modified field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Sat Sep 16 21:41:39 2017 -0600</td>
 </tr>
 <tr><th class="docinfo-name">Author:</th>
 <td>Andrew Loewenstern &lt;<a class="reference external" href="mailto:drue&#37;&#52;&#48;bittorrent&#46;com">drue<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;, Arvid Norberg &lt;<a class="reference external" href="mailto:arvid&#37;&#52;&#48;bittorrent&#46;com">arvid<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;</td></tr>
@@ -398,8 +398,7 @@ response: {&quot;id&quot; : &quot;&lt;queried nodes id&gt;&quot;}
 <p>Example Packets:</p>
 <pre class="literal-block">
 announce_peers Query = {&quot;t&quot;:&quot;aa&quot;, &quot;y&quot;:&quot;q&quot;, &quot;q&quot;:&quot;announce_peer&quot;, &quot;a&quot;: {&quot;id&quot;:&quot;abcdefghij0123456789&quot;, &quot;implied_port&quot;: 1, &quot;info_hash&quot;:&quot;mnopqrstuvwxyz123456&quot;, &quot;port&quot;: 6881, &quot;token&quot;: &quot;aoeusnth&quot;}}
-bencoded = d1:ad2:id20:abcdefghij01234567899:info_hash20:&lt;br /&gt;
-mnopqrstuvwxyz1234564:porti6881e5:token8:aoeusnthe1:q13:announce_peer1:t2:aa1:y1:qe
+bencoded = d1:ad2:id20:abcdefghij012345678912:implied_porti1e9:info_hash20:mnopqrstuvwxyz1234564:porti6881e5:token8:aoeusnthe1:q13:announce_peer1:t2:aa1:y1:qe
 </pre>
 <pre class="literal-block">
 Response = {&quot;t&quot;:&quot;aa&quot;, &quot;y&quot;:&quot;r&quot;, &quot;r&quot;: {&quot;id&quot;:&quot;mnopqrstuvwxyz123456&quot;}}

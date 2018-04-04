@@ -1,0 +1,357 @@
+:BEP: 54
+:Title: Encrypted Torrent Payload
+:Version: $Revision$
+:Last-Modified: $Date$
+:Author:  The 8472 <the8472.bep@infinite-source.de>
+:Status:  Draft
+:Type:  Standards Track
+:Content-Type: text/x-rst
+:Created: 04-Oct-2015
+:Post-History: 
+
+
+Abstract
+========
+
+This BEP specifies a way to apply symmetric encryption to torrent payload at the storage layer and additionally encrypt some metadata with the following goals:
+
+* confidentiality
+* limited privacy
+
+and non-goals:
+
+* forward-secrecy
+* anonymity
+* signature-based authentication, already covered by BEP 35 [#BEP-35]_
+* authentication of peer connections
+
+
+.. contents::
+  
+
+
+Rationale
+=========
+
+In general BitTorrent swarms are an open system well-suited for mass-distribution of data to the public.
+
+Some use-cases require that the data is only distributed to a closed, trusted group of peers.
+In other cases the content may be meant for open distribution within a community without intent of announcing the content to the whole world. This is analogous to web content that is open to human visitors but requests via robots.txt that it should not be announced to the world by web crawlers.
+
+
+While the private flag [#BEP-27]_ may be sufficient in a controlled environment to prevent information about the torrent (e.g. its infohash) from escaping and thus preventing others from connecting to the swarm this is a very brittle form of security which also prevents the use of public infrastructure such as open trackers, PEX or the DHT.
+Similarly Message Stream Encryption provides limited protection from passive eavesdroppers on the network layer but does not prevent the infohash from escaping.
+
+
+Instead of attempting to restrict access to the swarm or metadata this BEP proposes to make all data opaque to 3rd parties by encrypting it with a shared secret that is not available through any torrent-related protocol, i.e. must be obtained separately by the user.
+
+In principle the same properties can be provided by simply storing the data in an encrypted archive and using a nondescript filename, but that requires users to store the data twice or to use additional filesystem layers to transparently access the data, which is even more cumbersome when encryption is involved. It also prevents bittorrent clients from reusing already-downloaded files in a multi-file torrent.
+
+Encryption
+==========
+
+Building blocks used in version 1:
+
+H: SHA2-256 [#rfc6234]_,
+E: XChaCha20 [#xchacha]_, 
+M: HMAC using H [#rfc2104]_,
+scrypt [#rfc7914]_,
+``||`` the concat operator   
+
+
+An encrypted torrent is created as follows:
+
+
+1. create a BEP 52 [#BEP-52]_ (non-hybrid) torrent representing the plaintext
+2. let ``infohash_plain`` be the infohash of the plaintext torrent calculated according to the hashing method appropriate for its ``meta version``
+3. generate a random 32byte salt
+4. ``SIV = H(infohash_plain || salt)``
+5. create a single file ``plaintext_padded`` by zero-padding all non-empty files in the plaintext torrent to a full piece size and then concatenating them in the order specified by the ``file tree``
+6. let ``root_key`` be an arbitrary byte sequence that will be used as base secret to derive additional secrets
+7. .. parsed-literal::
+
+       payload_key = scrypt(N: 2\ :sup:`14`\  , r: 8, p: 1, password: root_key, salt: (SIV || "payload key"))
+       
+8. ``payload_nonce = H(infohash_plain || salt || "payload")[0..24]``
+9. ``payload_encrypted = E(payload_nonce, payload_key, plaintext_padded)``
+10. choose a filename for the ciphertext file and a public name for the encrypted torrent 
+11. create a BEP 52 (optionally hybrid) torrent for ``payload_encrypted``.
+    its ``meta version`` must match that of the plaintext torrent.
+12. ``shadow_nonce = H(SIV || "shadow")[0..24]``
+13. ``shadow_key = H(payload_key || "shadow")``
+14. ``shadow = E(shadow_nonce, shadow_key, salt || bencode(plaintext_torrent["info"]) || padding)`` where padding is a sequence of zero or more random bytes chosen so that the length of ``shadow`` is a power of two.
+15. add the following key value pair to the info dictionary of the encrypted torrent:
+    
+    ``"encrypted": {"siv": SIV, "shadow": shadow, "v": 1}``
+    
+16. ``mac = M(key: shadow_key, message: bencode(encrypted_torrent["info"]["file tree"]) || bencode(encrypted_torrent["info"]["encrypted"]))``
+17. add the following key value pair to the info dictionary of the encrypted torrent: ``"enc mac": mac``
+
+This construction
+
+* obscures the exact size of the plaintext by rounding to the nearest piece size
+* obscures the size of the plaintext metadata by adding padding
+* uses nonces that are derived from content, making them difficult to misuse
+* does not reveal any hashes of the plaintext that could be crosschecked by outside observers without knowledge of the keys
+* allows clients unaware of this BEP to still share the data and decrypt it through external tools
+* maintains a 1:1 mapping between ciphertext and plaintext offsets in the piece address space, which makes it trivial to apply the encryption at the I/O layer
+
+
+The info dictionary of the encrypted torrent will contain the following additional keys
+
+.. parsed-literal::
+
+    {
+      info: {
+        enc mac: *<32bytes of hmac output (string)>*,
+        encrypted: {
+          siv: *<32byte IV used for shadow nonce and payload key derivation (string)>*,
+          shadow: *<encrypted[salt + bencoded plaintext info dictionary + padding] (string)>*,
+          v: *<version (integer)>*,
+        },
+        ...
+      },
+    }
+
+
+``v``
+  The version used to encrypt the torrent, currently *1*. New versions may be introduced by updates to this BEP if cryptographic weaknesses necessitate incompatible changes.
+  Implementations should check if they support the version indicated in the metadata file and otherwise inform the user that they can download the data but not decrypt it.
+
+
+Key reuse and hierarchy
+-----------------------
+
+The SIV in the payload key derivation allows the root key to be reused across several torrents while still generating distinct payload keys for each. But UI design SHOULD encourage random key generation for each new torrent and require explicit user action for key reuse.
+
+An implementation may provide the option to attempt to decrypt a torrent with the same key as another torrent in case a key is only communicated once and individual torrents are later distributed without explicitly providing keys.
+
+In some circumstances it may make sense to reveal a particular key lower in the hierarchy without revealing an upper key. For example a user may upload a torrent to an indexing site and provide the shadow key so it can extract keywords for fulltext search.
+
+Or a user may want to share a particular torrent without revealing the root key used to protect multiple other torrents, in that case revealing the payload key for that torrent will be sufficient.
+
+
+Decryption
+==========
+
+1. obtain a shadow, payload or root key
+2. extract ``SIV`` and ``mac``
+3. verify that ``shadow`` length is a power of two
+4. test available key against ``mac`` to determine whether it is a shadow key. If the check fails assume it is a payload key and derive the shadow key and test again. If necessary repeat again assuming it is a root key
+5. derive shadow nonce, decrypt the shadow value
+6. extract salt from decrypted shadow value
+7. extract the plaintext info dictionary in the decrypted shadow value between the salt and the padding, this requires a bdecoder that can ignore additional bytes after the root value
+8. validate that ``meta version`` matches and that the ciphertext is at least as long as the padded plaintext length
+9. calculate ``infohash_plain``
+10. verify ``SIV`` 
+11. derive ``payload_nonce`` from ``infohash_plain`` and ``salt``
+12. if ``payload_key`` is available decrypt ``plaintext_padded``
+13. split ``plaintext_padded`` according to file layout information in the plaintext info dictionary
+14. verify plaintext files based on plaintext ``pieces root`` hashes 
+
+
+Shadow Dictionary
+-----------------
+
+If a client has access to at least a shadow key it may want to check consistency, such as the length and number of pieces, between the encrypted representation and the plaintext metadata in the shadow dictionary.
+It may also want to display the metadata of the plaintext to the user instead of the encrypted representation.
+Since the shadow dictionary also contains merkle roots for each file correct decryption can also be verified at the file granularity level.
+Transfer of plaintext merkle layers is not supported, but clients can still use deduplication if they other files with identical plaintext. Note that deduplication may leak information.
+
+Implementations may be tempted to optimize requests based on shadow dictionary information, e.g. skipping parts that are padding in the plaintext or prioritize downloading of specific files, especially when there is significant padding overhead.
+But such optimizations reveal knowledge of the plain text layout to some participants in the swarm and thus pose a performance-security tradeoff.
+
+Note that the shadow dictionary can be turned into a full-fledged torrent and implementations may do so to reuse existing machinery to process them. But this could leak information if the client were for example to perform DHT lookups for the plaintext torrent.
+So as a precaution they may want to treat it *as if* it were a private torrent until the need to actually connect the plaintext torrent to the network arises.
+
+
+Key sharing
+===========
+
+Implementations SHOULD provide a way to view and input the different keys for a torrent so users can share them in unstructured ways. To allow for both arbitrary binary data - which is necessary for intermediate keys - and human-readable passphrases two encodings are necessary:
+
+a) url-safe base64 encoding
+b) a valid unicode string where the utf8-representation is used as root key 
+
+
+Encouraging users to share keys without bundling them with torrents or magnets in a structured way allows them to exchange them over separate channels and also makes it slightly more difficult to crawl the internet for unintentionally disclosed keys.
+
+Web services that request that users reveal keys for a specific use-case (e.g. metadata extraction) can ask for the key in a separate input field in their forms / APIs.
+They SHOULD NOT store or in turn reveal the keys to visitors if that is not essential for their use-case.
+
+Keys MUST NOT be included in .torrent files in any form. Too much infrastructure for crawling and automatic mass-distribution of .torrent files exists and to a user it would not be obvious whether a torrent contains keys or not, thus making accidental disclosure likely.
+
+Magnets
+-------
+
+While directly including the secrets in a magnet is **discouraged** - they should be conveyed separately - this proposal nevertheless specifies a format to ensure that keys can be transmitted unambiguously when it cannot be avoided.
+
+To include a key in magnet links the parameter ``&key=<key>`` can be added where the key is in the url-safe base64-encoded form, minus padding to avoid percent-escaping the ``=`` padding. 
+
+The importing client can determine which type of key it is based on the ``mac`` in the metadata.
+
+If the root key can be utf8-decoded to a valid unicode string it can also be passed as ``&pw=<password>``. Since user agents may process magnet URIs into Internationalized Resource Identifiers (IRIs) for increased readability clients should be prepared to handle IRI input.
+
+
+ 
+
+Key files
+---------
+
+To export keys to a file, e.g. for archival purposes or for bulk torrent migration between clients, the following bencoded format can be used:
+
+.. parsed-literal::
+
+    {
+      torrent-keys: [
+		{
+		  "key": *<binary key (string)>* 
+          "hints": [
+          	*<optional, torrent hint (string)>*,
+          	...          
+          ]
+        },
+        ...
+      ]
+    }
+
+Each dictionary in the ``torrent-keys`` list represents one key and optional implementation-defined fields associated with that key.
+
+*torrent hint*
+  An identifier calculated from a torrent's mac via ``SHA256(mac || ".torrent-keys")[0..8]``. This allows a torrent client to locate keys for a metadata file without having to attempt key-derivation. 
+
+
+``.torrent-keys`` should be used as file extension. By default filesystem permissions should be set appropriately to restrict access to key files to the current user.
+
+A key file can contain keys for multiple torrents. Only one key needs to be included per torrent, as the lower keys can be derived. Keys must be included in their binary form.
+
+
+
+Storage layer
+=============
+
+This BEP does not mandate how an implementation should store encrypted or decrypted data on disk.
+
+However, if a client wants to be more flexible than either ignoring this BEP (thus storing ciphertext on disk) or always requiring the keys before starting a torrent it will have to consider the following:
+
+* clients can be in 3 states regarding key knowledge: no keys, shadow key only, keys that can decrypt the payload; two encryption states: encrypted, decrypted
+* a user may start downloading a torrent before keys are available. this requires a way to input keys and to convert between encrypted and decrypted storage
+* for performance or security reasons a seeder may want to import plaintext data, encrypt it and then discard the keys to directly seed the encrypted data from disk.
+
+Since encrypted torrents may contain confidential / private data implementations may also want to set more restrictive file permissions when decrypting data to reduce exposure in multi-user environments.
+
+
+
+Security Properties
+===================
+
+The goal is to provide security equivalent to publicly distributing an encrypted archive where the file index is encrypted with a separate key that can be revealed without revealing the payload key.
+
+In particular that means:
+
+* swarms remain open, anyone can participate in a swarm, with or without access to the secrets
+* an observer without access to the secrets can not confirm that any published metadata does indeed match the torrent
+* correctness of the metadata cannot be confirmed without access to both secrets 
+* observing that someone participated in a swarm and uploaded data is no longer equivalent to knowing that they had access to the plaintext or knowledge of the metadata. 
+* the ciphertext is accessible to the public. this may be desirable to provide upload bandwidth without knowledge of the content, e.g. to allow untrusted servers to distribute confidential data to trusted clients, to enable hosting without the need to proactively moderate user content or to operate content-agnostic caches.
+
+
+Limitations:
+
+* there is no forward secrecy. should the secrets become available to an unauthorized party at some future point they will be able to decrypt ciphertext they have downloaded in the past and retroactively associate content with observed users
+* deniability is fairly weak, if someone learns the shared secrets or has knowledge how they are distributed they may also draw conclusions whether a particular participant in a swarm could have had access to it.
+
+
+UI concerns
+===========
+
+This section is advisory.
+
+Shared secrets are handled by many parties, therefore the system is as weak as the weakest human. Thus making intentional, correct handling of secrets simple and convenient while making unintentional disclosure hard is an important aspect of keeping the system secure.
+
+Information that a client may want to make visible:
+
+* encrypted/decrypted status of a torrent
+* which keys it knows (+ option to discard if storage is encrypted)
+
+Torrent creation
+----------------
+
+1. user selects whether he wants to use encryption at all
+2. if yes then offer to
+   
+   * generate a random key. user may instead opt to reuse a key from another torrent
+   * provide a meaningful public name distinct from the shadow name
+
+ 
+Key input
+---------
+
+* input choices: manual, magnet link, ``.torrent-keys`` file, reusing key from another torrent
+* immediate feedback whether keys match the mac and what kind of key was imported (root, payload, shadow)
+* option to decrypt data or leave it encrypted
+
+  * offer directory layout choices that would normally be offered when a torrent is imported 
+
+Magnet/Key export
+-----------------
+
+Provide option to
+
+* not include key [default]
+* include shadow key.
+* include payload key.
+* include root key. if the client knows that the key has been reused for other torrents it should indicate this to the user
+
+When a format including keys is chosen the secret part should be highlighted as such.
+
+
+Test Data
+=========
+
+TODO
+  
+Key, Password and Magnet representations
+----------------------------------------
+
+TODO
+
+
+References
+==========
+
+  
+.. [#BEP-27] BEP_0027. Private Torrents
+   (http://bittorrent.org/beps/bep_0027.html)
+
+.. [#BEP-35] BEP_0035. Torrent Signing
+   (http://bittorrent.org/beps/bep_0035.html)
+
+.. [#BEP-52] BEP_0052. The BitTorrent Protocol Specification v2
+   (http://bittorrent.org/beps/bep_0052.html)
+
+.. [#xchacha] XChaCha20 in libsodium
+   (https://download.libsodium.org/doc/advanced/xchacha20.html)
+   
+.. [#rfc6234] RFC 6234. http://www.ietf.org/rfc/rfc2119.txt
+
+.. [#rfc2104] RFC 2104. http://www.ietf.org/rfc/rfc2104.txt
+
+.. [#rfc7914] RFC 7914. http://www.ietf.org/rfc/rfc7914.txt
+
+Copyright
+=========
+
+This document has been placed in the public domain.
+
+
+
+..
+   Local Variables:
+   mode: indented-text
+   indent-tabs-mode: nil
+   sentence-end-double-space: t
+   fill-column: 70
+   coding: utf-8
+   End:
+

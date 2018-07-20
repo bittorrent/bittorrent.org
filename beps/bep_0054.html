@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.14: http://docutils.sourceforge.net/" />
+<title>bep_0054.rst_post</title>
+<meta name="author" content="Juliusz Chroboczek &lt;jch&#64;irif.fr&gt;" />
+<link rel="stylesheet" href="../css/bep.css" type="text/css" />
+</head>
+<body>
+<div class="document">
+
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="../index.html">BitTorrent<span>.org</span></a></h1>
+</div>
+<div id="nav">
+<ul>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../introduction.html">For Users</a></li>
+<li><a href="bep_0000.html"><span>For Developers</span></a></li>
+<li><a href="../mailing_list.html">Developer mailing list</a> </li>
+<li><a href="http://forum.bittorrent.org"> Forums (archive) </a></li>
+</ul>
+</div> <!-- nav -->
+<!-- ### Begin Content ### -->
+<div id="second">
+
+
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
+<tbody valign="top">
+<tr class="bep field"><th class="docinfo-name">BEP:</th><td class="field-body">54</td>
+</tr>
+<tr class="title field"><th class="docinfo-name">Title:</th><td class="field-body">The lt_donthave extension</td>
+</tr>
+<tr><th class="docinfo-name">Version:</th>
+<td>25984a17c93db859a8ba3a604ba97ea7d4ddb8a8</td></tr>
+<tr class="last-modified field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Wed Jul 18 18:30:49 2018 +0200</td>
+</tr>
+<tr><th class="docinfo-name">Author:</th>
+<td>Juliusz Chroboczek &lt;<a class="reference external" href="mailto:jch&#37;&#52;&#48;irif&#46;fr">jch<span>&#64;</span>irif<span>&#46;</span>fr</a>&gt;</td></tr>
+<tr><th class="docinfo-name">Status:</th>
+<td>Draft</td></tr>
+<tr class="type field"><th class="docinfo-name">Type:</th><td class="field-body">Standards Track</td>
+</tr>
+<tr class="requires field"><th class="docinfo-name">Requires:</th><td class="field-body">10</td>
+</tr>
+<tr class="content-type field"><th class="docinfo-name">Content-Type:</th><td class="field-body">text/x-rst</td>
+</tr>
+<tr class="created field"><th class="docinfo-name">Created:</th><td class="field-body">19-Jul-2018</td>
+</tr>
+<tr class="post-history field"><th class="docinfo-name">Post-History:</th><td class="field-body">19-Jul-2018: initial version.</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="abstract">
+<h1>Abstract</h1>
+<p>This document describes the <em>lt_donthave</em> extension which allows a peer to
+advertise that it no longer has a piece, and thus to renege on a previous
+<em>Have</em> or <em>Bitfield</em> message.</p>
+</div>
+<div class="section" id="introduction">
+<h1>Introduction</h1>
+<p>The BitTorrent protocol relies on nodes having knowledge of the pieces
+available at their peers; such knowledge is advertised using the
+<em>BitField</em> and <em>Have</em> messages of the core protocol.  However, the
+protocol has no way to advertise that a piece is no longer available: if
+a node drops a piece that it has previously advertised, for example due to
+a resource shortage or to expiry of a LRU cache, then the only way to
+cause its peers to resynchronise with the new state is to close peer
+connections.</p>
+<p>This document describes a simple extension that allows a node to announce
+that a previously advertised piece is no longer available.  Implementation
+of the receiver side of this extension is recommended; implementation of
+the sender side is only useful for implementations that routinely discard
+pieces of active torrents.</p>
+</div>
+<div class="section" id="protocol-encoding">
+<h1>Protocol encoding</h1>
+<p>The availability of this extension is negotiated during the extended
+handshake of the Extension Protocol <a class="footnote-reference" href="#bep-10" id="id1">[2]</a>.  The name of the extension
+is <em>lt_donthave</em>.  The extension is negotiated independently in both
+directions: a peer may send a <em>DontHave</em> message even if it hasn't itself
+advertised support for the <em>lt_donthave</em> extension, and a peer that has
+advertised support for the <em>lt_donthave</em> extension must be able to receive
+<em>DontHave</em> messages from a peer that hasn't advertised support.</p>
+<p>The extension consists of a single message:</p>
+<pre class="literal-block">
+DontHave: &lt;len=0x0006&gt;&lt;op=20&gt;&lt;subop=xx&gt;&lt;index&gt;
+</pre>
+<p><em>Op</em> is 20, indicating an extended message.  <em>Subop</em> is the suboperation
+number, as advertised by the peer during the extended handshake.  <em>Index</em>
+is the four-byte index of the piece that is no longer available at the
+sender.</p>
+</div>
+<div class="section" id="protocol-operation">
+<h1>Protocol operation</h1>
+<p>The protocol operation is slightly different depending on whether the
+<em>Fast</em> extension <a class="footnote-reference" href="#bep-6" id="id2">[1]</a> has been successfully negotiated with a given
+peer or not.  Use of the <em>Fast</em> extension is recommended.</p>
+<div class="section" id="sender-operation">
+<h2>Sender operation</h2>
+<p>When the local node discards a piece with index <em>n</em>, it sends a <em>DontHave</em>
+message for that piece to every peer that has advertised support for the
+<em>lt_donthave</em> extension and to which it has previously advertised the piece
+(using either a <em>BitField</em> or a <em>Have</em> message).</p>
+<p>If the <em>Fast</em> extension has not been negotiated with the peer, then any
+outstanding requests for a chunk of the piece that has been discarded are
+silently dropped, and any further requests for chunks of that piece are
+silently dropped.  If the <em>Fast</em> extension has been negotiated, then any
+outstanding requests for a chunk of the discarded piece are rejected using
+a <em>Reject Request</em> message, and any further requests for chunks of that
+piece are rejected using a <em>Reject Request</em> message.</p>
+</div>
+<div class="section" id="receiver-operation">
+<h2>Receiver operation</h2>
+<p>When the local node receives a <em>DontHave</em> message with index <em>n</em>, it marks
+the piece as unavailable at the sending peer.</p>
+<p>If the <em>Fast</em> extension has not been negotiated with the sending peer,
+then any outstanding requests for chunks of the discarded piece are
+silently cancelled, just like when receiving a <em>Choke</em> message.  If the
+<em>Fast</em> extension has been negotiated, no requests are silently
+cancelled: the peer will explicitly reject any such requests, as usual.</p>
+</div>
+</div>
+<div class="section" id="acknowledgements">
+<h1>Acknowledgements</h1>
+<p>The protocol described in this document was designed by Arvid Norberg.</p>
+</div>
+<div class="section" id="references">
+<h1>References</h1>
+<table class="docutils footnote" frame="void" id="bep-6" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[1]</a></td><td>BEP_0006.  Fast Extension.
+(<a class="reference external" href="http://www.bittorrent.org/beps/bep_0006.html">http://www.bittorrent.org/beps/bep_0006.html</a>)</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="bep-10" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[2]</a></td><td>BEP_0010.  Extension Protocol.
+(<a class="reference external" href="http://www.bittorrent.org/beps/bep_0010.html">http://www.bittorrent.org/beps/bep_0010.html</a>)</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="copyright">
+<h1>Copyright</h1>
+<p>This document is in the public domain.</p>
+</div>
+
+</div>
+	<div id="footer">
+<hr/>
+</div>
+
+</div>
+</body>
+</html>

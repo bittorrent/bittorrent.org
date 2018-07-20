@@ -3,8 +3,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.13.1: http://docutils.sourceforge.net/" />
-<title></title>
+<meta name="generator" content="Docutils 0.14: http://docutils.sourceforge.net/" />
+<title>bep_0011.rst_post</title>
 <meta name="author" content="The 8472 &lt;the8472.bep&#64;infinite-source.de&gt;" />
 <link rel="stylesheet" href="../css/bep.css" type="text/css" />
 </head>
@@ -38,8 +38,8 @@
 <tr class="title field"><th class="docinfo-name">Title:</th><td class="field-body">Peer Exchange (PEX)</td>
 </tr>
 <tr><th class="docinfo-name">Version:</th>
-<td>023256c7581a4bed356e47caf8632be2834211bd</td></tr>
-<tr class="last-modified field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Thu Jan 12 12:29:12 2017 -0800</td>
+<td>7ad40d1b62068015b7b846e7d248f3770d0e9b6a</td></tr>
+<tr class="last-modified field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Tue Sep 26 11:16:44 2017 +0200</td>
 </tr>
 <tr><th class="docinfo-name">Author:</th>
 <td>The 8472 &lt;<a class="reference external" href="mailto:the8472&#46;bep&#37;&#52;&#48;infinite-source&#46;de">the8472<span>&#46;</span>bep<span>&#64;</span>infinite-source<span>&#46;</span>de</a>&gt;</td></tr>
@@ -51,7 +51,7 @@
 </tr>
 <tr class="depends field"><th class="docinfo-name">Depends:</th><td class="field-body">10</td>
 </tr>
-<tr class="post-history field"><th class="docinfo-name">Post-History:</th><td class="field-body"></td>
+<tr class="post-history field"><th class="docinfo-name">Post-History:</th><td class="field-body">22-Sep-2017 (<a class="reference external" href="mailto:the8472&#46;bep&#37;&#52;&#48;infinite-source&#46;de">the8472<span>&#46;</span>bep<span>&#64;</span>infinite-source<span>&#46;</span>de</a>), add section on handling swarm configurations that lead to underpopulated pex lists</td>
 </tr>
 </tbody>
 </table>
@@ -131,19 +131,46 @@ Once a peer has been <tt class="docutils literal">added</tt> a client must ensur
 <p>Messages must contain at least one of the following fields: <tt class="docutils literal">added, added6, dropped, dropped6</tt>.</p>
 <p>Clients may disconnect peers that egregiously violate these constraints.</p>
 </div>
+<div class="section" id="filling-underpopulated-lists">
+<h1>Filling underpopulated lists</h1>
+<p>A combination of the</p>
+<ul class="simple">
+<li>above liveness requirements</li>
+<li>disconnecting seeds or partial seeds <a class="footnote-reference" href="#bep-21" id="id3">[3]</a> while seeding</li>
+<li>disconnecting duplicate peers based on peer IDs between ipv4 and ipv6</li>
+</ul>
+<p>can lead to underpopulated <tt class="docutils literal">added</tt> or <tt class="docutils literal">added6</tt> lists. This problem frequently arises in swarms dominated by seeds where the seeds have no live connections to propagate and the peers
+only have seeds they can propagate to other seeds, dramatically reducing PEX's effectiveness.
+Similarly this can make it difficult to obtain ipv6 peers in an ipv4 dominated swarm because ipv6 connections will be considered duplicates of already-established v4 ones, thus preventing their propagation via PEX.</p>
+<p>To remedy these issues the liveness requirement is relaxed if a client is connected to less than 25 clients for a particular address family.
+In that situation it may keep a list of up to 25 most recently established and <em>fully handshaken</em> connections for that address family and record the disconnect reason for those connections.
+The following reasons for locally initiated disconnects qualify a remote contact for inclusion in the in the <tt class="docutils literal">added</tt> or <tt class="docutils literal">added6</tt> lists:</p>
+<ul class="simple">
+<li>the same peer ID was already connected under a different address family</li>
+<li>permanent lack of mutual interest, e.g. inferred from (partial) seed status and piece availability</li>
+<li>local resource limits such as a global connection counts were exceeded</li>
+</ul>
+<p>When including such a recently disconnected contact in a pex message it must be drained from the recently seen list so it will not be sent again in the next message.
+When the list gets repopulated through transient connect-disconnect events those may be included in the next message if all necessary conditions are fulfilled.
+In other words in addition to populating the initial pex message from the recently seen list a client may effectively also skip some of the connect-disconnect elisions.</p>
+<p>But since recently seen contacts do not represent live connections they must be dropped with the next PEX message.</p>
+<p>The restriction that the same address must not be added and dropped within the same message must still be maintained.</p>
+<p>The requirement of less than 25 live connections and limit of 25 recently seen ones is chosen so that at most two pex messages worth of droppable contacts can accumulate and that no stale information is sent when there are enough live contacts to populate pex messages.</p>
+<p>Note that this exemption can be applied separately for IPv4 and IPv6. I.e. even if there are enough v4 live contacts a client may still include recently seen v6 contacts or vice versa if the respective lists would be underpopulated.</p>
+</div>
 <div class="section" id="security-considerations">
 <h1>Security Considerations</h1>
 <p>Data exchanged via PEX messages should be considered untrusted and potentially malicious.</p>
 <p>An attacker might try to sabotage a swarm by flooding it with bogus or other uncooperative peers.</p>
 <p>PEX may also be used to cause a distributed denial of service attack by inducing bittorrent clients to perform connection attempts to victim IP ranges.</p>
-<p>To mitigate these a client should avoid taking all its connection candidates from a single PEX source. Duplicate IP addresses (e.g. with different ports) should be ignored. Additionally Canonical Peer Priority <a class="footnote-reference" href="#bep-40" id="id3">[1]</a> can help spreading connection attempts over many subnets, thus reducing the impact on any potential victim subnet.</p>
+<p>To mitigate these a client should avoid taking all its connection candidates from a single PEX source. Duplicate IP addresses (e.g. with different ports) should be ignored. Additionally Canonical Peer Priority <a class="footnote-reference" href="#bep-40" id="id4">[1]</a> can help spreading connection attempts over many subnets, thus reducing the impact on any potential victim subnet.</p>
 </div>
 <div class="section" id="references">
 <h1>References</h1>
 <table class="docutils footnote" frame="void" id="bep-40" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label">[1]</td><td><em>(<a class="fn-backref" href="#id1">1</a>, <a class="fn-backref" href="#id3">2</a>)</em> <p>BEP 40, &quot;Canonical Peer Priority&quot;</p>
+<tr><td class="label">[1]</td><td><em>(<a class="fn-backref" href="#id1">1</a>, <a class="fn-backref" href="#id4">2</a>)</em> <p>BEP 40, &quot;Canonical Peer Priority&quot;</p>
 <p class="last"><a class="reference external" href="http://bittorrent.org/beps/bep_0040.html">http://bittorrent.org/beps/bep_0040.html</a></p>
 </td></tr>
 </tbody>
@@ -153,6 +180,14 @@ Once a peer has been <tt class="docutils literal">added</tt> a client must ensur
 <tbody valign="top">
 <tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td><p class="first">BEP 10, &quot;Extension Protocol&quot;</p>
 <p class="last"><a class="reference external" href="http://bittorrent.org/beps/bep_0010.html">http://bittorrent.org/beps/bep_0010.html</a></p>
+</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="bep-21" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[3]</a></td><td><p class="first">BEP 21, &quot;Extension for partial seeds&quot;</p>
+<p class="last"><a class="reference external" href="http://bittorrent.org/beps/bep_0021.html">http://bittorrent.org/beps/bep_0021.html</a></p>
 </td></tr>
 </tbody>
 </table>

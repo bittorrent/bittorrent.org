@@ -1,0 +1,113 @@
+:BEP: 54
+:Title: The lt_donthave extension
+:Version: $Revision$
+:Last-Modified: $Date$
+:Author:  Juliusz Chroboczek <jch@irif.fr>
+:Status:  Draft
+:Type:    Standards Track
+:Requires: 10
+:Content-Type: text/x-rst
+:Created: 19-Jul-2018
+:Post-History: 19-Jul-2018: initial version.
+
+
+Abstract
+========
+
+This document describes the *lt_donthave* extension which allows a peer to
+advertise that it no longer has a piece, and thus to renege on a previous
+*Have* or *Bitfield* message.
+
+Introduction
+============
+
+The BitTorrent protocol relies on nodes having knowledge of the pieces
+available at their peers; such knowledge is advertised using the
+*BitField* and *Have* messages of the core protocol.  However, the
+protocol has no way to advertise that a piece is no longer available: if
+a node drops a piece that it has previously advertised, for example due to
+a resource shortage or to expiry of a LRU cache, then the only way to
+cause its peers to resynchronise with the new state is to close peer
+connections.
+
+This document describes a simple extension that allows a node to announce
+that a previously advertised piece is no longer available.  Implementation
+of the receiver side of this extension is recommended; implementation of
+the sender side is only useful for implementations that routinely discard
+pieces of active torrents.
+
+Protocol encoding
+=================
+
+The availability of this extension is negotiated during the extended
+handshake of the Extension Protocol [#BEP-10]_.  The name of the extension
+is *lt_donthave*.  The extension is negotiated independently in both
+directions: a peer may send a *DontHave* message even if it hasn't itself
+advertised support for the *lt_donthave* extension, and a peer that has
+advertised support for the *lt_donthave* extension must be able to receive
+*DontHave* messages from a peer that hasn't advertised support.
+
+The extension consists of a single message:
+
+::
+
+  DontHave: <len=0x0006><op=20><subop=xx><index>
+
+*Op* is 20, indicating an extended message.  *Subop* is the suboperation
+number, as advertised by the peer during the extended handshake.  *Index*
+is the four-byte index of the piece that is no longer available at the
+sender.
+
+Protocol operation
+==================
+
+The protocol operation is slightly different depending on whether the
+*Fast* extension [#BEP-6]_ has been successfully negotiated with a given
+peer or not.  Use of the *Fast* extension is recommended.
+
+Sender operation
+----------------
+
+When the local node discards a piece with index *n*, it sends a *DontHave*
+message for that piece to every peer that has advertised support for the
+*lt_donthave* extension and to which it has previously advertised the piece
+(using either a *BitField* or a *Have* message).
+
+If the *Fast* extension has not been negotiated with the peer, then any
+outstanding requests for a chunk of the piece that has been discarded are
+silently dropped, and any further requests for chunks of that piece are
+silently dropped.  If the *Fast* extension has been negotiated, then any
+outstanding requests for a chunk of the discarded piece are rejected using
+a *Reject Request* message, and any further requests for chunks of that
+piece are rejected using a *Reject Request* message.
+
+Receiver operation
+------------------
+
+When the local node receives a *DontHave* message with index *n*, it marks
+the piece as unavailable at the sending peer.
+
+If the *Fast* extension has not been negotiated with the sending peer,
+then any outstanding requests for chunks of the discarded piece are
+silently cancelled, just like when receiving a *Choke* message.  If the
+*Fast* extension has been negotiated, no requests are silently
+cancelled: the peer will explicitly reject any such requests, as usual.
+
+Acknowledgements
+================
+
+The protocol described in this document was designed by Arvid Norberg.
+
+References
+==========
+
+.. [#BEP-6] BEP_0006.  Fast Extension.
+   (http://www.bittorrent.org/beps/bep_0006.html)
+
+.. [#BEP-10] BEP_0010.  Extension Protocol.
+   (http://www.bittorrent.org/beps/bep_0010.html)
+
+Copyright
+=========
+
+This document is in the public domain.

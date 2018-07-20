@@ -98,6 +98,7 @@ Num        Title
 |51|       :raw-html:`<A HREF="bep_0051.html">DHT Infohash Indexing</A>`
 |52|       :raw-html:`<A HREF="bep_0052.html">The BitTorrent Protocol Specification v2</A>`
 |53|       :raw-html:`<A HREF="bep_0053.html">Magnet URI extension - Select specific file indices for download</A>`
+|54|       :raw-html:`<A HREF="bep_0054.html">The lt_donthave extension</A>`
 ======     ===================
 
 
@@ -182,4 +183,5 @@ At this time, no BEPs have been rejected.
 .. |51| replace:: :raw-html:`<A HREF="bep_0051.html">51</A>`
 .. |52| replace:: :raw-html:`<A HREF="bep_0052.html">52</A>`
 .. |53| replace:: :raw-html:`<A HREF="bep_0053.html">53</A>`
+.. |54| replace:: :raw-html:`<A HREF="bep_0054.html">54</A>`
 .. |1000| replace:: :raw-html:`<A HREF="bep_1000.html">1000</A>`

@@ -6,12 +6,19 @@
 :Status:  Draft
 :Type:    Standards Track
 :Created: 8-May-2008
-:Post-History: 19-Jul-2018: document the protocol actually implemented (jch)
+:Post-History: 13-Nov-2018: document the protocol actually implemented (jch)
 
-This document describes an extension which allows a node to announce that
-it is a *partial seed*, i.e. that it doesn't have the full data of
-a torrent but isn't downloading anything more.  Partial seeds are common
-in multi-file torrents when users download only some of the files.
+This document describes an extension which allows a peer to announce
+that it is a *partial seed*, i.e. that while it doesn't have the full
+data of a torrent it isn't downloading anything more.  Partial seeds
+are common in multi-file torrents when users download only some of the
+files.
+
+The information about which peers are partial seeds can be used by
+a (partial) seed to disconnect other partial seeds in order to accept
+further connections from leechers.  It is also propagated over the
+Peer Exchange protocol [#BEP-10]_ in order to assist other peers in
+deciding which peers to connect to.
 
 Protocol operation
 ==================
@@ -54,35 +61,37 @@ a partial seed, or 1, indicating that the sender is a partial seed.
 Receiver operation
 ------------------
 
-A node implementing this extension maintains, for each peer, a flag
-indicating whether the peer is a partial seed.  Initially, the flag is set
-to false, except if the toplevel dictionary of the extended handshake
-contained an entry called *upload_only* with value 1, in which case the
-flag is set to true.
+An implemention of this extension maintains, for each open connection
+a flag indicating whether the remote peer is a partial seed.
+Initially, the flag is set to false, except if the toplevel dictionary
+of the extended handshake contained an entry called *upload_only* with
+value 1, in which case the flag is set to true.
 
-Whenever the node receives an *UploadOnly* extended message with value
-1 from a given peer, the node sets the flag to true; whenever it receives
-a message with value 0, it sets the flag to false.
+Whenever the local peer receives an *UploadOnly* extended message with
+value 1 from a remote peer, it sets the flag to true; whenever it
+receives a message with value 0, it sets the flag to false.
 
 Sender operation
 ----------------
 
-Upon connecting to a new peer, if the sending node is a partial peer, it
-includes an *upload_only* entry in the toplevel dictionary of the extended
-handshake with value 1.  After the handshake has completed, and after the
-initial bitmap has been sent, if the sending node is a partial seed and
-the peer announced support for the *upload_only* extension, the node sends
-an *UploadOnly* message with value 1.
+Upon establishing a new connection, if the local peer is a partial
+seed, it includes an *upload_only* entry in the toplevel dictionary of
+the extended handshake with value 1.  After the handshake has
+completed, and after the initial bitmap has been sent, if the local
+peer is a partial seed and the remote peer announced support for the
+*upload_only* extension, the local peer sends an *UploadOnly* message
+with value 1.
 
-When a node that was not previously a partial peer becomes a partial peer
-(e.g. because it has finished downloading all the files requested by the
-user), it sends an *UploadOnly* message with value 1 to all of its peers
-that have announced support for the *upload_only* extension.
+When a peer that was not previously a partial seed becomes a partial
+seed (e.g. because it has finished downloading all of the files
+requested by the user), it sends an *UploadOnly* message with value
+1 to all of its peers that have announced support for the
+*upload_only* extension.
 
-When a node that was previously a partial peer stops being a partial peer
-(e.g. because the user has requested downloading additional files), it
-sends an *UploadOnly* message with value 0 to all of its peers that have
-announced support for the *upload_only* extension.
+When a peer that was previously a partial seed stops being a partial
+seed (e.g. because the user has requested the download of additional
+files), it sends an *UploadOnly* message with value 0 to all of its
+peers that have announced support for the *upload_only* extension.
 
 Tracker protocol
 ================
@@ -121,9 +130,9 @@ the clients are announcing that they are partial seeds.
 References
 ==========
 
-.. [#BEP-10] `BEP 0010`: Extension Protocol.
-   http://www.bittorrent.org/beps/bep_0010.html
+.. [#BEP-10] `BEP 0010`: Extension Protocol.  http://www.bittorrent.org/beps/bep_0010.html
 
+.. [#BEP-11] `BEP 0011`: Peer Exchange (PEX).  http://www.bittorrent.org/beps/bep_0011.html
 
 Copyright
 =========

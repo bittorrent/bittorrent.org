@@ -3,7 +3,7 @@
 :Version: $Revision$
 :Last-Modified: $Date$
 :Author:  Mihael Peklar <mihael1peklar@gmail.com>
-:Status:  Draft
+:Status:  Accepted
 :Type:    Standards Track
 :Requires: 10,29
 :Content-Type: text/x-rst

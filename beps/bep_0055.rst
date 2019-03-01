@@ -1,0 +1,114 @@
+:BEP: 55
+:Title: Holepunch extension
+:Version: $Revision$
+:Last-Modified: $Date$
+:Author:  Mihael Peklar <mihael1peklar@gmail.com>
+:Status:  Accepted
+:Type:    Standards Track
+:Requires: 10,29
+:Content-Type: text/x-rst
+:Created: 29-Dec-2018
+:Post-History: 25-Feb-2019: initial version
+
+
+The holepunch extension provides a way to connect to peers that cannot receive inbound connections, whether they are behind a filtering NAT or a firewall that blocks incoming connections.
+
+
+Protocol Extension
+==================
+
+The holepunch extension introduces a new message ``ut_holepunch`` via the extension protocol [#BEP-10]_.
+
+.. parsed-literal::
+
+    {
+      m: {
+        ut_holepunch: *<implementation-dependent local message ID (positive integer)>*,
+        ...
+      },
+      ...
+    } 
+    
+    
+
+The extension message itself consists of the bittorrent extended message header and the following binary payload:
+
+.. parsed-literal::    
+
+    msg_type (1 byte): *<type of holepunch message>*
+    addr_type (1 byte): *<0x00 for ipv4, 0x01 for ipv6>*
+    addr (either 4 or 16 bytes): *<big-endian ipv4 or ipv6 address, as determined by addr_type>*
+    port (2 bytes): *<big-endian port number>*
+    err_code (4 bytes): *<error code as a big-endian 4-byte integer; 0 in non-error messages>*
+
+
+
+Message types are defined as follows:
+
+ ======== ============= =====================================================================
+ msg_type name          description
+ ======== ============= =====================================================================
+ 0x00     rendezvous    Send connect messages to both the initiating peer and target peer
+ 0x01     connect       Initiate a uTP connection to designated endpoint
+ 0x02     error         Rendezvous operation cannot be completed
+ ======== ============= =====================================================================
+
+
+The initiating peer sends a ``rendezvous`` message to the relaying peer, containing the endpoint (IP address and port) of the target peer. If the relaying peer is connected to the target peer, and the target peer supports this extension, the relaying peer sends a ``connect`` message to both the initiating peer and the target peer, each containing the endpoint of the other. Upon receiving the ``connect`` message, each peer initiates a uTP [#BEP-29]_ connection to the other peer.
+
+
+If the ``rendezvous`` message cannot be acted upon, the relaying peer SHOULD reply to the initiating peer with an appropriate ``error`` message. The ``addr_type``, ``addr`` and ``port`` fields in the ``error`` message MUST be the same as in the ``rendezvous`` message.
+
+
+The error codes are as follows:
+
+ ======== ============= ===============================================================
+ err_code name          description
+ ======== ============= ===============================================================
+ 0x01     NoSuchPeer    The target endpoint is invalid.
+ 0x02     NotConnected  The relaying peer is not connected to the target peer.
+ 0x03     NoSupport     The target peer does not support the holepunch extension.
+ 0x04     NoSelf        The target endpoint belongs to the relaying peer.
+ ======== ============= ===============================================================
+
+
+Implementation notes
+====================
+
+If the target peer does not wish to connect to the initiating peer, it SHOULD ignore the ``connect`` message silently, and MUST NOT respond to the relaying peer with an error message.
+
+If the initiating peer does not indicate support for the ``ut_holepunch`` extension in the extension protocol handshake, the relaying peer MUST ignore any incoming ``ut_holepunch`` messages silently.
+
+If the target peer is already connected to the initiating peer, both of them MUST ignore the ``connect`` message silently.
+
+In all cases where the ``NoSuchPeer`` error code would be appropriate, the ``NotConnected`` error code MAY be sent instead.
+
+It is possible that both uTP connection attempts succeed simultaneously.
+
+
+
+References
+==========
+
+
+.. [#BEP-10] BEP 10, "Extension Protocol"
+
+   http://bittorrent.org/beps/bep_0010.html
+
+.. [#BEP-29] BEP 29, "uTorrent transport protocol"
+
+   http://bittorrent.org/beps/bep_0029.html
+
+
+
+Acknowledgements
+================
+
+Special thanks to GGist for reverse-engineering the holepunch protocol from libtorrent source code.
+
+
+Copyright
+=========
+
+This document has been placed in the public domain.
+

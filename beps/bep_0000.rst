@@ -60,6 +60,7 @@ Num        Title
 |23|       :raw-html:`<A HREF="bep_0023.html">Tracker Returns Compact Peer Lists</A>`
 |27|       :raw-html:`<A HREF="bep_0027.html">Private Torrents</A>`
 |29|       :raw-html:`<A HREF="bep_0029.html">uTorrent transport protocol</A>`
+|55|       :raw-html:`<A HREF="bep_0055.html">Holepunch extension</A>`
 ======     ===================
 
 Draft BEPs
@@ -184,4 +185,5 @@ At this time, no BEPs have been rejected.
 .. |52| replace:: :raw-html:`<A HREF="bep_0052.html">52</A>`
 .. |53| replace:: :raw-html:`<A HREF="bep_0053.html">53</A>`
 .. |54| replace:: :raw-html:`<A HREF="bep_0054.html">54</A>`
+.. |55| replace:: :raw-html:`<A HREF="bep_0055.html">55</A>`
 .. |1000| replace:: :raw-html:`<A HREF="bep_1000.html">1000</A>`

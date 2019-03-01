@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.14: http://docutils.sourceforge.net/" />
+<title>bep_0055.rst_post</title>
+<meta name="author" content="Mihael Peklar &lt;mihael1peklar&#64;gmail.com&gt;" />
+<link rel="stylesheet" href="../css/bep.css" type="text/css" />
+</head>
+<body>
+<div class="document">
+
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="../index.html">BitTorrent<span>.org</span></a></h1>
+</div>
+<div id="nav">
+<ul>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../introduction.html">For Users</a></li>
+<li><a href="bep_0000.html"><span>For Developers</span></a></li>
+<li><a href="../mailing_list.html">Developer mailing list</a> </li>
+<li><a href="http://forum.bittorrent.org"> Forums (archive) </a></li>
+</ul>
+</div> <!-- nav -->
+<!-- ### Begin Content ### -->
+<div id="second">
+
+
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
+<tbody valign="top">
+<tr class="bep field"><th class="docinfo-name">BEP:</th><td class="field-body">55</td>
+</tr>
+<tr class="title field"><th class="docinfo-name">Title:</th><td class="field-body">Holepunch extension</td>
+</tr>
+<tr><th class="docinfo-name">Version:</th>
+<td>a8991ad10dbea0301ddef1b4cb7dd741ee6a10f6</td></tr>
+<tr class="last-modified field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Thu Feb 28 23:14:22 2019 +0100</td>
+</tr>
+<tr><th class="docinfo-name">Author:</th>
+<td>Mihael Peklar &lt;<a class="reference external" href="mailto:mihael1peklar&#37;&#52;&#48;gmail&#46;com">mihael1peklar<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;</td></tr>
+<tr><th class="docinfo-name">Status:</th>
+<td>Accepted</td></tr>
+<tr class="type field"><th class="docinfo-name">Type:</th><td class="field-body">Standards Track</td>
+</tr>
+<tr class="requires field"><th class="docinfo-name">Requires:</th><td class="field-body">10,29</td>
+</tr>
+<tr class="content-type field"><th class="docinfo-name">Content-Type:</th><td class="field-body">text/x-rst</td>
+</tr>
+<tr class="created field"><th class="docinfo-name">Created:</th><td class="field-body">29-Dec-2018</td>
+</tr>
+<tr class="post-history field"><th class="docinfo-name">Post-History:</th><td class="field-body">25-Feb-2019: initial version</td>
+</tr>
+</tbody>
+</table>
+<p>The holepunch extension provides a way to connect to peers that cannot receive inbound connections, whether they are behind a filtering NAT or a firewall that blocks incoming connections.</p>
+<div class="section" id="protocol-extension">
+<h1>Protocol Extension</h1>
+<p>The holepunch extension introduces a new message <tt class="docutils literal">ut_holepunch</tt> via the extension protocol <a class="footnote-reference" href="#bep-10" id="id1">[1]</a>.</p>
+<pre class="literal-block">
+{
+  m: {
+    ut_holepunch: <em>&lt;implementation-dependent local message ID (positive integer)&gt;</em>,
+    ...
+  },
+  ...
+}
+</pre>
+<p>The extension message itself consists of the bittorrent extended message header and the following binary payload:</p>
+<pre class="literal-block">
+msg_type (1 byte): <em>&lt;type of holepunch message&gt;</em>
+addr_type (1 byte): <em>&lt;0x00 for ipv4, 0x01 for ipv6&gt;</em>
+addr (either 4 or 16 bytes): <em>&lt;big-endian ipv4 or ipv6 address, as determined by addr_type&gt;</em>
+port (2 bytes): <em>&lt;big-endian port number&gt;</em>
+err_code (4 bytes): <em>&lt;error code as a big-endian 4-byte integer; 0 in non-error messages&gt;</em>
+</pre>
+<p>Message types are defined as follows:</p>
+<blockquote>
+<table border="1" class="docutils">
+<colgroup>
+<col width="9%" />
+<col width="14%" />
+<col width="77%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">msg_type</th>
+<th class="head">name</th>
+<th class="head">description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>0x00</td>
+<td>rendezvous</td>
+<td>Send connect messages to both the initiating peer and target peer</td>
+</tr>
+<tr><td>0x01</td>
+<td>connect</td>
+<td>Initiate a uTP connection to designated endpoint</td>
+</tr>
+<tr><td>0x02</td>
+<td>error</td>
+<td>Rendezvous operation cannot be completed</td>
+</tr>
+</tbody>
+</table>
+</blockquote>
+<p>The initiating peer sends a <tt class="docutils literal">rendezvous</tt> message to the relaying peer, containing the endpoint (IP address and port) of the target peer. If the relaying peer is connected to the target peer, and the target peer supports this extension, the relaying peer sends a <tt class="docutils literal">connect</tt> message to both the initiating peer and the target peer, each containing the endpoint of the other. Upon receiving the <tt class="docutils literal">connect</tt> message, each peer initiates a uTP <a class="footnote-reference" href="#bep-29" id="id2">[2]</a> connection to the other peer.</p>
+<p>If the <tt class="docutils literal">rendezvous</tt> message cannot be acted upon, the relaying peer SHOULD reply to the initiating peer with an appropriate <tt class="docutils literal">error</tt> message. The <tt class="docutils literal">addr_type</tt>, <tt class="docutils literal">addr</tt> and <tt class="docutils literal">port</tt> fields in the <tt class="docutils literal">error</tt> message MUST be the same as in the <tt class="docutils literal">rendezvous</tt> message.</p>
+<p>The error codes are as follows:</p>
+<blockquote>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="15%" />
+<col width="75%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">err_code</th>
+<th class="head">name</th>
+<th class="head">description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>0x01</td>
+<td>NoSuchPeer</td>
+<td>The target endpoint is invalid.</td>
+</tr>
+<tr><td>0x02</td>
+<td>NotConnected</td>
+<td>The relaying peer is not connected to the target peer.</td>
+</tr>
+<tr><td>0x03</td>
+<td>NoSupport</td>
+<td>The target peer does not support the holepunch extension.</td>
+</tr>
+<tr><td>0x04</td>
+<td>NoSelf</td>
+<td>The target endpoint belongs to the relaying peer.</td>
+</tr>
+</tbody>
+</table>
+</blockquote>
+</div>
+<div class="section" id="implementation-notes">
+<h1>Implementation notes</h1>
+<p>If the target peer does not wish to connect to the initiating peer, it SHOULD ignore the <tt class="docutils literal">connect</tt> message silently, and MUST NOT respond to the relaying peer with an error message.</p>
+<p>If the initiating peer does not indicate support for the <tt class="docutils literal">ut_holepunch</tt> extension in the extension protocol handshake, the relaying peer MUST ignore any incoming <tt class="docutils literal">ut_holepunch</tt> messages silently.</p>
+<p>If the target peer is already connected to the initiating peer, both of them MUST ignore the <tt class="docutils literal">connect</tt> message silently.</p>
+<p>In all cases where the <tt class="docutils literal">NoSuchPeer</tt> error code would be appropriate, the <tt class="docutils literal">NotConnected</tt> error code MAY be sent instead.</p>
+<p>It is possible that both uTP connection attempts succeed simultaneously.</p>
+</div>
+<div class="section" id="references">
+<h1>References</h1>
+<table class="docutils footnote" frame="void" id="bep-10" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td><p class="first">BEP 10, &quot;Extension Protocol&quot;</p>
+<p class="last"><a class="reference external" href="http://bittorrent.org/beps/bep_0010.html">http://bittorrent.org/beps/bep_0010.html</a></p>
+</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="bep-29" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td><p class="first">BEP 29, &quot;uTorrent transport protocol&quot;</p>
+<p class="last"><a class="reference external" href="http://bittorrent.org/beps/bep_0029.html">http://bittorrent.org/beps/bep_0029.html</a></p>
+</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="acknowledgements">
+<h1>Acknowledgements</h1>
+<p>Special thanks to GGist for reverse-engineering the holepunch protocol from libtorrent source code.</p>
+</div>
+<div class="section" id="copyright">
+<h1>Copyright</h1>
+<p>This document has been placed in the public domain.</p>
+</div>
+
+</div>
+	<div id="footer">
+<hr/>
+</div>
+
+</div>
+</body>
+</html>

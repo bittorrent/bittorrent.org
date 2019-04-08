@@ -50,7 +50,7 @@ incomplete
 downloaded
   The number of peers that have ever completed downloading.
 
-The response to an unsuccessful request is a bencoded dictionary with the key ``failure_reason`` and a string value as described in BEP 003 [#BEP_003]_.
+The response to an unsuccessful request is a bencoded dictionary with the key ``failure reason`` and a string value as described in BEP 003 [#BEP_003]_.
 
 Example
 ........

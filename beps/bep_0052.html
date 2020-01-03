@@ -38,8 +38,8 @@
 <tr class="title field"><th class="docinfo-name">Title:</th><td class="field-body">The BitTorrent Protocol Specification v2</td>
 </tr>
 <tr><th class="docinfo-name">Version:</th>
-<td>7392d83f374b071ca9601728c27be2d05e199e0c</td></tr>
-<tr class="last-modified field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Thu Aug 31 15:47:00 2017 -0700</td>
+<td>7e04e217f50e2900e7ac84ba7e3c9fc8466d7fc3</td></tr>
+<tr class="last-modified field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Sat Jan 4 00:26:19 2020 +0100</td>
 </tr>
 <tr><th class="docinfo-name">Author:</th>
 <td>Bram Cohen &lt;<a class="reference external" href="mailto:bram&#37;&#52;&#48;bittorrent&#46;com">bram<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;</td></tr>
@@ -522,6 +522,10 @@ doing so they must validate that the content (file names, order, piece alignment
 is identical. During the download they must also verify that pieces match both piece
 hash formats. If any inconsistency is detected they may either abort or fall back to
 downloading one of the two formats as if the other were not present.</p>
+<p>Implementations supporting both formats which joined both swarms of a hybrid torrent
+MUST announce by making two requests (one for each swarm/<tt class="docutils literal">info_hash</tt>). For each request
+the <tt class="docutils literal">downloaded</tt> and <tt class="docutils literal">uploaded</tt> parameters MUST contain the sum amount
+that was respectively done in both swarms together.</p>
 <p>When initiating a connection and sending the sha1 infohash of such a hybrid torrent
 a peer can set the 4th most significant bit in the last byte of the reserved bitfield
 to indicate that it also supports the new format. The remote peer may then respond

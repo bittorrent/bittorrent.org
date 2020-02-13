@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.15.2: http://docutils.sourceforge.net/" />
+<meta name="generator" content="Docutils 0.16: http://docutils.sourceforge.net/" />
 <title>bep_0005.rst_post</title>
 <meta name="author" content="Andrew Loewenstern &lt;drue&#64;bittorrent.com&gt;, Arvid Norberg &lt;arvid&#64;bittorrent.com&gt;" />
 <link rel="stylesheet" href="../css/bep.css" type="text/css" />
@@ -38,8 +38,8 @@
 <tr class="title field"><th class="docinfo-name">Title:</th><td class="field-body">DHT Protocol</td>
 </tr>
 <tr><th class="docinfo-name">Version:</th>
-<td>aa944d9e2faf989cbb4b1bad5ec130b9f22631d9</td></tr>
-<tr class="last-modified field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Tue Jan 21 15:59:05 2020 -0800</td>
+<td>a6b520edb1d26bb034bc6249c47e3d8c67c10ba9</td></tr>
+<tr class="last-modified field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Thu Feb 13 18:33:05 2020 +0100</td>
 </tr>
 <tr><th class="docinfo-name">Author:</th>
 <td>Andrew Loewenstern &lt;<a class="reference external" href="mailto:drue&#37;&#52;&#48;bittorrent&#46;com">drue<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;, Arvid Norberg &lt;<a class="reference external" href="mailto:arvid&#37;&#52;&#48;bittorrent&#46;com">arvid<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;</td></tr>
@@ -55,7 +55,7 @@
 </table>
 <p>BitTorrent uses a &quot;distributed sloppy hash table&quot; (DHT) for storing
 peer contact information for &quot;trackerless&quot; torrents. In effect, each
-peer becomes a tracker. The protocol is based on Kademila <a class="footnote-reference" href="#kademlia" id="id1">[1]</a> and is
+peer becomes a tracker. The protocol is based on Kademlia <a class="footnote-reference" href="#kademlia" id="id1">[1]</a> and is
 implemented over UDP.</p>
 <p>Please note the terminology used in this document to avoid
 confusion. A &quot;peer&quot; is a client/server listening on a TCP port that
@@ -411,7 +411,7 @@ bencoded = d1:rd2:id20:mnopqrstuvwxyz123456e1:t2:aa1:y1:re
 <table class="docutils footnote" frame="void" id="kademlia" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>Peter Maymounkov, David Mazieres, &quot;Kademlia: A Peer-to-peer Information System Based on the XOR Metric&quot;, <em>IPTPS 2002</em>. <a class="reference external" href="http://www.cs.rice.edu/Conferences/IPTPS02/109.pdf">http://www.cs.rice.edu/Conferences/IPTPS02/109.pdf</a></td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>Peter Maymounkov, David Mazieres, &quot;Kademlia: A Peer-to-peer Information System Based on the XOR Metric&quot;, <a class="reference external" href="https://pdos.csail.mit.edu/~petar/papers/maymounkov-kademlia-lncs.pdf">https://pdos.csail.mit.edu/~petar/papers/maymounkov-kademlia-lncs.pdf</a></td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="entropy" rules="none">

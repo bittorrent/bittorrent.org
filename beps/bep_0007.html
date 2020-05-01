@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.14: http://docutils.sourceforge.net/" />
+<meta name="generator" content="Docutils 0.16: http://docutils.sourceforge.net/" />
 <title>bep_0007.rst_post</title>
 <meta name="author" content="Greg Hazel &lt;greg&#64;bittorrent.com&gt;, Arvid Norberg &lt;arvid&#64;bittorrent.com&gt;" />
 <link rel="stylesheet" href="../css/bep.css" type="text/css" />
@@ -38,8 +38,8 @@
 <tr class="title field"><th class="docinfo-name">Title:</th><td class="field-body">IPv6 Tracker Extension</td>
 </tr>
 <tr><th class="docinfo-name">Version:</th>
-<td>0977f19c332ef7b9562a889b60a003d2821b03e8</td></tr>
-<tr class="last-modified field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Fri Sep 8 19:23:05 2017 +0200</td>
+<td>3196f6b0a8d39a0655811579b794c3ed31d6bb79</td></tr>
+<tr class="last-modified field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">Fri Jan 3 14:19:00 2020 +0100</td>
 </tr>
 <tr><th class="docinfo-name">Author:</th>
 <td>Greg Hazel &lt;<a class="reference external" href="mailto:greg&#37;&#52;&#48;bittorrent&#46;com">greg<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;, Arvid Norberg &lt;<a class="reference external" href="mailto:arvid&#37;&#52;&#48;bittorrent&#46;com">arvid<span>&#64;</span>bittorrent<span>&#46;</span>com</a>&gt;</td></tr>
@@ -49,7 +49,8 @@
 </tr>
 <tr class="created field"><th class="docinfo-name">Created:</th><td class="field-body">31-Jan-2008</td>
 </tr>
-<tr class="post-history field"><th class="docinfo-name">Post-History:</th><td class="field-body">07-Sep-2017 (<a class="reference external" href="mailto:the8472&#46;bep&#37;&#52;&#48;infinite-source&#46;de">the8472<span>&#46;</span>bep<span>&#64;</span>infinite-source<span>&#46;</span>de</a>), multi-homed trackers</td>
+<tr class="post-history field"><th class="docinfo-name">Post-History:</th><td class="field-body">07-Sep-2017 (<a class="reference external" href="mailto:the8472&#46;bep&#37;&#52;&#48;infinite-source&#46;de">the8472<span>&#46;</span>bep<span>&#64;</span>infinite-source<span>&#46;</span>de</a>), multi-homed trackers
+, 12-mar-2020 (<a class="reference external" href="mailto:arvid&#37;&#52;&#48;libtorrent&#46;org">arvid<span>&#64;</span>libtorrent<span>&#46;</span>org</a>) discourage IP announce params and clarify announcing multiple listen interfaces</td>
 </tr>
 </tbody>
 </table>
@@ -61,38 +62,36 @@ an IPv6 network with an IPv4 tunnel interface.</p>
 <p>The key words &quot;MUST&quot;, &quot;MUST NOT&quot;, &quot;REQUIRED&quot;, &quot;SHALL&quot;, &quot;SHALL NOT&quot;, &quot;SHOULD&quot;,
 &quot;SHOULD NOT&quot;, &quot;RECOMMENDED&quot;, &quot;MAY&quot;, and &quot;OPTIONAL&quot; in this document are to
 be interpreted as described in IETF <a class="reference external" href="http://tools.ietf.org/html/rfc2119">RFC 2119</a>.</p>
-<div class="section" id="announce-parameter">
-<h1>Announce Parameter</h1>
-<p>The client MAY add an <tt class="docutils literal">&amp;ipv6=</tt> parameter to the HTTP GET request it sends
-to the tracker. The value is either an IPv6 endpoint (address and port) or
-just an IPv6 address. In the case where only an address is supplied, the IPv6
-port is assumed to be the same as specified by the <tt class="docutils literal">&amp;port=</tt> parameter.</p>
-<p>The tracker SHOULD perform a NAT check on the IPv6 endpoint.</p>
-<p>In case the client contacts the tracker on an IPv6 interface, it may add
-an <tt class="docutils literal">&amp;ipv4=</tt> parameter with its IPv4 address or endpoint. The value MUST
-be either an IPv4 endpoint (address and port) or just an IPv4 address. If only
-an address is supplied, the port is assumed to be the same as the <tt class="docutils literal">&amp;port=</tt>
-parameter.</p>
-<p>The endpoints are encoded as strings as defined by <a class="reference external" href="http://tools.ietf.org/html/rfc2732">RFC 2732</a>.</p>
-<p>If both an <tt class="docutils literal">&amp;ipv4=</tt> and an <tt class="docutils literal">&amp;ipv6=</tt> parameter are specified, the tracker
-MAY ignore the address family that is the same as the source address of the
-request. i.e. If the client connects to the tracker with an IPv4 source
-address, the tracker MAY ignore any <tt class="docutils literal">&amp;ipv4=</tt> address and if the client
-connects to the tracker with an IPv6 source address, the tracker MAY ignore
-any <tt class="docutils literal">&amp;ipv6=</tt> parameter.</p>
-</div>
-<div class="section" id="tracker-hostname-resolution">
-<h1>Tracker Hostname Resolution</h1>
-<p>When host component of a tracker url resolves to multiple IP addresses
-then a client MAY announce to multiple addresses, one for each address family.
-When doing so the client SHOULD include an additional <tt class="docutils literal">key</tt> parameter in its requests.
+<div class="section" id="announcing">
+<h1>Announcing</h1>
+<p>An announce to the tracker should be made for each local IP address:</p>
+<blockquote>
+<ol class="arabic simple">
+<li>the client intends to receive incoming peer connections over (listens on)</li>
+<li>the client intends to publish to the tracker</li>
+<li>that can be used as the source address in packets sent to the tracker (at
+least one of the addresses the tracker hostname resolves to).</li>
+</ol>
+</blockquote>
+<p>Each announce should use the corresponding local IP address as the source
+address of the connection.</p>
+<p>The source address is set on a socket using the <tt class="docutils literal">bind()</tt> call, before connecting.</p>
+<p>This applies to TCP connections, for HTTP and HTTPS trackers, as well as UDP
+announces, to UDP trackers.</p>
+<p>The client SHOULD include a <tt class="docutils literal">key</tt> parameter in its announces.
 The key should remain the same for a particular infohash during
 a torrent session. Together with the <tt class="docutils literal">peer_id</tt> this allows trackers
 to uniquely identify clients for the purpose of statistics-keeping when they
-announce from multiple IPs .
-The key should be generated so it has at least 32bits worth of entropy.</p>
-<p>When announcing to multiple address families all request parameters
-should be kept the same.</p>
+announce from multiple IP .</p>
+<p>The key should be generated so it has at least 32bits worth of entropy.</p>
+</div>
+<div class="section" id="ip-announce-parameters">
+<h1>IP announce parameters</h1>
+<p>An earlier version of this BEP specified new HTTP parameters to announce an
+additional address of a different address family than the source IP address of
+the tracker connection (<tt class="docutils literal">&amp;ipv4=</tt> and <tt class="docutils literal">&amp;ipv6=</tt>). These are discouraged, as
+they allow an attacker to announce a victim's IP address to launch a DDoS
+attack.</p>
 </div>
 <div class="section" id="announce-response">
 <h1>Announce Response</h1>
@@ -107,26 +106,6 @@ peers6 contains address-port pairs where the addresses are all IPv6.</p>
 </div>
 <div class="section" id="examples">
 <h1>Examples</h1>
-<p>Example announce string with <tt class="docutils literal"><span class="pre">2001::53aa:64c:0:7f83:bc43:dec9</span></tt> as IPv6
-address:</p>
-<pre class="literal-block">
-GET /announce?peer_id=aaaaaaaaaaaaaaaaaaaa&amp;info_hash=aaaaaaaaaaaaaaaaaaaa
-&amp;port=6881&amp;left=0&amp;downloaded=100&amp;uploaded=0&amp;compact=1
-&amp;ipv6=2001%3A%3A53Aa%3A64c%3A0%3A7f83%3Abc43%3Adec9
-</pre>
-<p>Example announce string with <tt class="docutils literal"><span class="pre">[2001::53aa:64c:0:7f83:bc43:dec9]:6882</span></tt> as IPv6 endpoint:</p>
-<pre class="literal-block">
-GET /announce?peer_id=aaaaaaaaaaaaaaaaaaaa&amp;info_hash=aaaaaaaaaaaaaaaaaaaa
-&amp;port=6881&amp;left=0&amp;downloaded=100&amp;uploaded=0&amp;compact=1
-&amp;ipv6=%5B2001%3A%3A53Aa%3A64c%3A0%3A7f83%3Abc43%3Adec9%5D%3A6882
-</pre>
-<p>Example announce string with <tt class="docutils literal"><span class="pre">2001::53aa:64c:0:7f83:bc43:dec9</span></tt> as IPv6
-address and <tt class="docutils literal">261.52.89.12</tt> as IPv4 address:</p>
-<pre class="literal-block">
-GET /announce?peer_id=aaaaaaaaaaaaaaaaaaaa&amp;info_hash=aaaaaaaaaaaaaaaaaaaa
-&amp;port=6881&amp;left=0&amp;downloaded=100&amp;uploaded=0&amp;compact=1
-&amp;ipv6=2001%3A%3A53Aa%3A64c%3A0%3A7f83%3Abc43%3Adec9&amp;ipv4=261.52.89.12
-</pre>
 <p>Example response:</p>
 <pre class="literal-block">
 d8:intervali1800e5:peers6:iiiipp6:peers618:iiiiiiiiiiiiiiiippe

@@ -7,7 +7,8 @@
 :Type:    Standards Track
 :Created: 31-Jan-2008
 :Post-History: 07-Sep-2017 (the8472.bep@infinite-source.de), multi-homed trackers
-	
+	, 12-mar-2020 (arvid@libtorrent.org) discourage IP announce params and clarify announcing multiple listen interfaces
+
 
 This extension extends the tracker response to better support IPv6 peers as
 well as defines a way for multi homed machines to announce multiple addresses
@@ -23,47 +24,40 @@ be interpreted as described in IETF `RFC 2119`_.
 
 .. _`RFC 2119`: http://tools.ietf.org/html/rfc2119
 
-Announce Parameter
-==================
+Announcing
+==========
 
-The client MAY add an ``&ipv6=`` parameter to the HTTP GET request it sends
-to the tracker. The value is either an IPv6 endpoint (address and port) or
-just an IPv6 address. In the case where only an address is supplied, the IPv6
-port is assumed to be the same as specified by the ``&port=`` parameter.
+An announce to the tracker should be made for each local IP address:
 
-The tracker SHOULD perform a NAT check on the IPv6 endpoint.
+	1. the client intends to receive incoming peer connections over (listens on)
+	2. the client intends to publish to the tracker
+	3. that can be used as the source address in packets sent to the tracker (at
+	   least one of the addresses the tracker hostname resolves to).
 
-In case the client contacts the tracker on an IPv6 interface, it may add
-an ``&ipv4=`` parameter with its IPv4 address or endpoint. The value MUST
-be either an IPv4 endpoint (address and port) or just an IPv4 address. If only
-an address is supplied, the port is assumed to be the same as the ``&port=``
-parameter.
+Each announce should use the corresponding local IP address as the source
+address of the connection.
 
-The endpoints are encoded as strings as defined by `RFC 2732`_.
+The source address is set on a socket using the ``bind()`` call, before connecting.
 
-.. _`RFC 2732`: http://tools.ietf.org/html/rfc2732
+This applies to TCP connections, for HTTP and HTTPS trackers, as well as UDP
+announces, to UDP trackers.
 
-If both an ``&ipv4=`` and an ``&ipv6=`` parameter are specified, the tracker
-MAY ignore the address family that is the same as the source address of the
-request. i.e. If the client connects to the tracker with an IPv4 source
-address, the tracker MAY ignore any ``&ipv4=`` address and if the client
-connects to the tracker with an IPv6 source address, the tracker MAY ignore
-any ``&ipv6=`` parameter.
-
-Tracker Hostname Resolution
-===========================
-
-When host component of a tracker url resolves to multiple IP addresses
-then a client MAY announce to multiple addresses, one for each address family.
-When doing so the client SHOULD include an additional ``key`` parameter in its requests.
+The client SHOULD include a ``key`` parameter in its announces.
 The key should remain the same for a particular infohash during
 a torrent session. Together with the ``peer_id`` this allows trackers
 to uniquely identify clients for the purpose of statistics-keeping when they
-announce from multiple IPs .
+announce from multiple IP .
+
 The key should be generated so it has at least 32bits worth of entropy.
 
-When announcing to multiple address families all request parameters
-should be kept the same.    
+IP announce parameters
+======================
+
+An earlier version of this BEP specified new HTTP parameters to announce an
+additional address of a different address family than the source IP address of
+the tracker connection (``&ipv4=`` and ``&ipv6=``). These are discouraged, as
+they allow an attacker to announce a victim's IP address to launch a DDoS
+attack.
 
 Announce Response
 =================
@@ -82,26 +76,6 @@ peers6 contains address-port pairs where the addresses are all IPv6.
 
 Examples
 ========
-
-Example announce string with ``2001::53aa:64c:0:7f83:bc43:dec9`` as IPv6
-address::
-
-	GET /announce?peer_id=aaaaaaaaaaaaaaaaaaaa&info_hash=aaaaaaaaaaaaaaaaaaaa
-	&port=6881&left=0&downloaded=100&uploaded=0&compact=1
-	&ipv6=2001%3A%3A53Aa%3A64c%3A0%3A7f83%3Abc43%3Adec9
-
-Example announce string with ``[2001::53aa:64c:0:7f83:bc43:dec9]:6882`` as IPv6 endpoint::
-
-	GET /announce?peer_id=aaaaaaaaaaaaaaaaaaaa&info_hash=aaaaaaaaaaaaaaaaaaaa
-	&port=6881&left=0&downloaded=100&uploaded=0&compact=1
-	&ipv6=%5B2001%3A%3A53Aa%3A64c%3A0%3A7f83%3Abc43%3Adec9%5D%3A6882
-
-Example announce string with ``2001::53aa:64c:0:7f83:bc43:dec9`` as IPv6
-address and ``261.52.89.12`` as IPv4 address::
-
-	GET /announce?peer_id=aaaaaaaaaaaaaaaaaaaa&info_hash=aaaaaaaaaaaaaaaaaaaa
-	&port=6881&left=0&downloaded=100&uploaded=0&compact=1
-	&ipv6=2001%3A%3A53Aa%3A64c%3A0%3A7f83%3Abc43%3Adec9&ipv4=261.52.89.12
 
 Example response::
 

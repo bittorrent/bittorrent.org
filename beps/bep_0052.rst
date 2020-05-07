@@ -570,6 +570,11 @@ is identical. During the download they must also verify that pieces match both p
 hash formats. If any inconsistency is detected they may either abort or fall back to
 downloading one of the two formats as if the other were not present.
 
+Implementations supporting both formats which joined both swarms of a hybrid torrent
+MUST announce by making two requests (one for each swarm/``info_hash``). For each request
+the ``downloaded`` and ``uploaded`` parameters MUST contain the sum amount
+that was respectively done in both swarms together.
+
 When initiating a connection and sending the sha1 infohash of such a hybrid torrent
 a peer can set the 4th most significant bit in the last byte of the reserved bitfield
 to indicate that it also supports the new format. The remote peer may then respond

@@ -2,50 +2,121 @@
 :Title: Extension for partial seeds
 :Version: $Revision$
 :Last-Modified: $Date$
-:Author:  Arvid Norberg <arvid@bittorrent.com>, Greg Hazel <greg@bittorrent.com>, Aaron Grunthal
+:Author:  Arvid Norberg <arvid@bittorrent.com>, Greg Hazel <greg@bittorrent.com>, Aaron Grunthal, Juliusz Chroboczek <jch@irif.fr>
 :Status:  Draft
 :Type:    Standards Track
 :Created: 8-May-2008
-:Post-History:
+:Post-History: 13-Nov-2018: document the protocol actually implemented (jch)
 
-The purpose of this extension is to allow further optimizations of
-bittorrent swarms when peers are *partial seeds*. A partial seed
-is a peer that is incomplete without downloading anything more. This
-happens for multi file torrents where users only download some of
-the files.
+This document describes an extension which allows a peer to announce
+that it is a *partial seed*, i.e. that while it doesn't have the full
+data of a torrent it isn't downloading anything more.  Partial seeds
+are common in multi-file torrents when users download only some of the
+files.
 
-Extension Header
-================
+The information about which peers are partial seeds can be used by
+a (partial) seed to disconnect other partial seeds in order to accept
+further connections from leechers.  It is also propagated over the
+Peer Exchange protocol [#BEP-10]_ in order to assist other peers in
+deciding which peers to connect to.
 
-A peer that is a partial seed SHOULD include an extra header in the extension
-handshake (specified in `BEP 0010`_), 'upload_only'. Setting the value of
-this key to 1 indicates that this peer is not interested in downloading anything.
+Protocol operation
+==================
+
+Extended handshake
+------------------
+
+Support for the extension is advertised using the Extension Protocol
+[#BEP-10]_.  The name of the extension is *upload_only*.  The extension is
+negotiated independently in both directions: a peer may send an
+*UploadOnly* message even if it hasn't itself advertised support for the
+*upload_only* extension, and a peer that has advertised support for the
+*upload_only* extension must be able to receive *UploadOnly* messages from
+a peer that hasn't advertised support.
+
+In addition to announcing support for the extension, a peer that is
+a partial seed should include an extra header in the toplevel dictionary
+of the extension handshake called *upload_only* (distinct from the
+*upload_only* entry in the *m* dictionary) for compatibility with
+a previous version of this specification.
 
 Example extension handshake message::
 
-	{'m': {'ut_metadata', 3}, 'upload_only': 1}
+	{'m': {'upload_only': 3, 'ut_metadata': 4}, 'upload_only': 1}
+
+Message format
+--------------
+
+The extension consists of a single message:
+
+::
+
+  UploadOnly: <len=0x0003><op=20><subop=xx><value>
+
+Op is 20, indicating an extended message.  *Subop* is the suboperation
+number, as advertised by the peer during the extended handshake.  *Value*
+is a single-byte flag that can be 0, indicating that the sender is not
+a partial seed, or 1, indicating that the sender is a partial seed.
+
+Receiver operation
+------------------
+
+An implemention of this extension maintains, for each open connection
+a flag indicating whether the remote peer is a partial seed.
+Initially, the flag is set to false, except if the toplevel dictionary
+of the extended handshake contained an entry called *upload_only* with
+value 1, in which case the flag is set to true.
+
+Whenever the local peer receives an *UploadOnly* extended message with
+value 1 from a remote peer, it sets the flag to true; whenever it
+receives a message with value 0, it sets the flag to false.
+
+Sender operation
+----------------
+
+Upon establishing a new connection, if the local peer is a partial
+seed, it includes an *upload_only* entry in the toplevel dictionary of
+the extended handshake with value 1.  After the handshake has
+completed, and after the initial bitmap has been sent, if the local
+peer is a partial seed and the remote peer announced support for the
+*upload_only* extension, the local peer sends an *UploadOnly* message
+with value 1.
+
+When a peer that was not previously a partial seed becomes a partial
+seed (e.g. because it has finished downloading all of the files
+requested by the user), it sends an *UploadOnly* message with value
+1 to all of its peers that have announced support for the
+*upload_only* extension.
+
+When a peer that was previously a partial seed stops being a partial
+seed (e.g. because the user has requested the download of additional
+files), it sends an *UploadOnly* message with value 0 to all of its
+peers that have announced support for the *upload_only* extension.
+
+Tracker protocol
+================
 
 Tracker Scrapes
-===============
+---------------
 
 The tracker scrape conventions defines three values per torrent, 'complete',
 'incomplete' and 'downloaded'. The purpose of this extensions is to let clients
 distinguish between partial seeds and downloaders, both of which currently would
 be classified as *incomplete*.
 
-If the tracker supports this extension, it MUST add a fourth field, 'downloaders'.
+If the tracker supports this extension, it adds a fourth field, 'downloaders'.
 This field is the number of active downloaders in the swarm, it does not include
 partial seeds. The number of partial seeds can be calculated by:
 ``incomplete - downloaders``.
 
 Tracker Announce
-================
+----------------
 
-In order to tell the tracker that a peer is a partial seed, it MUST send an
+In order to tell the tracker that a peer is a partial seed, it sends an
 ``event=paused`` parameter in every announce while it is a partial seed.
 
 Rationale
-=========
+---------
 
 Allowing peers to scrape a tracker and distinguish between active downloaders
 and partial seeds makes it more efficient to determine what to seed based
@@ -59,8 +130,9 @@ the clients are announcing that they are partial seeds.
 References
 ==========
 
-.. _`BEP 0010`: http://www.bittorrent.org/beps/bep_0010.html
+.. [#BEP-10] `BEP 0010`: Extension Protocol.  http://www.bittorrent.org/beps/bep_0010.html
 
+.. [#BEP-11] `BEP 0011`: Peer Exchange (PEX).  http://www.bittorrent.org/beps/bep_0011.html
 
 Copyright
 =========

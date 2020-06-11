@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.11: http://docutils.sourceforge.net/" />
+<title></title>
+<meta name="author" content="Arvid Norberg &lt;arvid&#64;libtorrent.org&gt;" />
+<link rel="stylesheet" href="../css/bep.css" type="text/css" />
+</head>
+<body>
+<div class="document">
+
+<div id="upper" class="clear">
+<div id="wrap">
+<div id="header">
+<h1><a href="../index.html">BitTorrent<span>.org</span></a></h1>
+</div>
+<div id="nav">
+<ul>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../introduction.html">For Users</a></li>
+<li><a href="bep_0000.html"><span>For Developers</span></a></li>
+<li><a href="../mailing_list.html">Developer mailing list</a> </li>
+<li><a href="http://forum.bittorrent.org"> Forums (archive) </a></li>
+</ul>
+</div> <!-- nav -->
+<!-- ### Begin Content ### -->
+<div id="second">
+
+
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
+<tbody valign="top">
+<tr class="field"><th class="docinfo-name">BEP:</th><td class="field-body">46</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Title:</th><td class="field-body">Have message for multiple pieces</td>
+</tr>
+<tr><th class="docinfo-name">Version:</th>
+<td>N/A</td></tr>
+<tr class="field"><th class="docinfo-name">Last-Modified:</th><td class="field-body">N/A</td>
+</tr>
+<tr><th class="docinfo-name">Author:</th>
+<td>Arvid Norberg &lt;<a class="reference external" href="mailto:arvid&#37;&#52;&#48;libtorrent&#46;org">arvid<span>&#64;</span>libtorrent<span>&#46;</span>org</a>&gt;</td></tr>
+<tr><th class="docinfo-name">Status:</th>
+<td>Draft</td></tr>
+<tr class="field"><th class="docinfo-name">Type:</th><td class="field-body">Standards Track</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Content-Type:</th><td class="field-body">text/x-rst</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Created:</th><td class="field-body">26-May-2016</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Post-History:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="abstract">
+<h1>Abstract</h1>
+<p>This BEP proposes an extension that aims to significantly reduce the overhead
+of torrents with many pieces, by making representations more compact and
+enabling coalescing of HAVE messages.</p>
+</div>
+<div class="section" id="rationale">
+<h1>Rationale</h1>
+<p>Small pieces have significant benefits. They enable:</p>
+<ol class="arabic simple">
+<li>Shorter delays from downloading data until it can be
+reliably consumed (which is important for streaming)</li>
+<li>Shorter delays forwarding downloaded bytes. (most obvious when first joining
+a swarm, but also significant in swarms bottlenecked by its seeds)</li>
+</ol>
+<p>Pieces should be small, ideally 16 kiB. The costs associated with small pieces
+are:</p>
+<ol class="arabic simple">
+<li>the size of the .torrent file. Each piece hash is 20 bytes. a 4GiB torrent
+with 16 kiB pieces would have a .torrent file of 5120 kiB</li>
+<li>The size of bitfield messages. Every peer that has some but not all pieces
+send a bitfield during peer handshake. With this hypothetical 4 GiB torrent,
+each bitfield message would be 32 kiB (which is a lot).</li>
+<li>The number of HAVE messages that would need to be sent to peers during
+downloads would be a lot higher. Each HAVE message is 9 bytes (length prefix,
+type and piece index). Compared to the same torrent with a piece size common
+today (2 MiB), it would require 128 times as many messages.</li>
+</ol>
+<p>Issue (1) is addressed by merkle tree torrents, in <a class="reference external" href="http://bittorrent.org/beps/bep_0030.html">BEP30</a>.</p>
+<p>This BEP attempts to address (2) and (3) with a few different extensions.</p>
+</div>
+<div class="section" id="redundant-haves">
+<h1>Redundant HAVEs</h1>
+<p>A downloader that just completed a piece will send a HAVE message to all of
+its peers, announcing that it has a new piece. It does not take into account
+whether its peers also have this piece. Assuming the main reason to advertize
+which pieces you have is to allow your peers to request them, it's unnecessary
+to tell peers that already have the piece. Presumably they are not interested
+in downloading it.</p>
+<p>Some reasons to still send these redundant HAVE messages are:</p>
+<ol class="arabic simple">
+<li>The uploader may want to track its upload progress to a peer, and get first
+-hand feedback.</li>
+<li>Some super seed (<a class="reference external" href="http://bittorrent.org/beps/bep_0016.html">BEP16</a>) implementations may rely on receiving HAVEs (for
+example <a class="reference external" href="https://github.com/arvidn/libtorrent/commit/66ed31dd4b0c0b6d42c3eeb706477b1b19c8f1ea">libtorrent's</a>).</li>
+<li>A peer may want to be able to estimate the rough download rate of its peers
+by measuring the timing of HAVE messages</li>
+</ol>
+<p>In order to not break existing clients, this BEP proposes a flag in the extended
+handshake (<a class="reference external" href="http://bittorrent.org/beps/bep_0010.html">BEP10</a>) to let a peer indicate that it does not need to receive
+redundant HAVE messages.</p>
+<p>If the key &quot;rh&quot; exists and has a value of 0 in the extension handshake, the
+peer indicates that it does not need to receive HAVE messages for pieces it
+already has. If the &quot;rh&quot; key exists and is set to 1, the peer explicitly
+indicates that it is interested in redundant HAVE messages.</p>
+<pre class="literal-block">
+{
+        &quot;m&quot;: <em>extension messages</em>,
+        <strong>&quot;rh&quot;: 0</strong>
+}
+</pre>
+<p>Clients implementing this extension are encouraged to always include this flag
+in their extension handshake, whether it's 0 or 1. This will enable a transition
+of the default assumption being that peers do <em>not</em> need redundant HAVEs, unless
+explicitly stated.</p>
+<p>All have messages can be considered redundant to a peer that has declared
+itself to be <em>upload-only</em> (<a class="reference external" href="http://bittorrent.org/beps/bep_0021.html">BEP21</a>).</p>
+<p>A high quality implementation may want to remember HAVE messages that wouldn't
+have been redundant had the peer not been upload-only, and send them if the peer
+changes state to no longer be upload-only.</p>
+</div>
+<div class="section" id="compressed-bitfields">
+<h1>Compressed bitfields</h1>
+<p>This BEP proposes a new extension message which announces multiple pieces in a
+single message in a space-efficient manner. The content of the message is
+conceptually an entire bitfield with bits set for the new pieces the peer has
+received.</p>
+<p>Extension message name is &quot;lt_have&quot;, as specified in the extension handshake.</p>
+<p>This message may substitute the BITFIELD message.</p>
+<p>This bitfield is not transferred verbatim, it is <em>run length encoded</em>, as a
+sequence of commands. Each command is encoded as a <em>byte aligned</em> block. The
+first two bits of each block indicates which command it encodes. That is, the
+most significant bits of the first byte.</p>
+<p>These are the commands:</p>
+<ol class="arabic simple" start="0">
+<li>fill forward <em>n</em> bytes of zeroes (0x00)</li>
+<li>fill forward <em>n</em> bytes of ones (0xff)</li>
+<li>consume the next <em>n</em> bytes as verbatim bits of the bitfield</li>
+<li>fill forward <em>n</em> bytes of zeroes and consume one byte of verbatim bitfield</li>
+</ol>
+<p>The start position is always at the first piece in the torrent, position 0. All
+commands progress the cursor forward, towards higher piece indices.</p>
+<p>The <tt class="docutils literal">num_bytes</tt> field in all command blocks are <em>unsigned</em> and <em>big-endian</em>.</p>
+<p>Since there is no point in ever encoding 0 bytes in the <tt class="docutils literal">num_bytes</tt> field,
+the number of bytes following is <tt class="docutils literal">num_bytes</tt> + 1. i.e. if the <tt class="docutils literal">num_bytes</tt>
+field is 0, it means 1 byte.</p>
+<p>If the message ends before reaching the last piece, the remaining bits are
+assumed to be zero.</p>
+<p>A block may run past the last piece position by <em>at most</em> 7 bits. This is
+required since all blocks are byte aligned. A run that extends past the last
+piece by more than 7 bits should be considered a malformed message.</p>
+<div class="section" id="fill-forward-zeros">
+<h2>fill forward zeros</h2>
+<pre class="literal-block">
+0       8        16
++--+----+--------+
+|00| num_bytes   |
+|  | (14 bits)   |
++--+----+--------+
+</pre>
+<p>The first 2 bits are 00, the next 14 bits encode the number of <em>bytes</em> of
+bitfield this zero-run is.</p>
+</div>
+<div class="section" id="fill-forward-ones">
+<h2>fill forward ones</h2>
+<pre class="literal-block">
+0       8        16
++--+----+--------+
+|01| num_bytes   |
+|  | (14 bits)   |
++--+----+--------+
+</pre>
+<p>The first two bits are 01, the next 14 bits encode the number of <em>bytes</em> of
+bitfield this one-run is.</p>
+</div>
+<div class="section" id="verbatim-block">
+<h2>verbatim block</h2>
+<pre class="literal-block">
+0       8        16
++--+----+--------+----------- - -
+|10| num_bytes   | <em>variable length</em>
+|  | (14 bits)   |
++--+----+--------+----------- - -
+</pre>
+<p>The first two bits are 10, the next 14 bits are the number of <em>bytes</em> of the
+command block are to be interpreted as verbatim parts of the bitfield (at the
+current position).</p>
+</div>
+<div class="section" id="verbatim-position">
+<h2>verbatim position</h2>
+<pre class="literal-block">
+0       8        16       24
++--+----+--------+--------+
+|11| num_bytes   | bit-   |
+|  | (14 bits)   | field  |
++--+----+--------+--------+
+</pre>
+<p>The first two bits are are 11, the next 14 bits are the number of <em>bytes</em> of
+zeroes to fill. The next 8 bits is a verbatim bitfield following the zeroes.
+This message is an optimization for the case where only a single bit, or a small
+number of bits next to each other are set, and everything else is 0. This is
+expected to be a common case for coalesced HAVE-updated.</p>
+</div>
+<div class="section" id="examples">
+<h2>examples</h2>
+<p>The following block decodes into 11 bytes of zeroes. Command is 00 (zero fill),
+num_bytes is 10, +1 makes it a run of 11 bytes (hex):</p>
+<pre class="literal-block">
+00 0A =&gt; 00 00 00 00 00 00 00 00 00 00 00
+</pre>
+<p>The following block decodes into 5 bytes of ones. Command is 01 (one fill).
+num_bytes is 4, +1 is a run of 5 bytes (hex):</p>
+<pre class="literal-block">
+40 04 =&gt; FF FF FF FF FF
+</pre>
+<p>The following block decodes into 4 bytes of verbatim bitfield. Command is 10
+(verbatim block). num_bytes is 3, +1 is a run of 4 bytes (hex):</p>
+<pre class="literal-block">
+80 03 BA AD F0 0D =&gt; BA AD F0 0D
+</pre>
+<p>The following block decodes into 10 bytes of zeros, followed by two bits set.
+Command is 11, num_bytes is 9 (hex):</p>
+<pre class="literal-block">
+C0 09 C0 =&gt; 00 00 00 00 00 00 00 00 00 00 C0
+</pre>
+</div>
+</div>
+<div class="section" id="copyright">
+<h1>Copyright</h1>
+<p>This document has been placed in the public domain.</p>
+</div>
+
+</div>
+	<div id="footer">
+<hr/>
+</div>
+
+</div>
+</body>
+</html>

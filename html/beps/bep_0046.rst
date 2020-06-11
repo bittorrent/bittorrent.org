@@ -1,0 +1,238 @@
+:BEP: 46
+:Title: Have message for multiple pieces
+:Version: $Revision$
+:Last-Modified: $Date$
+:Author:  Arvid Norberg <arvid@libtorrent.org>
+:Status:  Draft
+:Type:    Standards Track
+:Content-Type: text/x-rst
+:Created: 26-May-2016
+:Post-History: 
+
+
+Abstract
+========
+
+This BEP proposes an extension that aims to significantly reduce the overhead
+of torrents with many pieces, by making representations more compact and
+enabling coalescing of HAVE messages.
+
+Rationale
+=========
+
+Small pieces have significant benefits. They enable:
+
+1. Shorter delays from downloading data until it can be
+   reliably consumed (important for streaming)
+2. Shorter delays forwarding downloaded bytes to other peers. This is most
+   obvious when first joining a swarm, but also significant in swarms
+   bottlenecked by its seeds
+
+Pieces should be small, ideally 16 kiB. The costs associated with small pieces
+are:
+
+1. the size of the .torrent file. Each piece hash is 20 bytes. a 4GiB torrent
+   with 16 kiB pieces would have a .torrent file greater than 5 MB.
+2. The size of bitfield messages. Every peer that has some but not all pieces
+   send a bitfield during peer handshake. With this hypothetical 4 GiB torrent,
+   each bitfield message would be 32 kiB (equivalent to two payload blocks).
+3. The number of HAVE messages that would need to be sent to peers during
+   downloads would be a lot higher. Each HAVE message is 9 bytes (length prefix,
+   type and piece index) and possibly another 20 bytes if sent on an otherwise
+	idle connection (TCP/IP overhead). Compared to the same torrent with a piece
+   size common today (2 MiB), it would require 128 times as many messages.
+
+Issue (1) is addressed by merkle tree torrents, in BEP30_.
+
+.. _BEP30: http://bittorrent.org/beps/bep_0030.html
+
+This BEP attempts to address (2) and (3) with a few different extensions.
+
+Redundant HAVEs
+===============
+
+A downloader that just completed a piece will send a HAVE message to all of
+its peers, announcing that it has a new piece. It does not take into account
+whether its peers also have this piece. The main reason to advertise
+pieces you have is to allow your peers to request them, making it unnecessary
+to tell peers that already have the piece. Presumably they are not interested
+in downloading it.
+
+A *redundant HAVE* refers to a HAVE message for a piece the
+receiving peer already has.
+
+There are some reasons to send redundant HAVEs:
+
+1. The uploader may want to track its upload progress to a peer, and get first
+   -hand feedback.
+2. Some super seed (BEP16_) implementations may rely on receiving HAVEs (for
+   example `libtorrent's`_).
+3. A client may want to be able to make rough download rate estimates of its
+   peers by measuring the timing of HAVE messages
+
+.. _BEP16: http://bittorrent.org/beps/bep_0016.html
+.. _`libtorrent's`: https://github.com/arvidn/libtorrent/commit/66ed31dd4b0c0b6d42c3eeb706477b1b19c8f1ea
+
+In order to not break existing clients, this BEP proposes a flag in the extended
+handshake (BEP10_) to let a peer indicate whether or not it need to receive
+redundant HAVEs.
+
+.. _BEP10: http://bittorrent.org/beps/bep_0010.html
+
+If the key ``rh`` exists and has a value of 0 in the extension handshake, the
+peer indicates that it does *not* need to receive redundant HAVE messages.
+
+If the ``rh`` key exists and is set to 1, the peer explicitly indicates that it
+is interested in redundant HAVE messages.
+
+.. parsed-literal::
+
+	{
+		"m": *extension messages*,
+		**"rh": 0**
+	}
+
+Clients implementing this extension are encouraged to always include this flag
+in their extension handshake, whether it's 0 or 1. This will enable a future
+transition of the default assumption, to be that peers do *not* need redundant
+HAVEs (unless explicitly stated).
+
+All have messages can be considered redundant to a peer that has declared
+itself to be *upload-only* (BEP21_).
+
+A high quality implementation may want to remember HAVE messages that would not
+have been redundant had the peer not been upload-only, and send them if the peer
+changes state to no longer be upload-only. Such bulk update could be compact
+with the extension message proposed in the following section.
+
+.. _BEP21: http://bittorrent.org/beps/bep_0021.html
+
+Compressed bitfields
+====================
+
+This BEP proposes a new extension message which announces multiple pieces in a
+single message in a space-efficient manner. The content of the message is
+conceptually an entire bitfield with bits set for the new pieces the peer has
+received.
+
+Extension message name is "lt_have", as specified in the extension handshake.
+
+This message may substitute the BITFIELD message.
+
+This bitfield is not transferred verbatim, it is *run length encoded*, as a
+sequence of commands. Each command is encoded as a *byte aligned* block. The
+first two bits of each block indicates which command it encodes. That is, the
+most significant bits of the first byte.
+
+These are the commands:
+
+0. fill forward *n* bytes of zeroes (0x00)
+1. fill forward *n* bytes of ones (0xff)
+2. consume the next *n* bytes as verbatim bits of the bitfield
+3. fill forward *n* bytes of zeroes and consume one byte of verbatim bitfield
+
+The start position is always at the first piece in the torrent, position 0. All
+commands progress the cursor forward, towards higher piece indices.
+
+The ``num_bytes`` field in all command blocks are *unsigned* and *big-endian*.
+
+Since there is no point in ever encoding 0 bytes in the ``num_bytes`` field,
+the number of bytes following is ``num_bytes`` + 1. i.e. if the ``num_bytes``
+field is 0, it means 1 byte.
+
+If the message ends before reaching the last piece, the remaining bits are
+assumed to be zero.
+
+A block may run past the last piece position by *at most* 7 bits. This is
+required since all blocks are byte aligned. A run that extends past the last
+piece by more than 7 bits should be considered a malformed message.
+
+fill forward zeros
+..................
+
+::
+
+	0       8        16
+	+--+----+--------+
+	|00| num_bytes   |
+	|  | (14 bits)   |
+	+--+----+--------+
+
+The first 2 bits are 00, the next 14 bits encode the number of *bytes* of
+bitfield this zero-run is.
+
+fill forward ones
+.................
+
+::
+
+	0       8        16
+	+--+----+--------+
+	|01| num_bytes   |
+	|  | (14 bits)   |
+	+--+----+--------+
+
+The first two bits are 01, the next 14 bits encode the number of *bytes* of
+bitfield this one-run is.
+
+verbatim block
+..............
+
+.. parsed-literal::
+
+	0       8        16
+	+--+----+--------+----------- - -
+	\|10| num_bytes   | *variable length*
+	|  | (14 bits)   |
+	+--+----+--------+----------- - -
+
+The first two bits are 10, the next 14 bits are the number of *bytes* of the
+command block are to be interpreted as verbatim parts of the bitfield (at the
+current position).
+
+verbatim position
+.................
+
+::
+
+	0       8        16       24
+	+--+----+--------+--------+
+	|11| num_bytes   | bit-   |
+	|  | (14 bits)   | field  |
+	+--+----+--------+--------+
+
+The first two bits are are 11, the next 14 bits are the number of *bytes* of
+zeroes to fill. The next 8 bits is a verbatim bitfield following the zeroes.
+This message is an optimization for the case where only a single bit, or a small
+number of bits next to each other are set, and everything else is 0. This is
+expected to be a common case for coalesced HAVE-updated.
+
+examples
+........
+
+The following block decodes into 11 bytes of zeroes. Command is 00 (zero fill),
+num_bytes is 10, +1 makes it a run of 11 bytes (hex)::
+
+
+	00 0A => 00 00 00 00 00 00 00 00 00 00 00
+
+The following block decodes into 5 bytes of ones. Command is 01 (one fill).
+num_bytes is 4, +1 is a run of 5 bytes (hex)::
+
+	40 04 => FF FF FF FF FF
+
+The following block decodes into 4 bytes of verbatim bitfield. Command is 10
+(verbatim block). num_bytes is 3, +1 is a run of 4 bytes (hex)::
+
+	80 03 BA AD F0 0D => BA AD F0 0D
+
+The following block decodes into 10 bytes of zeros, followed by two bits set.
+Command is 11, num_bytes is 9 (hex)::
+
+	C0 09 C0 => 00 00 00 00 00 00 00 00 00 00 C0
+
+Copyright
+=========
+
+This document has been placed in the public domain.
+

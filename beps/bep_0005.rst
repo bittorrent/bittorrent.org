@@ -10,7 +10,7 @@
 
 BitTorrent uses a "distributed sloppy hash table" (DHT) for storing
 peer contact information for "trackerless" torrents. In effect, each
-peer becomes a tracker. The protocol is based on Kademila [#Kademlia]_ and is
+peer becomes a tracker. The protocol is based on Kademlia [#Kademlia]_ and is
 implemented over UDP.
 
 Please note the terminology used in this document to avoid

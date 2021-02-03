@@ -1,4 +1,4 @@
-# Bittorrent
+# BitTorrent
 
 [![Header][logo]](https://www.bittorrent.org)
 

@@ -1,6 +1,6 @@
 # Bittorrent
 
-[![Header]](https://www.bittorrent.org)
+[![Header][logo]](https://www.bittorrent.org)
 
 This is the repository backing www.bittorrent.org.
 

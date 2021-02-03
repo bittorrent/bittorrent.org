@@ -7,7 +7,7 @@ body {
 	margin:0;
 	padding:0;
 	color:#333;
-	background-color:#666;
+	background-color: #673398;
 	font:10px/1.5em "Trebuchet MS",sans-serif; 
 	text-align:center; 
 	}
@@ -51,7 +51,7 @@ body {
     }
 
 #nav li span {
-    color:#f60;
+    color: #673398;
     }
 
 #home-l ul,
@@ -121,14 +121,14 @@ h1 {
 
 h1 span {
     font-weight:bold;
-    color:#09f;
+    color:#673398;
     }
 
 h2 {
     margin:0;
     padding:0 0 .5em 0;
     font-size:1.7em;
-    border-bottom:2px solid #ffc;
+    border-bottom:2px solid #673398;
     }
 
 #second h2,
@@ -152,7 +152,7 @@ h4 {
 
 h5 {
     font-size:1.2em;
-    color:#666;
+    color: #666;
     }
 
 #second p,
@@ -182,7 +182,7 @@ td.shade {
 
 #blog .post {
     padding:5px 0;
-    border-top:2px solid #ffc;
+    border-top:2px solid #673398;
     font-size:1em;
     color:#999;
     }
@@ -226,7 +226,7 @@ td.shade {
 
 #second .img-l p,
 #second .img-r p {
-    color:#09f;
+    color:#673398;
     font-size:1.5em;
     text-align:center;
     }
@@ -257,7 +257,7 @@ a:visited {
 
 a:hover,
 #nav a:hover {
-    color:#f60;
+    color: #8C7F98;
 	}
 
 h1 a,

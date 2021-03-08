@@ -90,7 +90,7 @@ id in both tables.  This simplifies implementation and debugging, and
 slightly increases efficiency in the case where the two DHTs are
 mostly congruent.</p>
 <p>Usually, messages only carry data in the address family implied by the
-network layer protocol.  In the case of the find_nodes and get_peers
+network layer protocol.  In the case of the find_node and get_peers
 requests, however, the requestor may optionally request that the reply
 should contain IPv4 node information, IPv6 node information, or both.</p>
 <div class="section" id="single-protocol-nodes">
@@ -107,7 +107,7 @@ improve the reliability of the protocol by &quot;leaking&quot; data between the
 two DHTs, as described in the following sections.</p>
 <div class="section" id="bootstrapping">
 <h3>Bootstrapping</h3>
-<p>A dual-stack node that is bootstrapping its DHT will send find_nodes
+<p>A dual-stack node that is bootstrapping its DHT will send find_node
 requests in order to populate its routing tables.  In order to accelerate
 this process, it should request both IPv4 and IPv6 node information.</p>
 </div>
@@ -184,7 +184,7 @@ address families, it would in principle be possible to use the PORT
 message for both address families.  However, since an implementation
 need not participate in both DHTs, nor use the same port in both
 DHTs, this specification leaves the role of bridging the two DHTs to
-the 'find_nodes' message (see below).</blockquote>
+the 'find_node' message (see below).</blockquote>
 </div>
 <div class="section" id="changes-and-extensions-to-existing-messages">
 <h1>Changes and extensions to existing messages</h1>
@@ -216,12 +216,12 @@ might therefore be unable to parse a hybrid list.</blockquote>
 <p>The &quot;nodes6&quot; parameter is analogous to the &quot;nodes&quot; parameter: when
 present, it carries a string containing the compact IPv6 node
 information for the 8 closest good nodes in the sending node's IPv6
-routing table.  This parameter is allowed in replies to the find_nodes
+routing table.  This parameter is allowed in replies to the find_node
 and get_peers messages (see below).</p>
 </div>
 <div class="section" id="want">
 <h3>want</h3>
-<p>The &quot;want&quot; parameter is allowed in the find_nodes and get_peers requests,
+<p>The &quot;want&quot; parameter is allowed in the find_node and get_peers requests,
 and governs the presence or absence of the &quot;nodes&quot; and &quot;nodes6&quot; parameters
 in the requested reply.  Its value is a list of one or more strings, which
 may include</p>
@@ -243,10 +243,10 @@ good reason is not recommended.</blockquote>
 <div class="section" id="changes-to-message-semantics">
 <h2>Changes to message semantics</h2>
 <div class="section" id="find-nodes-and-get-peers">
-<h3>find_nodes and get_peers</h3>
-<p>A node sending a find_nodes or get_peers request may include a &quot;want&quot;
+<h3>find_node and get_peers</h3>
+<p>A node sending a find_node or get_peers request may include a &quot;want&quot;
 parameter containing one or both of the strings &quot;n4&quot; or &quot;n6&quot;.  A node
-replying to a find_nodes or get_peers request that includes a &quot;want&quot;
+replying to a find_node or get_peers request that includes a &quot;want&quot;
 parameter should include a &quot;nodes&quot; parameter if the request's &quot;want&quot;
 parameter contained the string &quot;n4&quot;, and should include a &quot;nodes6&quot;
 parameter if the request's &quot;want&quot; parameter contained the string &quot;n6&quot;.</p>

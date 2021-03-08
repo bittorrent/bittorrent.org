@@ -156,7 +156,7 @@ pinged and it responds, or a node is added to a bucket, or a node in a
 bucket is replaced with another node, the bucket's last changed
 property should be updated. Buckets that have not been changed in 15
 minutes should be &quot;refreshed.&quot; This is done by picking a random ID in
-the range of the bucket and performing a find_nodes search on it. Nodes
+the range of the bucket and performing a find_node search on it. Nodes
 that are able to receive queries from other nodes usually do not need
 to refresh buckets often. Nodes that are not able to receive queries
 from other nodes usually will need to refresh all buckets periodically

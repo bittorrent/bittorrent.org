@@ -10,9 +10,8 @@
 
 Abstract
 ========
-This extension adds a capability for clients to apply on-the-fly
-compression on seeded pieces (next - chunks), effectively improving
-bandwidth on torrents for clients supporting it.
+This extension adds a capability for clients to enable compression of
+data streams, effectively improving bandwidth for clients supporting it.
 
 Rationale
 =========
@@ -62,24 +61,23 @@ Example of extension handshake message:
     {
 		'c': {
 			'lz4': 21,
-			'density_chameleon': 18,
-			'density_cheetah': 13,
-			'density_lion': 9,
-			'zstd': 0
+			'zstd': 16,
+			'density': 7
 		},
-		'cp': 'lz4'
+		'cp': 'zstd'
 	}
 
 
-Piece compression
+Stream compression
 =================
-Some algorithms can't compress unreasonably small pieces efficiently, so
-client should lower algorithm's priority during handshake, depending on
-expected compression ratio for defined piece size (down to zero in worst case).
-After compression algorithm is negotiated, next pieces are sent compressed.
+Compression can't be efficient on pieces less than 4 MB, so whole stream is
+being compressed instead by clients. During handshake, clients should lower
+or raise algorithm's priority depending on expected compression ratio or
+any other factors that could impact compression efficiency and performance.
+After compression algorithm is negotiated, whole stream is being compressed.
 
-If client is caching seeding/recieved pieces in memory, then pieces should
-be stored compressed, decompressing when saving to disk or sending to peer
+If client is caching seeding/recieved pieces in memory, then pieces can be
+stored compressed, decompressing when saving to disk or sending to peer
 which not supports that compression. To avoid re-compression pieces when
 sending, client can specify ``cp`` field during handshake.
 
@@ -88,25 +86,21 @@ Allowed compression algorithms
 
 Compression algorithms must satisfy following requirements:
 
-1. Decompression speed must not be lower than 1000MB/s.
+1. Decompression speed must not be lower than 500MB/s.
 
 2. It must not produce larger piece than original by 1%.
 
-+-------------+-----------------------------------------------------+
-| identifier  | compression algorithm                               |
-+=============+=====================================================+
-| lz4         | LZ4                                                 |
-+-------------+-----------------------------------------------------+
-| lz4_hc      | High compression derivative of LZ4                  |
-+-------------+-----------------------------------------------------+
-| d_chameleon | Chameleon algorithm for DENSITY                     |
-+-------------+-----------------------------------------------------+
-| d_cheetah   | Cheetah algorithm for DENSITY                       |
-+-------------+-----------------------------------------------------+
-| d_lion      | Lion algorithm for DENSITY                          |
-+-------------+-----------------------------------------------------+
++-------------+-----------------------------+
+| identifier  | compression algorithm       |
++=============+=============================+
+| lz4         | LZ4                         |
++-------------+-----------------------------+
+| density     | Chameleon (DENSITY library) |
++-------------+-----------------------------+
+| zstd        | ZStandard                   |
++-------------+-----------------------------+
 
-WARNING: Table is for demonstration purposes only, since this is a draft.
+NOTE: Only ``zstd`` compression required to be implemented to use compression.
 
 References
 ==========

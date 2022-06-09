@@ -444,7 +444,8 @@ to the leaf and piece layers. Index is the offset in hashes
 of the first requested hash in the base layer.
 Index MUST be a multiple of length, this includes zero.
 Length is the number of hashes to include from the base layer.
-Length MUST be equal-to-or-greater-than two and a power of two.
+Length MUST be equal-to-or-greater-than two and a power of two unless it
+gets truncated by the end of a layer.
 Length SHOULD NOT be greater than 512. Proof layers is the
 number of ancestor layers to include. Note that the limits imposed on
 index and length above mean that at-most one uncle hash is needed

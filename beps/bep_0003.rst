@@ -224,13 +224,17 @@ BitTorrent's peer protocol operates over TCP or `uTP`_.
 
 .. _uTP: bep_0029.html
 
-Peer connections are symmetrical. Messages sent in both directions
-look the same, and data can flow in either direction.
+Peer connections are symmetrical. Messages sent in both directions look the same, and data can flow in either direction.
 
-The peer protocol refers to pieces of the file by index as
-described in the metainfo file, starting at zero. When a peer finishes
-downloading a piece and checks that the hash matches, it announces
-that it has that piece to all of its peers.
+The peer protocol refers to pieces of the file by index as described in the metainfo file, starting at zero. For example, suppose, there is file named as `sample-file.txt`. It is divided into pieces like `sample-file0.txt`, `sample-file1.txt`, and so on. The total number of pieces are dependent on number of peers available. 
+
+The peer protocol works as follows:
+
+- Complete downloading of pieces, that is, from `sample-file0.txt` to last piece of that file.
+- Match the hash values of pieces.
+- It announces that, it has the completed the downloading of the piece to all of its peers.
+
+When a peer finishes downloading a piece and checks that the hash matches, it announces that it has that piece to all of its peers.
 
 Connections contain two bits of state on either end: choked or not,
 and interested or not. Choking is a notification that no data will be

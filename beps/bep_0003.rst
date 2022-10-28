@@ -217,35 +217,39 @@ It is common to announce over a `UDP tracker protocol`_ as well.
 
 .. _`UDP tracker protocol`: bep_0015.html
 
-peer protocol
+Peer protocol
 -------------
 
 BitTorrent's peer protocol operates over TCP or `uTP`_.
 
 .. _uTP: bep_0029.html
 
-Peer connections are symmetrical. Messages sent in both directions
-look the same, and data can flow in either direction.
+Peer connections are symmetrical. Messages sent in both directions look the same, and data can flow in either direction.
 
-The peer protocol refers to pieces of the file by index as
-described in the metainfo file, starting at zero. When a peer finishes
-downloading a piece and checks that the hash matches, it announces
-that it has that piece to all of its peers.
+The peer protocol refers to pieces of the file by index as described in the metainfo file, starting at zero. For example, suppose, there is file named as `sample-file.txt`. It is divided into pieces like `sample-file0.txt`, `sample-file1.txt`, and so on. The total number of pieces are dependent on number of peers available. 
 
-Connections contain two bits of state on either end: choked or not,
-and interested or not. Choking is a notification that no data will be
-sent until unchoking happens. The reasoning and common techniques
-behind choking are explained later in this document.
+The peer protocol works as follows:
 
-Data transfer takes place whenever one side is interested and the
-other side is not choking. Interest state must be kept up to date at
-all times - whenever a downloader doesn't have something they
-currently would ask a peer for in unchoked, they must express lack of
-interest, despite being choked. Implementing this properly is tricky,
-but makes it possible for downloaders to know which peers will start
-downloading immediately if unchoked.
+- Complete downloading of a piece, for example, `sample-file0.txt`
+- Verifies that the hash values of piece matches with the tracker
+- Peer protocol announces that, it has the completed the downloading of that piece, to all of its peers.
 
-Connections start out choked and not interested.
+Connections contain two bits of state on either end: 
+
+- choked or unchoked.
+- interested or not. 
+
+Choking is a notification mechanism that indicates other peers are not allowed to send any data until unchoking notification. It means that if peer is in unchoked state, then and only then that peer can send the data to other peers. Data transfer only takes place, between both downloader and uploader, whenever one side is interested and the another side is unchoked. 
+
+All peers should keep their interest state upto date for all the time:
+
+- To decide the unchoking state of peers for downloading the data
+- To inform about data that requires interest state from peer downloader
+
+  - When a downloader doesn't have required data, it should request the peers to notify themselves as unchoked. After receiving this request, peers must express their interest state as `lack of interest` if it is choked.
+  - It helps the downloader to know which peers will start downloading immediately if they are unchoked.
+
+It initiates the connection as `choked` and interest state as `not interested`.
 
 When data is being transferred, downloaders should keep several
 piece requests queued up at once in order to get good TCP performance

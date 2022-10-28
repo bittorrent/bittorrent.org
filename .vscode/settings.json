@@ -1,0 +1,14 @@
+{
+    "esbonio.sphinx.confDir": "",
+    "spellright.language": [
+        "en"
+    ],
+    "spellright.documentTypes": [
+        "markdown",
+        "latex",
+        "plaintext"
+    ],
+    "restructuredtext.preview.name": "docutils",
+    "python.defaultInterpreterPath": "H:\\WPy64-3850\\python-3.8.5.amd64\\python.exe",
+    "esbonio.server.pythonPath": "H:\\WPy64-3850\\python-3.8.5.amd64\\python.exe"
+}

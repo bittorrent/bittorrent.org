@@ -249,7 +249,7 @@ All peers should keep their interest state upto date for all the time:
   - When a downloader doesn't have required data, it should request the peers to notify themselves as unchoked. After receiving this request, peers must express their interest state as `lack of interest` if it is choked.
   - It helps the downloader to know which peers will start downloading immediately if they are unchoked.
 
-It initiates the connection as `choked` and interest state as `not interested`.
+This process initiates the connection as `choked` and interest state as `not interested`.
 
 When data is being transferred, downloaders should keep several
 piece requests queued up at once in order to get good TCP performance

@@ -230,24 +230,19 @@ The peer protocol refers to pieces of the file by index as described in the meta
 
 The peer protocol works as follows:
 
-- Complete downloading of pieces, that is, from `sample-file0.txt` to last piece of that file.
-- Match the hash values of pieces.
-- It announces that, it has the completed the downloading of the piece to all of its peers.
+- Complete downloading of a piece, for example, `sample-file0.txt`.
+- Verifies that the hash values of piece matches with the tracker.
+- Peer protocol announces that, it has the completed the downloading of that piece, to all of its peers.
 
-When a peer finishes downloading a piece and checks that the hash matches, it announces that it has that piece to all of its peers.
+Connections contain two bits of state on either end: 
 
-Connections contain two bits of state on either end: choked or not,
-and interested or not. Choking is a notification that no data will be
-sent until unchoking happens. The reasoning and common techniques
-behind choking are explained later in this document.
+- choked or unchoked.
+- interested or not. 
 
-Data transfer takes place whenever one side is interested and the
-other side is not choking. Interest state must be kept up to date at
-all times - whenever a downloader doesn't have something they
-currently would ask a peer for in unchoked, they must express lack of
-interest, despite being choked. Implementing this properly is tricky,
-but makes it possible for downloaders to know which peers will start
-downloading immediately if unchoked.
+Choking is a notification mechanism that indicates other peers are not allowed to send any data until unchoking happens. It means that if peer is in unchoked state, then and only then other peers will send the data to that unchoked peer.
+
+Data transfer only takes place whenever one side is interested and the other side is not choking. Interest state needs to be up to date to decide the unchoking state of peers for the data downloading. If a peer does not have data that requires interest from downloader to ask for unchoking, 
+Interest state must be kept up to date at all times - whenever a downloader doesn't have something they currently would ask a peer for in unchoked, they must express lack of interest, despite being choked. Implementing this properly is tricky, but makes it possible for downloaders to know which peers will start downloading immediately if unchoked.
 
 Connections start out choked and not interested.
 

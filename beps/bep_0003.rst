@@ -251,40 +251,21 @@ All peers should keep their interest state upto date for all the time:
 
 It initiates the connection as `choked` and interest state as `not interested`.
 
-When data is being transferred, downloaders should keep several
-piece requests queued up at once in order to get good TCP performance
-(this is called 'pipelining'.) On the other side, requests which can't
-be written out to the TCP buffer immediately should be queued up in
-memory rather than kept in an application-level network buffer, so
-they can all be thrown out when a choke happens.
+Downloaders use `pipelining` mechanism. In this process, while peers transfer data, downloaders should keep several pieces of download requests queued up at once to get good TCP performance.
+
+On the other hand, those requests that can't be written to TCP buffer immediately should be queued up in memory rather than application-level network buffer. These memory stored requests should discard afterwards to avoid choking.
 
 The peer wire protocol consists of a handshake followed by a
-never-ending stream of length-prefixed messages. The handshake starts
-with character ninteen (decimal) followed by the string 'BitTorrent
-protocol'. The leading character is a length prefix, put there in the
-hope that other new protocols may do the same and thus be trivially
-distinguishable from each other.
+never-ending stream of length-prefixed messages. The handshake starts with character ninteen (decimal) followed by the string 'BitTorrent protocol'. The leading character is a length prefix for other protocols to follow. All later integers sent in the protocols are encoded as `four bytes big-endian`.
 
-All later integers sent in the protocol are encoded as four bytes
-big-endian.
+After the fixed headers, the `eight` reserved bytes are all zero in all current implementations. 
 
-After the fixed headers come eight reserved bytes, which are all
-zero in all current implementations. If you wish to extend the
-protocol using these bytes, please coordinate with Bram Cohen to make
-sure all extensions are done compatibly.
+  .. note::
+    If you wish to extend the protocol using these bytes, please coordinate with Bram Cohen to make sure all extensions are done compatibility.
 
-Next comes the 20 byte sha1 hash of the bencoded form of the info
-value from the metainfo file. (This is the same value which is
-announced as ``info_hash`` to the tracker, only here it's raw
-instead of quoted here). If both sides don't send the same value, they
-sever the connection. The one possible exception is if a downloader
-wants to do multiple downloads over a single port, they may wait for
-incoming connections to give a download hash first, and respond with
-the same one if it's in their list.
+The 20 byte SHA1 hash of the bencoded form of the information value from the metainfo file. (This is the same value which is announced as ``info_hash`` to the tracker. Here, it's raw instead of quoted). If both sides don't send the same value, with mutual agreement they should end the connection. A possible exception: if a downloader needs multiple downloads over a single port, they may wait for incoming connections to give a download hash first, and then respond with the same one if it's in their list.
 
-After the download hash comes the 20-byte peer id which is reported
-in tracker requests and contained in peer lists in tracker
-responses. If the receiving side's peer id doesn't match the one the
+After the download hash comes the 20-byte peer id which is reported in tracker requests and contained in peer lists in tracker responses. If the receiving side's peer id doesn't match the one the
 initiating side expects, it severs the connection.
 
 That's it for handshaking, next comes an alternating stream of

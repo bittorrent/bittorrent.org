@@ -255,6 +255,9 @@ Downloaders use `pipelining` mechanism. In this process, while peers transfer da
 
 On the other hand, those requests that can't be written to TCP buffer immediately should be queued up in memory rather than application-level network buffer. These memory stored requests should discard afterwards to avoid choking.
 
+Mechanism for handshaking:
+-------------
+
 The peer wire protocol consists of a handshake followed by a
 never-ending stream of length-prefixed messages. The handshake starts with character ninteen (decimal) followed by the string 'BitTorrent protocol'. The leading character is a length prefix for other protocols to follow. All later integers sent in the protocols are encoded as `four bytes big-endian`.
 
@@ -263,14 +266,11 @@ After the fixed headers, the `eight` reserved bytes are all zero in all current 
   .. note::
     If you wish to extend the protocol using these bytes, please coordinate with Bram Cohen to make sure all extensions are done compatibility.
 
-The 20 byte SHA1 hash of the bencoded form of the information value from the metainfo file. (This is the same value which is announced as ``info_hash`` to the tracker. Here, it's raw instead of quoted). If both sides don't send the same value, with mutual agreement they should end the connection. A possible exception: if a downloader needs multiple downloads over a single port, they may wait for incoming connections to give a download hash first, and then respond with the same one if it's in their list.
+The `20 byte SHA1 hash` of the bencoded form of the information value from the metainfo file. (This is the same value which is announced as ``info_hash`` to the tracker. Here, it's raw instead of quoted). If both sides don't send the same value, with mutual agreement they should end the connection. A possible exception: if a downloader needs multiple downloads over a single port, they may wait for incoming connections to give a download hash first, and then respond with the same one if it's in their list.
 
-After the download hash comes the 20-byte peer id which is reported in tracker requests and contained in peer lists in tracker responses. If the receiving side's peer id doesn't match the one the
-initiating side expects, it severs the connection.
+Next is the `20-byte peer` id which is reported in tracker requests and contained in peer lists in tracker responses. If the receiving side's peer id doesn't match the one the initiating side expects, it severs the connection.
 
-That's it for handshaking, next comes an alternating stream of
-length prefixes and messages. Messages of length zero are keepalives,
-and ignored. Keepalives are generally sent once every two minutes, but
+Next comes an alternating stream of length prefixes and messages. Messages of length zero are keepalives, and ignored. Keepalives are generally sent once every two minutes, but
 note that timeouts can be done much more quickly when data is
 expected.
 

@@ -29,7 +29,7 @@ Final and Active Process BEPs
 ======     ===================  
 Num        Title              
 ======     ===================
-|0|        :raw-html:`<A HREF="bep_0000.html">Index of BitTorrent Enhancement Proporsals </A>`
+|0|        :raw-html:`<A HREF="bep_0000.html">Index of BitTorrent Enhancement Proposals </A>`
 |1|        :raw-html:`<A HREF="bep_0001.html">The BEP Process</A>`
 |2|        :raw-html:`<A HREF="bep_0002.html">Sample reStructured Text BEP Template</A>`
 |3|        :raw-html:`<A HREF="bep_0003.html">The BitTorrent Protocol Specification</A>`

@@ -44,7 +44,7 @@ The extension message itself consists of the bittorrent/extension message header
       added.f: *<optional, bit-flags, 1 byte per added IPv4 peer (string)>*
       added6: *<one or more contacts IPv6 compact format (string)>*,
       added6.f: *<optional, bit-flags, 1 byte per added IPv6 peer (string)>*,
-      dropped: *<one or more contacts in IPv6 compact format (string)>*,
+      dropped: *<one or more contacts in IPv4 compact format (string)>*,
       dropped6: *<one or more contacts in IPv6 compact format (string)>*
     } 
 

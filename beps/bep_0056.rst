@@ -54,16 +54,16 @@ Example of extension handshake message:
 
 ::
 
-    {
-		'c': {
-			'p_zstd': 255,
+  {
+    'c': {
+      'p_zstd': 255,
       's_zstd': 153,
       'p_lz4': 106,
-			'p_density': 70,
+      'p_density': 70,
       's_lz4': 41,
-			's_density': 37
-		}
-	}
+      's_density': 37
+    }
+  }
 
 
 Compression methods

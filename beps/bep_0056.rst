@@ -1,5 +1,5 @@
 :BEP: 56
-:Title: Extension for Peers to Send Metadata Files
+:Title: Data compression extension
 :Version: $Revision$
 :Last-Modified: $Date$
 :Author:  Alexander Ivanov <saiv46@yandex.ru>
@@ -10,49 +10,45 @@
 
 Abstract
 ========
-This extension adds a capability for clients to enable compression of
-data streams, effectively improving bandwidth for clients supporting it.
+This extension adds a capability for clients to negotiate and use
+compression methods for data streams or torrent pieces, effectively
+improving bandwidth for supporting clients.
 
 Rationale
 =========
 This extension would allow clients to download files faster, without
-using file archivers. Since large files are often precompressed before
+using file archivers. Since large files are often pre-compressed before
 torrent creation, downloaders needs to keep both the archives
-(for seeding) and uncompresed files (for own usage).
+(for seeding) and uncompressed files (for own usage).
 
 Most users prefer to remove such torrents, thus harming proper file
-distribution. For example: Organizations using bittorrent for software
+distribution. For example: Organizations using Bittorrent for software
 distribution needs to have centralized storage for new customers, no
-matter how many customers already have same software.
+matter how many customers have the same software already.
 
 Extension header
 ================
 
 This extension uses the extension protocol (specified in `BEP 0010`_)
-to advertize client capability of using chunk compression. It defines
+to advertise client capability of using chunk compression. It defines
 following items in the extension protocol handshake message:
 +-------+-----------------------------------------------------------+
 | name  | description                                               |
 +=======+===========================================================+
-| c     | Dictionary of supported compression algorithm which maps  |
+| c     | Dictionary of supported compression algorithms which maps |
 |       | its identifiers to its priority (unsigned 8-bit integer), |
 |       | clients can adjust it based on compression speed/ratio,   |
-|       | hardware support, performance and power mode, et cetera.  |
+|       | hardware support, performance, and power mode et cetera.  |
 |       | Priority set to zero means that the compression algorithm |
-|       | is not supported or disabled by user, The client should   |
-|       | ignore any algorithms it doesn't recognize/malformed.     |
-+-------+-----------------------------------------------------------+
-| cp    | Optional field with prefered compression algorithm.       |
-|       | If client supports that algorithm and it's not disabled,  |
-|       | then it must expect to recieve pieces compressed by that  |
-|       | specified algorithm.                                      |
+|       | is not supported or disabled by user, the client must     |
+|       | ignore unknown algorithms.                                |
 +-------+-----------------------------------------------------------+
 
 
 
-Compression algorithm is selected by taking dictionary item with highest
-priority from intersection of items supported by both peers, if there
-isn't any suitable compression algorithm - compression will be disabled.
+The compression algorithm is selected by taking the dictionary item with
+highest priority from intersection of items supported by both peers,
+if there isn't any suitable compression algorithm - compression will be disabled.
 
 Example of extension handshake message:
 
@@ -84,9 +80,11 @@ sending, client can specify ``cp`` field during handshake.
 Allowed compression algorithms
 ------------------------------
 
-Compression algorithms must satisfy following requirements:
+Compression algorithms must satisfy the following requirements:
 
-1. Decompression speed must not be lower than 500MB/s.
+1. Decompression speed must not be lower than 500 MB/s.
+
+2. It must not produce a larger piece than the original by 1%.
 
 2. It must not produce larger piece than original by 1%.
 

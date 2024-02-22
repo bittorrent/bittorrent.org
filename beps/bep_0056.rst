@@ -1,0 +1,182 @@
+:BEP: 56
+:Title: Data compression extension
+:Version: $Revision$
+:Last-Modified: $Date$
+:Author:  Alexander Ivanov <saiv46.dev+bep@gmail.com>
+:Status:  Draft
+:Type:    Standards Track
+:Created: 31-Sep-2021
+:Post-History: 
+
+Data compression extension adds a capability for clients to negotiate
+and use compression algorithms to improve bandwidth.
+
+
+Rationale
+=========
+This extension would allow clients to download files faster, without
+using file archivers. Since large files are often pre-compressed before
+torrent creation, downloaders needs to keep both the archives
+(for seeding) and uncompressed files (for own usage).
+
+Most users prefer to remove such torrents, thus harming proper file
+distribution. For example: Organizations using Bittorrent for software
+distribution needs to have centralized storage for new customers, no
+matter how many customers have the same software already.
+
+
+Compression modes
+===================
+Extension provides two approaches (modes) to compression, which have
+their own trade-offs, so choice between these should be made by clients
+on per-torrent basis, using its metadata (properties like piece size).
+
+With **by-piece compression** mode, client must compress each piece
+individually, which lowers overall compression ratio but result can
+be stored in cache and reused, probably providing more efficiency.
+If the client is caching compressed pieces in memory, then it can be
+decompressed when saving to disk or sending to peer, which not supports
+compression. To reduce piece re-compression, client should raise
+current algorithm's priority during handshake. This method has low
+efficiency with pieces smaller than 4 MB.
+
+Clients using **stream compression** mode instead compresses whole
+data stream, so compression ratio should be higher. During handshake,
+clients should lower or raise algorithm's priority depending on expected
+factors that could impact compression efficiency and performance. This
+method can introduce performance issues if used on thousands of
+simultaneous connections.
+
+
+Protocol Extension
+==================
+
+This extension uses the extension protocol [#BEP-10]_ to advertise
+client capability regarding compression, as well as introducing a
+new messages in the extension handshake:
+
+.. parsed-literal::
+
+    {
+      m: {
+        crequest: *<implementation-dependent message ID>*,
+        cresponse: *<implementation-dependent message ID>*,
+        cpiece: *<implementation-dependent message ID>*,
+        ...
+      },
+      ...
+    } 
+
+
+The ```crequest``` message itself consists of the extension message header
+and the following bencoded payload:
+
+.. parsed-literal::
+    
+    {
+      "algos": [
+        [
+          *<identifier (string)>*,
+          *<bit-array, 1 byte (positive integer)>*
+        ],
+        ...
+      ],
+      "pref": <optional, index (integer)>
+    }
+
+
+Connecting client fills ```algos``` list with supported compression
+algorithms, sorted by preference in descending order. Clients can adjust
+preference based on compression speed/ratio, hardware acceleration support,
+performance and other factors. This list can be empty.
+
+```pref``` field specifies algorithm for compression preferred by client.
+
+Flags in bit-array are defined as follows:
+
+ ==== ===========================================
+ Bit  when set
+ ==== ===========================================
+ 0x01 supports stream mode for decompression
+ 0x02 supports piece mode for decompression
+ 0x04 (reserved)
+ 0x08 (reserved)
+ 0x10 supports stream mode for compression
+ 0x20 supports piece mode for compression
+ 0x40 (reserved)
+ 0x80 (reserved)
+ ==== ===========================================
+
+
+The ```cresponse``` message is send in response to ```crequest```, consists of
+the extension message header and the following bencoded payload:
+
+.. parsed-literal::
+    
+    {
+      "recv": [
+        *<identifier (string)>*,
+        *<0x01 or 0x02 for stream/piece mode (positive integer)>*
+      ],
+      "send": [
+        *<identifier (string)>*,
+        *<0x10 0r 0x20 for stream/piece mode (positive integer)>*
+      ],
+      "resend": *<optional, boolean (positive integer)>*
+    }
+
+
+Receiving client select appropriate algorithms and compression modes and
+sets ```recv``` and ```send``` fields, which also can be empty. After that
+message compression must be enabled/disabled between two clients. Responding
+client can ask requesting client to send new request by settings ```resend```
+field is set to 1.
+
+The ```cpiece``` has same contents as ```piece``` message, but payload is
+compressed, in piece mode both types of messages can be used.
+
+Connecting client can send ```crequest``` message at any point of time,
+but should do that right after handshake. Responding client must respond
+to that ```cresponse``` message, but also can send that message at any
+point of time to disable compression or ask for new request.
+
+If using stream mode compression, everything past ```crequest``` message
+is (un)compressed by algorithm specified in that message.
+
+
+Compression algorithm list
+--------------------------
+
++-------------+-----------------------------+
+| identifier  | compression algorithm       |
++=============+=============================+
+| lz4         | LZ4                         |
++-------------+-----------------------------+
+| density     | Chameleon (DENSITY library) |
++-------------+-----------------------------+
+| zstd        | ZStandard                   |
++-------------+-----------------------------+
+
+This is a list of known algorithms, to submit a allocation please
+contact author of this specification.
+
+References
+==========
+
+.. _`BEP 0010`: http://www.bittorrent.org/beps/bep_0010.html
+
+
+Copyright
+=========
+
+This document has been placed in the public domain.
+
+
+..
+   Local Variables:
+   mode: indented-text
+   indent-tabs-mode: nil
+   sentence-end-double-space: t
+   fill-column: 70
+   coding: utf-8
+   End:

@@ -68,6 +68,79 @@ new messages in the extension handshake:
     } 
 
 
+The ```crequest``` message itself consists of the extension message header
+and the following bencoded payload:
+
+.. parsed-literal::
+    
+    {
+      "algos": [
+        [
+          *<identifier (string)>*,
+          *<bit-array, 1 byte (positive integer)>*
+        ],
+        ...
+      ],
+      "pref": <optional, index (integer)>
+    }
+
+
+Connecting client fills ```algos``` list with supported compression
+algorithms, sorted by preference in descending order. Clients can adjust
+preference based on compression speed/ratio, hardware acceleration support,
+performance and other factors. This list can be empty.
+
+```pref``` field specifies algorithm for compression preferred by client.
+
+Flags in bit-array are defined as follows:
+
+ ==== ===========================================
+ Bit  when set
+ ==== ===========================================
+ 0x01 supports stream mode for decompression
+ 0x02 supports piece mode for decompression
+ 0x04 (reserved)
+ 0x08 (reserved)
+ 0x10 supports stream mode for compression
+ 0x20 supports piece mode for compression
+ 0x40 (reserved)
+ 0x80 (reserved)
+ ==== ===========================================
+
+
+The ```cresponse``` message is send in response to ```crequest```, consists of
+the extension message header and the following bencoded payload:
+
+.. parsed-literal::
+    
+    {
+      "recv": [
+        *<identifier (string)>*,
+        *<0x01 or 0x02 for stream/piece mode (positive integer)>*
+      ],
+      "send": [
+        *<identifier (string)>*,
+        *<0x10 0r 0x20 for stream/piece mode (positive integer)>*
+      ],
+      "resend": *<optional, boolean (positive integer)>*
+    }
+
+
+Receiving client select appropriate algorithms and compression modes and
+sets ```recv``` and ```send``` fields, which also can be empty. After that
+message compression must be enabled/disabled between two clients. Responding
+client can ask requesting client to send new request by settings ```resend```
+field is set to 1.
+
+The ```cpiece``` has same contents as ```piece``` message, but payload is
+compressed, in piece mode both types of messages can be used.
+
+Connecting client can send ```crequest``` message at any point of time,
+but should do that right after handshake. Responding client must respond
+to that ```cresponse``` message, but also can send that message at any
+point of time to disable compression or ask for new request.
+
+
 Allowed compression algorithms
 ------------------------------
 

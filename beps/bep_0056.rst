@@ -2,7 +2,7 @@
 :Title: Data compression extension
 :Version: $Revision$
 :Last-Modified: $Date$
-:Author:  Alexander Ivanov <saiv46@yandex.ru>
+:Author:  Alexander Ivanov <saiv46.dev+bep@gmail.com>
 :Status:  Draft
 :Type:    Standards Track
 :Created: 31-Sep-2021

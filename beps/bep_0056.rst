@@ -97,31 +97,17 @@ Compression algorithms must satisfy the following requirements:
 
 2. It must not produce a larger piece than the original by 1%.
 
-For consistency, identifiers are prefixed by ``p_`` or ``s_``
-for "piece" and "stream" compression methods accordingly.
-
 +-------------+-----------------------------+
 | identifier  | compression algorithm       |
 +=============+=============================+
-| p_lz4       | LZ4                         |
+| lz4         | LZ4                         |
 +-------------+-----------------------------+
-| s_lz4       | LZ4                         |
+| density     | Chameleon (DENSITY library) |
 +-------------+-----------------------------+
-| p_density   | Chameleon (DENSITY library) |
-+-------------+-----------------------------+
-| s_density   | Chameleon (DENSITY library) |
-+-------------+-----------------------------+
-| p_zstd      | ZStandard                   |
-+-------------+-----------------------------+
-| s_zstd      | ZStandard                   |
+| zstd        | ZStandard                   |
 +-------------+-----------------------------+
 
-This specification deliberately doesn't provide negotiation
-for configuration options, default ones must be used unless
-specified otherwise.
-
-**NOTE**: Currently, only ``p_zstd`` and ``s_zstd`` algorithms
-are required for implementation.
+**NOTE**: Currently, only ``zstd`` algorithm is required for implementation.
 
 References
 ==========

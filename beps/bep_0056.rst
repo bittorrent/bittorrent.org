@@ -141,14 +141,8 @@ to that ```cresponse``` message, but also can send that message at any
 point of time to disable compression or ask for new request.
 
 
-Allowed compression algorithms
-------------------------------
-
-Compression algorithms must satisfy the following requirements:
-
-1. Decompression speed must not be lower than 500 MB/s.
-
-2. It must not produce a larger piece than the original by 1%.
+Compression algorithm list
+--------------------------
 
 +-------------+-----------------------------+
 | identifier  | compression algorithm       |
@@ -160,7 +154,8 @@ Compression algorithms must satisfy the following requirements:
 | zstd        | ZStandard                   |
 +-------------+-----------------------------+
 
-**NOTE**: Currently, only ``zstd`` algorithm is required for implementation.
+This is a list of known algorithms, to submit a allocation please
+contact author of this specification.
 
 References
 ==========

@@ -8,11 +8,9 @@
 :Created: 31-Sep-2021
 :Post-History: 
 
-Abstract
-========
-This extension adds a capability for clients to negotiate and use
-compression methods for data streams or torrent pieces, effectively
-improving bandwidth for supporting clients.
+Data compression extension adds a capability for clients to negotiate
+and use compression algorithms to improve bandwidth.
+
 
 Rationale
 =========
@@ -26,53 +24,14 @@ distribution. For example: Organizations using Bittorrent for software
 distribution needs to have centralized storage for new customers, no
 matter how many customers have the same software already.
 
-Extension header
-================
 
-This extension uses the extension protocol (specified in `BEP 0010`_)
-to advertise client capability of using chunk compression. It defines
-following items in the extension protocol handshake message:
-+-------+-----------------------------------------------------------+
-| name  | description                                               |
-+=======+===========================================================+
-| c     | Dictionary of supported compression algorithms which maps |
-|       | its identifiers to its priority (unsigned 8-bit integer), |
-|       | clients can adjust it based on compression speed/ratio,   |
-|       | hardware support, performance, and power mode et cetera.  |
-|       | Priority set to zero means that the compression algorithm |
-|       | is not supported or disabled by user, the client must     |
-|       | ignore unknown algorithms.                                |
-+-------+-----------------------------------------------------------+
-
-
-
-The compression algorithm is selected by taking the dictionary item with
-highest priority from intersection of items supported by both peers,
-if there isn't any suitable compression algorithm - compression will be disabled.
-
-Example of extension handshake message:
-
-::
-
-  {
-    'c': {
-      'p_zstd': 255,
-      's_zstd': 153,
-      'p_lz4': 106,
-      'p_density': 70,
-      's_lz4': 41,
-      's_density': 37
-    }
-  }
-
-
-Compression methods
+Compression modes
 ===================
-Extension provides two approaches (methods) to compression, which have
+Extension provides two approaches (modes) to compression, which have
 their own trade-offs, so choice between these should be made by clients
 on per-torrent basis, using its metadata (properties like piece size).
 
-With **by-piece compression** method, client must compress each piece
+With **by-piece compression** mode, client must compress each piece
 individually, which lowers overall compression ratio but result can
 be stored in cache and reused, probably providing more efficiency.
 If the client is caching compressed pieces in memory, then it can be
@@ -81,7 +40,7 @@ compression. To reduce piece re-compression, client should raise
 current algorithm's priority during handshake. This method has low
 efficiency with pieces smaller than 4 MB.
 
-Clients using **stream compression** method instead compresses whole
+Clients using **stream compression** mode instead compresses whole
 data stream, so compression ratio should be higher. During handshake,
 clients should lower or raise algorithm's priority depending on expected
 factors that could impact compression efficiency and performance. This

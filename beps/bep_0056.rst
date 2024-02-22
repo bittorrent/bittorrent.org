@@ -140,6 +140,9 @@ but should do that right after handshake. Responding client must respond
 to that ```cresponse``` message, but also can send that message at any
 point of time to disable compression or ask for new request.
 
+If using stream mode compression, everything past ```crequest``` message
+is (un)compressed by algorithm specified in that message.
+
 
 Compression algorithm list
 --------------------------

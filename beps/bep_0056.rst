@@ -47,6 +47,27 @@ factors that could impact compression efficiency and performance. This
 method can introduce performance issues if used on thousands of
 simultaneous connections.
 
+
+Protocol Extension
+==================
+
+This extension uses the extension protocol [#BEP-10]_ to advertise
+client capability regarding compression, as well as introducing a
+new messages in the extension handshake:
+
+.. parsed-literal::
+
+    {
+      m: {
+        crequest: *<implementation-dependent message ID>*,
+        cresponse: *<implementation-dependent message ID>*,
+        cpiece: *<implementation-dependent message ID>*,
+        ...
+      },
+      ...
+    } 
+
+
 Allowed compression algorithms
 ------------------------------
 
